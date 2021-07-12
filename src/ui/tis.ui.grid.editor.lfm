@@ -1,0 +1,281 @@
+object TisGridEditor: TTisGridEditor
+  Left = 473
+  Height = 293
+  Top = 147
+  Width = 746
+  Caption = 'Grid Editor'
+  ClientHeight = 293
+  ClientWidth = 746
+  OnCreate = FormCreate
+  LCLVersion = '2.0.13.0'
+  object ButtonPanel: TButtonPanel
+    Left = 6
+    Height = 34
+    Top = 253
+    Width = 734
+    OKButton.Name = 'OKButton'
+    OKButton.DefaultCaption = True
+    HelpButton.Name = 'HelpButton'
+    HelpButton.DefaultCaption = True
+    CloseButton.Name = 'CloseButton'
+    CloseButton.DefaultCaption = True
+    CancelButton.Name = 'CancelButton'
+    CancelButton.DefaultCaption = True
+    TabOrder = 3
+    ShowButtons = [pbOK, pbCancel]
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 40
+    Top = 0
+    Width = 746
+    Align = alTop
+    ClientHeight = 40
+    ClientWidth = 746
+    TabOrder = 0
+    object PasteJsonButton: TButton
+      Left = 12
+      Height = 25
+      Top = 7
+      Width = 148
+      Action = ActPasteJsonTemplate
+      TabOrder = 0
+    end
+    object AddColumnButton: TButton
+      Left = 167
+      Height = 25
+      Top = 7
+      Width = 75
+      Action = ActAddColumn
+      TabOrder = 1
+    end
+    object DelColumnButton1: TButton
+      Left = 248
+      Height = 25
+      Top = 7
+      Width = 92
+      Action = ActDelColumn
+      TabOrder = 2
+    end
+    object DelColumnButton2: TButton
+      Left = 347
+      Height = 25
+      Top = 7
+      Width = 124
+      Action = ActRemoveAllColumns
+      TabOrder = 3
+    end
+    object KeepDataCheckBox: TCheckBox
+      Left = 560
+      Height = 19
+      Hint = 'Check this option to use the data in the target grid'
+      Top = 11
+      Width = 72
+      Caption = 'Keep data'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 4
+    end
+  end
+  object DelColumnButton: TButton
+    Left = 478
+    Height = 25
+    Top = 7
+    Width = 72
+    Action = ActClearAll
+    TabOrder = 1
+  end
+  object Panel2: TPanel
+    Left = 548
+    Height = 207
+    Top = 40
+    Width = 198
+    Align = alRight
+    BevelOuter = bvNone
+    ClientHeight = 207
+    ClientWidth = 198
+    TabOrder = 4
+    object EdColumnTitle: TLabeledEdit
+      Left = 84
+      Height = 23
+      Top = 36
+      Width = 108
+      EditLabel.Height = 15
+      EditLabel.Width = 66
+      EditLabel.Caption = 'Column title'
+      EditLabel.ParentColor = False
+      LabelPosition = lpLeft
+      TabOrder = 0
+      OnExit = EdColumnTitleExit
+      OnKeyPress = EdColumnTitleKeyPress
+    end
+    object EdColumnProperty: TLabeledEdit
+      Left = 84
+      Height = 23
+      Top = 64
+      Width = 110
+      EditLabel.Height = 15
+      EditLabel.Width = 78
+      EditLabel.Caption = 'Property name'
+      EditLabel.ParentColor = False
+      LabelPosition = lpLeft
+      TabOrder = 1
+      OnExit = EdColumnPropertyExit
+      OnKeyPress = EdColumnPropertyKeyPress
+    end
+    object cbEditorType: TComboBox
+      Left = 84
+      Height = 23
+      Top = 92
+      Width = 108
+      ItemHeight = 15
+      Items.Strings = (
+        'String'
+        'Numeric'
+        'Date'
+        'Lookup'
+        'ObjectDialog'
+        'Checkbox'
+      )
+      TabOrder = 2
+    end
+    object LstEditorType: TLabel
+      Left = 24
+      Height = 15
+      Top = 96
+      Width = 58
+      Caption = 'Editor Type'
+      ParentColor = False
+    end
+    object UpdateColumnButton: TButton
+      Left = 84
+      Height = 25
+      Top = 120
+      Width = 107
+      Action = ActUpdateColumn
+      TabOrder = 3
+    end
+    object EdColumnIndex: TLabeledEdit
+      Left = 84
+      Height = 23
+      Top = 7
+      Width = 53
+      EditLabel.Height = 15
+      EditLabel.Width = 75
+      EditLabel.Caption = 'Column index'
+      EditLabel.ParentColor = False
+      LabelPosition = lpLeft
+      ParentColor = True
+      ReadOnly = True
+      TabOrder = 4
+    end
+    object EdPosition: TEdit
+      Left = 164
+      Height = 23
+      Top = 7
+      Width = 28
+      Color = clBtnFace
+      ReadOnly = True
+      TabOrder = 5
+    end
+  end
+  object Grid: TTisGrid
+    Left = 0
+    Height = 207
+    Top = 40
+    Width = 548
+    Align = alClient
+    Color = clWhite
+    Colors.UnfocusedColor = clMedGray
+    EditDelay = 200
+    Header.AutoSizeIndex = 0
+    Header.Columns = <>
+    Header.DefaultHeight = 18
+    Header.Height = 18
+    Header.MainColumn = -1
+    Header.MaxHeight = 100
+    Header.MinHeight = 18
+    Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible]
+    Header.Style = hsFlatButtons
+    PopupMenu = PopupMenu1
+    TabOrder = 2
+    WantTabs = True
+    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
+    TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
+    TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
+    TreeOptions.SelectionOptions = [toExtendedFocus, toSimpleDrawSelection]
+    ShowAdvancedColumnsCustomize = False
+    ZebraColor = 15593713
+    OnFocusChanged = GridFocusChanged
+    OnHeaderDragged = GridHeaderDragged
+  end
+  object ActionList: TActionList
+    Left = 81
+    Top = 95
+    object ActPasteJsonTemplate: TAction
+      Caption = 'Paste JSON template data'
+      OnExecute = ActPasteJsonTemplateExecute
+    end
+    object ActAddColumn: TAction
+      Caption = 'Add column'
+      OnExecute = ActAddColumnExecute
+    end
+    object ActDelColumn: TAction
+      Caption = 'Delete column'
+      OnExecute = ActDelColumnExecute
+      OnUpdate = ActUpdateColumnUpdate
+    end
+    object ActUpdateColumn: TAction
+      Caption = 'Update Column'
+      OnExecute = ActUpdateColumnExecute
+      OnUpdate = ActUpdateColumnUpdate
+    end
+    object ActCopySettings: TAction
+      Caption = 'Copy grid configuration to clipboard'
+    end
+    object ActPasteCSV: TAction
+      Caption = 'Paste CSV data'
+      OnExecute = ActPasteCSVExecute
+    end
+    object ActAddColumns: TAction
+      Caption = 'Add missing columns from sample data'
+      OnExecute = ActAddColumnsExecute
+    end
+    object ActRemoveAllColumns: TAction
+      Caption = 'Remove all columns'
+      OnExecute = ActRemoveAllColumnsExecute
+    end
+    object ActClearAll: TAction
+      Caption = 'Clear All'
+      OnExecute = ActClearAllExecute
+    end
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 168
+    Top = 95
+    object MenuItem1: TMenuItem
+      Action = ActAddColumn
+    end
+    object MenuItem2: TMenuItem
+      Action = ActDelColumn
+    end
+    object MenuItem3: TMenuItem
+      Action = ActCopySettings
+    end
+    object MenuItem7: TMenuItem
+      Action = ActPasteJsonTemplate
+    end
+    object MenuItem4: TMenuItem
+      Action = ActPasteCSV
+    end
+    object MenuItem5: TMenuItem
+      Action = ActAddColumns
+    end
+    object MenuItem6: TMenuItem
+      Action = ActRemoveAllColumns
+    end
+    object MenuItem8: TMenuItem
+      Action = ActClearAll
+    end
+  end
+end

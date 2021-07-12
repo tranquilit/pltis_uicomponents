@@ -1,0 +1,81 @@
+The job was splitted into phases that you can see below.
+
+The "[break] tag" means that it will break compatibility with code that uses the current TSOGrid - a refactory/replace should be done on these projects.
+
+Log 1: refactoring, naming, structure, design, etc
+------------------------------------------------------------------------------
+- mormot2 package type has changed to Runtime instead of Runtime Only, to be able to install pltis_sogrid package on IDE
+- copied pltis_sogrid to new /tranquilit dir, which will be used for all UI (and more) components (refactored) in the future
+- the /source was changed to /src because naming convention
+- .lpk was moved to new /pack 
+- included new Tranquil Copyright header in all files 
+- removed unnecessary blank lines among classes and methods
+- renamed TSOGrid to TTisGrid
+- renamed and/or removed *SO* prefix on types, following mORMot naming convention
+- renamed all units related to tis.ui.grid.*.pas
+- renamed names in .lrc, .rc files
+- deleted /resources and /resources2 because its content were not used 
+- created tis.ui.components.lpk, setup and compiled... everything compiled and working
+- deleted tis.ui.grid.common.pas (old sogridcommon) because its content wasn't used (except TSODataEvent type, witch was migrated to tis.ui.grid.core)
+- deleted tis.uid.grid.source.pas (old sogridsource) because its content wasn't used
+- beautified and cleaned all units: indentation; attributes, arguments and event types naming convention; some comments; PascalCase, lowercase; etc, for almost all tokens
+- moved TTisGridComponentEditor to tis.ui.grid.editor
+- [break] renamed OnSOCompareNodes evento to OnCompareColumnsNodes
+- added {$i mormot.defines.inc} in all units
+- fixed AV in CreateColumnsFromData(): testing if Data <> nil before use it
+- some minor changes and cleaning in some conditionals among methods
+- a minor change in the main README.md as now package(s) will be more generic
+- introducing basic /ui/README.md 
+- added a clean.bat to delete all files that can be ignored
+- added some TODO's along the code as "msantos"
+- created a Demo for testing these two grids together in one form 
+
+Log 2: replacing all SuperObject stuff to mORMot, and more
+------------------------------------------------------------------------------
+- introducing /core directory
+- introducing basic /core/README.md
+- introducing /core/tis.core.os.pas (old soclipbrd) for clipboard stuff and more (in the future) 
+- removed global JsonClipboardFormat variable
+- introducing TClipboardTypes and TClipboardAdapter, for working with predefined (LCL) and extended formats (eg. JSON)
+- removed clipbrd.pas dependency from tis.ui.grid.editor.pas, using just TClipboardAdapter
+- [break] renamed GetNodeSOData to GetNodeDataAsDocVariant, which returns a PDocVariantData
+- removed TSOItemData/PSOItemData and FItemDataOffset
+- changed DoInitNode/DoFreeNode for not working with interface instances anymore
+- changed DoNewText/DoGetText/DoInitNode for working with DocVariantData
+- introduced "code separators" blocks as new fiels, new events, new methods, new properties, inherited methods, inherited properties; organized the code inside these blocks
+- [break] changed TOnGridGetText, TOnGridPaste, TOnGridCompareColumnsNodes for using PDocVariantData
+- [break] changed CheckedRows interface it's now returns TDocVariantData
+- [break] changed SetFocusedRowNoClearSelection interface
+- [break] changed GetCellData/GetCellStrValue interface
+- [break] renamed GetCellStrValue to GetCellDataAsString
+- [break] changed AddRows/PasteRows, DeleteRows interfaces for work using PDocVariantData
+- [break] renamed InvalidateFordata to InvalidateNodeByDocVariant for work using PDocVariantData
+- [break] changed SelectedRows/FocusedRow/Settings properties types to work using PDocVariantData 
+- changed CreateColumnsFromData to work using PDocVariantData 
+- introduced ClearAll method
+- grid editor: added Remove All Columns button
+- grid editor: added Clear All button
+- grid editor: introduced Keep Data option: check this option to use the data in the target grid
+- introduced ZebraColor property, replacing $00EDF0F1 hard coded constant
+- fixed "List index (-1) out of bounds", when right-clicked in columns and there are none
+- [break] renamed NodesForData to GetNodesBy (overload)
+- [break] renamed NodesForKey to GetNodesBy (overload)
+- [break] renamed NodesForKeyStr to GetNodesBy (overload)
+- added more documentation
+- improved PasteRows: now it's working not only for arrays but also object
+- TClipboardAdapter: introduced Open, Clear, Add, and Close
+- rewrite DoCopyToClipBoard, DoCopyCellToClipBoard using TClipboardAdapter and DocVariantData.Reduce
+- removed pltis_superobject dependency
+- validating user input on DoNewText: it will test if it's numeric or string
+
+Demo
+- udpated UI
+- output options: clear, from clipboard, grid data
+ 
+BONUS (only component names were changed, nothing more else)
+- added TTisSearchEdit from TWaptSearchEdit
+- added TTisToggleButton from TWaptToggleButton
+- added TTisTagEditor from TTagEditor — however something is wrong with this component by default: if I drop one in a form I got an exception and IDE freezes - I will search what's going on latter
+
+
+

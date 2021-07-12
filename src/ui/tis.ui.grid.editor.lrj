@@ -1,0 +1,18 @@
+{"version":1,"strings":[
+{"hash":83199490,"name":"ttisgrideditor.caption","sourcebytes":[71,114,105,100,32,69,100,105,116,111,114],"value":"Grid Editor"},
+{"hash":214110260,"name":"ttisgrideditor.keepdatacheckbox.hint","sourcebytes":[67,104,101,99,107,32,116,104,105,115,32,111,112,116,105,111,110,32,116,111,32,117,115,101,32,116,104,101,32,100,97,116,97,32,105,110,32,116,104,101,32,116,97,114,103,101,116,32,103,114,105,100],"value":"Check this option to use the data in the target grid"},
+{"hash":203880721,"name":"ttisgrideditor.keepdatacheckbox.caption","sourcebytes":[75,101,101,112,32,100,97,116,97],"value":"Keep data"},
+{"hash":81606501,"name":"ttisgrideditor.edcolumntitle.editlabel.caption","sourcebytes":[67,111,108,117,109,110,32,116,105,116,108,101],"value":"Column title"},
+{"hash":203500789,"name":"ttisgrideditor.edcolumnproperty.editlabel.caption","sourcebytes":[80,114,111,112,101,114,116,121,32,110,97,109,101],"value":"Property name"},
+{"hash":101585109,"name":"ttisgrideditor.lsteditortype.caption","sourcebytes":[69,100,105,116,111,114,32,84,121,112,101],"value":"Editor Type"},
+{"hash":80377480,"name":"ttisgrideditor.edcolumnindex.editlabel.caption","sourcebytes":[67,111,108,117,109,110,32,105,110,100,101,120],"value":"Column index"},
+{"hash":22179873,"name":"ttisgrideditor.actpastejsontemplate.caption","sourcebytes":[80,97,115,116,101,32,74,83,79,78,32,116,101,109,112,108,97,116,101,32,100,97,116,97],"value":"Paste JSON template data"},
+{"hash":111297118,"name":"ttisgrideditor.actaddcolumn.caption","sourcebytes":[65,100,100,32,99,111,108,117,109,110],"value":"Add column"},
+{"hash":208204302,"name":"ttisgrideditor.actdelcolumn.caption","sourcebytes":[68,101,108,101,116,101,32,99,111,108,117,109,110],"value":"Delete column"},
+{"hash":152089118,"name":"ttisgrideditor.actupdatecolumn.caption","sourcebytes":[85,112,100,97,116,101,32,67,111,108,117,109,110],"value":"Update Column"},
+{"hash":255265156,"name":"ttisgrideditor.actcopysettings.caption","sourcebytes":[67,111,112,121,32,103,114,105,100,32,99,111,110,102,105,103,117,114,97,116,105,111,110,32,116,111,32,99,108,105,112,98,111,97,114,100],"value":"Copy grid configuration to clipboard"},
+{"hash":2939201,"name":"ttisgrideditor.actpastecsv.caption","sourcebytes":[80,97,115,116,101,32,67,83,86,32,100,97,116,97],"value":"Paste CSV data"},
+{"hash":168750705,"name":"ttisgrideditor.actaddcolumns.caption","sourcebytes":[65,100,100,32,109,105,115,115,105,110,103,32,99,111,108,117,109,110,115,32,102,114,111,109,32,115,97,109,112,108,101,32,100,97,116,97],"value":"Add missing columns from sample data"},
+{"hash":214953203,"name":"ttisgrideditor.actremoveallcolumns.caption","sourcebytes":[82,101,109,111,118,101,32,97,108,108,32,99,111,108,117,109,110,115],"value":"Remove all columns"},
+{"hash":193203724,"name":"ttisgrideditor.actclearall.caption","sourcebytes":[67,108,101,97,114,32,65,108,108],"value":"Clear All"}
+]}
