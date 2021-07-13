@@ -85,13 +85,13 @@
     </i18n>
     <RequiredPkgs Count="4">
       <Item1>
-        <PackageName Value="pltis_utils"/>
+        <PackageName Value="pltis_virtualtrees"/>
       </Item1>
       <Item2>
-        <PackageName Value="mormot2"/>
+        <PackageName Value="pltis_utils"/>
       </Item2>
       <Item3>
-        <PackageName Value="virtualtreeview_package"/>
+        <PackageName Value="mormot2"/>
       </Item3>
       <Item4>
         <PackageName Value="IDEIntf"/>

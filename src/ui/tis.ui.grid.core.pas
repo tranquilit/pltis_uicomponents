@@ -1101,8 +1101,7 @@ procedure TTisGrid.SetSelectedRows(const aValue: TDocVariantData);
 var
   a: TNodeArray;
   n, m: PVirtualNode;
-  d: PDocVariantData;
-  i, f: PVariant;
+  o, f: PDocVariantData;
 begin
   if aValue.IsVoid then
   begin
@@ -1111,24 +1110,23 @@ begin
   end
   else
   begin
-    f := PVariant(FocusedRow);
+    f := FocusedRow;
     ClearSelection;
     n := nil;
     m := nil;
     BeginUpdate;
     try
-      for i in aValue.Items do
+      for o in aValue.Objects do
       begin
-        d := PDocVariantData(i);
         if Length(KeyFieldsList) = 1 then
-          a := GetNodesBy(StringToUtf8(KeyFieldsList[0]), d^.S[StringToUtf8(KeyFieldsList[0])])
+          a := GetNodesBy(StringToUtf8(KeyFieldsList[0]), o^.U[StringToUtf8(KeyFieldsList[0])])
         else if Length(KeyFieldsList) > 0 then
-          a := GetNodesBy(d^, True)
+          a := GetNodesBy(o^, True)
         else
-          a := GetNodesBy(d^);
+          a := GetNodesBy(o^);
         for n in a do
         begin
-          if d^.ToJson = f^.ToJson then
+          if o^.Equals(f^) then
             m := n;
           Selected[n] := True;
         end;
@@ -1186,7 +1184,7 @@ procedure TTisGrid.CreateColumnsFromData(aAutoFitColumns,
   aAppendMissingAsHidden: Boolean);
 var
   n: PRawUtf8;
-  d: PDocVariantData;
+  o: PDocVariantData;
   c: TTisGridColumn;
   i: PVariant;
   x: Integer;
@@ -1196,10 +1194,9 @@ begin
   x := NoColumn;
   BeginUpdate;
   try
-    for i in fData.Items do
+    for o in fData.Objects do
     begin
-      d := PDocVariantData(i);
-      for n in d^.FieldNames do
+      for n in o^.FieldNames do
       begin
         c := FindColumnByPropertyName(n^);
         if c = nil then
@@ -1211,7 +1208,7 @@ begin
           c.Width := 100;
           if aAppendMissingAsHidden then
             c.Options := c.Options - [coVisible];
-          if VarType(d^.Value[n^]) in [varDouble, varCurrency, varInteger] then
+          if VarType(o^.Value[n^]) in [varDouble, varCurrency, varInteger] then
             c.Alignment := taRightJustify;
         end;
       end;
@@ -1408,12 +1405,12 @@ begin
   else if d^.Kind = dvArray then
     result := Utf8ToString(d^.ToCsv(','))
   else
-    result := Utf8ToString(d^.S[aColName]);
+    result := d^.S[aColName];
 end;
 
 procedure TTisGrid.SetData(const aValue: TDocVariantData);
 begin
-  if fData.ToJson = aValue.ToJson then
+  if fData.Equals(aValue) then
     exit;
   fData := aValue;
   LoadData;
@@ -1717,7 +1714,7 @@ begin
   if aNode <> nil then
   begin
     if aNode.Index in [0..fData.Count-1] then
-      result := _Safe(fData.Value[aNode.Index])
+      result := _Safe(fData.Values[aNode.Index])
     else
       result := nil;
   end
@@ -1929,7 +1926,7 @@ begin
   while p <> nil do
   begin
     d := GetNodeDataAsDocVariant(p);
-    if (d <> nil) and (not d^.IsVoid) and (d^.ToJson = aData.ToJson) then
+    if (d <> nil) and (not d^.IsVoid) and d^.Equals(aData) then
     begin
       if aUseKeyFieldsList and (Length(fKeyFieldsList) > 0) then
       begin
@@ -1937,7 +1934,7 @@ begin
         if d^.Reduce(a, False) = aData.Reduce(a, False) then
           _Add(result, p);
       end
-      else if d^.ToJson = aData.ToJson then
+      else if d^.Equals(aData) then
         _Add(result, p);
     end;
     p := GetNext(p, True);
@@ -2446,15 +2443,15 @@ end;
 
 function TTisGrid.Add(aData: PDocVariantData): PDocVariantData;
 var
-  i: PVariant;
+  o: PDocVariantData;
 begin
   case aData^.Kind of
     dvArray:
     begin
-      for i in aData^.Items do
+      for o in aData^.Objects do
       begin
-        fData.AddItem(variant(i^));
-        result := PDocVariantData(i);
+        fData.AddItem(variant(o^));
+        result := o;
       end;
     end;
     dvObject:
@@ -2644,10 +2641,9 @@ function TTisGrid.ContentAsCSV(aSource: TVSTTextSourceType;
   const aSeparator: string): RawUtf8;
 var
   tmp, cols, rows: TDocVariantData;
-  i: PVariant;
   c: Integer;
   s: RawUtf8;
-  d: PDocVariantData;
+  o: PDocVariantData;
 begin
   if aSource in [tstAll, tstInitialized, tstVisible] then
     rows := fData
@@ -2660,18 +2656,17 @@ begin
       cols.AddItemText('"' + StringToUtf8(TTisGridColumn(Header.Columns[c]).Text) + '"');
   end;
   result := cols.ToCsv(aSeparator) + LineEnding;
-  for i in rows.Items do
+  for o in rows.Objects do
   begin
-    d := PDocVariantData(i);
     tmp.InitArray([]);
     for c := 0 to Header.Columns.Count-1 do
     begin
       if coVisible in Header.Columns[c].Options then
       begin
-        s := d^.U[TTisGridColumn(Header.Columns[c]).PropertyName];
+        s := o^.U[TTisGridColumn(Header.Columns[c]).PropertyName];
         if s <> '' then
         begin
-          if VarType(d^.Value[s]) in [varDouble, varCurrency, varInteger] then
+          if VarType(o^.Value[s]) in [varDouble, varCurrency, varInteger] then
             tmp.AddItemText(s)
           else
             tmp.AddItemText(QuotedStr(s, '"'));
