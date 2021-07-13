@@ -23,12 +23,11 @@
 *.mes
 *.o
 *.or
-
 FPC_Units/
 lib/
 out/
 backup/
 *.pyd
 *.lps
-demo
 *.compiled
+/demo/ui/*.res
