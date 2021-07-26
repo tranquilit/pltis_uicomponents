@@ -67,6 +67,21 @@ Log 2: replacing all SuperObject stuff to mORMot, and more
 - rewrite DoCopyToClipBoard, DoCopyCellToClipBoard using TClipboardAdapter and DocVariantData.Reduce
 - removed pltis_superobject dependency
 - validating user input on DoNewText: it will test if it's numeric or string
+- implemented AddRows, DeleteRows, and Delete Selected Rows
+- AddRows and PasteRows are sharing the same algorithm
+- DoDeleteRows was simplified
+- using .Equals instead of .ToJson
+- release components-1.1.11
+- improvement on ActPasteJsonTemplate to get all kind of data, eg: [1,2,3], creating "unknow columns"
+- ActPasteJsonTemplate will paste all objects from clipboard, not only the first one, for the use of Keep Data option
+- fix: do not ask for delete selected rows if there is none
+- release 1.1.12
+- all methods were reordered, matching the same order in interface and implementation
+- added PopupMenuOptions set
+- added OnAfterFillPopupMenu event allowing user to change something in Popup before it appears
+- release 1.1.13
+- AddRows: added a parameter to create columns if they don't exists yet
+- TTisGrid.WMKeyDown: fixed AV when user type any char and "EditColumn = -1"
 
 Demo
 - udpated UI
@@ -76,6 +91,4 @@ BONUS (only component names were changed, nothing more else)
 - added TTisSearchEdit from TWaptSearchEdit
 - added TTisToggleButton from TWaptToggleButton
 - added TTisTagEditor from TTagEditor — however something is wrong with this component by default: if I drop one in a form I got an exception and IDE freezes - I will search what's going on latter
-
-
 

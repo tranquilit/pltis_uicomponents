@@ -162,9 +162,9 @@ begin
   try
     if doc.InitJson(cb.AsUtf8, JSON_OPTIONS_FAST) then
     begin
-      if (doc.Kind = dvArray) and (doc.Count > 0) then
+      if doc.Kind = dvArray then
       begin
-        for i in doc.Items do
+        for i in doc.Items do // using .Items to get all kind of data, eg: [1,2,3]
         begin
           d := PDocVariantData(i);
           case d^.Kind of
@@ -172,16 +172,13 @@ begin
               for r in d^.Items do
                 Grid.Data.AddItem(r^);
             dvObject:
-            begin
               Grid.Data.AddItem(i^);
-              break; // just need to read the first object
-            end
           else
-            Grid.Data.AddItemText('unknowncolumn:' + VariantToUtf8(i^));
+            Grid.Data.AddItem(_Json('{"unknown":"' + VariantToUtf8(i^) + '"}'));
           end;
         end;
       end
-      else if (doc.Kind = dvObject) then
+      else if doc.Kind = dvObject then
       begin
         Grid.Data.AddItem(variant(doc));
       end;
@@ -191,7 +188,6 @@ begin
     else
       ShowMessage(ERROR_MSG);
   except
-    //Grid.Data.AddItemText('[{"id":0}]');
     ShowMessage(ERROR_MSG);
   end;
 end;
