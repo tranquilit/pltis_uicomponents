@@ -19,14 +19,16 @@ uses
   extctrls,
   stdctrls,
   buttons,
-  comctrls, Menus,
+  comctrls,
+  Menus,
+  ImgList,
   synedit,
   VirtualTrees,
   mormot.core.text,
   mormot.core.unicode,
   mormot.core.variants,
   tis.core.os,
-  tis.ui.grid.core, ImgList;
+  tis.ui.grid.core;
 
 type
   TMainForm = class(TForm)
