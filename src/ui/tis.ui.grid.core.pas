@@ -26,7 +26,7 @@ uses
   stdctrls,
   types,
   defaulttranslator,
-  virtualtrees,
+  VirtualTrees,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,

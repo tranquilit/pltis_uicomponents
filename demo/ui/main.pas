@@ -21,7 +21,7 @@ uses
   buttons,
   comctrls, Menus,
   synedit,
-  virtualtrees,
+  VirtualTrees,
   mormot.core.text,
   mormot.core.unicode,
   mormot.core.variants,

@@ -23,7 +23,7 @@ uses
   actnlist,
   menus,
   componenteditors,
-  virtualtrees,
+  VirtualTrees,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
