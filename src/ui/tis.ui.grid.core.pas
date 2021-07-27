@@ -1492,7 +1492,6 @@ procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
   aTextType: TVSTTextType; var aCellText: string);
 var
   r: PDocVariantData;
-  s: RawUTF8;
 begin
   r := nil;
   if aNode <> nil then
