@@ -13,7 +13,6 @@
       <XPManifest>
         <DpiAware Value="True"/>
       </XPManifest>
-      <Icon Value="0"/>
     </General>
     <BuildModes Count="2">
       <Item1 Name="Debug" Default="True"/>
@@ -56,9 +55,9 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="5">
+    <RequiredPackages Count="4">
       <Item1>
-        <PackageName Value="virtualtreeview_package"/>
+        <PackageName Value="pltis_uicomponents"/>
       </Item1>
       <Item2>
         <PackageName Value="SynEdit"/>
@@ -67,11 +66,8 @@
         <PackageName Value="mormot2"/>
       </Item3>
       <Item4>
-        <PackageName Value="tis.ui.components"/>
-      </Item4>
-      <Item5>
         <PackageName Value="LCL"/>
-      </Item5>
+      </Item4>
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
