@@ -180,7 +180,7 @@ procedure TTisSearchEdit.SetUpImage;
 begin
   FEmbeddedImage.ControlStyle := FEmbeddedImage.ControlStyle + [csNoDesignSelectable];
   FEmbeddedImage.Picture.Create;
-  FEmbeddedImage.Picture.LoadFromResourceName(HINSTANCE,'SEARCH_ICON',TPortableNetworkGraphic);
+  FEmbeddedImage.Picture.LoadFromResourceName(HINSTANCE,'TIS_SEARCH_ICON',TPortableNetworkGraphic);
   FEmbeddedImage.stretch := true;
   FEmbeddedImage.Visible := true;
   FEmbeddedImage.Cursor := crHandPoint;
