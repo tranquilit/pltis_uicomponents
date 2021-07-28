@@ -278,7 +278,6 @@ type
     procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
       const AXProportion, AYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
-    procedure DoFreeNode(aNode: PVirtualNode); override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods --------------------------------------
     function GetSelectedRows: TDocVariantData;
@@ -1737,12 +1736,6 @@ begin
     SetSelectedAndTotalLabel(fSelectedAndTotalLabel);
 end;
 
-procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
-begin
-  inherited DoFreeNode(aNode);
-  fData.Delete(aNode.Index);
-end;
-
 function TTisGrid.GetSelectedRows: TDocVariantData;
 var
   n: PVirtualNode;
@@ -2234,7 +2227,7 @@ function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
 begin
   if aNode <> nil then
   begin
-    if aNode.Index in [0..fData.Count-1] then
+    if aNode.Index < cardinal(fData.Count) then
       result := _Safe(fData.Values[aNode.Index])
     else
       result := nil;
