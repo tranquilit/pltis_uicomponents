@@ -35,7 +35,6 @@ type
     DeleteRowsButton: TSpeedButton;
     ClipboardLabel1: TLabel;
     AddRowsButton: TSpeedButton;
-    ImageList1: TImageList;
     Label1: TLabel;
     ClipboardLabel: TLabel;
     GridDataLabel: TLabel;
@@ -53,9 +52,6 @@ type
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
     procedure GridDataLabelClick(Sender: TObject);
-    procedure GridGetImageIndexEx(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
-      var ImageIndex: Integer; var ImageList: TCustomImageList);
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure GridMeasureItem(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
@@ -117,15 +113,6 @@ end;
 procedure TMainForm.GridDataLabelClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.Data.ToJson('', '', jsonHumanReadable));
-end;
-
-procedure TMainForm.GridGetImageIndexEx(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-  var Ghosted: Boolean; var ImageIndex: Integer; var ImageList: TCustomImageList
-  );
-begin
-  if Column = 1 then
-    ImageIndex := 0;
 end;
 
 procedure TMainForm.GridInitNode(Sender: TBaseVirtualTree; ParentNode,
