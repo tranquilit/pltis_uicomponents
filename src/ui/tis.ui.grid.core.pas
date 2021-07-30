@@ -284,7 +284,6 @@ type
     /// standard menu management
     procedure FillPopupMenu(aLocalMenu: TPopupMenu);
     function FindText(const aText: string): PVirtualNode;
-    function FindColumnByPropertyName(const aPropertyName: RawUtf8): TTisGridColumn;
     procedure FindDlgFind(Sender: TObject);
     /// add aData into Data property
     // - will test if it is an array or object
@@ -346,6 +345,7 @@ type
     function GetNodesBy(aData: PDocVariantData; aUseKeyFieldsList: boolean = False): TNodeArray; overload;
     /// returns a list of nodes that matching with key and value
     function GetNodesBy(const aKey, aValue: RawUtf8): TNodeArray; overload;
+    function FindColumnByPropertyName(const aPropertyName: RawUtf8): TTisGridColumn;
     /// append a list of rows to the Grid
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
@@ -2059,8 +2059,9 @@ begin
     try
       c.Clear;
       SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, r);
+      s := VariantToString(GetNodeDataAsDocVariant(FocusedNode).GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
+      c.Add(cbkText, s[1], Length(s) + 1);
       s := r.ToJson;
-      c.Add(cbkText, s[1], Length(s));
       c.Add(cbkJson, s[1], Length(s));
     finally
       c.Close;
