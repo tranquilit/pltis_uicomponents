@@ -318,6 +318,8 @@ type
     /// destructor
     destructor Destroy; override;
     // ------------------------------- inherited methods ----------------------------------
+    procedure Sort(aNode: PVirtualNode; aColumn: TColumnIndex;
+      aDirection: TSortDirection; DoInit: Boolean); override;
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
     /// it will clear Data and everything else related
@@ -1539,67 +1541,24 @@ begin
 end;
 
 function TTisGrid.DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer;
-//var
-//  n1, n2, d1, d2: TDocVariantData;
-//  propname: string;
-//  compresult: TSuperCompareResult;
+var
+  n1, n2: PDocVariantData;
+  propname: RawUtf8;
 begin
-  { TODO -omsantos : to-do }
   result := inherited DoCompare(aNode1, aNode2, aColumn);
-  //n1 := nil;
-  //n2 := nil;
-  //// pending appended node appears at the end
-  //if fPendingAppendObject <> nil then
-  //begin
-  //  n1 := GetNodeDataAsDocVariant(aNode1);
-  //  if (n1 <> nil) and (n1 = fPendingAppendObject) then
-  //    result := 1
-  //  else
-  //  begin
-  //    n2 := GetNodeDataAsDocVariant(aNode2);
-  //    if (n2 <> nil) and (n2 = fPendingAppendObject) then
-  //      result := -1;
-  //  end;
-  //end;
-  //if (result = 0) and (aColumn >= 0) then
-  //begin
-  //  propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
-  //  if n1 = nil then
-  //    n1 := GetNodeDataAsDocVariant(aNode1);
-  //  if n2 = nil then
-  //    n2 := GetNodeDataAsDocVariant(aNode2);
-  //  if Assigned(OnCompareColumnsNodes) then
-  //  begin
-  //    if propname <> '' then
-  //      OnCompareColumnsNodes(self, n1, n2,[propname], result)
-  //    else
-  //      OnCompareColumnsNodes(self, n1, n2, fKeyFieldsList, result)
-  //  end
-  //  else
-  //  begin
-  //    if (propname <> '') and (n1 <> nil) and (n2 <> nil) then
-  //    begin
-  //      d1 := n1[propname];
-  //      d2 := n2[propname];
-  //      if d1 = nil then d1 := SO('""');
-  //      if d2 = nil then d2 := SO('""');
-  //      if (d1 <> nil) and (d2 <> nil) then
-  //      begin
-  //        compresult := d1.Compare(d2);
-  //        case compresult of
-  //          cpLess : result := -1;
-  //          cpEqu  : result := 0;
-  //          cpGreat: result := 1;
-  //          cpError: result := StrCompare(UTF8Encode(n1.S[propname]), UTF8Encode(n2.S[propname]));
-  //        end;
-  //      end
-  //      else
-  //        result := -1;
-  //    end
-  //    else
-  //      result := 0;
-  //  end;
-  //end;
+  if (result = 0) and (aColumn >= 0) then
+  begin
+    propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
+    n1 := GetNodeDataAsDocVariant(aNode1);
+    n2 := GetNodeDataAsDocVariant(aNode2);
+    if assigned(OnCompareColumnsNodes) then
+    begin
+      if propname <> '' then
+        OnCompareColumnsNodes(self, n1, n2, [propname], result)
+      else
+        OnCompareColumnsNodes(self, n1, n2, fKeyFieldsList, result)
+    end;
+  end;
 end;
 
 procedure TTisGrid.DoEnter;
@@ -2197,6 +2156,19 @@ begin
   if Assigned(fFindDlg) then
     FreeAndNil(fFindDlg);
   inherited Destroy;
+end;
+
+procedure TTisGrid.Sort(aNode: PVirtualNode; aColumn: TColumnIndex;
+  aDirection: TSortDirection; DoInit: Boolean);
+var
+  propname: RawUtf8;
+begin
+  inherited Sort(aNode, aColumn, aDirection, DoInit);
+  if aColumn = NoColumn then
+    exit;
+  propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
+  if propname <> '' then
+    fData.SortArrayByField(propname, nil, Header.SortDirection = sdDescending)
 end;
 
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);
