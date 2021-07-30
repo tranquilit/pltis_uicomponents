@@ -2168,7 +2168,7 @@ begin
     exit;
   propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
   if propname <> '' then
-    fData.SortArrayByField(propname, nil, aDirection = sdDescending)
+    fData.SortArrayByField(propname, nil, aDirection = sdAscending)
 end;
 
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);
