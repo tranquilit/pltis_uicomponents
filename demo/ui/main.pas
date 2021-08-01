@@ -38,6 +38,7 @@ type
     Label1: TLabel;
     ClipboardLabel: TLabel;
     GridDataLabel: TLabel;
+    GridTotalLabel: TLabel;
     MainPageControl: TPageControl;
     Panel1: TPanel;
     Panel4: TPanel;

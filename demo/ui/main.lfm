@@ -60,10 +60,11 @@ object MainForm: TMainForm
           Header.Style = hsFlatButtons
           TabOrder = 0
           WantTabs = True
+          SelectedAndTotalLabel = GridTotalLabel
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
           TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag]
           TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toAlwaysHideSelection]
-          TreeOptions.SelectionOptions = [toExtendedFocus, toSimpleDrawSelection]
+          TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
           ZebraColor = 15593713
           PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowExportExcel, pmoShowCustomizeColumns]
           OnInitNode = GridInitNode
@@ -90,6 +91,15 @@ object MainForm: TMainForm
           OnClick = DeleteRowsButtonClick
           ShowHint = True
           ParentShowHint = False
+        end
+        object GridTotalLabel: TLabel
+          Left = 639
+          Height = 15
+          Top = 15
+          Width = 91
+          Anchors = [akTop, akRight]
+          Caption = 'Total : 0 elements'
+          ParentColor = False
         end
       end
       object Panel1: TPanel
