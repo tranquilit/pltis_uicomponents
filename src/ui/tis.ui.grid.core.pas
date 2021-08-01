@@ -205,7 +205,6 @@ type
     fTextToFind: string;
     fData: TDocVariantData;
     fSettings: TDocVariantData;
-    fPendingAppendObject: PDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fMenuFilled: Boolean;
     // ------------------------------- new events ----------------------------------
@@ -1483,8 +1482,6 @@ begin
       else
         r.S[n] := aText;
     end;
-    // reset to allow append
-    fPendingAppendObject := nil;
     inherited DoNewText(aNode, aColumn, r.S[n]);
   end;
 end;
