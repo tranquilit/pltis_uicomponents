@@ -206,6 +206,7 @@ type
     fData: TDocVariantData;
     fSettings: TDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
+    fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
@@ -1412,7 +1413,10 @@ procedure TTisGrid.SetPopupMenu(aValue: TPopupMenu);
 begin
   inherited PopupMenu := aValue;
   if assigned(PopupMenu) then
+  begin
+    fPopupOrigEvent := PopupMenu.OnPopup;
     PopupMenu.OnPopup := FillPopupMenu;
+  end;
 end;
 
 // hack to allow right click menu on header popup menu  and different popup menu on rows
@@ -1730,6 +1734,8 @@ procedure TTisGrid.FillPopupMenu(sender: TObject);
 
 begin
   RemoveAutoItems;
+  if assigned(fPopupOrigEvent) then
+    fPopupOrigEvent(self);
   if (PopupMenu.Items.Count > 0) then
     AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
