@@ -40,8 +40,10 @@ type
     GridDataLabel: TLabel;
     GridTotalLabel: TLabel;
     MainPageControl: TPageControl;
+    MenuItem1: TMenuItem;
     Panel1: TPanel;
     Panel4: TPanel;
+    UserPopupMenu: TPopupMenu;
     SOvsTisTab: TTabSheet;
     InOutputEdit: TSynEdit;
     Grid: TTisGrid;
@@ -57,6 +59,7 @@ type
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure GridMeasureItem(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
       Node: PVirtualNode; var NodeHeight: Integer);
+    procedure MenuItem1Click(Sender: TObject);
   end;
 
 var
@@ -126,6 +129,11 @@ procedure TMainForm.GridMeasureItem(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
 begin
   NodeHeight := 50;
+end;
+
+procedure TMainForm.MenuItem1Click(Sender: TObject);
+begin
+  ShowMessage('User menu item action');
 end;
 
 end.
