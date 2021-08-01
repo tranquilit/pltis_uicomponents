@@ -206,7 +206,6 @@ type
     fData: TDocVariantData;
     fSettings: TDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
-    fMenuFilled: Boolean;
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
@@ -247,6 +246,8 @@ type
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
   protected
     // ------------------------------- inherited methods ----------------------------------
+    function GetPopupMenu: TPopupMenu; override;
+    procedure SetPopupMenu(aValue: TPopupMenu); // it should be virtual and protected on TControl class
     procedure WndProc(var Message: TLMessage); override;
     /// after cell editing to set Data
     procedure DoNewText(aNode: PVirtualNode; aColumn: TColumnIndex;
@@ -258,8 +259,6 @@ type
     function GetColumnClass: TVirtualTreeColumnClass; override;
     function GetOptionsClass: TTreeOptionsClass; override;
     function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
-    procedure DoEnter; override;
-    procedure DoExit; override;
     function DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink; override;
     procedure PrepareCell(var PaintInfo: TVTPaintInfo;
       WindowOrgX, MaxWidth: integer); override;
@@ -281,7 +280,7 @@ type
     // ----------------------------------- new methods --------------------------------------
     function GetSelectedRows: TDocVariantData;
     /// standard menu management
-    procedure FillPopupMenu(aLocalMenu: TPopupMenu);
+    procedure FillPopupMenu(sender: TObject);
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(Sender: TObject);
     /// add aData into Data property
@@ -452,7 +451,7 @@ type
     property ParentColor default False;
     property ParentFont;
     property ParentShowHint;
-    property PopupMenu;
+    property PopupMenu read GetPopupMenu write SetPopupMenu;
     property ScrollBarOptions;
     property SelectionBlendFactor;
     property SelectionCurveRadius;
@@ -1404,6 +1403,18 @@ begin
   //  inherited WMKeyDown(Message);
 end;
 
+function TTisGrid.GetPopupMenu: TPopupMenu;
+begin
+  result := inherited GetPopupMenu;
+end;
+
+procedure TTisGrid.SetPopupMenu(aValue: TPopupMenu);
+begin
+  inherited PopupMenu := aValue;
+  if assigned(PopupMenu) then
+    PopupMenu.OnPopup := FillPopupMenu;
+end;
+
 // hack to allow right click menu on header popup menu  and different popup menu on rows
 // set message.msg to 0 if handled to stop message processing.
 type
@@ -1558,29 +1569,6 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoEnter;
-begin
-  if PopupMenu = nil then
-    PopupMenu := TPopupMenu.Create(self);
-  FillPopupMenu(PopupMenu);
-  inherited DoEnter;
-end;
-
-procedure TTisGrid.DoExit;
-var
-  i: Integer;
-begin
-  // remove auto items
-  if PopupMenu <> nil then
-  begin
-    for i := PopupMenu.Items.Count-1 downto 0 do
-      if PopupMenu.Items[i].Tag = 250 then
-        PopupMenu.Items.Delete(i);
-    fMenuFilled := False;
-  end;
-  inherited DoExit;
-end;
-
 function TTisGrid.DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink;
 begin
   //result := inherited DoCreateEditor(Node, Column);
@@ -1707,79 +1695,83 @@ begin
   end;
 end;
 
-procedure TTisGrid.FillPopupMenu(aLocalMenu: TPopupMenu);
+procedure TTisGrid.FillPopupMenu(sender: TObject);
+
+  procedure RemoveAutoItems;
+  var
+    i: Integer;
+  begin
+    if PopupMenu <> nil then
+      for i := PopupMenu.Items.Count-1 downto 0 do
+        if PopupMenu.Items[i].Tag = 250 then
+          PopupMenu.Items.Delete(i);
+  end;
 
   function AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent): HMENU;
   var
     mi: TMenuItem;
   begin
-    mi := aLocalMenu.Items.Find(aCaption);
+    mi := PopupMenu.Items.Find(aCaption);
     if mi = nil then
     begin
-      mi := TMenuItem.Create(aLocalMenu);
+      mi := TMenuItem.Create(PopupMenu);
       with mi do
       begin
         Caption := aCaption;
         ShortCut := aShortcut;
         OnClick := aEvent;
         // to delete them
-        Tag := 250;
+        Tag := 250; { TODO -omsantos : we might create a new property for custom this number }
       end;
-      aLocalMenu.Items.Add(mi);
+      PopupMenu.Items.Add(mi);
     end;
     result := mi.Handle;
   end;
 
 begin
-  if not fMenuFilled then
-  begin
-    try
-      if (aLocalMenu.Items.Count > 0) then
-        AddItem('-', 0, nil);
-      if pmoShowFind in fPopupMenuOptions then
-        HMFind := AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), DoFindText);
-      if pmoShowFindNext in fPopupMenuOptions then
-        HMFindNext := AddItem(RsFindNext, VK_F3, DoFindNext);
-      {HMFindReplace := AddItem(RsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
-        @DoFindReplace);}
-      AddItem('-', 0, nil);
-      if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipBoard) then
-        HMCut := AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), DoCutToClipBoard);
-      if pmoShowCopy in fPopupMenuOptions then
-        HMCopy := AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), DoCopyToClipBoard);
-      if pmoShowCopyCell in fPopupMenuOptions then
-        HMCopyCell := AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), DoCopyCellToClipBoard);
-      if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
-        ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
-        HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), DoPaste);
-      AddItem('-', 0, nil);
-      if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnNodesDelete)) then
-        HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), DoDeleteRows);
-      if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-        HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), DoSelectAllRows);
-      AddItem('-', 0, nil);
-      if (pmoShowExportExcel in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-        HMExcel := AddItem(RsExportSelectedExcel, 0, DoExportExcel)
-      else
-        HMExcel := AddItem(RsExportAllExcel, 0, DoExportExcel);
-      {if (HMPrint = 0) then
-        HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
-      AddItem('-', 0, nil);
-      HMExpAll := AddItem(RsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
-        @DoExpandAll);
-      HMCollAll := AddItem(RsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
-        @DoCollapseAll);}
-      AddItem('-', 0, nil);
-      if pmoShowCustomizeColumns in fPopupMenuOptions then
-        HMCustomize := AddItem(RsCustomizeColumns, 0, DoCustomizeColumns);
-      if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
-        HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, DoAdvancedCustomizeColumns);
-    finally
-      fMenuFilled := True;
-    end;
-    if assigned(fOnAfterFillPopupMenu) then
-      fOnAfterFillPopupMenu(self);
-  end;
+  RemoveAutoItems;
+  if (PopupMenu.Items.Count > 0) then
+    AddItem('-', 0, nil);
+  if pmoShowFind in fPopupMenuOptions then
+    HMFind := AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), DoFindText);
+  if pmoShowFindNext in fPopupMenuOptions then
+    HMFindNext := AddItem(RsFindNext, VK_F3, DoFindNext);
+  {HMFindReplace := AddItem(RsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
+    @DoFindReplace);}
+  AddItem('-', 0, nil);
+  if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipBoard) then
+    HMCut := AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), DoCutToClipBoard);
+  if pmoShowCopy in fPopupMenuOptions then
+    HMCopy := AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), DoCopyToClipBoard);
+  if pmoShowCopyCell in fPopupMenuOptions then
+    HMCopyCell := AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), DoCopyCellToClipBoard);
+  if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
+    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
+    HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), DoPaste);
+  AddItem('-', 0, nil);
+  if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnNodesDelete)) then
+    HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), DoDeleteRows);
+  if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
+    HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), DoSelectAllRows);
+  AddItem('-', 0, nil);
+  if (pmoShowExportExcel in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
+    HMExcel := AddItem(RsExportSelectedExcel, 0, DoExportExcel)
+  else
+    HMExcel := AddItem(RsExportAllExcel, 0, DoExportExcel);
+  {if (HMPrint = 0) then
+    HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
+  AddItem('-', 0, nil);
+  HMExpAll := AddItem(RsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
+    @DoExpandAll);
+  HMCollAll := AddItem(RsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
+    @DoCollapseAll);}
+  AddItem('-', 0, nil);
+  if pmoShowCustomizeColumns in fPopupMenuOptions then
+    HMCustomize := AddItem(RsCustomizeColumns, 0, DoCustomizeColumns);
+  if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
+    HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, DoAdvancedCustomizeColumns);
+  if assigned(fOnAfterFillPopupMenu) then
+    fOnAfterFillPopupMenu(self);
 end;
 
 function TTisGrid.FindText(const aText: string): PVirtualNode;
@@ -2145,6 +2137,7 @@ begin
   fFindDlg.Options := fFindDlg.Options + [frHideMatchCase, frHideEntireScope, frEntireScope, frHideUpDown];
   Header.PopupMenu := TTisHeaderPopupMenu.Create(self);
   Header.PopupMenu.PopupComponent := self;
+  PopupMenu := TPopupMenu.Create(self);
 end;
 
 destructor TTisGrid.Destroy;
