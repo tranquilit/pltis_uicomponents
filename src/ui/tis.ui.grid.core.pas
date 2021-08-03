@@ -1140,12 +1140,7 @@ begin
   with vGridContext do
   begin
     if not Sender.OnVariantCompare(Sender, PropertyName, V1, V2, result) then
-    begin
-      if dvoNameCaseSensitive in Sender.Data.Options then
-        result := VariantCompare(V1, V2)
-      else
-        result := VariantCompareI(V1, V2)
-    end;
+      result := FastVarDataComp(@V1, @V2, not (dvoNameCaseSensitive in Sender.Data.Options));
   end;
 end;
 
