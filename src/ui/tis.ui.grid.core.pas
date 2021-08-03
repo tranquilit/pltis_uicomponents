@@ -384,6 +384,8 @@ type
     procedure SaveSettingsToIni(const aFileName: TFileName);
     /// load Settings from an IniFile
     procedure LoadSettingsFromIni(const aFileName: TFileName);
+    // ------------------------------- inherited events ----------------------------------
+    property OnCompareNodes; // hiding from Object Inspector, use OnVariantCompare event instead
     // ------------------------------- new properties ----------------------------------
     /// direct access to the low-level internal data
     // - if you change its content directly, you should call LoadData by hand for VirtualTree be aware about it
@@ -508,7 +510,6 @@ type
     property OnColumnClick;
     property OnColumnDblClick;
     property OnColumnResize;
-    property OnCompareNodes;
     property OnContextPopup;
     property OnCreateDataObject;
     property OnCreateDragManager;
