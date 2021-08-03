@@ -28,6 +28,7 @@ uses
   defaulttranslator,
   VirtualTrees,
   mormot.core.base,
+  mormot.core.data, // for dvoNameCaseSensitive
   mormot.core.variants,
   mormot.core.unicode,
   mormot.core.text,
@@ -1132,14 +1133,19 @@ var
 /// function used by grids for comparing variant nodes
 // - it will uses the global context and OnVariantCompare must be assigned before it gets here
 // - if OnVariantCompare returns true, then a custom comparison was done in the callback to be used as the result
-// - if OnVariantCompare returns false, then aCompared is ignored and a default variant compare sort, using case-sensitive,
-// will be performed
+// - if OnVariantCompare returns false, then aCompared is ignored and a default variant compare sort will be performed
+// - it will use Data.Options to determine how the values will be compared (case-sensitive or insensitive)
 function GridVariantCompare(const V1, V2: Variant): PtrInt;
 begin
   with vGridContext do
   begin
     if not Sender.OnVariantCompare(Sender, PropertyName, V1, V2, result) then
-      result := FastVarDataComp(@V1, @V2, {caseins=}false);
+    begin
+      if dvoNameCaseSensitive in Sender.Data.Options then
+        result := VariantCompare(V1, V2)
+      else
+        result := VariantCompareI(V1, V2)
+    end;
   end;
 end;
 
