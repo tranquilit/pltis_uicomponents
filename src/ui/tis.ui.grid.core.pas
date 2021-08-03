@@ -40,8 +40,12 @@ type
 
   TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
 
-  TOnGridCompareColumnsNodes = procedure(sender: TTisGrid; aNode1, aNode2: PDocVariantData; const aColumns: array of string;
-    var aResult: Integer) of object;
+  /// if it returns true, then a custom comparison should be done in the callback, and Compared return -1, 0, 1
+  // for a custom comparison of aV1 and aV2, which are the actual cell values of the grid cell
+  // - if it returns false, then aCompared is ignored and the default variant compare sort is performed
+  // - the user could then just check aPropertyName and react as expected for a given column
+  TOnGridVariantCompare = function(sender: TTisGrid; const aPropertyName: RawUtf8;
+    const aV1, aV2: Variant; var aCompared: PtrInt): Boolean of object;
 
   TOnGridPaste = function(sender: TTisGrid; aRow: PDocVariantData): Boolean of object;
 
@@ -212,7 +216,7 @@ type
     fOnCutToClipBoard: TNotifyEvent;
     fOnBeforePaste: TOnGridPaste;
     fOnNodesDelete: TOnGridRows;
-    fOnCompareColumnsNodes: TOnGridCompareColumnsNodes;
+    fOnVariantCompare: TOnGridVariantCompare;
     fOnAfterFillPopupMenu: TNotifyEvent;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
@@ -259,7 +263,6 @@ type
       var aInitStates: TVirtualNodeInitStates); override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
     function GetOptionsClass: TTreeOptionsClass; override;
-    function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
     function DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink; override;
     procedure PrepareCell(var PaintInfo: TVTPaintInfo;
       WindowOrgX, MaxWidth: integer); override;
@@ -589,8 +592,8 @@ type
       read fOnBeforePaste write fOnBeforePaste;
     property OnNodesDelete: TOnGridRows
       read fOnNodesDelete write fOnNodesDelete;
-    property OnCompareColumnsNodes: TOnGridCompareColumnsNodes
-      read fOnCompareColumnsNodes write fOnCompareColumnsNodes;
+    property OnVariantCompare: TOnGridVariantCompare
+      read fOnVariantCompare write fOnVariantCompare;
     property OnAfterFillPopupMenu: TNotifyEvent
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
   end;
@@ -1116,6 +1119,21 @@ end;
 
 { TTisGrid }
 
+var
+  vGridContext: record
+    Sender: TTisGrid;
+    PropertyName: RawUtf8;
+  end;
+
+function GridVariantCompare(const V1, V2: Variant): PtrInt;
+begin
+  with vGridContext do
+  begin
+    if not Sender.OnVariantCompare(Sender, PropertyName, V1, V2, result) then
+      result := FastVarDataComp(@V1, @V2, {caseins=}false);
+  end;
+end;
+
 function TTisGrid.FocusedPropertyName: string;
 begin
   result := TTisGridColumn(Header.Columns[FocusedColumn]).PropertyName;
@@ -1550,27 +1568,6 @@ end;
 function TTisGrid.GetOptionsClass: TTreeOptionsClass;
 begin
   result := TStringTreeOptions;
-end;
-
-function TTisGrid.DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer;
-var
-  n1, n2: PDocVariantData;
-  propname: RawUtf8;
-begin
-  result := inherited DoCompare(aNode1, aNode2, aColumn);
-  if (result = 0) and (aColumn >= 0) then
-  begin
-    propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
-    n1 := GetNodeDataAsDocVariant(aNode1);
-    n2 := GetNodeDataAsDocVariant(aNode2);
-    if assigned(OnCompareColumnsNodes) then
-    begin
-      if propname <> '' then
-        OnCompareColumnsNodes(self, n1, n2, [propname], result)
-      else
-        OnCompareColumnsNodes(self, n1, n2, fKeyFieldsList, result)
-    end;
-  end;
 end;
 
 function TTisGrid.DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink;
@@ -2158,13 +2155,27 @@ procedure TTisGrid.Sort(aNode: PVirtualNode; aColumn: TColumnIndex;
   aDirection: TSortDirection; DoInit: Boolean);
 var
   propname: RawUtf8;
+  compare: TVariantCompare;
 begin
   inherited Sort(aNode, aColumn, aDirection, DoInit);
   if aColumn = NoColumn then
     exit;
   propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
   if propname <> '' then
-    fData.SortArrayByField(propname, nil, aDirection = sdAscending)
+  begin
+    if assigned(OnVariantCompare) then
+    begin
+      with vGridContext do
+      begin
+        Sender := self;
+        PropertyName := propname;
+      end;
+      compare := @GridVariantCompare
+    end
+    else
+      compare := nil;
+    fData.SortArrayByField(propname, compare, aDirection = sdAscending);
+  end;
 end;
 
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);

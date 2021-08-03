@@ -24,6 +24,7 @@ uses
   ImgList,
   synedit,
   VirtualTrees,
+  mormot.core.base,
   mormot.core.text,
   mormot.core.unicode,
   mormot.core.variants,
@@ -59,6 +60,8 @@ type
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure GridMeasureItem(Sender: TBaseVirtualTree; TargetCanvas: TCanvas;
       Node: PVirtualNode; var NodeHeight: Integer);
+    function GridVariantCompare(sender: TTisGrid; const aPropertyName: RawUtf8;
+      const aV1, aV2: Variant; var aCompared: PtrInt): Boolean;
     procedure MenuItem1Click(Sender: TObject);
   end;
 
@@ -129,6 +132,13 @@ procedure TMainForm.GridMeasureItem(Sender: TBaseVirtualTree;
   TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: Integer);
 begin
   NodeHeight := 50;
+end;
+
+function TMainForm.GridVariantCompare(sender: TTisGrid;
+  const aPropertyName: RawUtf8; const aV1, aV2: Variant; var aCompared: PtrInt): Boolean;
+begin
+  result := True;
+  aCompared := VariantCompare(aV1, aV2); // you can use a custom compare if you want
 end;
 
 procedure TMainForm.MenuItem1Click(Sender: TObject);
