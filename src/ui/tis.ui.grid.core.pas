@@ -1121,11 +1121,18 @@ end;
 { TTisGrid }
 
 var
+  /// global variable used temporarily by grids in few cases
+  // - as UI runs in one thread, it is safe
   vGridContext: record
     Sender: TTisGrid;
     PropertyName: RawUtf8;
   end;
 
+/// function used by grids for comparing variant nodes
+// - it will uses the global context and OnVariantCompare must be assigned before it gets here
+// - if OnVariantCompare returns true, then a custom comparison was done in the callback to be used as the result
+// - if OnVariantCompare returns false, then aCompared is ignored and a default variant compare sort, using case-sensitive,
+// will be performed
 function GridVariantCompare(const V1, V2: Variant): PtrInt;
 begin
   with vGridContext do
