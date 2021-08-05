@@ -178,8 +178,8 @@ type
   TTisPopupMenuOptions = set of TTisPopupMenuOption;
 
   TOnGridGetText = procedure(sender: TBaseVirtualTree; aNode: PVirtualNode;
-    aRowData: PDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
-    var aCellText: string) of object;
+    const aCell: TDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
+    var aText: string) of object;
 
   TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
 
@@ -261,7 +261,7 @@ type
     procedure DoNewText(aNode: PVirtualNode; aColumn: TColumnIndex;
       const aText: string); override;
     procedure DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
-      aTextType: TVSTTextType; var aCellText: string); override;
+      aTextType: TVSTTextType; var aText: string); override;
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
@@ -1519,7 +1519,7 @@ begin
 end;
 
 procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
-  aTextType: TVSTTextType; var aCellText: string);
+  aTextType: TVSTTextType; var aText: string);
 var
   r: PDocVariantData;
 begin
@@ -1530,19 +1530,19 @@ begin
     if r <> nil then
     begin
       if (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
-        aCellText := r^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
+        aText := r^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
       else if DefaultText <> '' then
-        aCellText := r^.S[DefaultText];
-      if aCellText = '' then
-        aCellText := DefaultText;
+        aText := r^.S[DefaultText];
+      if aText = '' then
+        aText := DefaultText;
     end
     else
-      aCellText := 'uninitialized';
+      aText := 'uninitialized';
   end
   else
-    aCellText := '';
+    aText := '';
   if Assigned(fOnGetText) and (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
-    fOnGetText(self, aNode, r, aColumn, aTextType, aCellText);
+    fOnGetText(self, aNode, r^, aColumn, aTextType, aText);
 end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
