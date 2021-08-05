@@ -39,14 +39,6 @@ uses
 type
   TTisGrid = class;
 
-  /// if it returns true, then a custom comparison should be done in the callback, and aCompared return -1, 0, 1
-  // for a custom comparation between aV1 and aV2
-  // - if it returns false, then aCompared is ignored and a default variant compare sort, using case-sensitive,
-  // will be performed
-  // - the user could then just check aPropertyName and react as expected for a given column
-  TOnGridVariantCompare = function(sender: TTisGrid; const aPropertyName: RawUtf8;
-    const aV1, aV2: Variant; var aCompared: PtrInt): Boolean of object;
-
   TTisGridColumn = class(TVirtualTreeColumn)
   private
     fPropertyName: RawUtf8;
@@ -191,6 +183,9 @@ type
 
   TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
 
+  TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
+    const aV1, aV2: Variant; aReverse: Boolean): PtrInt of object;
+
   TOnGridPaste = function(sender: TTisGrid; aRow: PDocVariantData): Boolean of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
@@ -209,6 +204,10 @@ type
     fColumnToFind: integer;
     fStartSearchNode: PVirtualNode;
     fTextToFind: string;
+    fSortContext: record
+      PropertyName: RawUtf8;
+      Reverse: Boolean;
+    end;
     fData: TDocVariantData;
     fSettings: TDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
@@ -218,7 +217,7 @@ type
     fOnCutToClipBoard: TNotifyEvent;
     fOnBeforePaste: TOnGridPaste;
     fOnNodesDelete: TOnGridRows;
-    fOnVariantCompare: TOnGridVariantCompare;
+    fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
@@ -294,6 +293,7 @@ type
     // - returns TRUE if something has been added
     // - will call LoadData if returns TRUE
     function Add(aData: PDocVariantData): Boolean;
+    function DoVariantComparer(const aV1, aV2: variant): PtrInt; virtual;
     procedure DoFindText(Sender: TObject);
     procedure DoFindNext(Sender: TObject);
     procedure DoFindReplace(Sender: TObject);
@@ -595,8 +595,8 @@ type
       read fOnBeforePaste write fOnBeforePaste;
     property OnNodesDelete: TOnGridRows
       read fOnNodesDelete write fOnNodesDelete;
-    property OnVariantCompare: TOnGridVariantCompare
-      read fOnVariantCompare write fOnVariantCompare;
+    property OnCompareByRow: TOnGridCompareByRow
+      read fOnCompareByRow write fOnCompareByRow;
     property OnAfterFillPopupMenu: TNotifyEvent
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
   end;
@@ -1121,28 +1121,6 @@ begin
 end;
 
 { TTisGrid }
-
-var
-  /// global variable used temporarily by grids in few cases
-  // - as UI runs in one thread, it is safe
-  vGridContext: record
-    Sender: TTisGrid;
-    PropertyName: RawUtf8;
-  end;
-
-/// function used by grids for comparing variant nodes
-// - it will uses the global context and OnVariantCompare must be assigned before it gets here
-// - if OnVariantCompare returns true, then a custom comparison was done in the callback to be used as the result
-// - if OnVariantCompare returns false, then aCompared is ignored and a default variant compare sort will be performed
-// - it will use Data.Options to determine how the values will be compared (case-sensitive or insensitive)
-function GridVariantCompare(const V1, V2: Variant): PtrInt;
-begin
-  with vGridContext do
-  begin
-    if not Sender.OnVariantCompare(Sender, PropertyName, V1, V2, result) then
-      result := FastVarDataComp(@V1, @V2, not (dvoNameCaseSensitive in Sender.Data.Options));
-  end;
-end;
 
 function TTisGrid.FocusedPropertyName: string;
 begin
@@ -1858,6 +1836,11 @@ begin
     LoadData;
 end;
 
+function TTisGrid.DoVariantComparer(const aV1, aV2: variant): PtrInt;
+begin
+  result := OnCompareByRow(self, fSortContext.PropertyName, aV1, aV2, fSortContext.Reverse);
+end;
+
 procedure TTisGrid.DoFindText(Sender: TObject);
 begin
   fStartSearchNode := nil;
@@ -2163,29 +2146,25 @@ end;
 
 procedure TTisGrid.Sort(aNode: PVirtualNode; aColumn: TColumnIndex;
   aDirection: TSortDirection; DoInit: Boolean);
-var
-  propname: RawUtf8;
-  compare: TVariantCompare;
 begin
   inherited Sort(aNode, aColumn, aDirection, DoInit);
   if aColumn = NoColumn then
     exit;
-  propname := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
-  if propname <> '' then
-  begin
-    if assigned(OnVariantCompare) then
-    begin
-      with vGridContext do
+  fSortContext.PropertyName := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
+  if fSortContext.PropertyName <> '' then
+    try
+      fSortContext.Reverse := aDirection = sdDescending;
+      if assigned(OnCompareByRow) then
+        fData.SortByRow(DoVariantComparer)
+      else
+        fData.SortArrayByField(fSortContext.PropertyName, nil, aDirection = sdDescending);
+    finally
+      with fSortContext do
       begin
-        Sender := self;
-        PropertyName := propname;
+        PropertyName := '';
+        Reverse := False;
       end;
-      compare := @GridVariantCompare
-    end
-    else
-      compare := nil;
-    fData.SortArrayByField(propname, compare, aDirection = sdAscending);
-  end;
+    end;
 end;
 
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);

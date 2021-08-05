@@ -55,6 +55,8 @@ type
     procedure ClipboardLabelClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
+    function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
+      const aV1, aV2: Variant; aReverse: Boolean): PtrInt;
     procedure GridDataLabelClick(Sender: TObject);
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -99,6 +101,15 @@ begin
   end
   else
     ShowMessage('Type a JSON into Input/Output memo.');
+end;
+
+function TMainForm.GridCompareByRow(sender: TTisGrid;
+  const aPropertyName: RawUtf8; const aV1, aV2: Variant; aReverse: Boolean): PtrInt;
+begin
+  if aReverse then
+    result := _Safe(aV2)^.CompareObject(aPropertyName, _Safe(aV1)^)
+  else
+    result := _Safe(aV1)^.CompareObject(aPropertyName, _Safe(aV2)^)
 end;
 
 procedure TMainForm.ClipboardLabel1Click(Sender: TObject);

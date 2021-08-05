@@ -69,6 +69,7 @@ object MainForm: TMainForm
           ZebraColor = 15593713
           PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowExportExcel, pmoShowCustomizeColumns]
           OnInitNode = GridInitNode
+          OnCompareByRow = GridCompareByRow
         end
         object AddRowsButton: TSpeedButton
           Left = 96
