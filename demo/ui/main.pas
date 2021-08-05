@@ -56,7 +56,8 @@ type
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
-      const aV1, aV2: Variant; aReverse: Boolean): PtrInt;
+      const aV1, aV2: Variant; aReverse: Boolean; var aHandled: Boolean
+      ): PtrInt;
     procedure GridDataLabelClick(Sender: TObject);
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -104,8 +105,11 @@ begin
 end;
 
 function TMainForm.GridCompareByRow(sender: TTisGrid;
-  const aPropertyName: RawUtf8; const aV1, aV2: Variant; aReverse: Boolean): PtrInt;
+  const aPropertyName: RawUtf8; const aV1, aV2: Variant; aReverse: Boolean;
+  var aHandled: Boolean): PtrInt;
 begin
+  // you can change and use a customized comparison here
+  aHandled := True;
   if aReverse then
     result := _Safe(aV2)^.CompareObject(aPropertyName, _Safe(aV1)^)
   else
