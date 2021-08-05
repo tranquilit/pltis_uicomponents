@@ -111,7 +111,7 @@ begin
   // if you do not want to compare, just assign False
   aHandled := True;
   // you can change and use a customized comparison here
-  result := aRow1.CompareObject(aPropertyName, aRow2);
+  result := aRow1.CompareObject([aPropertyName], aRow2);
 end;
 
 procedure TMainForm.ClipboardLabel1Click(Sender: TObject);
