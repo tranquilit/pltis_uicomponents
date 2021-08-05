@@ -1845,10 +1845,9 @@ begin
   begin
     result := OnCompareByRow(self, PropertyName, aV1, aV2, Reverse, handled);
     if not handled then
-      if Reverse then
-        result := _Safe(aV2)^.CompareObject(PropertyName, _Safe(aV1)^)
-      else
-        result := _Safe(aV1)^.CompareObject(PropertyName, _Safe(aV2)^)
+      result := _Safe(aV1)^.CompareObject(PropertyName, _Safe(aV2)^);
+    if Reverse then
+      result := -result;
   end;
 end;
 

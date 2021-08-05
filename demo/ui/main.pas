@@ -108,12 +108,10 @@ function TMainForm.GridCompareByRow(sender: TTisGrid;
   const aPropertyName: RawUtf8; const aV1, aV2: Variant; aReverse: Boolean;
   var aHandled: Boolean): PtrInt;
 begin
+  // if you do not want to compare, just assign False
+  aHandled := False;
   // you can change and use a customized comparison here
-  aHandled := True;
-  if aReverse then
-    result := _Safe(aV2)^.CompareObject(aPropertyName, _Safe(aV1)^)
-  else
-    result := _Safe(aV1)^.CompareObject(aPropertyName, _Safe(aV2)^)
+  result := _Safe(aV1)^.CompareObject(aPropertyName, _Safe(aV2)^)
 end;
 
 procedure TMainForm.ClipboardLabel1Click(Sender: TObject);
