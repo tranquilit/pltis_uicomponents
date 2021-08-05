@@ -170,8 +170,9 @@ type
     pmoShowPaste,
     pmoShowDelete,
     pmoShowSelectAll,
-    pmoShowExportExcel,
     pmoShowCustomizeColumns,
+    // below here, False by default
+    pmoShowExportExcel,
     pmoShowCustomizeGrid
   );
 
