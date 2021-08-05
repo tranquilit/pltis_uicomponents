@@ -2168,7 +2168,7 @@ begin
       if assigned(OnCompareByRow) then
         fData.SortByRow(DoVariantComparer)
       else
-        fData.SortArrayByField(fSortContext.PropertyName, nil, aDirection = sdDescending);
+        fData.SortArrayByField(fSortContext.PropertyName, nil, fSortContext.Reverse);
     finally
       with fSortContext do
       begin
