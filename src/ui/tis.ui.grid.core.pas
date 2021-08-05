@@ -39,8 +39,6 @@ uses
 type
   TTisGrid = class;
 
-  TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
-
   /// if it returns true, then a custom comparison should be done in the callback, and aCompared return -1, 0, 1
   // for a custom comparation between aV1 and aV2
   // - if it returns false, then aCompared is ignored and a default variant compare sort, using case-sensitive,
@@ -48,8 +46,6 @@ type
   // - the user could then just check aPropertyName and react as expected for a given column
   TOnGridVariantCompare = function(sender: TTisGrid; const aPropertyName: RawUtf8;
     const aV1, aV2: Variant; var aCompared: PtrInt): Boolean of object;
-
-  TOnGridPaste = function(sender: TTisGrid; aRow: PDocVariantData): Boolean of object;
 
   TTisGridColumn = class(TVirtualTreeColumn)
   private
@@ -192,6 +188,10 @@ type
   TOnGridGetText = procedure(sender: TBaseVirtualTree; aNode: PVirtualNode;
     aRowData: PDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
     var aCellText: string) of object;
+
+  TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
+
+  TOnGridPaste = function(sender: TTisGrid; aRow: PDocVariantData): Boolean of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
