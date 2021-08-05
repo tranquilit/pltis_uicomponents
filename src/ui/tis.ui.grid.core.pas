@@ -184,7 +184,7 @@ type
   TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
 
   TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
-    const aV1, aV2: Variant; aReverse: Boolean; var aHandled: Boolean): PtrInt of object;
+    const aRow1, aRow2: TDocVariantData; aReverse: Boolean; var aHandled: Boolean): PtrInt of object;
 
   TOnGridPaste = function(sender: TTisGrid; aRow: PDocVariantData): Boolean of object;
 
@@ -1839,13 +1839,16 @@ end;
 function TTisGrid.DoVariantComparer(const aV1, aV2: variant): PtrInt;
 var
   handled: Boolean;
+  r1, r2: PDocVariantData;
 begin
   handled := False;
   with fSortContext do
   begin
-    result := OnCompareByRow(self, PropertyName, aV1, aV2, Reverse, handled);
+    r1 := _Safe(aV1);
+    r2 := _Safe(aV2);
+    result := OnCompareByRow(self, PropertyName, r1^, r2^, Reverse, handled);
     if not handled then
-      result := _Safe(aV1)^.CompareObject(PropertyName, _Safe(aV2)^);
+      result := r1^.CompareObject(PropertyName, r2^);
     if Reverse then
       result := -result;
   end;
