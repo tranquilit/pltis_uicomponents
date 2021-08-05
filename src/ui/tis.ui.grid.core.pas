@@ -183,7 +183,7 @@ type
 
   TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
 
-  /// event for comparison rows of objects
+  /// event for comparing rows of objects
   // - as used by TTisGrid.Sort
   TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
     const aRow1, aRow2: TDocVariantData; aReverse: Boolean; var aHandled: Boolean): PtrInt of object;
@@ -597,7 +597,7 @@ type
       read fOnBeforePaste write fOnBeforePaste;
     property OnNodesDelete: TOnGridRows
       read fOnNodesDelete write fOnNodesDelete;
-    /// event for comparison rows of objects
+    /// comparing rows of objects
     // - aPropertyName is the header column it was clicked
     // - aRow1, aRow2 are the whole lines that should be compared
     // - aReverse indicates if it is ascendend or desdencent
