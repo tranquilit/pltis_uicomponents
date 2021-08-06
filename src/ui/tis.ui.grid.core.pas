@@ -219,7 +219,7 @@ type
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
     fOnBeforePaste: TOnGridPaste;
-    fOnNodesDelete: TOnGridRows;
+    fOnDeleteRows: TOnGridRows;
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
     // ------------------------------- HMENU ----------------------------------
@@ -596,8 +596,8 @@ type
       read fOnCutToClipBoard write SetOnCutToClipBoard;
     property OnBeforePaste: TOnGridPaste
       read fOnBeforePaste write fOnBeforePaste;
-    property OnNodesDelete: TOnGridRows
-      read fOnNodesDelete write fOnNodesDelete;
+    property OnDeleteRows: TOnGridRows
+      read fOnDeleteRows write fOnDeleteRows;
     /// comparing rows of objects
     // - aPropertyName is the header column it was clicked
     // - aRow1, aRow2 are the whole lines that should be compared
@@ -1752,7 +1752,7 @@ begin
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
     HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), DoPaste);
   AddItem('-', 0, nil);
-  if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnNodesDelete)) then
+  if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnDeleteRows)) then
     HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), DoDeleteRows);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
     HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), DoSelectAllRows);
@@ -2049,14 +2049,13 @@ var
   d: TDocVariantData;
 begin
   d := SelectedRows;
-  if assigned(fOnNodesDelete) then
-    fOnNodesDelete(self, @d)
+  if assigned(fOnDeleteRows) then
+    fOnDeleteRows(self, @d)
   else
     if (not d.IsVoid) and (Dialogs.MessageDlg(RsConfirmation, Format(RsConfDeleteRow, [SelectedCount]),
       mtConfirmation, mbYesNoCancel, 0) = mrYes) then
     begin
       DeleteRows(@d);
-      //DeleteSelectedNodes;
     end;
 end;
 
