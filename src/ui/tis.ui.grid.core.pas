@@ -603,10 +603,10 @@ type
     property OnBeforePaste: TOnGridPaste
       read fOnBeforePaste write fOnBeforePaste;
     /// event to manipulate rows before deleting them
-    // - use it for change the rows or abort the process
+    // - use it for change the rows or abort the process by assign True to aAbort
     // - if you do not use this event, by default it will ask user about deletion
-    // and if the answer was yes, then selected rows will be deleted
-    // - you can supress the dialog for user by assign False to aAskUser
+    // and, if the answer was yes, selected rows will be deleted
+    // - you can also supress the user dialog, asking it should continue, by assign False to aAskUser
     property OnBeforeDeleteRows: TOnGridBeforeDeleteRows
       read fOnBeforeDeleteRows write fOnBeforeDeleteRows;
     /// comparing rows of objects
