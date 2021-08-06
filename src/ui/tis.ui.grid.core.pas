@@ -184,6 +184,12 @@ type
 
   TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
 
+  /// event to manipulate rows before deleting them
+  // - as used by TTisGrid.OnBeforeDeleteRows
+  // - use it for change the rows or abort the process
+  TOnGridBeforeDeleteRows = procedure (sender: TTisGrid; aRows: PDocVariantData;
+    var aAskUser, aAbort: Boolean) of object;
+
   /// event for comparing rows of objects
   // - as used by TTisGrid.Sort
   TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
@@ -219,7 +225,7 @@ type
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
     fOnBeforePaste: TOnGridPaste;
-    fOnDeleteRows: TOnGridRows;
+    fOnBeforeDeleteRows: TOnGridBeforeDeleteRows;
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
     // ------------------------------- HMENU ----------------------------------
@@ -596,8 +602,13 @@ type
       read fOnCutToClipBoard write SetOnCutToClipBoard;
     property OnBeforePaste: TOnGridPaste
       read fOnBeforePaste write fOnBeforePaste;
-    property OnDeleteRows: TOnGridRows
-      read fOnDeleteRows write fOnDeleteRows;
+    /// event to manipulate rows before deleting them
+    // - use it for change the rows or abort the process
+    // - if you do not use this event, by default it will ask user about deletion
+    // and if the answer was yes, then selected rows will be deleted
+    // - you can supress the dialog for user by assign False to aAskUser
+    property OnBeforeDeleteRows: TOnGridBeforeDeleteRows
+      read fOnBeforeDeleteRows write fOnBeforeDeleteRows;
     /// comparing rows of objects
     // - aPropertyName is the header column it was clicked
     // - aRow1, aRow2 are the whole lines that should be compared
@@ -1752,7 +1763,7 @@ begin
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
     HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), DoPaste);
   AddItem('-', 0, nil);
-  if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnDeleteRows)) then
+  if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) then
     HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), DoDeleteRows);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
     HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), DoSelectAllRows);
@@ -2047,16 +2058,33 @@ end;
 procedure TTisGrid.DoDeleteRows(Sender: TObject);
 var
   d: TDocVariantData;
+  ask, aborted: Boolean;
+
+  function UserConfirmed: Boolean;
+  begin
+    result := Dialogs.MessageDlg(
+      RsConfirmation, Format(RsConfDeleteRow, [SelectedCount]),
+      mtConfirmation, mbYesNoCancel, 0) = mrYes;
+  end;
+
 begin
   d := SelectedRows;
-  if assigned(fOnDeleteRows) then
-    fOnDeleteRows(self, @d)
+  if d.IsVoid then
+    exit;
+  if assigned(fOnBeforeDeleteRows) then
+  begin
+    ask := True;
+    aborted := False;
+    fOnBeforeDeleteRows(self, @d, ask, aborted);
+    if aborted then
+      exit;
+    if ask and (not UserConfirmed) then
+      exit;
+    DeleteRows(@d);
+  end
   else
-    if (not d.IsVoid) and (Dialogs.MessageDlg(RsConfirmation, Format(RsConfDeleteRow, [SelectedCount]),
-      mtConfirmation, mbYesNoCancel, 0) = mrYes) then
-    begin
+    if UserConfirmed then
       DeleteRows(@d);
-    end;
 end;
 
 procedure TTisGrid.DoPaste(Sender: TObject);

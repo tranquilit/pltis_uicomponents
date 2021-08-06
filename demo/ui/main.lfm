@@ -67,7 +67,7 @@ object MainForm: TMainForm
           TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toAlwaysHideSelection]
           TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
           ZebraColor = 15593713
-          PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowExportExcel, pmoShowCustomizeColumns]
+          PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExportExcel]
           OnInitNode = GridInitNode
           OnCompareByRow = GridCompareByRow
         end
