@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="12">
+    <Files Count="13">
       <Item1>
         <Filename Value="..\src\ui\tis.ui.registry.pas"/>
         <HasRegisterProc Value="True"/>
@@ -77,25 +77,32 @@
         <Filename Value="..\src\ui\tis.ui.togglebutton.pas"/>
         <UnitName Value="tis.ui.togglebutton"/>
       </Item12>
+      <Item13>
+        <Filename Value="..\src\ui\tis.ui.syncontroledit.pas"/>
+        <UnitName Value="SynControlEdit"/>
+      </Item13>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>
       <OutDir Value="..\languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="4">
+    <RequiredPkgs Count="5">
       <Item1>
-        <PackageName Value="pltis_utils"/>
+        <PackageName Value="SynEdit"/>
       </Item1>
       <Item2>
-        <PackageName Value="mormot2"/>
+        <PackageName Value="pltis_utils"/>
       </Item2>
       <Item3>
-        <PackageName Value="virtualtreeview_package"/>
+        <PackageName Value="mormot2"/>
       </Item3>
       <Item4>
-        <PackageName Value="IDEIntf"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item4>
+      <Item5>
+        <PackageName Value="IDEIntf"/>
+      </Item5>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

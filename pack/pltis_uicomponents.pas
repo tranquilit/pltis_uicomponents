@@ -10,7 +10,7 @@ interface
 uses
   tis.ui.registry, tis.ui.grid.core, tis.ui.grid.editor, tis.core.os, 
   tis.core.utils, tis.ui.searchedit, tis.ui.tageditor, tis.ui.togglebutton, 
-  LazarusPackageIntf;
+  tis.ui.syncontroledit, LazarusPackageIntf;
 
 implementation
 
