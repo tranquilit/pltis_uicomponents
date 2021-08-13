@@ -14,22 +14,10 @@ uses
   sysutils,
   forms,
   controls,
-  graphics,
-  dialogs,
-  extctrls,
   stdctrls,
   buttons,
   comctrls,
   Menus,
-  ImgList,
-  synedit,
-  VirtualTrees,
-  mormot.core.base,
-  mormot.core.text,
-  mormot.core.unicode,
-  mormot.core.variants,
-  tis.core.os,
-  tis.ui.grid.core,
   demo.gridframe;
 
 type
