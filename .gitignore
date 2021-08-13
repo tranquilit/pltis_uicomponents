@@ -27,6 +27,7 @@
 FPC_Units/
 lib/
 out/
+bin/
 backup/
 *.pyd
 *.lps
