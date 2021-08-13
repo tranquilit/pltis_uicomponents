@@ -1,4 +1,4 @@
-unit tis.ui.SynControlEdit;
+unit tis.ui.syncontroledit;
 
 {$mode objfpc}{$H+}
 
