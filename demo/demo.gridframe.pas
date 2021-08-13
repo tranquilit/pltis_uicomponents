@@ -1,28 +1,20 @@
-// -----------------------------------------------------------------
-//    This file is part of Tranquil IT Software
-//    Copyright (C) 2012 - 2021  Tranquil IT https://www.tranquil.it
-//    All Rights Reserved.
-// ------------------------------------------------------------------
-unit main;
+unit demo.gridframe;
 
 {$i mormot.defines.inc}
 
 interface
 
 uses
-  classes,
-  sysutils,
-  forms,
-  controls,
-  graphics,
-  dialogs,
-  extctrls,
-  stdctrls,
-  buttons,
-  comctrls,
+  Classes,
+  SysUtils,
+  Forms,
+  Controls,
+  ExtCtrls,
+  Buttons,
+  StdCtrls,
+  Dialogs,
   Menus,
-  ImgList,
-  synedit,
+  SynEdit,
   VirtualTrees,
   mormot.core.base,
   mormot.core.text,
@@ -32,55 +24,54 @@ uses
   tis.ui.grid.core;
 
 type
-  TMainForm = class(TForm)
-    DeleteRowsButton: TSpeedButton;
-    ClipboardLabel1: TLabel;
+  TGridFrame = class(TFrame)
     AddRowsButton: TSpeedButton;
-    Label1: TLabel;
     ClipboardLabel: TLabel;
+    ClipboardLabel1: TLabel;
+    CustomizeButton: TSpeedButton;
+    DeleteRowsButton: TSpeedButton;
+    Grid: TTisGrid;
     GridDataLabel: TLabel;
     GridTotalLabel: TLabel;
-    MainPageControl: TPageControl;
-    MenuItem1: TMenuItem;
+    InOutputEdit: TSynEdit;
+    Label1: TLabel;
     Panel1: TPanel;
     Panel4: TPanel;
-    UserPopupMenu: TPopupMenu;
-    SOvsTisTab: TTabSheet;
-    InOutputEdit: TSynEdit;
-    Grid: TTisGrid;
     Splitter: TSplitter;
-    CustomizeButton: TSpeedButton;
+    UserPopupMenu: TPopupMenu;
+    MenuItem1: TMenuItem;
     procedure AddRowsButtonClick(Sender: TObject);
-    procedure ClipboardLabel1Click(Sender: TObject);
-    procedure ClipboardLabelClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; aReverse: Boolean;
       var aHandled: Boolean): PtrInt;
-    procedure GridDataLabelClick(Sender: TObject);
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+    procedure ClipboardLabel1Click(Sender: TObject);
+    procedure ClipboardLabelClick(Sender: TObject);
+    procedure GridDataLabelClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
-  end;
+  private
 
-var
-  MainForm: TMainForm;
+  public
+
+  end;
 
 implementation
 
 {$R *.lfm}
 
-{ TMainForm }
+{ TGridFrame }
 
-procedure TMainForm.CustomizeButtonClick(Sender: TObject);
+procedure TGridFrame.CustomizeButtonClick(Sender: TObject);
 begin
   Grid.Customize;
 end;
 
-procedure TMainForm.AddRowsButtonClick(Sender: TObject);
+procedure TGridFrame.AddRowsButtonClick(Sender: TObject);
 var
-  d: PDocVariantData;
+    d: PDocVariantData;
 begin
   if InOutputEdit.Text <> '' then
   begin
@@ -91,7 +82,7 @@ begin
     ShowMessage('Type a JSON into Input/Output memo.');
 end;
 
-procedure TMainForm.DeleteRowsButtonClick(Sender: TObject);
+procedure TGridFrame.DeleteRowsButtonClick(Sender: TObject);
 var
   d: PDocVariantData;
 begin
@@ -104,7 +95,7 @@ begin
     ShowMessage('Type a JSON into Input/Output memo.');
 end;
 
-function TMainForm.GridCompareByRow(sender: TTisGrid;
+function TGridFrame.GridCompareByRow(sender: TTisGrid;
   const aPropertyName: RawUtf8; const aRow1, aRow2: TDocVariantData;
   aReverse: Boolean; var aHandled: Boolean): PtrInt;
 begin
@@ -114,30 +105,30 @@ begin
   result := aRow1.CompareObject([aPropertyName], aRow2);
 end;
 
-procedure TMainForm.ClipboardLabel1Click(Sender: TObject);
+procedure TGridFrame.GridInitNode(Sender: TBaseVirtualTree; ParentNode,
+  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+begin
+  InitialStates := InitialStates + [ivsMultiline];
+end;
+
+procedure TGridFrame.ClipboardLabel1Click(Sender: TObject);
 begin
   InOutputEdit.Lines.Clear;
 end;
 
-procedure TMainForm.ClipboardLabelClick(Sender: TObject);
+procedure TGridFrame.ClipboardLabelClick(Sender: TObject);
 var
   c: TClipboardAdapter;
 begin
   InOutputEdit.Lines.Text := c.AsString;
 end;
 
-procedure TMainForm.GridDataLabelClick(Sender: TObject);
+procedure TGridFrame.GridDataLabelClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.Data.ToJson('', '', jsonHumanReadable));
 end;
 
-procedure TMainForm.GridInitNode(Sender: TBaseVirtualTree; ParentNode,
-  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
-begin
-  InitialStates := InitialStates + [ivsMultiline];
-end;
-
-procedure TMainForm.MenuItem1Click(Sender: TObject);
+procedure TGridFrame.MenuItem1Click(Sender: TObject);
 begin
   ShowMessage('User menu item action');
 end;

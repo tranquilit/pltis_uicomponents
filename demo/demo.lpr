@@ -3,14 +3,15 @@
 //    Copyright (C) 2012 - 2021  Tranquil IT https://www.tranquil.it
 //    All Rights Reserved.
 // ------------------------------------------------------------------
-program project;
+program demo;
 
 {$i mormot.defines.inc}
 
 uses
   interfaces, // this includes the LCL widgetset
   forms,
-  main;
+  demo.main,
+  demo.gridframe;
 
 {$R *.res}
 
