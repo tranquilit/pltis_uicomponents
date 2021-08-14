@@ -7,17 +7,18 @@ object MainForm: TMainForm
   ClientHeight = 876
   ClientWidth = 1126
   DesignTimePPI = 144
+  OnCreate = FormCreate
   Position = poScreenCenter
   LCLVersion = '2.0.12.0'
-  object MainPageControl: TPageControl
+  object PageControl: TPageControl
     Left = 0
     Height = 876
     Top = 0
     Width = 1126
-    ActivePage = GridTab
+    ActivePage = TagEditorTab
     Align = alClient
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object GridTab: TTabSheet
       Caption = 'Grid'
@@ -59,8 +60,48 @@ object MainForm: TMainForm
         end
       end
     end
-    object TagEditTab: TTabSheet
-      Caption = 'TagEdit'
+    object TagEditorTab: TTabSheet
+      Caption = 'TagEditorTab'
+      ClientHeight = 838
+      ClientWidth = 1118
+      object TisTagEditor1: TTisTagEditor
+        Left = 168
+        Height = 71
+        Top = 104
+        Width = 696
+        AutoHeight = False
+        BgColor = clWindow
+        BorderColor = clWindowFrame
+        Tags = <        
+          item
+            CanDeleteTag = True
+            TagBgColor = clGreen
+            TagBorderColor = clBlack
+            Text = 'windows'
+            TextColor = clWhite
+          end        
+          item
+            CanDeleteTag = True
+            TagBgColor = clBlue
+            TagBorderColor = clBlack
+            Text = 'linux'
+            TextColor = clWhite
+          end        
+          item
+            CanDeleteTag = True
+            TagBgColor = clRed
+            TagBorderColor = clBlack
+            Text = 'mac'
+            TextColor = clWhite
+          end>
+        Spacing = 8
+        TabOrder = 0
+        TabStop = True
+        TagBgColor = clSkyBlue
+        TagBorderColor = clNavy
+        TagRoundBorder = 0
+        TextColor = clWhite
+      end
     end
   end
 end

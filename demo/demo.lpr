@@ -11,7 +11,7 @@ uses
   interfaces, // this includes the LCL widgetset
   forms,
   demo.main,
-  demo.gridframe;
+  demo.grid.frame;
 
 {$R *.res}
 

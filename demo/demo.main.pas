@@ -18,14 +18,17 @@ uses
   buttons,
   comctrls,
   Menus,
-  demo.gridframe;
+  demo.grid.frame,
+  tis.ui.tageditor;
 
 type
   TMainForm = class(TForm)
     Grid: TGridFrame;
-    MainPageControl: TPageControl;
+    PageControl: TPageControl;
     GridTab: TTabSheet;
-    TagEditTab: TTabSheet;
+    TagEditorTab: TTabSheet;
+    TisTagEditor1: TTisTagEditor;
+    procedure FormCreate(Sender: TObject);
   end;
 
 var
@@ -36,5 +39,10 @@ implementation
 {$R *.lfm}
 
 { TMainForm }
+
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  PageControl.ActivePage := GridTab;
+end;
 
 end.

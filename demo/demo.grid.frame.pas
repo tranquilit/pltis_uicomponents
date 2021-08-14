@@ -1,4 +1,4 @@
-unit demo.gridframe;
+unit demo.grid.frame;
 
 {$i mormot.defines.inc}
 

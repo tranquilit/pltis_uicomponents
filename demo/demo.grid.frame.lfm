@@ -6,6 +6,7 @@ object GridFrame: TGridFrame
   ClientHeight = 706
   ClientWidth = 1116
   DesignTimePPI = 144
+  LCLVersion = '2.0.12.0'
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326
