@@ -77,7 +77,6 @@ type
     procedure ActPasteJsonTemplateExecute(Sender: TObject);
     procedure ActRemoveAllColumnsExecute(Sender: TObject);
     procedure ActUpdateColumnExecute(Sender: TObject);
-    procedure ActUpdateColumnUpdate(Sender: TObject);
     procedure GridHeaderDragged(Sender: TVTHeader; Column: TColumnIndex;
       OldPosition: Integer);
     procedure Button6Click(Sender: TObject);
@@ -89,6 +88,7 @@ type
     procedure GridHeaderDragging(Sender: TVTHeader; Column: TColumnIndex;
       var Allowed: Boolean);
     procedure GridHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+    procedure EdColumnIndexChange(Sender: TObject);
   end;
 
   TTisGridComponentEditor = class(TComponentEditor)
@@ -200,18 +200,13 @@ procedure TTisGridEditor.ActUpdateColumnExecute(Sender: TObject);
 var
   col: TTisGridColumn;
 begin
-  col := Grid.FocusedColumnObject;
+  col := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
   if col <> nil then
   begin
     col.Text := EdColumnTitle.Text;
     col.PropertyName := EdColumnProperty.Text;
   end;
   Grid.Invalidate;
-end;
-
-procedure TTisGridEditor.ActUpdateColumnUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := Grid.FocusedColumnObject <> nil;
 end;
 
 procedure TTisGridEditor.GridHeaderDragged(Sender: TVTHeader;
@@ -304,6 +299,11 @@ begin
     EdColumnTitle.Text := '';
     EdColumnProperty.Text := '';
   end;
+end;
+
+procedure TTisGridEditor.EdColumnIndexChange(Sender: TObject);
+begin
+  ActUpdateColumn.Enabled := EdColumnIndex.Text <> '';
 end;
 
 { TTisGridComponentEditor }

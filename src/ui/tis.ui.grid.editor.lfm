@@ -187,6 +187,7 @@ object TisGridEditor: TTisGridEditor
       ParentFont = False
       ReadOnly = True
       TabOrder = 4
+      OnChange = EdColumnIndexChange
     end
     object EdPosition: TEdit
       Left = 246
@@ -244,12 +245,11 @@ object TisGridEditor: TTisGridEditor
     object ActDelColumn: TAction
       Caption = 'Delete column'
       OnExecute = ActDelColumnExecute
-      OnUpdate = ActUpdateColumnUpdate
     end
     object ActUpdateColumn: TAction
       Caption = 'Update Column'
+      Enabled = False
       OnExecute = ActUpdateColumnExecute
-      OnUpdate = ActUpdateColumnUpdate
     end
     object ActCopySettings: TAction
       Caption = 'Copy grid configuration to clipboard'
