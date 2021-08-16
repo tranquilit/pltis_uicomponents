@@ -78,8 +78,6 @@ type
     procedure ActRemoveAllColumnsExecute(Sender: TObject);
     procedure ActUpdateColumnExecute(Sender: TObject);
     procedure ActUpdateColumnUpdate(Sender: TObject);
-    procedure GridFocusChanged(Sender: TBaseVirtualTree;
-        Node: PVirtualNode; Column: TColumnIndex);
     procedure GridHeaderDragged(Sender: TVTHeader; Column: TColumnIndex;
       OldPosition: Integer);
     procedure Button6Click(Sender: TObject);
@@ -90,6 +88,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure GridHeaderDragging(Sender: TVTHeader; Column: TColumnIndex;
       var Allowed: Boolean);
+    procedure GridHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
   end;
 
   TTisGridComponentEditor = class(TComponentEditor)
@@ -215,27 +214,6 @@ begin
   (Sender as TAction).Enabled := Grid.FocusedColumnObject <> nil;
 end;
 
-procedure TTisGridEditor.GridFocusChanged(Sender: TBaseVirtualTree;
-  Node: PVirtualNode; Column: TColumnIndex);
-var
-  col: TTisGridColumn;
-begin
-  col := Grid.FocusedColumnObject;
-  if col <> nil then
-  begin
-    EdColumnIndex.Text := IntToStr(col.Index);
-    EdColumnTitle.Text := col.Text;
-    EdColumnProperty.Text := col.PropertyName;
-    EdPosition.Text := inttostr(col.Position);
-  end
-  else
-  begin
-    EdColumnIndex.Text := '';
-    EdColumnTitle.Text := '';
-    EdColumnProperty.Text := '';
-  end;
-end;
-
 procedure TTisGridEditor.GridHeaderDragged(Sender: TVTHeader;
   Column: TColumnIndex; OldPosition: Integer);
 begin
@@ -305,6 +283,27 @@ procedure TTisGridEditor.GridHeaderDragging(Sender: TVTHeader;
   Column: TColumnIndex; var Allowed: Boolean);
 begin
   Grid.ReorderColumns;
+end;
+
+procedure TTisGridEditor.GridHeaderClick(Sender: TVTHeader;
+  HitInfo: TVTHeaderHitInfo);
+var
+  col: TTisGridColumn;
+begin
+  col := TTisGridColumn(Grid.Header.Columns[HitInfo.Column]);
+  if col <> nil then
+  begin
+    EdColumnIndex.Text := IntToStr(col.Index);
+    EdColumnTitle.Text := col.Text;
+    EdColumnProperty.Text := col.PropertyName;
+    EdPosition.Text := inttostr(col.Position);
+  end
+  else
+  begin
+    EdColumnIndex.Text := '';
+    EdColumnTitle.Text := '';
+    EdColumnProperty.Text := '';
+  end;
 end;
 
 { TTisGridComponentEditor }
