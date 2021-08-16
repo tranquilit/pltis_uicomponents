@@ -1,10 +1,10 @@
 object MainForm: TMainForm
-  Left = 378
-  Height = 876
-  Top = 86
+  Left = 376
+  Height = 827
+  Top = 109
   Width = 1126
   Caption = 'UI Demo'
-  ClientHeight = 876
+  ClientHeight = 827
   ClientWidth = 1126
   DesignTimePPI = 144
   OnCreate = FormCreate
@@ -12,33 +12,33 @@ object MainForm: TMainForm
   LCLVersion = '2.0.12.0'
   object PageControl: TPageControl
     Left = 0
-    Height = 876
+    Height = 827
     Top = 0
     Width = 1126
-    ActivePage = TagEditorTab
+    ActivePage = GridTab
     Align = alClient
     ParentFont = False
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object GridTab: TTabSheet
       Caption = 'Grid'
-      ClientHeight = 838
+      ClientHeight = 789
       ClientWidth = 1118
       inline Grid: TGridFrame
-        Height = 838
+        Height = 789
         Width = 1118
         Align = alClient
-        ClientHeight = 838
+        ClientHeight = 789
         ClientWidth = 1118
         DesignLeft = 491
         DesignTop = 178
         inherited Panel4: TPanel
-          Height = 508
+          Height = 459
           Width = 1118
-          ClientHeight = 508
+          ClientHeight = 459
           ClientWidth = 1118
           inherited Grid: TTisGrid
-            Height = 444
+            Height = 395
             Width = 1098
             DefaultNodeHeight = 18
             ParentFont = False
@@ -48,7 +48,7 @@ object MainForm: TMainForm
           end
         end
         inherited Panel1: TPanel
-          Top = 520
+          Top = 471
           Width = 1118
           ClientWidth = 1118
           inherited InOutputEdit: TSynEdit
@@ -56,7 +56,7 @@ object MainForm: TMainForm
           end
         end
         inherited Splitter: TSplitter
-          Top = 508
+          Top = 459
           Width = 1118
         end
       end
@@ -70,6 +70,8 @@ object MainForm: TMainForm
         Height = 71
         Top = 240
         Width = 696
+        TabOrder = 0
+        TabStop = True
         AutoHeight = False
         BgColor = clWindow
         BorderColor = clWindowFrame
@@ -96,8 +98,6 @@ object MainForm: TMainForm
             TextColor = clWhite
           end>
         Spacing = 8
-        TabOrder = 0
-        TabStop = True
         TagBgColor = clSkyBlue
         TagBorderColor = clNavy
         TagRoundBorder = 0

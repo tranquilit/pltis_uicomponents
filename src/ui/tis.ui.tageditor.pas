@@ -41,12 +41,15 @@ type
     TextColor: TColor;
   end;
 
-  TTagClickEvent = procedure(Sender: TObject; TagIndex: integer;
-    const TagCaption: string) of object;
-  TRemoveConfirmEvent = procedure(Sender: TObject; TagIndex: integer;
-    const TagCaption: string; var CanRemove: Boolean) of object;
-  TTagRemoved = procedure(Sender: TObject; TagIndex: integer) of object;
-  TBeforeTagRemove = procedure(Sender: TObject; TagIndex: integer) of object;
+  TOnTagClick = procedure(Sender: TObject; aTagIndex: integer;
+    const aTagCaption: string) of object;
+
+  TOnRemoveConfirm = procedure(Sender: TObject; aTagIndex: integer;
+    const aTagCaption: string; var aCanRemove: Boolean) of object;
+
+  TOnBeforeTagRemove = procedure(Sender: TObject; aTagIndex: integer) of object;
+
+  TOnAfterTagRemove = procedure(Sender: TObject; aTagIndex: integer) of object;
 
   TTags = class;
   TTisTagEditor = class;
@@ -61,13 +64,13 @@ type
     FText: string;
     function GetTagEditor: TTisTagEditor;
     procedure UpdateTagEditor;
-    procedure SetCanDeleteTag(const Value: Boolean);
-    procedure SetTagBgColor(const Value: TColor);
-    procedure SetTagBorderColor(const Value: TColor);
+    procedure SetCanDeleteTag(const aValue: Boolean);
+    procedure SetTagBgColor(const aValue: TColor);
+    procedure SetTagBorderColor(const aValue: TColor);
     procedure SetText(const aValue: string);
-    procedure SetTextColor(const Value: TColor);
+    procedure SetTextColor(const aValue: TColor);
   protected
-    procedure SetCollection(Value: TCollection); override;
+    procedure SetCollection(aValue: TCollection); override;
   published
     property CanDeleteTag: Boolean read FCanDeleteTag write SetCanDeleteTag;
     property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
@@ -77,7 +80,6 @@ type
     property Text: string read FText write SetText;
     property TextColor: TColor read FTextColor write SetTextColor;
   public
-    procedure Assign(Source: TPersistent); override;
     constructor Create(aCollection: TCollection); override;
   end;
 
@@ -97,7 +99,7 @@ type
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
     procedure Move(CurIndex, NewIndex: integer);
-    constructor Create(ATagEditor: TTisTagEditor; ATagsItemClass: TTagItemCLass);
+    constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
     property Items[Index: integer]: TTagItem read GetTagItem
       write SetTagItem; default;
     property TagEditor: TTisTagEditor read FTagEditor;
@@ -108,7 +110,6 @@ type
     FActualTagHeight: integer;
     FAllowDuplicates: Boolean;
     FAutoHeight: Boolean;
-    FBeforeTagRemove: TBeforeTagRemove;
     FBgColor: TColor;
     FBorderColor: TColor;
     FCanDragTags: Boolean;
@@ -131,8 +132,6 @@ type
     FNoLeadingSpaceInput: Boolean;
     FTags: TTags;
     FNumRows: integer;
-    FOnChange: TNotifyEvent;
-    FOnRemoveConfirm: TRemoveConfirmEvent;
     FPopupMenu: TPopupMenu;
     FPrevScrollPos: integer;
     FReadOnly: Boolean;
@@ -146,12 +145,15 @@ type
     FTagAdded: TNotifyEvent;
     FTagBgColor: TColor;
     FTagBorderColor: TColor;
-    FTagClickEvent: TTagClickEvent;
     FTagHeight: integer;
-    FTagRemoved: TTagRemoved;
     FTagRoundBorder: integer;
     FTextColor: TColor;
     FTrimInput: Boolean;
+    FOnTagClick: TOnTagClick;
+    FOnChange: TNotifyEvent;
+    FOnBeforeTagRemove: TOnBeforeTagRemove;
+    FOnAfterTagRemove: TOnAfterTagRemove;
+    FOnRemoveConfirm: TOnRemoveConfirm;
     function Accept: Boolean;
     function GetClickInfoAt(X, Y: integer): TClickInfo;
     function GetReadOnly: Boolean;
@@ -209,16 +211,20 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
+    property Anchors;
     property Align;
+    property Color;
+    property TabOrder;
+    property TabStop;
+    property Tag;
+    // ------------------------------- new properties ----------------------------------
     property AllowDuplicates: Boolean read FAllowDuplicates
       write FAllowDuplicates default False;
-    property Anchors;
     property AutoHeight: Boolean read FAutoHeight write SetAutoHeight;
     property BgColor: TColor read FBgColor write SetBgColor;
     property BorderColor: TColor read FBorderColor write SetBorderColor;
     property CanDragTags: Boolean read FCanDragTags write SetCanDragTags
       default True;
-    property Color;
     property CommaAccepts: Boolean read FCommaAccepts write FCommaAccepts
       default True;
     property Cursor;
@@ -234,24 +240,12 @@ type
       default False;
     property NoLeadingSpaceInput: Boolean read FNoLeadingSpaceInput
       write FNoLeadingSpaceInput default True;
-    property OnBeforeTagRemove: TBeforeTagRemove read FBeforeTagRemove
-      write FBeforeTagRemove;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property OnRemoveConfirm: TRemoveConfirmEvent read FOnRemoveConfirm
-      write FOnRemoveConfirm;
-    property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
-    property OnTagClick: TTagClickEvent read FTagClickEvent
-      write FTagClickEvent;
-    property OnTagRemoved: TTagRemoved read FTagRemoved write FTagRemoved;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
     property SemicolonAccepts: Boolean read FSemicolonAccepts
       write FSemicolonAccepts default True;
     property SpaceAccepts: Boolean read FSpaceAccepts write FSpaceAccepts
       default True;
     property Spacing: integer read FSpacing write SetSpacing;
-    property TabOrder;
-    property TabStop;
-    property Tag;
     property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
     property TagBorderColor: TColor read FTagBorderColor
       write SetTagBorderColor;
@@ -260,7 +254,19 @@ type
       write SetTagRoundBorder;
     property TextColor: TColor read FTextColor write SetTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
-
+    // ------------------------------- new events ----------------------------------
+    property OnChange: TNotifyEvent
+      read FOnChange write FOnChange;
+    property OnBeforeTagRemove: TOnBeforeTagRemove
+      read FOnBeforeTagRemove write FOnBeforeTagRemove;
+    property OnRemoveConfirm: TOnRemoveConfirm
+      read FOnRemoveConfirm write FOnRemoveConfirm;
+    property OnTagAdded: TNotifyEvent
+      read FTagAdded write FTagAdded;
+    property OnTagClick: TOnTagClick
+      read FOnTagClick write FOnTagClick;
+    property OnAfterTagRemove: TOnAfterTagRemove
+      read FOnAfterTagRemove write FOnAfterTagRemove;
   end;
 
 implementation
@@ -367,11 +373,11 @@ procedure TTisTagEditor.DoPopupMenuDeleteItem(Sender: TObject);
 begin
   if Sender is TMenuItem then
   begin
-    if Assigned(FBeforeTagRemove) then
-      FBeforeTagRemove(Self, TMenuItem(Sender).Tag);
+    if Assigned(FOnBeforeTagRemove) then
+      FOnBeforeTagRemove(Self, TMenuItem(Sender).Tag);
     FTags.Delete(TMenuItem(Sender).Tag);
-    if Assigned(FTagRemoved) then
-      FTagRemoved(Self, TMenuItem(Sender).Tag);
+    if Assigned(FOnAfterTagRemove) then
+      FOnAfterTagRemove(Self, TMenuItem(Sender).Tag);
   end;
 end;
 
@@ -520,11 +526,11 @@ begin
       begin
         if (FEdit.Text = '') and (FTags.Count > 0) then
         begin
-          if Assigned(FBeforeTagRemove) then
-            FBeforeTagRemove(Sender, FTags.Count - 1);
+          if Assigned(FOnBeforeTagRemove) then
+            FOnBeforeTagRemove(Sender, FTags.Count - 1);
           FTags.Delete(FTags.Count - 1);
-          if Assigned(FTagRemoved) then
-            FTagRemoved(Sender, FTags.Count - 1);
+          if Assigned(FOnAfterTagRemove) then
+            FOnAfterTagRemove(Sender, FTags.Count - 1);
           UpdateMetrics;
           Paint;
         end;
@@ -792,8 +798,8 @@ begin
         begin
           case p of
             PART_BODY:
-              if Assigned(FTagClickEvent) then
-                FTagClickEvent(Self, i, FTags.Items[i].Text);
+              if Assigned(FOnTagClick) then
+                FOnTagClick(Self, i, FTags.Items[i].Text);
             PART_REMOVE_BUTTON:
               begin
                 if not FDeleteTagButton then
@@ -805,11 +811,11 @@ begin
                   if not CanRemove then
                     Exit;
                 end;
-                if Assigned(FBeforeTagRemove) then
-                  FBeforeTagRemove(Self, i);
+                if Assigned(FOnBeforeTagRemove) then
+                  FOnBeforeTagRemove(Self, i);
                 FTags.Delete(i);
-                if Assigned(FTagRemoved) then
-                  FTagRemoved(Self, i);
+                if Assigned(FOnAfterTagRemove) then
+                  FOnAfterTagRemove(Self, i);
                 UpdateMetrics;
                 Paint;
               end;
@@ -1216,11 +1222,11 @@ begin
   result.FTextColor := FTagEditor.FTextColor;
 end;
 
-constructor TTags.Create(ATagEditor: TTisTagEditor;
-  ATagsItemClass: TTagItemCLass);
+constructor TTags.Create(aTagEditor: TTisTagEditor;
+  aTagsItemClass: TTagItemCLass);
 begin
-  inherited Create(ATagsItemClass);
-  FTagEditor := ATagEditor;
+  inherited Create(aTagsItemClass);
+  FTagEditor := aTagEditor;
 end;
 
 procedure TTags.DeleteAll;
@@ -1280,11 +1286,6 @@ end;
 
 { TTagItem }
 
-procedure TTagItem.Assign(Source: TPersistent);
-begin
-  inherited Assign(Source);
-end;
-
 constructor TTagItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
@@ -1313,25 +1314,25 @@ begin
   end;
 end;
 
-procedure TTagItem.SetCanDeleteTag(const Value: Boolean);
+procedure TTagItem.SetCanDeleteTag(const aValue: Boolean);
 begin
-  FCanDeleteTag := Value;
+  FCanDeleteTag := aValue;
 end;
 
-procedure TTagItem.SetTagBgColor(const Value: TColor);
+procedure TTagItem.SetTagBgColor(const aValue: TColor);
 begin
-  if FTagBgColor <> Value then
+  if FTagBgColor <> aValue then
   begin
-    FTagBgColor := Value;
+    FTagBgColor := aValue;
     UpdateTagEditor;
   end;
 end;
 
-procedure TTagItem.SetTagBorderColor(const Value: TColor);
+procedure TTagItem.SetTagBorderColor(const aValue: TColor);
 begin
-  if FTagBorderColor <> Value then
+  if FTagBorderColor <> aValue then
   begin
-    FTagBorderColor := Value;
+    FTagBorderColor := aValue;
     UpdateTagEditor;
   end;
 end;
@@ -1345,18 +1346,18 @@ begin
   end;
 end;
 
-procedure TTagItem.SetTextColor(const Value: TColor);
+procedure TTagItem.SetTextColor(const aValue: TColor);
 begin
-  if FTextColor <> Value then
+  if FTextColor <> aValue then
   begin
-    FTextColor := Value;
+    FTextColor := aValue;
     UpdateTagEditor;
   end;
 end;
 
-procedure TTagItem.SetCollection(Value: TCollection);
+procedure TTagItem.SetCollection(aValue: TCollection);
 begin
-  inherited SetCollection(Value);
+  inherited SetCollection(aValue);
   UpdateTagEditor;
 end;
 
