@@ -20,7 +20,7 @@ uses
   Menus,
   Spin,
   demo.grid.frame,
-  tis.ui.tageditor;
+  tis.ui.tageditor.core;
 
 type
   TMainForm = class(TForm)

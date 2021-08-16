@@ -66,8 +66,8 @@
         <Type Value="LRS"/>
       </Item9>
       <Item10>
-        <Filename Value="..\src\ui\tis.ui.tageditor.pas"/>
-        <UnitName Value="tis.ui.tageditor"/>
+        <Filename Value="..\src\ui\tis.ui.tageditor.core.pas"/>
+        <UnitName Value="tis.ui.tageditor.core"/>
       </Item10>
       <Item11>
         <Filename Value="..\src\ui\tis.ui.togglebutton.lrs"/>
@@ -79,7 +79,7 @@
       </Item12>
       <Item13>
         <Filename Value="..\src\ui\tis.ui.syncontroledit.pas"/>
-        <UnitName Value="SynControlEdit"/>
+        <UnitName Value="tis.ui.syncontroledit"/>
       </Item13>
     </Files>
     <i18n>

@@ -20,8 +20,8 @@ uses
   typinfo,
   tis.ui.grid.core,
   tis.ui.grid.editor,
+  tis.ui.tageditor.core,
   tis.ui.searchedit,
-  tis.ui.tageditor,
   tis.ui.togglebutton,
   tis.ui.syncontroledit;
 
@@ -32,7 +32,8 @@ implementation
 procedure Register;
 begin
   RegisterComponents('Tranquil IT', [
-    TTisGrid, TTisSearchEdit, TTisTagEditor, TTisToggleButton,
+    TTisGrid, TTisTagEditor,
+    TTisSearchEdit, TTisToggleButton,
     TTisControlSynEditor]);
   RegisterComponentEditor(TTisGrid, TTisGridComponentEditor);
 end;

@@ -8,7 +8,7 @@
 //    - modified and improved version (2021) by Daniel C. Dávila - https://github.com/daviladanielc/Delphi_TagEditor
 //    - modified, improved, and Lazarus converted version (2021) by Tranquil IT
 
-unit tis.ui.tageditor;
+unit tis.ui.tageditor.core;
 
 {$i mormot.defines.inc}
 
