@@ -132,28 +132,22 @@ end;
 
 function TTisControlSynEditor.getValueStartPosOf(key: String):Integer;
 var
-  keyPos, valuePos, lineSize, i: Integer;
+  valuePos, i, j: Integer;
 begin
-  lineSize := Pos(':', Text) - 1;
-  keyPos:=Pos(key, Text);
-  if (keyPos = 0) or (lineSize <= 0) then
-    Exit(0);
-  while keyPos <> 0 do
+  for i := 0 to Lines.Count - 1 do
   begin
-    keyPos := keyPos + Length(key);
-    valuePos := Pos(':', Text, keyPos);
-    if valuePos = 0 then
-      Exit(0);
-    i := keyPos;
-    while i < valuePos do
+    if not Lines[i].StartsWith(key) then
+      continue;
+    valuePos := Pos(':', Lines[i], Length(key));
+    j := Length(key) + 1;
+    while j < valuePos do
     begin
-      if Text[i] <> ' ' then
+      if Lines[i][j] <> ' ' then
         break;
-      inc(i);
+      inc(j);
     end;
-    if i = valuePos then
-      Exit(i);
-    keyPos:=Pos(key, Text, valuePos);
+    if j = valuePos then
+      Exit(RowColToCharIndex(Point(j, i + 1)));
   end;
   Exit(0);
 end;
