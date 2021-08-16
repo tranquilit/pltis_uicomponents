@@ -52,10 +52,6 @@ type
     procedure ClipboardLabelClick(Sender: TObject);
     procedure GridDataLabelClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
-  private
-
-  public
-
   end;
 
 implementation

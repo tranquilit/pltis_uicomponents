@@ -31,7 +31,9 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('Tranquil IT', [TTisGrid, TTisSearchEdit, TTisTagEditor, TTisToggleButton, TTisControlSynEditor]);
+  RegisterComponents('Tranquil IT', [
+    TTisGrid, TTisSearchEdit, TTisTagEditor, TTisToggleButton,
+    TTisControlSynEditor]);
   RegisterComponentEditor(TTisGrid, TTisGridComponentEditor);
 end;
 
