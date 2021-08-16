@@ -66,6 +66,7 @@ implementation
 
 procedure TGridFrame.CustomizeButtonClick(Sender: TObject);
 begin
+  Grid.DefaultNodeHeight := 25;
   Grid.Customize;
 end;
 
