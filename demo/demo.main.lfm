@@ -68,32 +68,32 @@ object MainForm: TMainForm
       object TagEditor: TTisTagEditor
         Left = 168
         Height = 71
-        Top = 240
+        Top = 296
         Width = 696
         TabOrder = 0
         TabStop = True
         AutoHeight = False
-        BgColor = clWindow
+        BgColor = clWhite
         BorderColor = clWindowFrame
         Tags = <        
           item
-            CanDeleteTag = True
-            TagBgColor = clGreen
-            TagBorderColor = clBlack
+            CanDelete = True
+            BgColor = clGreen
+            BorderColor = clBlack
             Text = 'windows'
             TextColor = clWhite
           end        
           item
-            CanDeleteTag = True
-            TagBgColor = clBlue
-            TagBorderColor = clBlack
+            CanDelete = True
+            BgColor = clBlue
+            BorderColor = clBlack
             Text = 'linux'
             TextColor = clWhite
           end        
           item
-            CanDeleteTag = True
-            TagBgColor = clRed
-            TagBorderColor = clBlack
+            CanDelete = True
+            BgColor = clRed
+            BorderColor = clBlack
             Text = 'mac'
             TextColor = clWhite
           end>
@@ -101,16 +101,16 @@ object MainForm: TMainForm
         TagBgColor = clSkyBlue
         TagBorderColor = clNavy
         TagRoundBorder = 0
-        TextColor = clWhite
+        TagTextColor = clWhite
       end
       object GroupBox1: TGroupBox
         Left = 168
-        Height = 158
+        Height = 198
         Top = 70
         Width = 696
         Caption = ' Options '
-        ClientHeight = 158
-        ClientWidth = 696
+        ClientHeight = 168
+        ClientWidth = 692
         TabOrder = 1
         object AutoHeightCheckBox: TCheckBox
           Left = 55
@@ -124,24 +124,24 @@ object MainForm: TMainForm
         object AllowDuplicatesCheckBox: TCheckBox
           Left = 55
           Height = 29
-          Top = 48
+          Top = 56
           Width = 161
           Caption = 'Allow Duplicates'
           OnChange = AllowDuplicatesCheckBoxChange
-          TabOrder = 1
+          TabOrder = 2
         end
         object MaxTagsEdit: TSpinEdit
-          Left = 496
+          Left = 416
           Height = 33
           Top = 15
           Width = 75
           OnEditingDone = MaxTagsEditEditingDone
-          TabOrder = 2
+          TabOrder = 1
         end
         object Label1: TLabel
-          Left = 416
+          Left = 328
           Height = 25
-          Top = 20
+          Top = 19
           Width = 73
           Caption = 'Max Tags'
           ParentColor = False
@@ -149,10 +149,44 @@ object MainForm: TMainForm
         object MultiLinesCheckBox: TCheckBox
           Left = 55
           Height = 29
-          Top = 80
+          Top = 96
           Width = 114
           Caption = 'Multi Lines'
           OnChange = MultiLinesCheckBoxChange
+          TabOrder = 4
+        end
+        object Label2: TLabel
+          Left = 328
+          Height = 25
+          Top = 64
+          Width = 69
+          Caption = 'Bg Color'
+          ParentColor = False
+        end
+        object TextColorBox: TColorBox
+          Left = 416
+          Height = 26
+          Top = 104
+          Width = 150
+          ItemHeight = 20
+          OnChange = TextColorBoxChange
+          TabOrder = 5
+        end
+        object Label3: TLabel
+          Left = 328
+          Height = 25
+          Top = 104
+          Width = 78
+          Caption = 'Text Color'
+          ParentColor = False
+        end
+        object BgColorBox: TColorBox
+          Left = 416
+          Height = 26
+          Top = 64
+          Width = 150
+          ItemHeight = 20
+          OnChange = BgColorBoxChange
           TabOrder = 3
         end
       end
