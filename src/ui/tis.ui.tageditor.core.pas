@@ -207,7 +207,6 @@ type
   published
     property Anchors;
     property Align;
-    property Color;
     property TabOrder;
     property TabStop;
     property Tag;
