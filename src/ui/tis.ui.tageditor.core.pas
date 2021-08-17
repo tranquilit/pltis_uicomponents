@@ -298,7 +298,7 @@ begin
 end;
 
 /// round color to white or black
-function GetOpposite(aValue: TColor): TColor;
+function GetBlackOrWhite(aValue: TColor): TColor;
 begin
   if ((GetRValue(longword(aValue)) * 2) +
     (GetGValue(longword(aValue)) * 3) +
@@ -1131,7 +1131,7 @@ begin
   if FTagBgColor <> Value then
   begin
     FTagBgColor := Value;
-    TagTextColor := GetOpposite(FTagBgColor);
+    TagTextColor := GetBlackOrWhite(FTagBgColor);
     Invalidate;
   end;
 end;
@@ -1328,7 +1328,7 @@ begin
   if FBgColor <> aValue then
   begin
     FBgColor := aValue;
-    TextColor := GetOpposite(FBgColor);
+    TextColor := GetBlackOrWhite(FBgColor);
     UpdateTagEditor;
   end;
 end;
