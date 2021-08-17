@@ -1,12 +1,6 @@
-// -----------------------------------------------------------------
-//    This file is part of Tranquil IT Software
-//    Copyright (C) 2012 - 2021  Tranquil IT https://www.tranquil.it
-//    All Rights Reserved.
-// ------------------------------------------------------------------
-//
-//    - first version (2014) by Andreas Rejbrand - https://specials.rejbrand.se/dev/controls/tageditor/
-//    - modified and improved version (2021) by Daniel C. Dávila - https://github.com/daviladanielc/Delphi_TagEditor
-//    - modified, improved, and Lazarus converted version (2021) by Tranquil IT
+// - modified, improved, and Lazarus converted version (2021) by Tranquil IT
+// - modified and improved version (2021) by Daniel C. Dávila - https://github.com/daviladanielc/Delphi_TagEditor
+// - first version (2014) by Andreas Rejbrand - https://specials.rejbrand.se/dev/controls/tageditor/
 
 unit tis.ui.tageditor.core;
 
