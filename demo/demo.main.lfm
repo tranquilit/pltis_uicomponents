@@ -63,7 +63,7 @@ object MainForm: TMainForm
     end
     object TagEditorTab: TTabSheet
       Caption = 'TagEditor'
-      ClientHeight = 838
+      ClientHeight = 789
       ClientWidth = 1118
       object TagEditor: TTisTagEditor
         Left = 168

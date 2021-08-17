@@ -44,7 +44,6 @@ type
     ActPasteJsonTemplate: TAction;
     ActionList: TActionList;
     KeepDataCheckBox: TCheckBox;
-    DelColumnButton1: TButton;
     DelColumnButton2: TButton;
     MenuItem8: TMenuItem;
     PasteJsonButton: TButton;
@@ -67,8 +66,10 @@ type
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     Panel1: TPanel;
-    Panel2: TPanel;
+    PropertiesPanel: TPanel;
     PopupMenu1: TPopupMenu;
+    DelColumnButton1: TButton;
+    Label1: TLabel;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -89,6 +90,10 @@ type
       var Allowed: Boolean);
     procedure GridHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure EdColumnIndexChange(Sender: TObject);
+  private
+    procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
+      aColPosition: string);
+    procedure ClearPropertiesPanel;
   end;
 
   TTisGridComponentEditor = class(TComponentEditor)
@@ -135,18 +140,30 @@ end;
 procedure TTisGridEditor.ActClearAllExecute(Sender: TObject);
 begin
   Grid.ClearAll;
+  ClearPropertiesPanel;
 end;
 
 procedure TTisGridEditor.ActDelColumnExecute(Sender: TObject);
 var
-  delcol: TColumnIndex;
+  col: TTisGridColumn;
+  idx: Integer;
 begin
-  delcol := Grid.FocusedColumn;
-  Grid.Header.Columns.Delete(delcol);
-  if Grid.Header.Columns.IsValidColumn(delcol) then
-    Grid.FocusedColumn := delcol
-  else if Grid.Header.Columns.GetLastVisibleColumn >= 0 then
-    Grid.FocusedColumn := Grid.Header.Columns.GetLastVisibleColumn;
+  col := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
+  Grid.Header.Columns.Delete(col.Index);
+  idx := col.Index-1;
+  if not Grid.Header.Columns.IsValidColumn(idx) then
+  begin
+    if Grid.Header.Columns.GetLastVisibleColumn >= 0 then
+      idx := Grid.Header.Columns.GetLastVisibleColumn;
+  end;
+  if idx > NoColumn then
+  begin
+    col := TTisGridColumn(Grid.Header.Columns[idx]);
+    SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
+      IntToStr(col.Position));
+  end
+  else
+    ClearPropertiesPanel;
 end;
 
 procedure TTisGridEditor.ActPasteJsonTemplateExecute(Sender: TObject);
@@ -194,6 +211,7 @@ end;
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
 begin
   Grid.Header.Columns.Clear;
+  ClearPropertiesPanel;
 end;
 
 procedure TTisGridEditor.ActUpdateColumnExecute(Sender: TObject);
@@ -287,23 +305,30 @@ var
 begin
   col := TTisGridColumn(Grid.Header.Columns[HitInfo.Column]);
   if col <> nil then
-  begin
-    EdColumnIndex.Text := IntToStr(col.Index);
-    EdColumnTitle.Text := col.Text;
-    EdColumnProperty.Text := col.PropertyName;
-    EdPosition.Text := inttostr(col.Position);
-  end
+    SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
+      IntToStr(col.Position))
   else
-  begin
-    EdColumnIndex.Text := '';
-    EdColumnTitle.Text := '';
-    EdColumnProperty.Text := '';
-  end;
+    ClearPropertiesPanel;
 end;
 
 procedure TTisGridEditor.EdColumnIndexChange(Sender: TObject);
 begin
   ActUpdateColumn.Enabled := EdColumnIndex.Text <> '';
+  ActDelColumn.Enabled := ActUpdateColumn.Enabled;
+end;
+
+procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle,
+  aColProperty, aColPosition: string);
+begin
+  EdColumnIndex.Text := aColIndex;
+  EdColumnTitle.Text := aColTitle;
+  EdColumnProperty.Text := aColProperty;
+  EdPosition.Text := aColPosition;
+end;
+
+procedure TTisGridEditor.ClearPropertiesPanel;
+begin
+  SetPropertiesPanel('','', '', '');
 end;
 
 { TTisGridComponentEditor }

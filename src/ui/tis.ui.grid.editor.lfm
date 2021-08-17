@@ -1,11 +1,11 @@
 object TisGridEditor: TTisGridEditor
-  Left = 473
+  Left = 339
   Height = 440
-  Top = 147
-  Width = 1130
+  Top = 203
+  Width = 1181
   Caption = 'Grid Editor'
   ClientHeight = 440
-  ClientWidth = 1130
+  ClientWidth = 1181
   DesignTimePPI = 144
   OnCreate = FormCreate
   LCLVersion = '2.0.12.0'
@@ -13,7 +13,7 @@ object TisGridEditor: TTisGridEditor
     Left = 9
     Height = 43
     Top = 388
-    Width = 1112
+    Width = 1163
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
@@ -30,10 +30,10 @@ object TisGridEditor: TTisGridEditor
     Left = 0
     Height = 60
     Top = 0
-    Width = 1130
+    Width = 1181
     Align = alTop
     ClientHeight = 60
-    ClientWidth = 1130
+    ClientWidth = 1181
     ParentFont = False
     TabOrder = 0
     object PasteJsonButton: TButton
@@ -54,23 +54,14 @@ object TisGridEditor: TTisGridEditor
       ParentFont = False
       TabOrder = 1
     end
-    object DelColumnButton1: TButton
-      Left = 372
-      Height = 38
-      Top = 10
-      Width = 138
-      Action = ActDelColumn
-      ParentFont = False
-      TabOrder = 2
-    end
     object DelColumnButton2: TButton
-      Left = 520
+      Left = 448
       Height = 38
-      Top = 10
+      Top = 8
       Width = 186
       Action = ActRemoveAllColumns
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 2
     end
     object KeepDataCheckBox: TCheckBox
       Left = 840
@@ -82,7 +73,7 @@ object TisGridEditor: TTisGridEditor
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 4
+      TabOrder = 3
     end
   end
   object DelColumnButton: TButton
@@ -94,22 +85,22 @@ object TisGridEditor: TTisGridEditor
     ParentFont = False
     TabOrder = 1
   end
-  object Panel2: TPanel
-    Left = 824
+  object PropertiesPanel: TPanel
+    Left = 826
     Height = 319
     Top = 60
-    Width = 306
+    Width = 355
     Align = alRight
     BevelOuter = bvNone
     ClientHeight = 319
-    ClientWidth = 306
+    ClientWidth = 355
     ParentFont = False
     TabOrder = 4
     object EdColumnTitle: TLabeledEdit
       Left = 126
       Height = 33
       Top = 54
-      Width = 162
+      Width = 186
       EditLabel.Height = 25
       EditLabel.Width = 96
       EditLabel.Caption = 'Column title'
@@ -125,7 +116,7 @@ object TisGridEditor: TTisGridEditor
       Left = 126
       Height = 33
       Top = 96
-      Width = 162
+      Width = 186
       EditLabel.Height = 25
       EditLabel.Width = 117
       EditLabel.Caption = 'Property name'
@@ -141,7 +132,7 @@ object TisGridEditor: TTisGridEditor
       Left = 126
       Height = 33
       Top = 138
-      Width = 162
+      Width = 186
       ItemHeight = 25
       Items.Strings = (
         'String'
@@ -167,7 +158,7 @@ object TisGridEditor: TTisGridEditor
       Left = 126
       Height = 38
       Top = 180
-      Width = 160
+      Width = 90
       Action = ActUpdateColumn
       ParentFont = False
       TabOrder = 3
@@ -190,7 +181,7 @@ object TisGridEditor: TTisGridEditor
       OnChange = EdColumnIndexChange
     end
     object EdPosition: TEdit
-      Left = 246
+      Left = 270
       Height = 33
       Top = 10
       Width = 42
@@ -199,17 +190,35 @@ object TisGridEditor: TTisGridEditor
       ReadOnly = True
       TabOrder = 5
     end
+    object DelColumnButton1: TButton
+      Left = 224
+      Height = 38
+      Top = 180
+      Width = 88
+      Action = ActDelColumn
+      Caption = 'Delete'
+      ParentFont = False
+      TabOrder = 6
+    end
+    object Label1: TLabel
+      Left = 234
+      Height = 25
+      Top = 14
+      Width = 28
+      Caption = 'Pos'
+      ParentColor = False
+    end
   end
   object Grid: TTisGrid
     Left = 0
     Height = 319
     Top = 60
-    Width = 824
+    Width = 826
     Align = alClient
     Color = clWhite
     Colors.UnfocusedColor = clMedGray
     EditDelay = 200
-    Header.AutoSizeIndex = 0
+    Header.AutoSizeIndex = -1
     Header.Columns = <>
     Header.DefaultHeight = 28
     Header.Height = 43
@@ -242,14 +251,15 @@ object TisGridEditor: TTisGridEditor
       Caption = 'Add column'
       OnExecute = ActAddColumnExecute
     end
-    object ActDelColumn: TAction
-      Caption = 'Delete column'
-      OnExecute = ActDelColumnExecute
-    end
     object ActUpdateColumn: TAction
-      Caption = 'Update Column'
+      Caption = 'Update'
       Enabled = False
       OnExecute = ActUpdateColumnExecute
+    end
+    object ActDelColumn: TAction
+      Caption = 'Delete column'
+      Enabled = False
+      OnExecute = ActDelColumnExecute
     end
     object ActCopySettings: TAction
       Caption = 'Copy grid configuration to clipboard'
