@@ -1031,7 +1031,7 @@ begin
   if FBorderColor <> Value then
   begin
     FBorderColor := Value;
-
+    Invalidate;
   end;
 end;
 
