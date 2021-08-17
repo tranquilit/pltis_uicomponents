@@ -109,8 +109,8 @@ object MainForm: TMainForm
         Top = 70
         Width = 696
         Caption = ' Options '
-        ClientHeight = 128
-        ClientWidth = 692
+        ClientHeight = 158
+        ClientWidth = 696
         TabOrder = 1
         object AutoHeightCheckBox: TCheckBox
           Left = 55

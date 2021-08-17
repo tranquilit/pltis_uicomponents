@@ -108,7 +108,7 @@ object TisGridEditor: TTisGridEditor
       EditLabel.ParentFont = False
       LabelPosition = lpLeft
       ParentFont = False
-      TabOrder = 0
+      TabOrder = 2
       OnExit = EdColumnTitleExit
       OnKeyPress = EdColumnTitleKeyPress
     end
@@ -124,7 +124,7 @@ object TisGridEditor: TTisGridEditor
       EditLabel.ParentFont = False
       LabelPosition = lpLeft
       ParentFont = False
-      TabOrder = 1
+      TabOrder = 3
       OnExit = EdColumnPropertyExit
       OnKeyPress = EdColumnPropertyKeyPress
     end
@@ -143,7 +143,7 @@ object TisGridEditor: TTisGridEditor
         'Checkbox'
       )
       ParentFont = False
-      TabOrder = 2
+      TabOrder = 4
     end
     object LstEditorType: TLabel
       Left = 36
@@ -161,7 +161,7 @@ object TisGridEditor: TTisGridEditor
       Width = 90
       Action = ActUpdateColumn
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 5
     end
     object EdColumnIndex: TLabeledEdit
       Left = 126
@@ -177,7 +177,7 @@ object TisGridEditor: TTisGridEditor
       ParentColor = True
       ParentFont = False
       ReadOnly = True
-      TabOrder = 4
+      TabOrder = 0
       OnChange = EdColumnIndexChange
     end
     object EdPosition: TEdit
@@ -188,7 +188,7 @@ object TisGridEditor: TTisGridEditor
       Color = clBtnFace
       ParentFont = False
       ReadOnly = True
-      TabOrder = 5
+      TabOrder = 1
     end
     object DelColumnButton1: TButton
       Left = 224
