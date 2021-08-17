@@ -297,6 +297,16 @@ begin
     Windows.SetTextColor(hDC, oldTextColor);
 end;
 
+/// round color to white or black
+function GetOpposite(aValue: TColor): TColor;
+begin
+  if ((GetRValue(longword(aValue)) * 2) +
+    (GetGValue(longword(aValue)) * 3) +
+    (GetBValue(longword(aValue)) * 2)) < 1000 then
+    result := clWhite else
+    result := clBlack;
+end;
+
 { TTagEditor }
 
 constructor TTisTagEditor.Create(AOwner: TComponent);
@@ -1121,6 +1131,7 @@ begin
   if FTagBgColor <> Value then
   begin
     FTagBgColor := Value;
+    TagTextColor := GetOpposite(FTagBgColor);
     Invalidate;
   end;
 end;
@@ -1317,6 +1328,7 @@ begin
   if FBgColor <> aValue then
   begin
     FBgColor := aValue;
+    TextColor := GetOpposite(FBgColor);
     UpdateTagEditor;
   end;
 end;
