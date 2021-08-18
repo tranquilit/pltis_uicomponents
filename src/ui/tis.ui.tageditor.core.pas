@@ -1360,7 +1360,8 @@ initialization
 {$ifdef windows}
   Screen.Cursors[crHandPoint] := LoadCursor(0, IDC_HAND);
 {$else}
-  Screen.Cursors[crHandPoint] := LoadCursorFromLazarusResource('HandPoint');
+  //todo: form original Tranquil, not sure if it is working on Linux
+  // Screen.Cursors[crHandPoint] := LoadCursorFromLazarusResource('HandPoint');
 {$endif}
 
 end.
