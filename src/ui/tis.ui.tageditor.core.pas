@@ -27,11 +27,11 @@ type
   TClickInfo = cardinal;
   GetTagIndex = word;
 
-  TTagItemConfig = record
-    CanDeleteTag: Boolean;
-    TagBgColor: TColor;
-    TagBorderColor: TColor;
-    TagValue: Variant;
+  TTagContext = record
+    CanDelete: Boolean;
+    BgColor: TColor;
+    BorderColor: TColor;
+    Value: Variant;
     TextColor: TColor;
   end;
 
@@ -50,27 +50,27 @@ type
 
   TTagItem = class(TCollectionItem)
   private
-    FCanDeleteTag: Boolean;
-    FTagBgColor: TColor;
-    FTagBorderColor: TColor;
-    FTagValue: Variant;
+    FCanDelete: Boolean;
+    FBgColor: TColor;
+    FBorderColor: TColor;
+    FValue: Variant;
     FTextColor: TColor;
     FText: string;
     function GetTagEditor: TTisTagEditor;
     procedure UpdateTagEditor;
-    procedure SetCanDeleteTag(const aValue: Boolean);
-    procedure SetTagBgColor(const aValue: TColor);
-    procedure SetTagBorderColor(const aValue: TColor);
+    procedure SetCanDelete(const aValue: Boolean);
+    procedure SetBgColor(const aValue: TColor);
+    procedure SetBorderColor(const aValue: TColor);
     procedure SetText(const aValue: string);
     procedure SetTextColor(const aValue: TColor);
   protected
     procedure SetCollection(aValue: TCollection); override;
   published
-    property CanDeleteTag: Boolean read FCanDeleteTag write SetCanDeleteTag;
-    property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
-    property TagBorderColor: TColor read FTagBorderColor
-      write SetTagBorderColor;
-    property TagValue: Variant read FTagValue write FTagValue;
+    property CanDelete: Boolean read FCanDelete write SetCanDelete;
+    property BgColor: TColor read FBgColor write SetBgColor;
+    property BorderColor: TColor read FBorderColor
+      write SetBorderColor;
+    property Value: Variant read FValue write FValue;
     property Text: string read FText write SetText;
     property TextColor: TColor read FTextColor write SetTextColor;
   public
@@ -89,7 +89,7 @@ type
   public
     function IndexOf(const aText: string): integer;
     function DelimitedText: string;
-    function Add(aItemConfig: TTagItemConfig; const aText: string = ''): TTagItem; overload;
+    function Add(aItemConfig: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
     procedure Move(CurIndex, NewIndex: integer);
@@ -141,7 +141,7 @@ type
     FTagBorderColor: TColor;
     FTagHeight: integer;
     FTagRoundBorder: integer;
-    FTextColor: TColor;
+    FTagTextColor: TColor;
     FTrimInput: Boolean;
     FOnTagClick: TOnTagClick;
     FOnChange: TNotifyEvent;
@@ -180,7 +180,7 @@ type
     procedure SetTagBorderColor(const Value: TColor);
     procedure SetTagHeight(const Value: integer);
     procedure SetTagRoundBorder(const Value: integer);
-    procedure SetTextColor(const Value: TColor);
+    procedure SetTagTextColor(const Value: TColor);
     procedure ShowEditor;
     procedure TagChange(Sender: TObject);
     procedure UpdateMetrics;
@@ -207,7 +207,6 @@ type
   published
     property Anchors;
     property Align;
-    property Color;
     property TabOrder;
     property TabStop;
     property Tag;
@@ -246,7 +245,7 @@ type
     property TagHeight: integer read FTagHeight write SetTagHeight default 32;
     property TagRoundBorder: integer read FTagRoundBorder
       write SetTagRoundBorder;
-    property TextColor: TColor read FTextColor write SetTextColor;
+    property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     // ------------------------------- new events ----------------------------------
     property OnChange: TNotifyEvent
@@ -298,9 +297,19 @@ begin
     Windows.SetTextColor(hDC, oldTextColor);
 end;
 
+/// round color to white or black
+function GetBlackOrWhite(aValue: TColor): TColor;
+begin
+  if ((GetRValue(longword(aValue)) * 2) +
+    (GetGValue(longword(aValue)) * 3) +
+    (GetBValue(longword(aValue)) * 2)) < 1000 then
+    result := clWhite else
+    result := clBlack;
+end;
+
 { TTagEditor }
 
-constructor TTisTagEditor.Create(aOwner: TComponent);
+constructor TTisTagEditor.Create(AOwner: TComponent);
 begin
   inherited Create(aOwner);
   Left := 48;
@@ -315,7 +324,7 @@ begin
   FTagBgColor := clSkyBlue;
   FTagBorderColor := clNavy;
   FSpacing := 8;
-  FTextColor := clWhite;
+  FTagTextColor := clWhite;
   FSpaceAccepts := True;
   FCommaAccepts := True;
   FSemicolonAccepts := True;
@@ -964,8 +973,8 @@ begin
     Y := FTops[i] - FScrollInfo.nPos;
     w := FWidths[i];
     R := Rect(X, Y, X + w, Y + FActualTagHeight);
-    Canvas.Brush.Color := FTags.Items[i].FTagBgColor;
-    Canvas.Pen.Color := FTags.Items[i].FTagBorderColor;
+    Canvas.Brush.Color := FTags.Items[i].FBgColor;
+    Canvas.Pen.Color := FTags.Items[i].FBorderColor;
     Canvas.RoundRect(R, FTagRoundBorder, FTagRoundBorder);
     Canvas.Font.Color := FTags.Items[i].FTextColor;
     Canvas.Brush.Style := bsClear;
@@ -1032,7 +1041,7 @@ begin
   if FBorderColor <> Value then
   begin
     FBorderColor := Value;
-
+    Invalidate;
   end;
 end;
 
@@ -1080,15 +1089,15 @@ procedure TTisTagEditor.SetPasteText(AText: string);
 var
   LStrList: TStringList;
   i: integer;
-  LTagConf: TTagItemConfig;
+  LTagConf: TTagContext;
 begin
   if AText = '' then
     Exit;
   LStrList := TStringList.Create;
-  LTagConf.CanDeleteTag := FDeleteTagButton;
-  LTagConf.TagBgColor := FTagBgColor;
-  LTagConf.TagBorderColor := FTagBorderColor;
-  LTagConf.TextColor := FTextColor;
+  LTagConf.CanDelete := FDeleteTagButton;
+  LTagConf.BgColor := FTagBgColor;
+  LTagConf.BorderColor := FTagBorderColor;
+  LTagConf.TextColor := FTagTextColor;
   try
     LStrList.DelimitedText := AText;
     for i := 0 to LStrList.Count - 1 do
@@ -1122,6 +1131,7 @@ begin
   if FTagBgColor <> Value then
   begin
     FTagBgColor := Value;
+    TagTextColor := GetBlackOrWhite(FTagBgColor);
     Invalidate;
   end;
 end;
@@ -1155,11 +1165,11 @@ begin
     FTagRoundBorder := Value;
 end;
 
-procedure TTisTagEditor.SetTextColor(const Value: TColor);
+procedure TTisTagEditor.SetTagTextColor(const Value: TColor);
 begin
-  if FTextColor <> Value then
+  if FTagTextColor <> Value then
   begin
-    FTextColor := Value;
+    FTagTextColor := Value;
     Invalidate;
   end;
 end;
@@ -1196,13 +1206,13 @@ type
   //end;
 {$HINTS ON}
 
-function TTags.Add(aItemConfig: TTagItemConfig; const aText: string): TTagItem;
+function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
   result.FText := AText;
-  result.FCanDeleteTag := aItemConfig.CanDeleteTag;
-  result.FTagBgColor := aItemConfig.TagBgColor;
-  result.FTagBorderColor := aItemConfig.TagBorderColor;
+  result.FCanDelete := aItemConfig.CanDelete;
+  result.FBgColor := aItemConfig.BgColor;
+  result.FBorderColor := aItemConfig.BorderColor;
   result.FTextColor := aItemConfig.TextColor;
 end;
 
@@ -1210,10 +1220,10 @@ function TTags.Add(const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
   result.FText := aText;
-  result.FCanDeleteTag := FTagEditor.FDeleteTagButton;
-  result.FTagBgColor := FTagEditor.FTagBgColor;
-  result.FTagBorderColor := FTagEditor.FTagBorderColor;
-  result.FTextColor := FTagEditor.FTextColor;
+  result.FCanDelete := FTagEditor.FDeleteTagButton;
+  result.FBgColor := FTagEditor.FTagBgColor;
+  result.FBorderColor := FTagEditor.FTagBorderColor;
+  result.FTextColor := FTagEditor.FTagTextColor;
 end;
 
 constructor TTags.Create(aTagEditor: TTisTagEditor;
@@ -1283,9 +1293,9 @@ end;
 constructor TTagItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
-  FCanDeleteTag := GetTagEditor.DeleteTagButton;
-  FTagBgColor := GetTagEditor.FTagBgColor;
-  FTextColor := GetTagEditor.FTextColor;
+  FCanDelete := GetTagEditor.DeleteTagButton;
+  FBgColor := GetTagEditor.FTagBgColor;
+  FTextColor := GetTagEditor.FTagTextColor;
 end;
 
 function TTagItem.GetTagEditor: TTisTagEditor;
@@ -1308,25 +1318,26 @@ begin
   end;
 end;
 
-procedure TTagItem.SetCanDeleteTag(const aValue: Boolean);
+procedure TTagItem.SetCanDelete(const aValue: Boolean);
 begin
-  FCanDeleteTag := aValue;
+  FCanDelete := aValue;
 end;
 
-procedure TTagItem.SetTagBgColor(const aValue: TColor);
+procedure TTagItem.SetBgColor(const aValue: TColor);
 begin
-  if FTagBgColor <> aValue then
+  if FBgColor <> aValue then
   begin
-    FTagBgColor := aValue;
+    FBgColor := aValue;
+    TextColor := GetBlackOrWhite(FBgColor);
     UpdateTagEditor;
   end;
 end;
 
-procedure TTagItem.SetTagBorderColor(const aValue: TColor);
+procedure TTagItem.SetBorderColor(const aValue: TColor);
 begin
-  if FTagBorderColor <> aValue then
+  if FBorderColor <> aValue then
   begin
-    FTagBorderColor := aValue;
+    FBorderColor := aValue;
     UpdateTagEditor;
   end;
 end;
