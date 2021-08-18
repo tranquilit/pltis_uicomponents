@@ -9,7 +9,9 @@ unit tis.ui.tageditor.core;
 interface
 
 uses
+  {$ifdef windows}
   Windows,
+  {$endif}
   Messages,
   SysUtils,
   Classes,
@@ -21,6 +23,7 @@ uses
   Menus,
   Dialogs,
   StrUtils,
+  LCLIntf,
   LCLType;
 
 type
@@ -131,7 +134,7 @@ type
     FReadOnly: Boolean;
     FSavedReadOnly: Boolean;
     FScrollBarVisible: Boolean;
-    FScrollInfo: Windows.TScrollInfo;
+    FScrollInfo: TScrollInfo;
     FSemicolonAccepts: Boolean;
     FShrunk: Boolean;
     FSpaceAccepts: Boolean;
@@ -288,13 +291,13 @@ procedure SafeDrawFocusRect(hDC: hDC; const R: TRect);
 var
   oldBkColor, oldTextColor: COLORREF;
 begin
-  oldBkColor := Windows.SetBkColor(hDC, clWhite);
-  oldTextColor := Windows.SetTextColor(hDC, clBlack);
-  Windows.DrawFocusRect(hDC, R);
+  oldBkColor := SetBkColor(hDC, clWhite);
+  oldTextColor := SetTextColor(hDC, clBlack);
+  DrawFocusRect(hDC, R);
   if oldBkColor <> CLR_INVALID then
-    Windows.SetBkColor(hDC, oldBkColor);
+    SetBkColor(hDC, oldBkColor);
   if oldTextColor <> CLR_INVALID then
-    Windows.SetTextColor(hDC, oldTextColor);
+    SetTextColor(hDC, oldTextColor);
 end;
 
 /// round color to white or black
@@ -459,14 +462,17 @@ begin
 end;
 
 procedure TTisTagEditor.FixPosAndScrollWindow;
+var
+  r: TRect;
 begin
   FScrollInfo.fMask := SIF_POS;
   SetScrollInfo(Handle, SB_VERT, FScrollInfo, True);
   GetScrollInfo(Handle, SB_VERT, FScrollInfo);
   if FScrollInfo.nPos <> FPrevScrollPos then
   begin
+    r := GetShrunkClientRect(3);
     ScrollWindowEx(Handle, 0, FPrevScrollPos - FScrollInfo.nPos,
-      GetShrunkClientRect(3), GetShrunkClientRect(3), 0, nil, SW_INVALIDATE);
+      @r, @r, 0, nil, SW_INVALIDATE);
     FPrevScrollPos := FScrollInfo.nPos;
     Update;
   end;
@@ -677,14 +683,14 @@ end;
 procedure TTisTagEditor.CreateCaret;
 begin
   if not FCaretVisible then
-    FCaretVisible := Windows.CreateCaret(Handle, 0, 0, FActualTagHeight);
+    FCaretVisible := LCLIntf.CreateCaret(Handle, 0, 0, FActualTagHeight);
 end;
 
 procedure TTisTagEditor.DestroyCaret;
 begin
   if not FCaretVisible then
     Exit;
-  Windows.DestroyCaret;
+  LCLIntf.DestroyCaret(Handle);
   FCaretVisible := False;
 end;
 
@@ -985,9 +991,11 @@ begin
       if FDeleteButtonIcon.Empty then
         S := S + ' X'
       else
-        DrawIconEx(Canvas.Handle, FCloseBtnLefts[i], FCloseBtnTops[i] + 10,
+      {$ifdef windows} //todo
+        Windows.DrawIconEx(Canvas.Handle, FCloseBtnLefts[i], FCloseBtnTops[i] + 10,
           FDeleteButtonIcon.Handle, FDeleteButtonIcon.Width,
           FDeleteButtonIcon.Height, 0, DI_NORMAL, DI_NORMAL);
+      {$endif}
     end;
     DrawText(Canvas.Handle, PChar(S), -1, R, DT_SINGLELINE or DT_VCENTER or
       DT_LEFT or DT_END_ELLIPSIS or DT_NOPREFIX);
@@ -1367,6 +1375,10 @@ begin
 end;
 
 initialization
+{$ifdef windows}
   Screen.Cursors[crHandPoint] := LoadCursor(0, IDC_HAND);
+{$else}
+  Screen.Cursors[crHandPoint] := LoadCursorFromLazarusResource('HandPoint');
+{$endif}
 
 end.
