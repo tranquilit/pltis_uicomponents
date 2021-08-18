@@ -6,29 +6,52 @@ interface
 
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, SynEdit,
-  SynEditMarkupSelection, SynEditPointClasses, SynEditTypes, mormot.core.base;
+  SynEditMarkupSelection, SynEditPointClasses, SynEditTypes, mormot.core.base,
+  SynEditMiscClasses, mormot.core.data, mormot.core.variants ;
 
 type
-  TErrorMarkupRecord = record
+  TMarkupRecord = record
+    /// Key of the property
     key: RawUTF8;
+    /// Value of the markup
+    value: RawUtf8;
+    /// Id of the markup (for key with multiple markups)
+    id: Integer;
+    /// Markup with the selections style
     markup: TSynEditMarkupSelection;
+    /// Bloque with the selection of the value
     bloque: TSynEditSelection;
   end;
-  PErrorMarkupRecord = ^TErrorMarkupRecord;
-  TErrorMarkupsArray = array of TErrorMarkupRecord;
+  PMarkupRecord = ^TMarkupRecord;
+  TMarkupsArray = record
+    list: array of TMarkupRecord;
+    counts: TDocVariantData;
+  end;
+  PMarkupsArray = ^TMarkupsArray;
+  PSynSelectedColor = ^TSynSelectedColor;
 
   { TTisControlSynEditor }
 
   TTisControlSynEditor = class(TSynEdit)
   private
-    fErrorMarkups: TErrorMarkupsArray;
-    procedure AddErrorMarkup(errorMarkup: TErrorMarkupRecord);
-    function GetErrorMarkup(key: String): PErrorMarkupRecord;
-    function GetErrorMarkupIndex(key: String): Integer;
+    fErrorMarkups: TMarkupsArray;
+    fInfoMarkups: TMarkupsArray;
+
+    procedure clearMarkups(markupArray: PMarkupsArray);
+    procedure RemoveMarkup(index: Integer; markupArray: PMarkupsArray);
+    procedure setMarkup(key, Value: String; id: Integer;
+      markupArray: PMarkupsArray; markupInfo: TSynSelectedColor;
+  valuePos: Integer=-1);
+    procedure AddMarkup(newMarkup: TMarkupRecord; markupArray: PMarkupsArray);
+    function GetMarkup(key: String; markupArray: PMarkupsArray; id:Integer=-1): PMarkupRecord;
+    function GetMarkupIndex(key: String; markupArray: PMarkupsArray; id:Integer=-1): Integer;
     function GetValueStartPointOf(key: String): TPoint;
+    procedure RemoveMarkup(key: String; markupArray: PMarkupsArray; id:Integer=-1);
   public
     procedure clearMarkups;
+    procedure RemoveInfo(key: String);
     procedure AddError(key, value: String);
+    procedure AddInfo(key, value: String; valuePos: Integer=-1; bgColor: TColor=clYellow);
     procedure RemoveError(key: String);
     function getValueStartPosOf(key: String): Integer;
     constructor Create(AOwner: TComponent); override;
@@ -40,7 +63,8 @@ implementation
 constructor TTisControlSynEditor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  SetLength(fErrorMarkups, 0);
+  SetLength(fErrorMarkups.list, 0);
+  SetLength(fInfoMarkups.list, 0);
 end;
 
 destructor TTisControlSynEditor.Destroy;
@@ -49,85 +73,156 @@ begin
   inherited Destroy;
 end;
 
-procedure TTisControlSynEditor.clearMarkups;
+procedure TTisControlSynEditor.clearMarkups(markupArray: PMarkupsArray);
 begin
-  Delete(fErrorMarkups, 0, Length(fErrorMarkups));
+  Delete(markupArray^.list, 0, Length(markupArray^.list));
+  markupArray^.counts.Init([dvoReturnNullForUnknownProperty]);
 end;
 
-function TTisControlSynEditor.GetErrorMarkupIndex(key: String): Integer;
+procedure TTisControlSynEditor.clearMarkups;
+begin
+  clearMarkups(@fErrorMarkups);
+  clearMarkups(@fInfoMarkups);
+end;
+
+function TTisControlSynEditor.GetMarkupIndex(key: String;
+  markupArray: PMarkupsArray; id: Integer): Integer;
 var
   i: Integer;
 begin
-  if Length(fErrorMarkups) = 0 then
+  if Length(markupArray^.list) = 0 then
     Exit(-1);
-  for i := 0 to Length(fErrorMarkups) - 1 do
-    if fErrorMarkups[i].key = key then
+  for i := 0 to Length(markupArray^.list) - 1 do
+    if (markupArray^.list[i].key = key) and ((id = -1) or (markupArray^.list[i].id = id)) then
       Exit(i);
   Exit(-1);
 end;
 
-function TTisControlSynEditor.GetErrorMarkup(key: String): PErrorMarkupRecord;
+function TTisControlSynEditor.GetMarkup(key: String;
+  markupArray: PMarkupsArray; id: Integer): PMarkupRecord;
 var
   i: Integer;
 begin
-  i := GetErrorMarkupIndex(key);
+  i := GetMarkupIndex(key, markupArray, id);
   if i <> -1 then
-    Exit(@fErrorMarkups[i]);
+    Exit(@markupArray^.list[i]);
   Exit(nil);
 end;
 
-procedure TTisControlSynEditor.AddErrorMarkup(errorMarkup: TErrorMarkupRecord);
+procedure TTisControlSynEditor.AddMarkup(newMarkup: TMarkupRecord; markupArray: PMarkupsArray);
 begin
-  SetLength(fErrorMarkups, length(fErrorMarkups) + 1);
-  fErrorMarkups[length(fErrorMarkups) - 1] := errorMarkup;
+  SetLength(markupArray^.list, length(markupArray^.list) + 1);
+  markupArray^.list[length(markupArray^.list) - 1] := newMarkup;
+end;
+
+procedure TTisControlSynEditor.RemoveMarkup(index: Integer; markupArray: PMarkupsArray);
+begin
+  if index = -1 then
+    Exit;
+  MarkupManager.RemoveMarkUp(markupArray^.list[index].markup);
+  markupArray^.list[index].markup.Free;
+  markupArray^.list[index].bloque.Free;
+  Delete(markupArray^.list, index, 1);
+end;
+
+procedure TTisControlSynEditor.RemoveMarkup(key: String;
+  markupArray: PMarkupsArray; id: Integer);
+begin
+  RemoveMarkup(GetMarkupIndex(key, markupArray, id), markupArray);
 end;
 
 procedure TTisControlSynEditor.RemoveError(key: String);
-var
-  index: Integer;
 begin
-  index := GetErrorMarkupIndex(key);
-  if index = -1 then
-    Exit;
-  MarkupManager.RemoveMarkUp(fErrorMarkups[index].markup);
-  fErrorMarkups[index].markup.Free;
-  fErrorMarkups[index].bloque.Free;
-  Delete(fErrorMarkups, index, 1);
+  RemoveMarkup(key, @fErrorMarkups);
 end;
 
-procedure TTisControlSynEditor.AddError(key, value: String);
+procedure TTisControlSynEditor.setMarkup(key, Value: String; id:Integer;
+  markupArray: PMarkupsArray; markupInfo: TSynSelectedColor; valuePos:Integer);
 var
-  errorMarkupPtr: PErrorMarkupRecord;
-  newErrorMarkup: TErrorMarkupRecord;
+  markupPtr: PMarkupRecord;
+  newMarkup: TMarkupRecord;
   beginPoint: TPoint;
   startPos: Integer;
 begin
   startPos := GetValueStartPosOf(key);
   if startPos = 0 then
       Exit;
-  beginPoint := CharIndexToRowCol(Pos(value, Text, startPos) - 1);
-  errorMarkupPtr := GetErrorMarkup(key);
-  if errorMarkupPtr = nil then
+  if valuePos = -1 then
+    valuePos := Pos(value, Text, startPos)
+  else
+    valuePos := Pos(value, Text, startPos + valuePos);
+  beginPoint := CharIndexToRowCol(valuePos - 1);
+  markupPtr := GetMarkup(key, markupArray, id);
+  if markupPtr = nil then
   begin
-    newErrorMarkup.bloque := TSynEditSelection.Create(ViewedTextBuffer, false);
-    newErrorMarkup.bloque.InvalidateLinesMethod:= @InvalidateLines;
-    newErrorMarkup.markup := TSynEditMarkupSelection.Create(self, newErrorMarkup.bloque);
-    newErrorMarkup.bloque.StartLineBytePos := beginPoint;
-    newErrorMarkup.bloque.EndLineBytePos := beginPoint.Add(Point(Length(value), 0));
-    newErrorMarkup.markup.Enabled := true;
-    newErrorMarkup.markup.MarkupInfoSeletion.Foreground := clBlack;
-    newErrorMarkup.markup.MarkupInfoSeletion.Background := Color;
-    newErrorMarkup.markup.MarkupInfo.FrameColor := clRed;
-    newErrorMarkup.markup.MarkupInfo.FrameEdges := sfeBottom;
-    newErrorMarkup.markup.MarkupInfo.FrameStyle := slsWaved;
-    newErrorMarkup.key := key;
-    MarkupManager.AddMarkUp(newErrorMarkup.markup);
-    AddErrorMarkup(newErrorMarkup);
-  end else
+    newMarkup.key := key;
+    newMarkup.value:=Value;
+    newMarkup.id := id;
+    newMarkup.bloque := TSynEditSelection.Create(ViewedTextBuffer, false);
+    newMarkup.bloque.InvalidateLinesMethod:= @InvalidateLines;
+    newMarkup.bloque.StartLineBytePos := beginPoint;
+    newMarkup.bloque.EndLineBytePos := beginPoint.Add(Point(Length(value), 0));
+    newMarkup.markup := TSynEditMarkupSelection.Create(self, newMarkup.bloque);
+    newMarkup.markup.Enabled := true;
+    newMarkup.markup.MarkupInfoSeletion.Foreground := clBlack;
+    newMarkup.markup.MarkupInfoSeletion.Background := Color;
+    if markupInfo <> nil then
+    begin
+      newMarkup.markup.MarkupInfo.FrameEdges := markupInfo.FrameEdges;
+      newMarkup.markup.MarkupInfo.FrameColor := markupInfo.FrameColor;
+      newMarkup.markup.MarkupInfo.FrameStyle := markupInfo.FrameStyle;
+      newMarkup.markup.MarkupInfo.Background := markupInfo.Background;
+      MarkupManager.AddMarkUp(newMarkup.markup);
+    end;
+    AddMarkup(newMarkup, markupArray);
+  end else if markupInfo <> nil then
   begin
-    errorMarkupPtr^.bloque.StartLineBytePos := beginPoint;
-    errorMarkupPtr^.bloque.EndLineBytePos := beginPoint.Add(Point(Length(value), 0));
+    markupPtr^.bloque.StartLineBytePos := beginPoint;
+    markupPtr^.bloque.EndLineBytePos := beginPoint.Add(Point(Length(value), 0));
+    markupPtr^.markup.MarkupInfo.FrameEdges := markupInfo.FrameEdges;
+    markupPtr^.markup.MarkupInfo.FrameColor := markupInfo.FrameColor;
+    markupPtr^.markup.MarkupInfo.FrameStyle := markupInfo.FrameStyle;
+    markupPtr^.markup.MarkupInfo.Background := markupInfo.Background;
   end;
+end;
+
+procedure TTisControlSynEditor.RemoveInfo(key: String);
+var
+  count, i: Integer;
+begin
+  count := fInfoMarkups.counts.I[key];
+  if count = 0 then
+    Exit;
+  for i := 0 to fInfoMarkups.counts.I[key] - 1 do
+    RemoveMarkup(key, @fInfoMarkups, i);
+  fInfoMarkups.counts.I[key] := 0;
+end;
+
+
+procedure TTisControlSynEditor.AddInfo(key, value: String; valuePos: Integer; bgColor: TColor);
+var
+  markupInfos: TSynSelectedColor;
+  count: Integer;
+begin
+  count := fInfoMarkups.counts.I[key];
+  markupInfos := TSynSelectedColor.Create();
+  markupInfos.Background := bgColor;
+  setMarkup(key, value, count, @fInfoMarkups, markupInfos, valuePos);
+  markupInfos.Free;
+  fInfoMarkups.counts.I[key] := count + 1;
+end;
+
+procedure TTisControlSynEditor.AddError(key, value: String);
+var
+  markupInfos: TSynSelectedColor;
+begin
+  markupInfos := TSynSelectedColor.Create();
+  markupInfos.FrameColor:= clRed;
+  markupInfos.FrameStyle:=slsWaved;
+  markupInfos.FrameEdges:=sfeBottom;
+  markupInfos.Background := clNone;
+  setMarkup(key, value, -1, @fErrorMarkups, markupInfos);
+  markupInfos.Free;
 end;
 
 function TTisControlSynEditor.getValueStartPosOf(key: String):Integer;
