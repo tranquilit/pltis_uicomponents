@@ -612,8 +612,12 @@ type
       read fOnGetText write fOnGetText;
     property OnCutToClipBoard: TNotifyEvent
       read fOnCutToClipBoard write SetOnCutToClipBoard;
+    /// event to manipulate data before change the internal Data
+    // - use it for check/change the aData argument, before assign it, and/or abort the process
     property OnBeforeDataChange: TOnGridBeforeDataChange
       read fOnBeforeDataChange write fOnBeforeDataChange;
+    /// event to manipulate data after the internal Data changed
+    // - as used by TTisGrid.OnAfterDataChage
     property OnAfterDataChange: TOnGridAfterDataChange
       read fOnAfterDataChange write fOnAfterDataChange;
     property OnBeforePaste: TOnGridPaste
