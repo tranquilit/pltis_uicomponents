@@ -95,7 +95,6 @@ type
     function Add(aItemConfig: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
-    procedure Move(CurIndex, NewIndex: integer);
     constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
     property Items[Index: integer]: TTagItem read GetTagItem
       write SetTagItem; default;
@@ -1205,15 +1204,6 @@ end;
 
 { TTags }
 
-type
-{$HINTS OFF}
-  TCollectionHack = class(TPersistent);
-  //private
-  //  FItemClass: TCollectionItemClass;
-  //  FItems: TList;
-  //end;
-{$HINTS ON}
-
 function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
@@ -1281,14 +1271,6 @@ begin
       break;
     end;
   end;
-end;
-
-procedure TTags.Move(CurIndex, NewIndex: integer);
-//var
-//  TempList: TList;
-begin
-  //TempList := TCollectionHack(Self).FItems;  //todo
-  //TempList.Exchange(CurIndex, NewIndex);
 end;
 
 procedure TTags.SetTagItem(Index: integer; const Value: TTagItem);
