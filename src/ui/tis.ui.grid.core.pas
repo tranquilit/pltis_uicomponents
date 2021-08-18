@@ -190,6 +190,16 @@ type
   TOnGridBeforeDeleteRows = procedure (sender: TTisGrid; aRows: PDocVariantData;
     var aAskUser, aAbort: Boolean) of object;
 
+  /// event to manipulate data before change the internal Data
+  // - as used by TTisGrid.OnBeforeDataChage
+  // - use it for check/change the aData argument, before assign it, and/or abort the process
+  TOnGridBeforeDataChange = procedure (sender: TTisGrid; aData: PDocVariantData;
+    var aAbort: Boolean) of object;
+
+  /// event to manipulate data after Data changed
+  // - as used by TTisGrid.OnAfterDataChage
+  TOnGridAfterDataChange = type TNotifyEvent;
+
   /// event for comparing rows of objects
   // - as used by TTisGrid.Sort
   TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
@@ -224,6 +234,8 @@ type
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
+    fOnBeforeDataChange: TOnGridBeforeDataChange;
+    fOnAfterDataChange: TOnGridAfterDataChange;
     fOnBeforePaste: TOnGridPaste;
     fOnBeforeDeleteRows: TOnGridBeforeDeleteRows;
     fOnCompareByRow: TOnGridCompareByRow;
@@ -600,6 +612,10 @@ type
       read fOnGetText write fOnGetText;
     property OnCutToClipBoard: TNotifyEvent
       read fOnCutToClipBoard write SetOnCutToClipBoard;
+    property OnBeforeDataChange: TOnGridBeforeDataChange
+      read fOnBeforeDataChange write fOnBeforeDataChange;
+    property OnAfterDataChange: TOnGridAfterDataChange
+      read fOnAfterDataChange write fOnAfterDataChange;
     property OnBeforePaste: TOnGridPaste
       read fOnBeforePaste write fOnBeforePaste;
     /// event to manipulate rows before deleting them
@@ -1262,12 +1278,21 @@ begin
 end;
 
 procedure TTisGrid.SetData(const aValue: TDocVariantData);
+var
+  aborted: Boolean;
 begin
   if fData.Equals(aValue) then
+    exit;
+  aborted := False;
+  if assigned(fOnBeforeDataChange) then
+    fOnBeforeDataChange(self, @aValue, aborted);
+  if aborted then
     exit;
   fData := aValue;
   LoadData;
   UpdateSelectedAndTotalLabel;
+  if assigned(fOnAfterDataChange) then
+    fOnAfterDataChange(self);
 end;
 
 procedure TTisGrid.SetFocusedColumnObject(aValue: TTisGridColumn);
