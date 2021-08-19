@@ -68,6 +68,8 @@ type
     procedure SetTextColor(const aValue: TColor);
   protected
     procedure SetCollection(aValue: TCollection); override;
+  public
+    constructor Create(aCollection: TCollection); override;
   published
     property CanDelete: Boolean read FCanDelete write SetCanDelete;
     property BgColor: TColor read FBgColor write SetBgColor;
@@ -76,8 +78,6 @@ type
     property Value: Variant read FValue write FValue;
     property Text: string read FText write SetText;
     property TextColor: TColor read FTextColor write SetTextColor;
-  public
-    constructor Create(aCollection: TCollection); override;
   end;
 
   TTagItemClass = class of TTagItem;
@@ -90,12 +90,12 @@ type
   protected
     function GetOwner: TPersistent; override;
   public
+    constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
     function IndexOf(const aText: string): integer;
     function DelimitedText: string;
     function Add(aItemConfig: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
-    constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
     property Items[Index: integer]: TTagItem read GetTagItem
       write SetTagItem; default;
     property TagEditor: TTisTagEditor read FTagEditor;
@@ -307,6 +307,160 @@ begin
     (GetBValue(longword(aValue)) * 2)) < 1000 then
     result := clWhite else
     result := clBlack;
+end;
+
+{ TTagItem }
+
+function TTagItem.GetTagEditor: TTisTagEditor;
+begin
+  if Assigned(Collection) and (Collection is TTags) then
+    result := TTags(Collection).FTagEditor
+  else
+    result := nil;
+end;
+
+procedure TTagItem.UpdateTagEditor;
+var
+  e: TTisTagEditor;
+begin
+  e := GetTagEditor;
+  if assigned(e) then
+  begin
+    e.UpdateMetrics;
+    e.Invalidate;
+  end;
+end;
+
+procedure TTagItem.SetCanDelete(const aValue: Boolean);
+begin
+  FCanDelete := aValue;
+end;
+
+procedure TTagItem.SetBgColor(const aValue: TColor);
+begin
+  if FBgColor <> aValue then
+  begin
+    FBgColor := aValue;
+    TextColor := GetBlackOrWhite(FBgColor);
+    UpdateTagEditor;
+  end;
+end;
+
+procedure TTagItem.SetBorderColor(const aValue: TColor);
+begin
+  if FBorderColor <> aValue then
+  begin
+    FBorderColor := aValue;
+    UpdateTagEditor;
+  end;
+end;
+
+procedure TTagItem.SetText(const aValue: string);
+begin
+  if FText <> aValue then
+  begin
+    FText := aValue;
+    UpdateTagEditor;
+  end;
+end;
+
+procedure TTagItem.SetTextColor(const aValue: TColor);
+begin
+  if FTextColor <> aValue then
+  begin
+    FTextColor := aValue;
+    UpdateTagEditor;
+  end;
+end;
+
+procedure TTagItem.SetCollection(aValue: TCollection);
+begin
+  inherited SetCollection(aValue);
+  UpdateTagEditor;
+end;
+
+constructor TTagItem.Create(aCollection: TCollection);
+begin
+  inherited Create(aCollection);
+  FCanDelete := GetTagEditor.DeleteTagButton;
+  FBgColor := GetTagEditor.FTagBgColor;
+  FTextColor := GetTagEditor.FTagTextColor;
+end;
+
+{ TTags }
+
+function TTags.GetTagItem(Index: integer): TTagItem;
+begin
+  result := TTagItem(inherited Items[Index]);
+end;
+
+procedure TTags.SetTagItem(Index: integer; const Value: TTagItem);
+begin
+  Items[Index].Assign(Value);
+end;
+
+function TTags.GetOwner: TPersistent;
+begin
+  result := FTagEditor;
+end;
+
+constructor TTags.Create(aTagEditor: TTisTagEditor;
+  aTagsItemClass: TTagItemCLass);
+begin
+  inherited Create(aTagsItemClass);
+  FTagEditor := aTagEditor;
+end;
+
+function TTags.IndexOf(const aText: string): integer;
+var
+  Index: integer;
+begin
+  result := -1;
+  for index := 0 to Self.Count - 1 do
+  begin
+    if Self.Items[index].Text = aText then
+    begin
+      result := index;
+      break;
+    end;
+  end;
+end;
+
+function TTags.DelimitedText: string;
+var
+  i: integer;
+begin
+  result := '';
+  for i := 0 to Self.Count - 1 do
+  begin
+    result := result + IfThen(result <> '', ',') + Self.Items[i].Text;
+  end;
+end;
+
+function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
+begin
+  result := TTagItem(inherited Add);
+  result.FText := AText;
+  result.FCanDelete := aItemConfig.CanDelete;
+  result.FBgColor := aItemConfig.BgColor;
+  result.FBorderColor := aItemConfig.BorderColor;
+  result.FTextColor := aItemConfig.TextColor;
+end;
+
+function TTags.Add(const aText: string): TTagItem;
+begin
+  result := TTagItem(inherited Add);
+  result.FText := aText;
+  result.FCanDelete := FTagEditor.FDeleteTagButton;
+  result.FBgColor := FTagEditor.FTagBgColor;
+  result.FBorderColor := FTagEditor.FTagBorderColor;
+  result.FTextColor := FTagEditor.FTagTextColor;
+end;
+
+procedure TTags.DeleteAll;
+begin
+  while Self.Count > 0 do
+    Self.Delete(0);
 end;
 
 { TTagEditor }
@@ -1200,160 +1354,6 @@ begin
     UpdateMetrics;
     Invalidate;
   end;
-end;
-
-{ TTags }
-
-function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
-begin
-  result := TTagItem(inherited Add);
-  result.FText := AText;
-  result.FCanDelete := aItemConfig.CanDelete;
-  result.FBgColor := aItemConfig.BgColor;
-  result.FBorderColor := aItemConfig.BorderColor;
-  result.FTextColor := aItemConfig.TextColor;
-end;
-
-function TTags.Add(const aText: string): TTagItem;
-begin
-  result := TTagItem(inherited Add);
-  result.FText := aText;
-  result.FCanDelete := FTagEditor.FDeleteTagButton;
-  result.FBgColor := FTagEditor.FTagBgColor;
-  result.FBorderColor := FTagEditor.FTagBorderColor;
-  result.FTextColor := FTagEditor.FTagTextColor;
-end;
-
-constructor TTags.Create(aTagEditor: TTisTagEditor;
-  aTagsItemClass: TTagItemCLass);
-begin
-  inherited Create(aTagsItemClass);
-  FTagEditor := aTagEditor;
-end;
-
-procedure TTags.DeleteAll;
-begin
-  while Self.Count > 0 do
-    Self.Delete(0);
-end;
-
-function TTags.DelimitedText: string;
-var
-  i: integer;
-begin
-  result := '';
-  for i := 0 to Self.Count - 1 do
-  begin
-    result := result + IfThen(result <> '', ',') + Self.Items[i].Text;
-  end;
-end;
-
-function TTags.GetOwner: TPersistent;
-begin
-  result := FTagEditor;
-end;
-
-function TTags.GetTagItem(Index: integer): TTagItem;
-begin
-  result := TTagItem(inherited Items[Index]);
-end;
-
-function TTags.IndexOf(const aText: string): integer;
-var
-  Index: integer;
-begin
-  result := -1;
-  for index := 0 to Self.Count - 1 do
-  begin
-    if Self.Items[index].Text = aText then
-    begin
-      result := index;
-      break;
-    end;
-  end;
-end;
-
-procedure TTags.SetTagItem(Index: integer; const Value: TTagItem);
-begin
-  Items[Index].Assign(Value);
-end;
-
-{ TTagItem }
-
-constructor TTagItem.Create(aCollection: TCollection);
-begin
-  inherited Create(aCollection);
-  FCanDelete := GetTagEditor.DeleteTagButton;
-  FBgColor := GetTagEditor.FTagBgColor;
-  FTextColor := GetTagEditor.FTagTextColor;
-end;
-
-function TTagItem.GetTagEditor: TTisTagEditor;
-begin
-  if Assigned(Collection) and (Collection is TTags) then
-    result := TTags(Collection).FTagEditor
-  else
-    result := nil;
-end;
-
-procedure TTagItem.UpdateTagEditor;
-var
-  e: TTisTagEditor;
-begin
-  e := GetTagEditor;
-  if assigned(e) then
-  begin
-    e.UpdateMetrics;
-    e.Invalidate;
-  end;
-end;
-
-procedure TTagItem.SetCanDelete(const aValue: Boolean);
-begin
-  FCanDelete := aValue;
-end;
-
-procedure TTagItem.SetBgColor(const aValue: TColor);
-begin
-  if FBgColor <> aValue then
-  begin
-    FBgColor := aValue;
-    TextColor := GetBlackOrWhite(FBgColor);
-    UpdateTagEditor;
-  end;
-end;
-
-procedure TTagItem.SetBorderColor(const aValue: TColor);
-begin
-  if FBorderColor <> aValue then
-  begin
-    FBorderColor := aValue;
-    UpdateTagEditor;
-  end;
-end;
-
-procedure TTagItem.SetText(const aValue: string);
-begin
-  if FText <> aValue then
-  begin
-    FText := aValue;
-    UpdateTagEditor;
-  end;
-end;
-
-procedure TTagItem.SetTextColor(const aValue: TColor);
-begin
-  if FTextColor <> aValue then
-  begin
-    FTextColor := aValue;
-    UpdateTagEditor;
-  end;
-end;
-
-procedure TTagItem.SetCollection(aValue: TCollection);
-begin
-  inherited SetCollection(aValue);
-  UpdateTagEditor;
 end;
 
 initialization
