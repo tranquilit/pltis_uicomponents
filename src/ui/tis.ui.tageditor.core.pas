@@ -1248,25 +1248,25 @@ end;
 
 procedure TTisTagEditor.SetPasteText(AText: string);
 var
-  LStrList: TStringList;
+  sl: TStringList;
   i: integer;
-  LTagConf: TTagContext;
+  ctx: TTagContext;
 begin
   if AText = '' then
     Exit;
-  LStrList := TStringList.Create;
-  LTagConf.CanDelete := FDeleteTagButton;
-  LTagConf.BgColor := FTagBgColor;
-  LTagConf.BorderColor := FTagBorderColor;
-  LTagConf.TextColor := FTagTextColor;
+  sl := TStringList.Create;
+  ctx.CanDelete := FDeleteTagButton;
+  ctx.BgColor := FTagBgColor;
+  ctx.BorderColor := FTagBorderColor;
+  ctx.TextColor := FTagTextColor;
   try
-    LStrList.DelimitedText := AText;
-    for i := 0 to LStrList.Count - 1 do
+    sl.DelimitedText := AText;
+    for i := 0 to sl.Count - 1 do
     begin
-      FTags.Add(LTagConf, LStrList[i]);
+      FTags.Add(ctx, sl[i]);
     end;
   finally
-    LStrList.Free;
+    sl.Free;
     UpdateMetrics;
     Paint;
   end;
