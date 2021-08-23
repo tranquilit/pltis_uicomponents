@@ -1,0 +1,138 @@
+object TagEditorFrame: TTagEditorFrame
+  Left = 0
+  Height = 599
+  Top = 0
+  Width = 992
+  ClientHeight = 599
+  ClientWidth = 992
+  DesignTimePPI = 144
+  ParentFont = False
+  TabOrder = 0
+  DesignLeft = 442
+  DesignTop = 158
+  object GroupBox1: TGroupBox
+    Left = 168
+    Height = 198
+    Top = 70
+    Width = 696
+    Caption = ' Options '
+    ClientHeight = 168
+    ClientWidth = 692
+    TabOrder = 0
+    object AutoHeightCheckBox: TCheckBox
+      Left = 55
+      Height = 29
+      Top = 19
+      Width = 127
+      Caption = 'Auto Height'
+      OnClick = AutoHeightCheckBoxClick
+      TabOrder = 0
+    end
+    object AllowDuplicatesCheckBox: TCheckBox
+      Left = 55
+      Height = 29
+      Top = 56
+      Width = 161
+      Caption = 'Allow Duplicates'
+      OnChange = AllowDuplicatesCheckBoxChange
+      TabOrder = 2
+    end
+    object MaxTagsEdit: TSpinEdit
+      Left = 416
+      Height = 33
+      Top = 15
+      Width = 75
+      OnEditingDone = MaxTagsEditEditingDone
+      TabOrder = 1
+    end
+    object Label1: TLabel
+      Left = 328
+      Height = 25
+      Top = 19
+      Width = 73
+      Caption = 'Max Tags'
+      ParentColor = False
+    end
+    object MultiLinesCheckBox: TCheckBox
+      Left = 55
+      Height = 29
+      Top = 96
+      Width = 114
+      Caption = 'Multi Lines'
+      OnChange = MultiLinesCheckBoxChange
+      TabOrder = 4
+    end
+    object Label2: TLabel
+      Left = 328
+      Height = 25
+      Top = 64
+      Width = 69
+      Caption = 'Bg Color'
+      ParentColor = False
+    end
+    object TextColorBox: TColorBox
+      Left = 416
+      Height = 26
+      Top = 104
+      Width = 150
+      ItemHeight = 20
+      OnChange = TextColorBoxChange
+      TabOrder = 5
+    end
+    object Label3: TLabel
+      Left = 328
+      Height = 25
+      Top = 104
+      Width = 78
+      Caption = 'Text Color'
+      ParentColor = False
+    end
+    object BgColorBox: TColorBox
+      Left = 416
+      Height = 26
+      Top = 64
+      Width = 150
+      ItemHeight = 20
+      OnChange = BgColorBoxChange
+      TabOrder = 3
+    end
+  end
+  object TagEditor: TTisTagEditor
+    Left = 168
+    Height = 71
+    Top = 296
+    Width = 696
+    TabOrder = 1
+    TabStop = True
+    AutoHeight = False
+    BgColor = clWhite
+    BorderColor = clWindowFrame
+    Tags = <    
+      item
+        CanDelete = True
+        BgColor = clGreen
+        BorderColor = clBlack
+        Text = 'windows'
+        TextColor = clWhite
+      end    
+      item
+        CanDelete = True
+        BgColor = clBlue
+        BorderColor = clBlack
+        Text = 'linux'
+        TextColor = clWhite
+      end    
+      item
+        CanDelete = True
+        BgColor = clRed
+        BorderColor = clBlack
+        Text = 'mac'
+        TextColor = clWhite
+      end>
+    Spacing = 8
+    TagBgColor = clSkyBlue
+    TagBorderColor = clNavy
+    TagRoundBorder = 0
+    TagTextColor = clWhite
+  end
+end
