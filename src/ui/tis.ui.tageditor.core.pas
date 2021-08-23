@@ -8,12 +8,6 @@ unit tis.ui.tageditor.core;
 
 interface
 
-{$ifndef windows} {todo: Linux implementation}
-implementation
-
-end.
-{$else}
-
 uses
   {$ifdef windows}
   Windows,
@@ -31,6 +25,17 @@ uses
   StrUtils,
   LCLIntf,
   LCLType;
+
+{$ifndef windows} {todo: Linux implementation}
+
+type
+  TTisTagEditor = class(TCustomControl) // fake
+  end;
+
+implementation
+
+end.
+{$else}
 
 type
   TClickInfo = cardinal;
