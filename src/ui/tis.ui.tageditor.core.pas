@@ -195,7 +195,6 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure KeyDown(var Key: word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
-    procedure Loaded; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: integer;
       Y: integer); override;
     procedure MouseMove(Shift: TShiftState; X: integer; Y: integer); override;
@@ -326,7 +325,6 @@ begin
   e := GetTagEditor;
   if assigned(e) then
   begin
-    e.UpdateMetrics;
     e.Invalidate;
   end;
 end;
@@ -542,7 +540,6 @@ end;
 
 procedure TTisTagEditor.TagChange(Sender: TObject);
 begin
-  UpdateMetrics;
   Invalidate;
   if Assigned(FOnChange) then
     FOnChange(Self);
@@ -583,7 +580,6 @@ begin
       end;
     WM_SIZE:
       begin
-        UpdateMetrics;
         Invalidate;
         Message.result := 0;
       end;
@@ -656,7 +652,6 @@ begin
     Exit;
   end;
   FTags.Add(FEdit.Text);
-  UpdateMetrics;
   result := True;
   HideEditor;
   if Assigned(FTagAdded) then
@@ -693,7 +688,6 @@ begin
           FTags.Delete(FTags.Count - 1);
           if Assigned(FOnAfterTagRemove) then
             FOnAfterTagRemove(Sender, FTags.Count - 1);
-          UpdateMetrics;
           Paint;
         end;
       end;
@@ -753,12 +747,6 @@ begin
   end;
   ShowEditor;
   FEdit.Perform(WM_CHAR, ord(Key), 0);
-end;
-
-procedure TTisTagEditor.Loaded;
-begin
-  inherited;
-  UpdateMetrics;
 end;
 
 function TTisTagEditor.GetClickInfoAt(X, Y: integer): TClickInfo;
@@ -939,7 +927,6 @@ begin
     begin
       FTags.Move(GetTagIndex(FMouseDownClickInfo),
         SepIndex - IfThen(SepIndex > GetTagIndex(FMouseDownClickInfo), 1, 0));
-      UpdateMetrics;
       Paint;
     end;
     Exit;
@@ -978,7 +965,6 @@ begin
                 FTags.Delete(i);
                 if Assigned(FOnAfterTagRemove) then
                   FOnAfterTagRemove(Self, i);
-                UpdateMetrics;
                 Paint;
               end;
           end;
@@ -1119,6 +1105,7 @@ var
   clip: HRGN;
 begin
   inherited Paint;
+  UpdateMetrics;
   Canvas.Brush.Color := FBgColor;
   Canvas.Pen.Color := FBorderColor;
   Canvas.Rectangle(ClientRect);
@@ -1183,7 +1170,6 @@ begin
   if FAutoHeight <> Value then
   begin
     FAutoHeight := Value;
-    UpdateMetrics;
     Invalidate;
   end;
 end;
@@ -1231,7 +1217,6 @@ begin
   if FMaxHeight <> Value then
   begin
     FMaxHeight := Value;
-    UpdateMetrics;
     Invalidate;
   end;
 end;
@@ -1241,7 +1226,6 @@ begin
   if FMultiLine <> Value then
   begin
     FMultiLine := Value;
-    UpdateMetrics;
     Invalidate;
   end;
 end;
@@ -1267,7 +1251,6 @@ begin
     end;
   finally
     sl.Free;
-    UpdateMetrics;
     Paint;
   end;
 end;
@@ -1311,7 +1294,6 @@ begin
   if FTagHeight <> Value then
   begin
     FTagHeight := Value;
-    UpdateMetrics;
     Invalidate;
   end;
 end;
@@ -1351,7 +1333,6 @@ begin
   if FSpacing <> Value then
   begin
     FSpacing := Value;
-    UpdateMetrics;
     Invalidate;
   end;
 end;
