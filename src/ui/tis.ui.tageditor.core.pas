@@ -23,19 +23,9 @@ uses
   Menus,
   Dialogs,
   StrUtils,
+  LMessages,
   LCLIntf,
   LCLType;
-
-{$ifndef windows} {todo: Linux implementation}
-
-type
-  TTisTagEditor = class(TCustomControl) // fake
-  end;
-
-implementation
-
-end.
-{$else}
 
 type
   TClickInfo = cardinal;
@@ -577,7 +567,7 @@ begin
       end;
     WM_COPY:
       Clipboard.AsText := FTags.DelimitedText;
-    WM_CLEAR:
+    LM_CLEAR:
       FTags.Clear;
     WM_CUT:
       begin
@@ -725,7 +715,7 @@ begin
     VK_END:
       ShowEditor;
     VK_DELETE:
-      Perform(WM_CLEAR, 0, 0);
+      Perform(LM_CLEAR, 0, 0);
     VK_INSERT:
       Perform(WM_PASTE, 0, 0);
     VK_F2:
@@ -1357,4 +1347,3 @@ initialization
 {$endif}
 
 end.
-{$endif}
