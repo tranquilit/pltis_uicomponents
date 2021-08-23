@@ -8,6 +8,12 @@ unit tis.ui.tageditor.core;
 
 interface
 
+{$ifndef windows} {todo: Linux implementation}
+implementation
+
+end.
+{$else}
+
 uses
   {$ifdef windows}
   Windows,
@@ -1346,3 +1352,4 @@ initialization
 {$endif}
 
 end.
+{$endif}
