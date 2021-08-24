@@ -352,7 +352,8 @@ type
     // ----------------------------------- new methods --------------------------------------
     /// cast aNode in PDocVariantData
     // - will get the same aNode.Index in Data
-    function GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
+    // - if aNode is nil, it will use FocusedNode as default
+    function GetNodeDataAsDocVariant(aNode: PVirtualNode = nil): PDocVariantData;
     /// refresh the grid using Data content
     // - you should call LoadData by hand, if you change Data content directly
     procedure LoadData;
@@ -2275,6 +2276,8 @@ end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
 begin
+  if aNode = nil then
+    aNode := FocusedNode;
   if aNode <> nil then
   begin
     if aNode.Index < cardinal(fData.Count) then
