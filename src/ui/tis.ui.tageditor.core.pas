@@ -588,7 +588,7 @@ begin
       begin
         FScrollInfo.fMask := SIF_ALL;
         GetScrollInfo(Handle, SB_VERT, FScrollInfo);
-        case Message.WParamLo of
+        case Message.WParam of
           SB_TOP:
             FScrollInfo.nPos := FScrollInfo.nMin;
           SB_BOTTOM:
