@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, SynEdit,
   SynEditMarkupSelection, SynEditPointClasses, SynEditTypes, mormot.core.base,
-  SynEditMiscClasses, mormot.core.data, mormot.core.variants ;
+  SynEditMiscClasses, mormot.core.data, mormot.core.variants, SynCompletion ;
 
 type
   TMarkupRecord = record
@@ -54,6 +54,8 @@ type
     procedure AddInfo(key, value: String; valuePos: Integer=-1; bgColor: TColor=clYellow);
     procedure RemoveError(key: String);
     function getValueStartPosOf(key: String): Integer;
+    function getCurrentKey: String;
+    function getCurrentCompletedWord: String;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   end;
@@ -245,6 +247,35 @@ begin
       Exit(RowColToCharIndex(Point(j, i + 1)));
   end;
   Exit(0);
+end;
+
+function TTisControlSynEditor.getCurrentKey: String;
+var
+  i: Integer;
+begin
+  if (Lines[CaretY - 1] <> '') and (Lines[CaretY - 1][1] = '#') then
+    Exit('');
+  for i := CaretY - 1 downto 0 do
+  begin
+    if (Lines[i] = '') or (Lines[i][1] = ' ') then
+      continue;
+    Exit(Lines[i].Substring(0, Pos(' ', Lines[i]) - 1));
+  end;
+  Exit('');
+end;
+
+function TTisControlSynEditor.getCurrentCompletedWord: String;
+var
+  start: TPoint;
+  CurLine: String;
+begin
+  start:=LogicalCaretXY;
+  CurLine:=Lines[start.Y - 1];
+  while (start.X>1) and (start.X-1<=length(CurLine)) and (IsIdentChar(CurLine[start.X-1])) do
+    Dec(start.X);
+  if start <> LogicalCaretXY then
+      Exit(Lines[start.Y - 1].Substring(start.x - 1, LogicalCaretXY.X - start.x));
+  Exit('');
 end;
 
 function TTisControlSynEditor.GetValueStartPointOf(key: String): TPoint;
