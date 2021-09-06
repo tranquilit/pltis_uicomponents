@@ -228,7 +228,6 @@ type
       Reverse: Boolean;
     end;
     fData: TDocVariantData;
-    fSettings: TDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     // ------------------------------- new events ----------------------------------
@@ -386,7 +385,7 @@ type
     procedure DeleteSelectedRows;
     /// redraw the rows matching this record
     procedure InvalidateNodeByDocVariant(const aData: PDocVariantData);
-    /// it will call Clear, plus it will clear everything else as Columns, Settings, etc
+    /// it will call Clear, plus it will clear everything else as Columns, etc
     procedure ClearAll; virtual;
     /// sort columns headers collection based on manual positioning
     procedure ReorderColumns;
@@ -1272,13 +1271,13 @@ end;
 
 function TTisGrid.GetGridSettings: string;
 begin
-  result := BinToBase64(Utf8ToString(Settings.ToJson));
+  result := BinToBase64(Utf8ToString(_Safe(GetSettings)^.ToJson));
 end;
 
 procedure TTisGrid.SetGridSettings(const aValue: string);
 begin
   if aValue <> '' then
-    Settings := TDocVariantData(_Json(Base64ToBin(StringToUtf8(aValue))))
+    SetSettings(_Json(Base64ToBin(StringToUtf8(aValue))));
 end;
 
 procedure TTisGrid.SetColumnToFind(aValue: integer);
@@ -2191,7 +2190,6 @@ constructor TTisGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Clear;
-  fSettings.Init(JSON_OPTIONS_FAST);
   DefaultText := '';
   fZebraColor := $00EDF0F1;
   SetLength(fKeyFieldsList, 0);
@@ -2564,7 +2562,6 @@ procedure TTisGrid.ClearAll;
 begin
   Clear;
   Header.Columns.Clear;
-  fSettings.Clear;
 end;
 
 function SortColumnsPosition(c1, c2: TCollectionItem): integer;
@@ -2633,7 +2630,6 @@ begin
           c := target.Header.Columns.Add as TTisGridColumn;
           c.Assign(Grid.Header.Columns[i]);
         end;
-        target.Settings := Grid.Settings;
         if KeepDataCheckBox.Checked then
         begin
           target.Data := Grid.Data;
