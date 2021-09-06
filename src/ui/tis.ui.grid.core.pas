@@ -255,8 +255,8 @@ type
     function GetFocusedRow: PDocVariantData;
     function GetKeyFieldsNames: string;
     procedure SetKeyFieldsNames(const aValue: string);
-    function GetSettings: TDocVariantData;
-    procedure SetSettings(const aValue: TDocVariantData);
+    function GetSettings: Variant;
+    procedure SetSettings(const aValue: Variant);
     function GetGridSettings: string;
     procedure SetGridSettings(const aValue: string);
     procedure SetColumnToFind(aValue: integer);
@@ -423,7 +423,7 @@ type
     property FocusedColumnObject: TTisGridColumn
       read GetFocusedColumnObject write SetFocusedColumnObject;
     /// saving and restoring user customizations
-    property Settings: TDocVariantData read GetSettings write SetSettings;
+    property Settings: Variant read GetSettings write SetSettings;
   published
     // ------------------------------- inherited properties ----------------------------------
     property Action;
@@ -1200,39 +1200,45 @@ begin
   fKeyFieldsList := StrSplit(aValue, ';', True);
 end;
 
-function TTisGrid.GetSettings: TDocVariantData;
+function TTisGrid.GetSettings: Variant;
 var
   i: integer;
-  c: PDocVariantData;
+  col: TTisGridColumn;
+  r, cols: PDocVariantData;
 begin
-  result := fSettings;
-  result.Clear;
-  result.I['sortcolumn'] := Header.SortColumn;
-  result.I['sortdirection'] := ord(Header.SortDirection);
-  result.I['headerheight'] := Header.Height;
-  result.I['defaultnodeheight'] := DefaultNodeHeight;
-  c := result.O_['columns'];
+  TDocVariant.NewFast(result);
+  r := @result;
+  r^.I['sortcolumn'] := Header.SortColumn;
+  r^.I['sortdirection'] := ord(Header.SortDirection);
+  r^.I['headerheight'] := Header.Height;
+  r^.I['defaultnodeheight'] := DefaultNodeHeight;
+  cols := r^.A_['columns'];
   for i := 0 to Header.Columns.Count-1 do
   begin
-    c^.U['propertyname'] := StringToUtf8(TTisGridColumn(Header.Columns[i]).PropertyName);
-    c^.U['text'] := StringToUtf8(Header.Columns[i].Text);
-    c^.I['position'] := Header.Columns[i].Position;
-    c^.I['width'] := Header.Columns[i].Width;
-    c^.B['visible'] := (coVisible in Header.Columns[i].Options);
+    col := Header.Columns[i] as TTisGridColumn;
+    cols^.AddItem(
+      _ObjFast([
+        'propertyname', StringToUtf8(col.PropertyName),
+        'text', StringToUtf8(col.Text),
+        'position', col.Position,
+        'width', col.Width,
+        'visible', (coVisible in col.Options)
+      ])
+    );
   end;
 end;
 
-procedure TTisGrid.SetSettings(const aValue: TDocVariantData);
+procedure TTisGrid.SetSettings(const aValue: Variant);
 var
-  c: PDocVariantData;
+  c, v: PDocVariantData;
   int: Integer;
   n: RawUtf8;
   gc: TTisGridColumn;
 begin
-  if not aValue.IsVoid then
+  v := _Safe(aValue);
+  if not v^.IsVoid then
   begin
-    c := aValue.O['columns'];
-    if (c <> nil) and (not c^.IsVoid) then
+    for c in v^.A_['columns'].Objects do
     begin
       n := c^.U['propertyname'];
       gc := FindColumnByPropertyName(n);
@@ -1253,13 +1259,13 @@ begin
           gc.Options := gc.Options - [coVisible];
       end;
     end;
-    if aValue.GetAsInteger('sortcolumn', int) then
+    if v^.GetAsInteger('sortcolumn', int) then
       Header.SortColumn := int;
-    if aValue.GetAsInteger('sortdirection', int) then
+    if v^.GetAsInteger('sortdirection', int) then
       Header.SortDirection := TSortDirection(int);
-    if aValue.GetAsInteger('headerheight', int) then
+    if v^.GetAsInteger('headerheight', int) then
       Header.Height := int;
-    if aValue.GetAsInteger('defaultnodeheight', int) then
+    if v^.GetAsInteger('defaultnodeheight', int) then
       DefaultNodeHeight := int;
   end;
 end;
@@ -2795,10 +2801,12 @@ end;
 
 procedure TTisGrid.SaveSettingsToIni(const aFileName: TFileName);
 var
+  json: RawUtf8;
   b64: string;
   ini: TIniFile;
 begin
-  b64 := BinToBase64(Utf8ToString(Settings.ToJson));
+  json := _Safe(Settings)^.ToJson;
+  b64 := BinToBase64(Utf8ToString(json));
   ini := TIniFile.Create(aFileName);
   try
     ini.WriteString(Owner.Name, Name, b64);
@@ -2814,10 +2822,10 @@ var
 begin
   ini := TIniFile.Create(aFileName);
   try
-    b64 := ini.readString(Owner.Name, Name, '');
+    b64 := ini.ReadString(Owner.Name, Name, '');
     if b64 <> '' then
     begin
-      Settings := TDocVariantData(_Json(Base64ToBin(StringToUtf8(b64))));
+      SetSettings(_Json(Base64ToBin(StringToUtf8(b64))));
     end;
   finally
     FreeAndNil(ini);
