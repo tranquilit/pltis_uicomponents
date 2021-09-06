@@ -62,6 +62,7 @@
         <Filename Value="demo.tageditor.frame.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="TagEditorFrame"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit3>
     </Units>
