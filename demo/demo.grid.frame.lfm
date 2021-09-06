@@ -20,22 +20,10 @@ object GridFrame: TGridFrame
     ClientWidth = 1116
     ParentFont = False
     TabOrder = 0
-    object CustomizeButton: TSpeedButton
-      Left = 12
-      Height = 33
-      Hint = 'Open Grid Editor'
-      Top = 12
-      Width = 118
-      Caption = 'Customize'
-      OnClick = CustomizeButtonClick
-      ShowHint = True
-      ParentFont = False
-      ParentShowHint = False
-    end
     object Grid: TTisGrid
       Left = 8
-      Height = 312
-      Top = 55
+      Height = 272
+      Top = 95
       Width = 1096
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clWhite
@@ -64,30 +52,6 @@ object GridFrame: TGridFrame
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
     end
-    object AddRowsButton: TSpeedButton
-      Left = 144
-      Height = 33
-      Hint = 'Add rows from Input JSON'
-      Top = 12
-      Width = 118
-      Caption = 'Add Rows'
-      OnClick = AddRowsButtonClick
-      ShowHint = True
-      ParentFont = False
-      ParentShowHint = False
-    end
-    object DeleteRowsButton: TSpeedButton
-      Left = 276
-      Height = 33
-      Hint = 'Delete rows from Input JSON'
-      Top = 12
-      Width = 118
-      Caption = 'Delete Rows'
-      OnClick = DeleteRowsButtonClick
-      ShowHint = True
-      ParentFont = False
-      ParentShowHint = False
-    end
     object GridTotalLabel: TLabel
       Left = 959
       Height = 25
@@ -97,6 +61,86 @@ object GridFrame: TGridFrame
       Caption = 'Total : 0 elements'
       ParentColor = False
       ParentFont = False
+    end
+    object GroupBox1: TGroupBox
+      Left = 8
+      Height = 80
+      Top = 8
+      Width = 416
+      Caption = ' Data '
+      ClientHeight = 50
+      ClientWidth = 412
+      TabOrder = 1
+      object CustomizeButton: TSpeedButton
+        Left = 14
+        Height = 33
+        Hint = 'Open Grid Editor'
+        Top = 7
+        Width = 118
+        Caption = 'Customize'
+        OnClick = CustomizeButtonClick
+        ShowHint = True
+        ParentFont = False
+        ParentShowHint = False
+      end
+      object AddRowsButton: TSpeedButton
+        Left = 146
+        Height = 33
+        Hint = 'Add rows from Input JSON'
+        Top = 7
+        Width = 118
+        Caption = 'Add Rows'
+        OnClick = AddRowsButtonClick
+        ShowHint = True
+        ParentFont = False
+        ParentShowHint = False
+      end
+      object DeleteRowsButton: TSpeedButton
+        Left = 278
+        Height = 33
+        Hint = 'Delete rows from Input JSON'
+        Top = 7
+        Width = 118
+        Caption = 'Delete Rows'
+        OnClick = DeleteRowsButtonClick
+        ShowHint = True
+        ParentFont = False
+        ParentShowHint = False
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 456
+      Height = 80
+      Top = 8
+      Width = 280
+      Caption = ' Settings '
+      ClientHeight = 50
+      ClientWidth = 276
+      TabOrder = 2
+      object SettingsSaveButton: TSpeedButton
+        Left = 14
+        Height = 33
+        Hint = 'Open Grid Editor'
+        Top = 7
+        Width = 118
+        Caption = 'Save'
+        OnClick = SettingsSaveButtonClick
+        ShowHint = True
+        ParentFont = False
+        ParentShowHint = False
+      end
+      object SettingsLoadButton: TSpeedButton
+        Left = 144
+        Height = 33
+        Hint = 'Open Grid Editor'
+        Top = 7
+        Width = 118
+        Caption = 'Load'
+        OnClick = SettingsLoadButtonClick
+        ShowHint = True
+        ParentFont = False
+        ParentShowHint = False
+      end
     end
   end
   object Panel1: TPanel
@@ -682,11 +726,25 @@ object GridFrame: TGridFrame
     ResizeAnchor = akBottom
   end
   object UserPopupMenu: TPopupMenu
-    Left = 409
-    Top = 237
+    Left = 112
+    Top = 144
     object MenuItem1: TMenuItem
       Caption = 'Test User Menu Item'
       OnClick = MenuItem1Click
     end
+  end
+  object OpenDialog: TOpenDialog
+    DefaultExt = '.ini'
+    FileName = 'settings.ini'
+    Filter = 'Ini Files|*.ini'
+    Left = 656
+    Top = 144
+  end
+  object SaveDialog: TSaveDialog
+    DefaultExt = '.ini'
+    FileName = 'settings.ini'
+    Filter = 'Ini Files|*.ini'
+    Left = 512
+    Top = 144
   end
 end

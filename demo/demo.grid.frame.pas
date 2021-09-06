@@ -25,11 +25,8 @@ uses
 
 type
   TGridFrame = class(TFrame)
-    AddRowsButton: TSpeedButton;
     ClipboardLabel: TLabel;
     ClipboardLabel1: TLabel;
-    CustomizeButton: TSpeedButton;
-    DeleteRowsButton: TSpeedButton;
     Grid: TTisGrid;
     GridDataLabel: TLabel;
     GridTotalLabel: TLabel;
@@ -40,6 +37,15 @@ type
     Splitter: TSplitter;
     UserPopupMenu: TPopupMenu;
     MenuItem1: TMenuItem;
+    GroupBox1: TGroupBox;
+    CustomizeButton: TSpeedButton;
+    AddRowsButton: TSpeedButton;
+    DeleteRowsButton: TSpeedButton;
+    GroupBox2: TGroupBox;
+    SettingsSaveButton: TSpeedButton;
+    SettingsLoadButton: TSpeedButton;
+    OpenDialog: TOpenDialog;
+    SaveDialog: TSaveDialog;
     procedure AddRowsButtonClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
@@ -52,6 +58,8 @@ type
     procedure ClipboardLabelClick(Sender: TObject);
     procedure GridDataLabelClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
+    procedure SettingsSaveButtonClick(Sender: TObject);
+    procedure SettingsLoadButtonClick(Sender: TObject);
   end;
 
 implementation
@@ -128,6 +136,18 @@ end;
 procedure TGridFrame.MenuItem1Click(Sender: TObject);
 begin
   ShowMessage('User menu item action');
+end;
+
+procedure TGridFrame.SettingsSaveButtonClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    Grid.SaveSettingsToIni(SaveDialog.FileName);
+end;
+
+procedure TGridFrame.SettingsLoadButtonClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    Grid.LoadSettingsFromIni(OpenDialog.FileName);
 end;
 
 end.
