@@ -205,7 +205,9 @@ type
   TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
     const aRow1, aRow2: TDocVariantData; aReverse: Boolean; var aHandled: Boolean): PtrInt of object;
 
-  TOnGridPaste = function(sender: TTisGrid; aRow: PDocVariantData): Boolean of object;
+  /// event to manipulate rows using copy/paste on grid
+  // - use it for check/change the aData argument, before assign it, and/or abort the process
+  TOnGridPaste = procedure(sender: TTisGrid; aRow: PDocVariantData; var aAbort: Boolean) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -377,7 +379,7 @@ type
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
     procedure AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean = True; aCreateColumns: Boolean = True);
-    /// append rows, calling OnBeforePaste for each (to filter row or remove some properties...)
+    /// append rows, calling OnBeforePaste
     procedure PasteRows(aRows: PDocVariantData);
     /// delete a list of rows that match with aRows
     procedure DeleteRows(aRows: PDocVariantData);
@@ -2505,13 +2507,12 @@ end;
 
 procedure TTisGrid.PasteRows(aRows: PDocVariantData);
 var
-  canpaste: Boolean;
+  aborted: Boolean;
 begin
+  aborted := False;
   if assigned(fOnBeforePaste) then
-    canpaste := fOnBeforePaste(self, aRows)
-  else
-    canpaste := True;
-  if canpaste then
+    fOnBeforePaste(self, aRows, aborted);
+  if not aborted then
     Add(aRows);
 end;
 
