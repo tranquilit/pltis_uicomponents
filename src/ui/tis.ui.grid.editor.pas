@@ -119,7 +119,7 @@ procedure TTisGridEditor.ActPasteCSVExecute(Sender: TObject);
 var
   cb: TClipboardAdapter;
 begin
-  Grid.Data.InitCsv(cb.AsUtf8, JSON_OPTIONS_FAST_FLOAT);
+  Grid.Data.InitCsv(cb.AsUtf8, JSON_FAST_FLOAT);
 end;
 
 procedure TTisGridEditor.ActAddColumnExecute(Sender: TObject);
@@ -176,7 +176,7 @@ var
   i, r: PVariant;
 begin
   try
-    if doc.InitJson(cb.AsUtf8, JSON_OPTIONS_FAST_FLOAT) then
+    if doc.InitJson(cb.AsUtf8, JSON_FAST_FLOAT) then
     begin
       if doc.Kind = dvArray then
       begin

@@ -2277,7 +2277,7 @@ begin
   if PrevReadOnly then
     TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
   fData.Clear;
-  fData.InitArray([], JSON_OPTIONS_FAST_FLOAT);
+  fData.InitArray([], JSON_FAST_FLOAT);
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
