@@ -2323,7 +2323,7 @@ begin
         fData.Reduce(u, True, s);
       end
       else
-        s.Clear;
+        s.InitFast;
       f := FocusedRow;
       t := GetNodeDataAsDocVariant(TopNode);
       SetLength(a, 0);
