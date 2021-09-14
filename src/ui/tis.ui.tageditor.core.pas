@@ -1100,7 +1100,7 @@ procedure TTisTagEditor.Paint;
 var
   i: integer;
   w: integer;
-  X, Y: integer;
+  X, Y, newEditWidth: integer;
   R: TRect;
   S: string;
   clip: HRGN;
@@ -1144,9 +1144,13 @@ begin
   end;
   if FEdit.Visible then
   begin
+    newEditWidth := ClientWidth - FEditPos.X - FSpacing;
+    if newEditWidth < FEdit.Width then
+      FEdit.Width := newEditWidth;
     FEdit.Left := FEditPos.X;
+    if newEditWidth > FEdit.Width then
+      FEdit.Width := newEditWidth;
     FEdit.Top := FEditPos.Y - FScrollInfo.nPos;
-    FEdit.Width := ClientWidth - FEdit.Left - FSpacing;
   end;
   SelectClipRgn(Canvas.Handle, 0);
   if Focused then
