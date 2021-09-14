@@ -103,14 +103,18 @@ begin
   if not (csDestroyingHandle in ControlState) then
   begin
     c := TBitmap.Create;
-    c.Canvas.Font.Assign(self.Font);
-    if length(self.Text) = 0 then
-    begin
-      Result := 0;
-      Exit;
+    try
+      c.Canvas.Font.Assign(self.Font);
+      if length(self.Text) = 0 then
+      begin
+        Result := 0;
+        Exit;
+      end;
+      char_len := c.Canvas.TextWidth(self.Text) div length(self.Text);
+      Result := c.Canvas.TextWidth(self.Text) + char_len;
+    finally
+      c.Free;
     end;
-    char_len := c.Canvas.TextWidth(self.Text) div length(self.Text);
-    Result := c.Canvas.TextWidth(self.Text) + char_len;
   end;
 end;
 
@@ -179,7 +183,6 @@ end;
 procedure TTisSearchEdit.SetUpImage;
 begin
   FEmbeddedImage.ControlStyle := FEmbeddedImage.ControlStyle + [csNoDesignSelectable];
-  FEmbeddedImage.Picture.Create;
   FEmbeddedImage.Picture.LoadFromResourceName(HINSTANCE,'TIS_SEARCH_ICON',TPortableNetworkGraphic);
   FEmbeddedImage.stretch := true;
   FEmbeddedImage.Visible := true;
