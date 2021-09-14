@@ -10,151 +10,129 @@ unit tis.ui.searchedit;
 interface
 
 uses
-  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls;
+  Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  ExtCtrls, Buttons;
 
 type
-
-  { TTisSearchEdit }
-
   TTisSearchEdit = class(TEdit)
   private
-     FEmbeddedImage: TImage;
-     FImagePanel: TPanel;
-     FSearchIconSize: TConstraintSize;
-     FSearchIconSpacingLeft: Integer;
-     FSearchIconIsHidden: Boolean;
-     procedure SetUpEdit;
-     procedure SetUpPanel;
-     procedure SetUpImage;
-     procedure SetDefault;
-     procedure SetSearchIconSize(Value: TConstraintSize);
-     procedure SetSearchIconSpacingLeft(Value: Integer);
-     function GetSearchIconVisible: Boolean;
-     procedure SetSearchIconVisible(Value: Boolean);
-     function GetOnSearchIconClick: TNotifyEvent;
-     procedure SetOnSearchIconClick(Value: TNotifyEvent);
-     function GetFontSize: Integer;
-     procedure HideIconForText;
-
+    fEmbeddedImage: TImage;
+    fImagePanel: TPanel;
+    fSearchIconSize: TConstraintSize;
+    fSearchIconSpacingLeft: Integer;
+    fSearchIconIsHidden: Boolean;
+    fButton: TSpeedButton;
+    procedure SetUpEdit;
+    procedure SetUpPanel;
+    procedure SetUpImage;
+    procedure SetDefault;
+    procedure SetSearchIconSize(aValue: TConstraintSize);
+    procedure SetSearchIconSpacingLeft(aValue: Integer);
+    function GetSearchIconVisible: Boolean;
+    procedure SetSearchIconVisible(aValue: Boolean);
+    function GetOnSearchIconClick: TNotifyEvent;
+    procedure SetOnSearchIconClick(aValue: TNotifyEvent);
+    function GetFontSize: Integer;
+    procedure HideIconForText;
   protected
-      procedure SetParent(NewParent: TWinControl); override;
-      procedure DoSetBounds(ALeft, ATop, AWidth, AHeight: integer); override;
-
+    procedure SetParent(aNewParent: TWinControl); override;
+    procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
   public
-     constructor Create(AOwner: TComponent); override;
-     procedure TextChanged; override;
-     procedure EnabledChanged; override;
-
+    constructor Create(aOwner: TComponent); override;
+    procedure TextChanged; override;
+    procedure EnabledChanged; override;
   published
-      property SearchIconSize: TConstraintSize read FSearchIconSize write SetSearchIconSize;
-      property SearchIconSpacingLeft: Integer read FSearchIconSpacingLeft write SetSearchIconSpacingLeft;
-      property SearchIconVisible: Boolean read GetSearchIconVisible write SetSearchIconVisible;
-      property OnSearchIconClick: TNotifyEvent read GetOnSearchIconClick write SetOnSearchIconClick;
-
+    property SearchIconSize: TConstraintSize read fSearchIconSize write SetSearchIconSize;
+    property SearchIconSpacingLeft: Integer read fSearchIconSpacingLeft write SetSearchIconSpacingLeft;
+    property SearchIconVisible: Boolean read GetSearchIconVisible write SetSearchIconVisible;
+    property OnSearchIconClick: TNotifyEvent read GetOnSearchIconClick write SetOnSearchIconClick;
   end;
 
 implementation
 
 {$R icons.rc}
 
-procedure TTisSearchEdit.SetSearchIconSize(Value: TConstraintSize);
+procedure TTisSearchEdit.SetSearchIconSize(aValue: TConstraintSize);
 begin
-  if FSearchIconSize = Value then Exit;
-  FSearchIconSize := Value;
+  if fSearchIconSize = aValue then
+    exit;
+  fSearchIconSize := aValue;
   DoSetBounds(Left, Top, Width, Height);
 end;
 
-procedure TTisSearchEdit.SetSearchIconSpacingLeft(Value: Integer);
+procedure TTisSearchEdit.SetSearchIconSpacingLeft(aValue: Integer);
 begin
-  if FSearchIconSpacingLeft = Value then Exit;
-  FSearchIconSpacingLeft := Value;
-  if FSearchIconSpacingLeft >= 0 then
-    FImagePanel.Color := clNone
+  if fSearchIconSpacingLeft = aValue then
+    exit;
+  fSearchIconSpacingLeft := aValue;
+  if fSearchIconSpacingLeft >= 0 then
+    fImagePanel.Color := clNone
   else
-    FImagePanel.Color := FImagePanel.Parent.Color;
+    fImagePanel.Color := fImagePanel.Parent.Color;
   DoSetBounds(Left, Top, Width, Height);
 end;
 
 function TTisSearchEdit.GetSearchIconVisible: Boolean;
 begin
-  Result := FImagePanel.Visible;
+  result := fImagePanel.Visible;
 end;
 
-procedure TTisSearchEdit.SetSearchIconVisible(Value: Boolean);
+procedure TTisSearchEdit.SetSearchIconVisible(aValue: Boolean);
 begin
-  FImagePanel.Visible := Value;
+  fImagePanel.Visible := aValue;
 end;
 
 function TTisSearchEdit.GetOnSearchIconClick: TNotifyEvent;
 begin
-  Result := FEmbeddedImage.OnClick;
+  result := fEmbeddedImage.OnClick;
 end;
 
-procedure TTisSearchEdit.SetOnSearchIconClick(Value: TNotifyEvent);
+procedure TTisSearchEdit.SetOnSearchIconClick(aValue: TNotifyEvent);
 begin
-  FEmbeddedImage.OnClick := Value;
+  fEmbeddedImage.OnClick := aValue;
 end;
 
 function TTisSearchEdit.GetFontSize: Integer;
 var
-  c: TBitmap;
-  char_len: Integer;
+  b: TBitmap;
+  len: Integer;
 begin
   if not (csDestroyingHandle in ControlState) then
   begin
-    c := TBitmap.Create;
+    b := TBitmap.Create;
     try
-      c.Canvas.Font.Assign(self.Font);
-      if length(self.Text) = 0 then
+      b.Canvas.Font.Assign(Font);
+      if Length(Text) = 0 then
       begin
-        Result := 0;
-        Exit;
+        result := 0;
+        exit;
       end;
-      char_len := c.Canvas.TextWidth(self.Text) div length(self.Text);
-      Result := c.Canvas.TextWidth(self.Text) + char_len;
+      len := b.Canvas.TextWidth(Text) div length(Text);
+      result := b.Canvas.TextWidth(Text) + len;
     finally
-      c.Free;
+      b.Free;
     end;
   end;
 end;
 
 procedure TTisSearchEdit.HideIconForText;
 var
-  max_width : Integer;
+  maxwidth : Integer;
 begin
-  if (not (csDestroyingHandle in ControlState)) and (FSearchIconSpacingLeft >= 0) then
+  if (not (csDestroyingHandle in ControlState)) and (fSearchIconSpacingLeft >= 0) then
   begin
-    max_width := Width - FSearchIconSize - FSearchIconSpacingLeft;
-    if (GetFontSize >= max_width) and GetSearchIconVisible then
+    maxwidth := Width - fSearchIconSize - fSearchIconSpacingLeft;
+    if (GetFontSize >= maxwidth) and GetSearchIconVisible then
     begin
-      SetSearchIconVisible(false);
-      FSearchIconIsHidden := true;
+      SetSearchIconVisible(False);
+      fSearchIconIsHidden := True;
     end
-    else if (GetFontSize < max_width) and FSearchIconIsHidden then
+    else if (GetFontSize < maxwidth) and fSearchIconIsHidden then
     begin
-      SetSearchIconVisible(true);
-      FSearchIconIsHidden := false;
+      SetSearchIconVisible(True);
+      fSearchIconIsHidden := False;
     end;
   end;
-end;
-
-procedure TTisSearchEdit.SetParent(NewParent: TWinControl);
-begin
-  inherited SetParent(NewParent);
-  FImagePanel.Parent := NewParent;
-  FEmbeddedImage.Parent := FImagePanel;
-end;
-
-procedure TTisSearchEdit.DoSetBounds(ALeft, ATop, AWidth, AHeight: integer);
-begin
-  inherited DoSetBounds(ALeft, ATop, AWidth, AHeight);
-
-  if FImagePanel = nil then Exit;
-  FImagePanel.BorderSpacing.Right := FSearchIconSpacingLeft;
-  FImagePanel.SetBounds(0, 0, FSearchIconSize, FSearchIconSize);
-
-  if FEmbeddedImage = nil then Exit;
-  FEmbeddedImage.SetBounds(0, 0,  FSearchIconSize, FSearchIconSize);
 end;
 
 procedure TTisSearchEdit.SetUpEdit;
@@ -166,55 +144,79 @@ end;
 
 procedure TTisSearchEdit.SetUpPanel;
 begin
-  FImagePanel.ControlStyle := FImagePanel.ControlStyle + [csNoDesignSelectable];
-  FImagePanel.AutoSize := false;
-  FImagePanel.Visible := true;
-  FImagePanel.BevelOuter := bvNone;
-  FImagePanel.BevelInner := bvNone;
-  FImagePanel.Color := clNone;
-  FImagePanel.Align := alNone;
-  FImagePanel.Anchors := [akRight, akTop];
-  FImagePanel.AnchorSide[akRight].Side := asrRight;
-  FImagePanel.AnchorSide[akRight].Control := self;
-  FImagePanel.AnchorSide[akTop].Side := asrCenter;
-  FImagePanel.AnchorSide[akTop].Control := self;
+  fImagePanel.ControlStyle := fImagePanel.ControlStyle + [csNoDesignSelectable];
+  fImagePanel.AutoSize := false;
+  fImagePanel.Visible := true;
+  fImagePanel.BevelOuter := bvNone;
+  fImagePanel.BevelInner := bvNone;
+  fImagePanel.Color := clNone;
+  fImagePanel.Align := alNone;
+  fImagePanel.Anchors := [akRight, akTop];
+  fImagePanel.AnchorSide[akRight].Side := asrRight;
+  fImagePanel.AnchorSide[akRight].Control := self;
+  fImagePanel.AnchorSide[akTop].Side := asrCenter;
+  fImagePanel.AnchorSide[akTop].Control := self;
 end;
 
 procedure TTisSearchEdit.SetUpImage;
 begin
-  FEmbeddedImage.ControlStyle := FEmbeddedImage.ControlStyle + [csNoDesignSelectable];
-  FEmbeddedImage.Picture.LoadFromResourceName(HINSTANCE,'TIS_SEARCH_ICON',TPortableNetworkGraphic);
-  FEmbeddedImage.stretch := true;
-  FEmbeddedImage.Visible := true;
-  FEmbeddedImage.Cursor := crHandPoint;
-  FEmbeddedImage.Align := alNone;
-  FEmbeddedImage.Anchors := [];
-  FSearchIconIsHidden := false;
+  fEmbeddedImage.ControlStyle := fEmbeddedImage.ControlStyle + [csNoDesignSelectable];
+  fEmbeddedImage.Picture.LoadFromResourceName(HINSTANCE,'TIS_SEARCH_ICON',TPortableNetworkGraphic);
+  fButton.Glyph.Assign(fEmbeddedImage.Picture.Bitmap);
+  fEmbeddedImage.stretch := true;
+  fEmbeddedImage.Visible := true;
+  fEmbeddedImage.Cursor := crHandPoint;
+  fEmbeddedImage.Align := alNone;
+  fEmbeddedImage.Anchors := [];
+  fSearchIconIsHidden := false;
 end;
 
 procedure TTisSearchEdit.SetDefault;
 begin
-  FSearchIconSize := 15;
+  fSearchIconSize := 15;
   Width := 130;
   Height := 24;
-  FSearchIconSpacingLeft := 5;
+  fSearchIconSpacingLeft := 5;
 end;
 
-constructor TTisSearchEdit.Create(AOwner: TComponent);
+procedure TTisSearchEdit.SetParent(aNewParent: TWinControl);
+begin
+  inherited SetParent(aNewParent);
+  fImagePanel.Parent := aNewParent;
+  fEmbeddedImage.Parent := fImagePanel;
+  fButton.Parent := aNewParent;
+end;
+
+procedure TTisSearchEdit.DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer);
+begin
+  inherited DoSetBounds(aLeft, aTop, aWidth, aHeight);
+  if assigned(fImagePanel) then
+  begin
+    fImagePanel.BorderSpacing.Right := fSearchIconSpacingLeft;
+    fImagePanel.SetBounds(0, 0, fSearchIconSize, fSearchIconSize);
+  end;
+  if assigned(fEmbeddedImage) then
+    fEmbeddedImage.SetBounds(0, 0,  fSearchIconSize, fSearchIconSize);
+  if assigned(fButton) then // should be checked
+    fButton.SetBounds(aLeft + aWidth + 2, aTop, 35, aHeight);
+end;
+
+constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
+  fButton := TSpeedButton.Create(self);
+  fButton.ControlStyle := fButton.ControlStyle + [csNoDesignSelectable];
+  fButton.Flat := True;
   SetDefault;
   SetUpEdit;
-
-  if FImagePanel = nil then
+  if fImagePanel = nil then
   begin
-    FImagePanel := TPanel.Create(self);
+    fImagePanel := TPanel.Create(self);
     SetUpPanel;
   end;
-
-  if FEmbeddedImage = nil then
+  if fEmbeddedImage = nil then
   begin
-    FEmbeddedImage := TImage.Create(FImagePanel);
+    fEmbeddedImage := TImage.Create(fImagePanel);
     SetUpImage;
   end;
 end;
@@ -229,13 +231,13 @@ procedure TTisSearchEdit.EnabledChanged;
 begin
   inherited EnabledChanged;
   if self.Enabled = False then
-    FImagePanel.Color := clDefault
+    fImagePanel.Color := clDefault
   else
   begin
-      if FSearchIconSpacingLeft >= 0 then
-        FImagePanel.Color := clNone
-      else
-        FImagePanel.Color := FImagePanel.Parent.Color;
+    if fSearchIconSpacingLeft >= 0 then
+      fImagePanel.Color := clNone
+    else
+      fImagePanel.Color := fImagePanel.Parent.Color;
   end;
 end;
 
