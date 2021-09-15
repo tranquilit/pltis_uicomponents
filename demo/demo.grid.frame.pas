@@ -16,6 +16,7 @@ uses
   Menus,
   SynEdit,
   VirtualTrees,
+  Types,
   mormot.core.base,
   mormot.core.text,
   mormot.core.unicode,
@@ -29,7 +30,6 @@ type
     ClipboardLabel1: TLabel;
     Grid: TTisGrid;
     GridDataLabel: TLabel;
-    GridTotalLabel: TLabel;
     InOutputEdit: TSynEdit;
     Label1: TLabel;
     Panel1: TPanel;
@@ -46,6 +46,8 @@ type
     SettingsLoadButton: TSpeedButton;
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
+    GridTotalLabel: TLabel;
+    GridSelectedRowLabel: TLabel;
     procedure AddRowsButtonClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
@@ -60,6 +62,7 @@ type
     procedure MenuItem1Click(Sender: TObject);
     procedure SettingsSaveButtonClick(Sender: TObject);
     procedure SettingsLoadButtonClick(Sender: TObject);
+    procedure GridSelectedRowLabelClick(Sender: TObject);
   end;
 
 implementation
@@ -148,6 +151,11 @@ procedure TGridFrame.SettingsLoadButtonClick(Sender: TObject);
 begin
   if OpenDialog.Execute then
     Grid.LoadSettingsFromIni(OpenDialog.FileName);
+end;
+
+procedure TGridFrame.GridSelectedRowLabelClick(Sender: TObject);
+begin
+  InOutputEdit.Lines.Text := Utf8ToString(Grid.SelectedRow.ToJson('', '', jsonHumanReadable));
 end;
 
 end.

@@ -5,7 +5,6 @@ object GridFrame: TGridFrame
   Width = 877
   ClientHeight = 589
   ClientWidth = 877
-  ParentFont = False
   TabOrder = 0
   DesignLeft = 235
   DesignTop = 118
@@ -31,11 +30,11 @@ object GridFrame: TGridFrame
       EditDelay = 200
       Header.AutoSizeIndex = -1
       Header.Columns = <>
-      Header.DefaultHeight = 28
-      Header.Height = 43
+      Header.DefaultHeight = 20
+      Header.Height = 20
       Header.MainColumn = -1
       Header.MaxHeight = 151
-      Header.MinHeight = 28
+      Header.MinHeight = 19
       Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoHeaderClickAutoSort]
       Header.Style = hsFlatButtons
       PopupMenu = UserPopupMenu
@@ -50,16 +49,6 @@ object GridFrame: TGridFrame
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExportExcel]
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
-    end
-    object GridTotalLabel: TLabel
-      Left = 766
-      Height = 15
-      Top = 22
-      Width = 91
-      Anchors = [akTop, akRight]
-      Caption = 'Total : 0 elements'
-      ParentColor = False
-      ParentFont = False
     end
     object GroupBox1: TGroupBox
       Left = 8
@@ -159,14 +148,9 @@ object GridFrame: TGridFrame
       Top = 32
       Width = 847
       Anchors = [akTop, akLeft, akRight, akBottom]
-      Font.Height = -20
-      Font.Name = 'Courier New'
-      Font.Pitch = fpFixed
-      Font.Quality = fqNonAntialiased
       ParentColor = False
-      ParentFont = False
       TabOrder = 0
-      Gutter.Width = 65
+      Gutter.Width = 63
       Gutter.MouseActions = <>
       RightGutter.Width = 0
       RightGutter.MouseActions = <>
@@ -620,7 +604,7 @@ object GridFrame: TGridFrame
           MouseActions = <>
         end
         object SynGutterLineNumber1: TSynGutterLineNumber
-          Width = 25
+          Width = 23
           MouseActions = <>
           MarkupInfo.Background = clBtnFace
           MarkupInfo.Foreground = clNone
@@ -712,6 +696,34 @@ object GridFrame: TGridFrame
       ParentColor = False
       ParentFont = False
       OnClick = ClipboardLabel1Click
+    end
+    object GridTotalLabel: TLabel
+      Left = 760
+      Height = 15
+      Top = 3
+      Width = 91
+      Anchors = [akTop, akRight]
+      Caption = 'Total : 0 elements'
+      ParentColor = False
+      ParentFont = False
+    end
+    object GridSelectedRowLabel: TLabel
+      Cursor = crHandPoint
+      Left = 344
+      Height = 15
+      Top = 3
+      Width = 95
+      Caption = 'from selected row'
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clBlue
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = GridSelectedRowLabelClick
     end
   end
   object Splitter: TSplitter
