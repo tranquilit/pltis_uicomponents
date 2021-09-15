@@ -1,18 +1,18 @@
 object TisGridEditor: TTisGridEditor
-  Left = 339
-  Height = 440
-  Top = 203
-  Width = 1181
+  Left = 230
+  Height = 282
+  Top = 226
+  Width = 920
   Caption = 'Grid Editor'
-  ClientHeight = 440
-  ClientWidth = 1181
+  ClientHeight = 282
+  ClientWidth = 920
   OnCreate = FormCreate
   LCLVersion = '2.0.12.0'
   object ButtonPanel: TButtonPanel
     Left = 9
-    Height = 43
-    Top = 388
-    Width = 1163
+    Height = 34
+    Top = 239
+    Width = 902
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
@@ -22,86 +22,86 @@ object TisGridEditor: TTisGridEditor
     CloseButton.DefaultCaption = True
     CancelButton.Name = 'CancelButton'
     CancelButton.DefaultCaption = True
-    TabOrder = 3
+    TabOrder = 2
     ShowButtons = [pbOK, pbCancel]
   end
   object Panel1: TPanel
     Left = 0
-    Height = 60
+    Height = 48
     Top = 0
-    Width = 1181
+    Width = 920
     Align = alTop
-    ClientHeight = 60
-    ClientWidth = 1181
+    ClientHeight = 48
+    ClientWidth = 920
     ParentFont = False
     TabOrder = 0
     object PasteJsonButton: TButton
-      Left = 18
-      Height = 38
+      Left = 12
+      Height = 27
       Top = 10
-      Width = 222
+      Width = 158
       Action = ActPasteJsonTemplate
       ParentFont = False
       TabOrder = 0
     end
     object AddColumnButton: TButton
-      Left = 250
-      Height = 38
+      Left = 178
+      Height = 27
       Top = 10
       Width = 112
       Action = ActAddColumn
       ParentFont = False
       TabOrder = 1
     end
-    object DelColumnButton2: TButton
-      Left = 448
-      Height = 38
-      Top = 8
-      Width = 186
+    object DelColumnsButton: TButton
+      Left = 298
+      Height = 27
+      Top = 10
+      Width = 136
       Action = ActRemoveAllColumns
       ParentFont = False
       TabOrder = 2
     end
     object KeepDataCheckBox: TCheckBox
-      Left = 840
-      Height = 29
+      Left = 554
+      Height = 19
       Hint = 'Check this option to use the data in the target grid'
-      Top = 16
-      Width = 109
+      Top = 15
+      Width = 72
       Caption = 'Keep data'
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
+      TabOrder = 4
+    end
+    object ClearAllButton: TButton
+      Left = 442
+      Height = 27
+      Top = 10
+      Width = 96
+      Action = ActClearAll
+      ParentFont = False
       TabOrder = 3
     end
   end
-  object DelColumnButton: TButton
-    Left = 717
-    Height = 38
-    Top = 10
-    Width = 108
-    Action = ActClearAll
-    ParentFont = False
-    TabOrder = 1
-  end
   object PropertiesPanel: TPanel
-    Left = 826
-    Height = 319
-    Top = 60
-    Width = 355
+    Left = 625
+    Height = 182
+    Top = 48
+    Width = 295
     Align = alRight
     BevelOuter = bvNone
-    ClientHeight = 319
-    ClientWidth = 355
+    ClientHeight = 182
+    ClientWidth = 295
     ParentFont = False
-    TabOrder = 4
+    TabOrder = 3
     object EdColumnTitle: TLabeledEdit
-      Left = 126
-      Height = 33
-      Top = 54
+      Left = 100
+      Height = 23
+      Top = 40
       Width = 186
-      EditLabel.Height = 25
-      EditLabel.Width = 96
+      EditLabel.Height = 15
+      EditLabel.Width = 66
       EditLabel.Caption = 'Column title'
       EditLabel.ParentColor = False
       EditLabel.ParentFont = False
@@ -112,12 +112,12 @@ object TisGridEditor: TTisGridEditor
       OnKeyPress = EdColumnTitleKeyPress
     end
     object EdColumnProperty: TLabeledEdit
-      Left = 126
-      Height = 33
-      Top = 96
+      Left = 100
+      Height = 23
+      Top = 71
       Width = 186
-      EditLabel.Height = 25
-      EditLabel.Width = 117
+      EditLabel.Height = 15
+      EditLabel.Width = 78
       EditLabel.Caption = 'Property name'
       EditLabel.ParentColor = False
       EditLabel.ParentFont = False
@@ -128,11 +128,11 @@ object TisGridEditor: TTisGridEditor
       OnKeyPress = EdColumnPropertyKeyPress
     end
     object cbEditorType: TComboBox
-      Left = 126
-      Height = 33
-      Top = 138
+      Left = 100
+      Height = 23
+      Top = 102
       Width = 186
-      ItemHeight = 25
+      ItemHeight = 15
       Items.Strings = (
         'String'
         'Numeric'
@@ -145,30 +145,30 @@ object TisGridEditor: TTisGridEditor
       TabOrder = 4
     end
     object LstEditorType: TLabel
-      Left = 36
-      Height = 25
-      Top = 144
-      Width = 89
+      Left = 37
+      Height = 15
+      Top = 108
+      Width = 58
       Caption = 'Editor Type'
       ParentColor = False
       ParentFont = False
     end
     object UpdateColumnButton: TButton
-      Left = 126
-      Height = 38
-      Top = 180
+      Left = 100
+      Height = 27
+      Top = 144
       Width = 90
       Action = ActUpdateColumn
       ParentFont = False
       TabOrder = 5
     end
     object EdColumnIndex: TLabeledEdit
-      Left = 126
-      Height = 33
+      Left = 100
+      Height = 23
       Top = 10
       Width = 80
-      EditLabel.Height = 25
-      EditLabel.Width = 109
+      EditLabel.Height = 15
+      EditLabel.Width = 75
       EditLabel.Caption = 'Column index'
       EditLabel.ParentColor = False
       EditLabel.ParentFont = False
@@ -180,8 +180,8 @@ object TisGridEditor: TTisGridEditor
       OnChange = EdColumnIndexChange
     end
     object EdPosition: TEdit
-      Left = 270
-      Height = 33
+      Left = 244
+      Height = 23
       Top = 10
       Width = 42
       Color = clBtnFace
@@ -190,9 +190,9 @@ object TisGridEditor: TTisGridEditor
       TabOrder = 1
     end
     object DelColumnButton1: TButton
-      Left = 224
-      Height = 38
-      Top = 180
+      Left = 198
+      Height = 27
+      Top = 144
       Width = 88
       Action = ActDelColumn
       Caption = 'Delete'
@@ -200,19 +200,19 @@ object TisGridEditor: TTisGridEditor
       TabOrder = 6
     end
     object Label1: TLabel
-      Left = 234
-      Height = 25
+      Left = 208
+      Height = 15
       Top = 14
-      Width = 28
+      Width = 19
       Caption = 'Pos'
       ParentColor = False
     end
   end
   object Grid: TTisGrid
     Left = 0
-    Height = 319
-    Top = 60
-    Width = 826
+    Height = 182
+    Top = 48
+    Width = 625
     Align = alClient
     Color = clWhite
     Colors.UnfocusedColor = clMedGray
@@ -228,7 +228,7 @@ object TisGridEditor: TTisGridEditor
     Header.Style = hsFlatButtons
     ParentFont = False
     PopupMenu = PopupMenu1
-    TabOrder = 2
+    TabOrder = 1
     WantTabs = True
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]

@@ -44,11 +44,10 @@ type
     ActPasteJsonTemplate: TAction;
     ActionList: TActionList;
     KeepDataCheckBox: TCheckBox;
-    DelColumnButton2: TButton;
+    DelColumnsButton: TButton;
     MenuItem8: TMenuItem;
     PasteJsonButton: TButton;
     AddColumnButton: TButton;
-    DelColumnButton: TButton;
     Grid: TTisGrid;
     UpdateColumnButton: TButton;
     ButtonPanel: TButtonPanel;
@@ -70,6 +69,7 @@ type
     PopupMenu1: TPopupMenu;
     DelColumnButton1: TButton;
     Label1: TLabel;
+    ClearAllButton: TButton;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
