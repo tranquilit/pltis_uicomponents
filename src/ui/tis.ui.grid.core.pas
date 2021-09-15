@@ -1392,7 +1392,7 @@ begin
           a := GetNodesBy(o);
         for n in a do
         begin
-          if o^.Equals(f^) then
+          if (f <> nil) and o^.Equals(f^) then
             m := n;
           Selected[n] := True;
         end;
