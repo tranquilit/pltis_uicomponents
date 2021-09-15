@@ -268,8 +268,11 @@ type
     function GetOptions: TStringTreeOptions;
     procedure SetOptions(const aValue: TStringTreeOptions);
     procedure SetParentProperty(const aValue: string);
+    function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
+    function GetSelectedRow: TDocVariantData;
+    procedure SetSelectedRow(aValue: TDocVariantData);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
   protected
@@ -305,7 +308,6 @@ type
     procedure DoChange(Node: PVirtualNode); override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods --------------------------------------
-    function GetSelectedRows: TDocVariantData;
     /// standard menu management
     procedure FillPopupMenu(sender: TObject);
     function FindText(const aText: string): PVirtualNode;
@@ -417,6 +419,10 @@ type
       read fData write SetData;
     property ParentProperty: string
       read fParentProperty write SetParentProperty;
+    /// copy and returns an object with the main selected row
+    property SelectedRow: TDocVariantData
+      read GetSelectedRow write SetSelectedRow;
+    /// copy and returns an array with all selected rows
     property SelectedRows: TDocVariantData
       read GetSelectedRows write SetSelectedRows;
     property FocusedRow: PDocVariantData
@@ -1342,6 +1348,21 @@ begin
   LoadData;
 end;
 
+function TTisGrid.GetSelectedRows: TDocVariantData;
+var
+  n: PVirtualNode;
+  d: PDocVariantData;
+begin
+  n := GetFirstSelected;
+  result.InitArray([]);
+  while n <> nil do
+  begin
+    d := GetNodeDataAsDocVariant(n);
+    result.AddItem(variant(d^));
+    n := GetNextSelected(n, True);
+  end;
+end;
+
 procedure TTisGrid.SetSelectedRows(const aValue: TDocVariantData);
 var
   a: TNodeArray;
@@ -1385,6 +1406,25 @@ begin
     else if n <> nil then
       FocusedNode := n;
   end;
+end;
+
+function TTisGrid.GetSelectedRow: TDocVariantData;
+var
+  r: PDocVariantData;
+begin
+  result.InitFast;
+  r := FocusedRow;
+  if r <> nil then
+    result.AddFrom(variant(r^));
+end;
+
+procedure TTisGrid.SetSelectedRow(aValue: TDocVariantData);
+var
+  a: TDocVariantData;
+begin
+  a.InitArray([]);
+  a.AddItem(variant(aValue));
+  SetSelectedRows(a);
 end;
 
 procedure TTisGrid.SetSelectedAndTotalLabel(aValue: TLabel);
@@ -1727,21 +1767,6 @@ begin
   inherited DoChange(Node);
   if Assigned(fSelectedAndTotalLabel) then
     SetSelectedAndTotalLabel(fSelectedAndTotalLabel);
-end;
-
-function TTisGrid.GetSelectedRows: TDocVariantData;
-var
-  n: PVirtualNode;
-  d: PDocVariantData;
-begin
-  n := GetFirstSelected;
-  result.InitArray([]);
-  while n <> nil do
-  begin
-    d := GetNodeDataAsDocVariant(n);
-    result.AddItem(variant(d^));
-    n := GetNextSelected(n, True);
-  end;
 end;
 
 procedure TTisGrid.FillPopupMenu(sender: TObject);
