@@ -1,20 +1,19 @@
 object MainForm: TMainForm
   Left = 376
-  Height = 827
+  Height = 551
   Top = 109
-  Width = 1126
+  Width = 751
   Caption = 'UI Demo'
-  ClientHeight = 827
-  ClientWidth = 1126
-  DesignTimePPI = 144
+  ClientHeight = 551
+  ClientWidth = 751
   OnCreate = FormCreate
   Position = poScreenCenter
   LCLVersion = '2.0.12.0'
   object PageControl: TPageControl
     Left = 0
-    Height = 827
+    Height = 551
     Top = 0
-    Width = 1126
+    Width = 751
     ActivePage = GridTab
     Align = alClient
     ParentFont = False
@@ -22,55 +21,57 @@ object MainForm: TMainForm
     TabOrder = 0
     object GridTab: TTabSheet
       Caption = 'Grid'
-      ClientHeight = 789
-      ClientWidth = 1118
+      ClientHeight = 523
+      ClientWidth = 743
+      ParentFont = False
       inline freGrid: TGridFrame
-        Height = 789
-        Width = 1118
+        Height = 523
+        Width = 743
         Align = alClient
-        ClientHeight = 789
-        ClientWidth = 1118
-        DesignLeft = 491
-        DesignTop = 178
+        ClientHeight = 523
+        ClientWidth = 743
         inherited Panel4: TPanel
-          Height = 459
-          Width = 1118
-          ClientHeight = 459
-          ClientWidth = 1118
+          Height = 252
+          Width = 743
+          ClientHeight = 252
+          ClientWidth = 743
           inherited Grid: TTisGrid
-            Height = 395
-            Width = 1098
-            DefaultNodeHeight = 18
-            ParentFont = False
+            Height = 164
+            Width = 723
+            Header.DefaultHeight = 29
+            Header.Height = 44
+            Header.MaxHeight = 152
+            Header.MinHeight = 29
           end
           inherited GridTotalLabel: TLabel
-            Left = 961
+            Left = 632
           end
         end
         inherited Panel1: TPanel
-          Top = 471
-          Width = 1118
-          ClientWidth = 1118
+          Top = 264
+          Width = 743
+          ClientWidth = 743
           inherited InOutputEdit: TSynEdit
-            Width = 1088
+            Width = 713
           end
         end
         inherited Splitter: TSplitter
-          Top = 459
-          Width = 1118
+          Top = 252
+          Width = 743
         end
       end
     end
     object TagEditorTab: TTabSheet
       Caption = 'TagEditor'
-      ClientHeight = 789
-      ClientWidth = 1118
+      ClientHeight = 523
+      ClientWidth = 743
+      ParentFont = False
       inline freTagEditor: TTagEditorFrame
-        Height = 789
-        Width = 1118
+        Height = 523
+        Width = 743
         Align = alClient
-        ClientHeight = 789
-        ClientWidth = 1118
+        ClientHeight = 523
+        ClientWidth = 743
       end
     end
   end

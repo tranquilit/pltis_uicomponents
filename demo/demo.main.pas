@@ -23,10 +23,10 @@ uses
 
 type
   TMainForm = class(TForm)
-    freGrid: TGridFrame;
     PageControl: TPageControl;
     GridTab: TTabSheet;
     TagEditorTab: TTabSheet;
+    freGrid: TGridFrame;
     freTagEditor: TTagEditorFrame;
     procedure FormCreate(Sender: TObject);
   end;

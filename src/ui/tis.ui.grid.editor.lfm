@@ -6,7 +6,6 @@ object TisGridEditor: TTisGridEditor
   Caption = 'Grid Editor'
   ClientHeight = 440
   ClientWidth = 1181
-  DesignTimePPI = 144
   OnCreate = FormCreate
   LCLVersion = '2.0.12.0'
   object ButtonPanel: TButtonPanel

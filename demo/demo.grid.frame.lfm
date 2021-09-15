@@ -1,30 +1,29 @@
 object GridFrame: TGridFrame
   Left = 0
-  Height = 706
+  Height = 589
   Top = 0
-  Width = 1116
-  ClientHeight = 706
-  ClientWidth = 1116
-  DesignTimePPI = 144
+  Width = 877
+  ClientHeight = 589
+  ClientWidth = 877
   ParentFont = False
   TabOrder = 0
-  DesignLeft = 326
-  DesignTop = 116
+  DesignLeft = 235
+  DesignTop = 118
   object Panel4: TPanel
     Left = 0
-    Height = 376
+    Height = 318
     Top = 0
-    Width = 1116
+    Width = 877
     Align = alClient
-    ClientHeight = 376
-    ClientWidth = 1116
+    ClientHeight = 318
+    ClientWidth = 877
     ParentFont = False
     TabOrder = 0
     object Grid: TTisGrid
       Left = 8
-      Height = 272
-      Top = 95
-      Width = 1096
+      Height = 230
+      Top = 79
+      Width = 857
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clWhite
       Colors.UnfocusedColor = clMedGray
@@ -53,10 +52,10 @@ object GridFrame: TGridFrame
       OnCompareByRow = GridCompareByRow
     end
     object GridTotalLabel: TLabel
-      Left = 959
-      Height = 25
+      Left = 766
+      Height = 15
       Top = 22
-      Width = 137
+      Width = 91
       Anchors = [akTop, akRight]
       Caption = 'Total : 0 elements'
       ParentColor = False
@@ -64,19 +63,19 @@ object GridFrame: TGridFrame
     end
     object GroupBox1: TGroupBox
       Left = 8
-      Height = 80
+      Height = 64
       Top = 8
       Width = 416
       Caption = ' Data '
-      ClientHeight = 50
+      ClientHeight = 44
       ClientWidth = 412
       TabOrder = 1
       object CustomizeButton: TSpeedButton
         Left = 14
-        Height = 33
+        Height = 25
         Hint = 'Open Grid Editor'
         Top = 7
-        Width = 118
+        Width = 90
         Caption = 'Customize'
         OnClick = CustomizeButtonClick
         ShowHint = True
@@ -84,11 +83,11 @@ object GridFrame: TGridFrame
         ParentShowHint = False
       end
       object AddRowsButton: TSpeedButton
-        Left = 146
-        Height = 33
+        Left = 112
+        Height = 25
         Hint = 'Add rows from Input JSON'
         Top = 7
-        Width = 118
+        Width = 112
         Caption = 'Add Rows'
         OnClick = AddRowsButtonClick
         ShowHint = True
@@ -96,11 +95,11 @@ object GridFrame: TGridFrame
         ParentShowHint = False
       end
       object DeleteRowsButton: TSpeedButton
-        Left = 278
-        Height = 33
+        Left = 232
+        Height = 25
         Hint = 'Delete rows from Input JSON'
         Top = 7
-        Width = 118
+        Width = 112
         Caption = 'Delete Rows'
         OnClick = DeleteRowsButtonClick
         ShowHint = True
@@ -110,19 +109,19 @@ object GridFrame: TGridFrame
     end
     object GroupBox2: TGroupBox
       Left = 456
-      Height = 80
+      Height = 64
       Top = 8
       Width = 280
       Caption = ' Settings '
-      ClientHeight = 50
+      ClientHeight = 44
       ClientWidth = 276
       TabOrder = 2
       object SettingsSaveButton: TSpeedButton
         Left = 14
-        Height = 33
+        Height = 25
         Hint = 'Open Grid Editor'
         Top = 7
-        Width = 118
+        Width = 106
         Caption = 'Save'
         OnClick = SettingsSaveButtonClick
         ShowHint = True
@@ -130,11 +129,11 @@ object GridFrame: TGridFrame
         ParentShowHint = False
       end
       object SettingsLoadButton: TSpeedButton
-        Left = 144
-        Height = 33
+        Left = 128
+        Height = 25
         Hint = 'Open Grid Editor'
         Top = 7
-        Width = 118
+        Width = 102
         Caption = 'Load'
         OnClick = SettingsLoadButtonClick
         ShowHint = True
@@ -145,20 +144,20 @@ object GridFrame: TGridFrame
   end
   object Panel1: TPanel
     Left = 0
-    Height = 318
-    Top = 388
-    Width = 1116
+    Height = 259
+    Top = 330
+    Width = 877
     Align = alBottom
     BevelOuter = bvNone
-    ClientHeight = 318
-    ClientWidth = 1116
+    ClientHeight = 259
+    ClientWidth = 877
     ParentFont = False
     TabOrder = 1
     inline InOutputEdit: TSynEdit
       Left = 12
-      Height = 264
-      Top = 40
-      Width = 1086
+      Height = 213
+      Top = 32
+      Width = 847
       Anchors = [akTop, akLeft, akRight, akBottom]
       Font.Height = -20
       Font.Name = 'Courier New'
@@ -167,7 +166,7 @@ object GridFrame: TGridFrame
       ParentColor = False
       ParentFont = False
       TabOrder = 0
-      Gutter.Width = 85
+      Gutter.Width = 65
       Gutter.MouseActions = <>
       RightGutter.Width = 0
       RightGutter.MouseActions = <>
@@ -617,7 +616,7 @@ object GridFrame: TGridFrame
       LineHighlightColor.Foreground = clNone
       inline SynLeftGutterPartList1: TSynGutterPartList
         object SynGutterMarks1: TSynGutterMarks
-          Width = 36
+          Width = 24
           MouseActions = <>
         end
         object SynGutterLineNumber1: TSynGutterLineNumber
@@ -631,19 +630,18 @@ object GridFrame: TGridFrame
           LeadingZeros = False
         end
         object SynGutterChanges1: TSynGutterChanges
-          Width = 6
+          Width = 4
           MouseActions = <>
           ModifiedColor = 59900
           SavedColor = clGreen
         end
         object SynGutterSeparator1: TSynGutterSeparator
-          Width = 3
+          Width = 2
           MouseActions = <>
           MarkupInfo.Background = clWhite
           MarkupInfo.Foreground = clGray
         end
         object SynGutterCodeFolding1: TSynGutterCodeFolding
-          Width = 15
           MouseActions = <>
           MarkupInfo.Background = clNone
           MarkupInfo.Foreground = clGray
@@ -654,23 +652,23 @@ object GridFrame: TGridFrame
     end
     object Label1: TLabel
       Left = 12
-      Height = 25
+      Height = 15
       Top = 3
-      Width = 110
+      Width = 74
       Caption = 'Input/Output:'
       ParentColor = False
       ParentFont = False
     end
     object ClipboardLabel: TLabel
       Cursor = crHandPoint
-      Left = 194
-      Height = 25
+      Left = 144
+      Height = 15
       Top = 3
-      Width = 119
+      Width = 79
       Caption = 'from clipboard'
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
-      Font.Height = -18
+      Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
@@ -681,14 +679,14 @@ object GridFrame: TGridFrame
     end
     object GridDataLabel: TLabel
       Cursor = crHandPoint
-      Left = 328
-      Height = 25
+      Left = 248
+      Height = 15
       Top = 3
-      Width = 116
+      Width = 76
       Caption = 'from grid data'
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
-      Font.Height = -18
+      Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
@@ -699,14 +697,14 @@ object GridFrame: TGridFrame
     end
     object ClipboardLabel1: TLabel
       Cursor = crHandPoint
-      Left = 138
-      Height = 25
+      Left = 104
+      Height = 15
       Top = 3
-      Width = 36
+      Width = 25
       Caption = 'clear'
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
-      Font.Height = -18
+      Font.Height = -12
       Font.Name = 'Segoe UI'
       Font.Pitch = fpVariable
       Font.Quality = fqDraft
@@ -720,8 +718,8 @@ object GridFrame: TGridFrame
     Cursor = crVSplit
     Left = 0
     Height = 12
-    Top = 376
-    Width = 1116
+    Top = 318
+    Width = 877
     Align = alBottom
     ResizeAnchor = akBottom
   end
