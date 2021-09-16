@@ -10,6 +10,7 @@ uses
   mormot.core.base,
   mormot.core.data,
   mormot.core.text,
+  mormot.core.unicode,
   tis.ui.tageditor.core;
 
 type
