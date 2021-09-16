@@ -5,7 +5,7 @@ unit demo.tageditor.frame;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox,
+  Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
   tis.ui.tageditor.core;
 
 type
@@ -21,12 +21,25 @@ type
     Label3: TLabel;
     BgColorBox: TColorBox;
     TagEditor: TTisTagEditor;
+    GroupBox2: TGroupBox;
+    TagClickCheckBox: TCheckBox;
+    TagBeforeAddCheckBox: TCheckBox;
+    Label6: TLabel;
+    TagBeforeAddEdit: TEdit;
+    TagBeforeDeleteCheckBox: TCheckBox;
+    Label7: TLabel;
+    TagBeforeDeleteEdit: TEdit;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
     procedure MaxTagsEditEditingDone(Sender: TObject);
     procedure BgColorBoxChange(Sender: TObject);
     procedure TextColorBoxChange(Sender: TObject);
+    procedure TagEditorTagClick(Sender: TObject; aTag: TTagItem);
+    procedure TagEditorTagBeforeAdd(Sender: TObject; const aTag: string;
+      var aAbort: Boolean);
+    procedure TagEditorTagBeforeDelete(Sender: TObject; aTag: TTagItem;
+      var aAbort: Boolean);
   end;
 
 implementation
@@ -64,6 +77,34 @@ end;
 procedure TTagEditorFrame.TextColorBoxChange(Sender: TObject);
 begin
   TagEditor.TagTextColor := TextColorBox.Selected;
+end;
+
+procedure TTagEditorFrame.TagEditorTagClick(Sender: TObject; aTag: TTagItem);
+begin
+  if TagClickCheckBox.Checked then
+    ShowMessage('Tag "' + aTag.Text + '" was clicked');
+end;
+
+procedure TTagEditorFrame.TagEditorTagBeforeAdd(Sender: TObject;
+  const aTag: string; var aAbort: Boolean);
+begin
+  if TagBeforeAddCheckBox.Checked then
+    if aTag = TagBeforeAddEdit.Text then
+    begin
+      ShowMessage('Invalid tag name');
+      aAbort := True;
+    end;
+end;
+
+procedure TTagEditorFrame.TagEditorTagBeforeDelete(Sender: TObject;
+  aTag: TTagItem; var aAbort: Boolean);
+begin
+  if TagBeforeDeleteCheckBox.Checked then
+    if aTag.Text = TagBeforeDeleteEdit.Text then
+    begin
+      ShowMessage('You cannot delete "' + TagBeforeDeleteEdit.Text + '"');
+      aAbort := True;
+    end;
 end;
 
 end.

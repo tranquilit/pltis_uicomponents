@@ -1,14 +1,14 @@
 object TagEditorFrame: TTagEditorFrame
   Left = 0
-  Height = 260
+  Height = 441
   Top = 0
   Width = 493
-  ClientHeight = 260
+  ClientHeight = 441
   ClientWidth = 493
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326
-  DesignTop = 294
+  DesignTop = 225
   object GroupBox1: TGroupBox
     Left = 24
     Height = 162
@@ -98,7 +98,7 @@ object TagEditorFrame: TTagEditorFrame
   end
   object TagEditor: TTisTagEditor
     Left = 24
-    Height = 32
+    Height = 35
     Top = 184
     Width = 440
     TabOrder = 1
@@ -133,5 +133,74 @@ object TagEditorFrame: TTagEditorFrame
     TagBorderColor = clNavy
     TagRoundBorder = 0
     TagTextColor = clWhite
+    OnTagClick = TagEditorTagClick
+    OnTagBeforeAdd = TagEditorTagBeforeAdd
+    OnTagBeforeDelete = TagEditorTagBeforeDelete
+  end
+  object GroupBox2: TGroupBox
+    Left = 26
+    Height = 183
+    Top = 233
+    Width = 433
+    Caption = ' Test Events '
+    ClientHeight = 163
+    ClientWidth = 429
+    TabOrder = 2
+    object TagClickCheckBox: TCheckBox
+      Left = 17
+      Height = 19
+      Top = 9
+      Width = 81
+      Caption = 'OnTagClick'
+      TabOrder = 0
+    end
+    object TagBeforeAddCheckBox: TCheckBox
+      Left = 16
+      Height = 19
+      Top = 48
+      Width = 111
+      Caption = 'OnTagBeforeAdd'
+      TabOrder = 1
+    end
+    object Label6: TLabel
+      Left = 32
+      Height = 15
+      Top = 72
+      Width = 88
+      Caption = 'invalid tag name'
+      ParentColor = False
+    end
+    object TagBeforeAddEdit: TEdit
+      Left = 128
+      Height = 23
+      Top = 69
+      Width = 165
+      TabOrder = 2
+      Text = 'abc'
+    end
+    object TagBeforeDeleteCheckBox: TCheckBox
+      Left = 16
+      Height = 19
+      Top = 103
+      Width = 122
+      Caption = 'OnTagBeforeDelete'
+      TabOrder = 3
+    end
+    object Label7: TLabel
+      Left = 32
+      Height = 15
+      Top = 127
+      Width = 129
+      Caption = 'don''t delete, if tag name'
+      ParentColor = False
+    end
+    object TagBeforeDeleteEdit: TEdit
+      Left = 164
+      Height = 23
+      Top = 124
+      Width = 130
+      TabOrder = 4
+      Text = 'windows'
+    end
   end
 end
