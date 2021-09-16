@@ -28,6 +28,8 @@ uses
   LCLType;
 
 type
+  ETagEditor = class(Exception);
+
   TClickInfo = cardinal;
   GetTagIndex = word;
 
@@ -1183,7 +1185,7 @@ begin
   if Value <> nil then
   begin
     if (not(InRange(Value.Height, 8, 10))) and (not(InRange(Value.Width, 8, 10))) then
-      raise Exception.Create('The icon size should be 8x8 or 10x10');
+      raise ETagEditor.Create('The icon size should be 8x8 or 10x10');
     FDeleteButtonIcon.Assign(Value);
   end;
 end;
