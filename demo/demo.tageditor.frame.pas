@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
-  tis.ui.tageditor.core;
+  ExtCtrls, tis.ui.tageditor.core;
 
 type
   TTagEditorFrame = class(TFrame)
@@ -30,6 +30,9 @@ type
     Label7: TLabel;
     TagBeforeDeleteEdit: TEdit;
     TagAfterDragCheckBox: TCheckBox;
+    Bevel1: TBevel;
+    Bevel2: TBevel;
+    Bevel3: TBevel;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
