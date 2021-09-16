@@ -189,10 +189,7 @@ type
     procedure UpdateMetrics;
     procedure UpdateScrollBars;
   protected
-    function CreateTags(aTagEditor: TTisTagEditor): TTags; virtual;
-    function CreateEdit: TEdit; virtual;
-    function CreatePopupMenu: TPopupMenu; virtual;
-    function GetFontEdit: TFont;
+    // ------------------------------- inherited methods ----------------------------------
     procedure CreateParams(var Params: TCreateParams); override;
     procedure KeyDown(var Key: word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
@@ -203,71 +200,60 @@ type
       Y: integer); override;
     procedure Paint; override;
     procedure WndProc(var Message: TMessage); override;
+    // ----------------------------------- new methods --------------------------------------
+    function CreateTags(aTagEditor: TTisTagEditor): TTags; virtual;
+    function CreateEdit: TEdit; virtual;
+    function CreatePopupMenu: TPopupMenu; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
+    // ------------------------------- inherited properties ----------------------------------
     property Anchors;
     property Align;
     property BorderSpacing;
+    property Cursor;
     property TabOrder;
     property TabStop;
     property Tag;
     // ------------------------------- new properties ----------------------------------
-    property AllowDuplicates: Boolean read FAllowDuplicates
-      write FAllowDuplicates default False;
+    property AllowDuplicates: Boolean read FAllowDuplicates write FAllowDuplicates default False;
     property AutoHeight: Boolean read FAutoHeight write SetAutoHeight;
     property BgColor: TColor read FBgColor write SetBgColor;
     property BorderColor: TColor read FBorderColor write SetBorderColor;
-    property CanDragTags: Boolean read FCanDragTags write SetCanDragTags
-      default True;
-    property CommaAccepts: Boolean read FCommaAccepts write FCommaAccepts
-      default True;
-    property Cursor;
+    property CanDragTags: Boolean read FCanDragTags write SetCanDragTags default True;
+    property CommaAccepts: Boolean read FCommaAccepts write FCommaAccepts default True;
     property Tags: TTags read FTags write SetTags;
     property DeleteButtonIcon: TIcon read FDeleteButtonIcon write SetButtonIcon;
-    property DeleteTagButton: Boolean read FDeleteTagButton
-      write SetCloseTagButton default True;
-    property EditorColor: TColor read FEditorColor write FEditorColor
-      default clWindow;
+    property DeleteTagButton: Boolean read FDeleteTagButton write SetCloseTagButton default True;
+    property EditorColor: TColor read FEditorColor write FEditorColor default clWindow;
     property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
     property MaxTags: integer read FMaxTags write FMaxTags default 0;
-    property MultiLine: Boolean read FMultiLine write SetMultiLine
-      default False;
-    property NoLeadingSpaceInput: Boolean read FNoLeadingSpaceInput
-      write FNoLeadingSpaceInput default True;
+    property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
+    property NoLeadingSpaceInput: Boolean read FNoLeadingSpaceInput write FNoLeadingSpaceInput default True;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
-    property SemicolonAccepts: Boolean read FSemicolonAccepts
-      write FSemicolonAccepts default True;
-    property SpaceAccepts: Boolean read FSpaceAccepts write FSpaceAccepts
-      default True;
+    property SemicolonAccepts: Boolean read FSemicolonAccepts write FSemicolonAccepts default True;
+    property SpaceAccepts: Boolean read FSpaceAccepts write FSpaceAccepts default True;
     property Spacing: integer read FSpacing write SetSpacing;
     property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
-    property TagBorderColor: TColor read FTagBorderColor
-      write SetTagBorderColor;
+    property TagBorderColor: TColor read FTagBorderColor write SetTagBorderColor;
     property TagHeight: integer read FTagHeight write SetTagHeight default 32;
-    property TagRoundBorder: integer read FTagRoundBorder
-      write SetTagRoundBorder;
+    property TagRoundBorder: integer read FTagRoundBorder write SetTagRoundBorder;
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     // ------------------------------- new events ----------------------------------
-    property OnChange: TNotifyEvent
-      read FOnChange write FOnChange;
-    property OnBeforeTagRemove: TOnBeforeTagRemove
-      read FOnBeforeTagRemove write FOnBeforeTagRemove;
-    property OnRemoveConfirm: TOnRemoveConfirm
-      read FOnRemoveConfirm write FOnRemoveConfirm;
-    property OnTagAdded: TNotifyEvent
-      read FTagAdded write FTagAdded;
-    property OnTagClick: TOnTagClick
-      read FOnTagClick write FOnTagClick;
-    property OnAfterTagRemove: TOnAfterTagRemove
-      read FOnAfterTagRemove write FOnAfterTagRemove;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnBeforeTagRemove: TOnBeforeTagRemove read FOnBeforeTagRemove write FOnBeforeTagRemove;
+    property OnRemoveConfirm: TOnRemoveConfirm read FOnRemoveConfirm write FOnRemoveConfirm;
+    property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
+    property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
+    property OnAfterTagRemove: TOnAfterTagRemove read FOnAfterTagRemove write FOnAfterTagRemove;
   end;
 
 implementation
 
-uses Math, Clipbrd;
+uses
+  Math, Clipbrd;
 
 const
   TAG_LOW = 0;
@@ -612,6 +598,37 @@ begin
   inherited WndProc(Message);
 end;
 
+function TTisTagEditor.CreateTags(aTagEditor: TTisTagEditor): TTags;
+begin
+  result := TTags.Create(aTagEditor, TTagItem);
+end;
+
+function TTisTagEditor.CreateEdit: TEdit;
+begin
+  result := TEdit.Create(Self);
+  result.Top := 0;
+  result.Left := 0;
+  result.Width := 0;
+  result.Parent := Self;
+  result.BorderStyle := bsNone;
+  result.Visible := False;
+  result.OnKeyPress := EditKeyPress;
+  result.OnEnter := EditEnter;
+  result.OnExit := EditExit;
+end;
+
+function TTisTagEditor.CreatePopupMenu: TPopupMenu;
+var
+  mi: TMenuItem;
+begin
+  result := TPopupMenu.Create(Self);
+  mi := TMenuItem.Create(PopupMenu);
+  mi.Caption := 'Delete';
+  mi.OnClick := DoPopupMenuDeleteItem;
+  mi.Hint := 'Delete selected tag.';
+  result.Items.Add(mi);
+end;
+
 procedure TTisTagEditor.FixPosAndScrollWindow;
 var
   r: TRect;
@@ -772,11 +789,6 @@ begin
     end;
 end;
 
-function TTisTagEditor.GetFontEdit: TFont;
-begin
-  result := FEdit.Font;
-end;
-
 function TTisTagEditor.GetReadOnly: Boolean;
 begin
   result := FReadOnly;
@@ -841,37 +853,6 @@ procedure TTisTagEditor.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.Style := Params.Style or WS_VSCROLL;
-end;
-
-function TTisTagEditor.CreateTags(aTagEditor: TTisTagEditor): TTags;
-begin
-  result := TTags.Create(aTagEditor, TTagItem);
-end;
-
-function TTisTagEditor.CreateEdit: TEdit;
-begin
-  result := TEdit.Create(Self);
-  result.Top := 0;
-  result.Left := 0;
-  result.Width := 0;
-  result.Parent := Self;
-  result.BorderStyle := bsNone;
-  result.Visible := False;
-  result.OnKeyPress := EditKeyPress;
-  result.OnEnter := EditEnter;
-  result.OnExit := EditExit;
-end;
-
-function TTisTagEditor.CreatePopupMenu: TPopupMenu;
-var
-  mi: TMenuItem;
-begin
-  result := TPopupMenu.Create(Self);
-  mi := TMenuItem.Create(PopupMenu);
-  mi.Caption := 'Delete';
-  mi.OnClick := DoPopupMenuDeleteItem;
-  mi.Hint := 'Delete selected tag.';
-  result.Items.Add(mi);
 end;
 
 procedure TTisTagEditor.MouseMove(Shift: TShiftState; X: integer; Y: integer);
@@ -954,13 +935,13 @@ begin
             PART_REMOVE_BUTTON:
               begin
                 if not FDeleteTagButton then
-                  Exit;
+                  exit;
                 if Assigned(FOnRemoveConfirm) then
                 begin
                   CanRemove := False;
                   FOnRemoveConfirm(Self, i, FTags.Items[i].Text, CanRemove);
                   if not CanRemove then
-                    Exit;
+                    exit;
                 end;
                 if Assigned(FOnBeforeTagRemove) then
                   FOnBeforeTagRemove(Self, i);
@@ -1014,7 +995,6 @@ begin
       FRights[i] := X + FWidths[i];
       FTops[i] := Y;
       FBottoms[i] := Y + FTagHeight;
-
       if X + FWidths[i] + FSpacing > ClientWidth then
       begin
         X := FSpacing;
@@ -1165,10 +1145,10 @@ end;
 
 procedure TTisTagEditor.DrawFocusRect;
 var
-  R: TRect;
+  r: TRect;
 begin
-  R := GetShrunkClientRect(2);
-  SafeDrawFocusRect(Canvas.Handle, R);
+  r := GetShrunkClientRect(2);
+  SafeDrawFocusRect(Canvas.Handle, r);
 end;
 
 procedure TTisTagEditor.SetAutoHeight(const Value: Boolean);
