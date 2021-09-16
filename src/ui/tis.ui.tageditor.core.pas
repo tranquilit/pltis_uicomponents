@@ -151,9 +151,8 @@ type
     FOnTagClick: TOnTagClick;
     FOnChange: TNotifyEvent;
     FOnBeforeTagRemove: TOnBeforeTagRemove;
-    FOnAfterTagRemove: TOnAfterTagRemove;
     FOnRemoveConfirm: TOnRemoveConfirm;
-    function Accept: Boolean;
+    function AcceptTag: Boolean;
     function GetClickInfoAt(X, Y: integer): TClickInfo;
     function GetReadOnly: Boolean;
     function GetSeparatorIndexAt(X, Y: integer): integer;
@@ -206,6 +205,7 @@ type
     function CreateTags(aTagEditor: TTisTagEditor): TTags; virtual;
     function CreateEdit: TEdit; virtual;
     function CreatePopupMenu: TPopupMenu; virtual;
+    procedure DoChange; virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -249,7 +249,6 @@ type
     property OnRemoveConfirm: TOnRemoveConfirm read FOnRemoveConfirm write FOnRemoveConfirm;
     property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
-    property OnAfterTagRemove: TOnAfterTagRemove read FOnAfterTagRemove write FOnAfterTagRemove;
   end;
 
 implementation
@@ -511,7 +510,7 @@ end;
 procedure TTisTagEditor.EditExit(Sender: TObject);
 begin
   if FEdit.Text <> '' then
-    Accept
+    AcceptTag
   else
     HideEditor;
 end;
@@ -523,8 +522,7 @@ begin
     if Assigned(FOnBeforeTagRemove) then
       FOnBeforeTagRemove(Self, TMenuItem(Sender).Tag);
     FTags.Delete(TMenuItem(Sender).Tag);
-    if Assigned(FOnAfterTagRemove) then
-      FOnAfterTagRemove(Self, TMenuItem(Sender).Tag);
+    DoChange;
   end;
 end;
 
@@ -631,6 +629,12 @@ begin
   result.Items.Add(mi);
 end;
 
+procedure TTisTagEditor.DoChange;
+begin
+  if assigned(FOnChange) then
+    FOnChange(self);
+end;
+
 procedure TTisTagEditor.FixPosAndScrollWindow;
 var
   r: TRect;
@@ -658,45 +662,45 @@ begin
   FixPosAndScrollWindow;
 end;
 
-function TTisTagEditor.Accept: Boolean;
+function TTisTagEditor.AcceptTag: Boolean;
 begin
-  if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
-    Exit(False);
-  Assert(FEdit.Visible);
   result := False;
+  if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
+    exit;
+  Assert(FEdit.Visible);
   if FTrimInput then
     FEdit.Text := Trim(FEdit.Text);
   if (FEdit.Text = '') or ((not AllowDuplicates) and
     (FTags.IndexOf(FEdit.Text) <> -1)) then
   begin
     beep;
-    Exit;
+    exit;
   end;
   FTags.Add(FEdit.Text);
   result := True;
-  HideEditor;
   if Assigned(FTagAdded) then
+  begin
     FTagAdded(Self);
+    DoChange;
+  end;
+  HideEditor;
   Invalidate;
 end;
 
 procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
 begin
-
   if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and FNoLeadingSpaceInput then
   begin
     Key := #0;
     Exit;
   end;
-
   if ((Key = chr(VK_SPACE)) and FSpaceAccepts) or
     ((Key = ',') and FCommaAccepts) or ((Key = ';') and FSemicolonAccepts) then
     Key := chr(VK_RETURN);
-
   case ord(Key) of
     VK_RETURN:
       begin
-        Accept;
+        AcceptTag;
         ShowEditor;
         Key := #0;
       end;
@@ -707,8 +711,7 @@ begin
           if Assigned(FOnBeforeTagRemove) then
             FOnBeforeTagRemove(Sender, FTags.Count - 1);
           FTags.Delete(FTags.Count - 1);
-          if Assigned(FOnAfterTagRemove) then
-            FOnAfterTagRemove(Sender, FTags.Count - 1);
+          DoChange;
           Paint;
         end;
       end;
@@ -719,7 +722,6 @@ begin
         Key := #0;
       end;
   end;
-
 end;
 
 procedure TTisTagEditor.HideEditor;
@@ -948,8 +950,7 @@ begin
                 if Assigned(FOnBeforeTagRemove) then
                   FOnBeforeTagRemove(Self, i);
                 FTags.Delete(i);
-                if Assigned(FOnAfterTagRemove) then
-                  FOnAfterTagRemove(Self, i);
+                DoChange;
                 Paint;
               end;
           end;
@@ -958,13 +959,11 @@ begin
         begin
           FPopupMenu.Items[0].Tag := i;
           pnt := ClientToScreen(Point(X, Y));
-          FPopupMenu.Items[0].Caption := 'Delete tag "' + FTags.Items[i]
-            .Text + '"';
+          FPopupMenu.Items[0].Caption := 'Delete "' + FTags.Items[i].Text + '"';
           FPopupMenu.Popup(pnt.X, pnt.Y - FScrollInfo.nPos);
         end;
     end;
   end;
-
 end;
 
 procedure TTisTagEditor.UpdateMetrics;
