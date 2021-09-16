@@ -1,14 +1,14 @@
 object TagEditorFrame: TTagEditorFrame
   Left = 0
-  Height = 441
+  Height = 464
   Top = 0
   Width = 493
-  ClientHeight = 441
+  ClientHeight = 464
   ClientWidth = 493
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326
-  DesignTop = 225
+  DesignTop = 167
   object GroupBox1: TGroupBox
     Left = 24
     Height = 162
@@ -136,14 +136,15 @@ object TagEditorFrame: TTagEditorFrame
     OnTagClick = TagEditorTagClick
     OnTagBeforeAdd = TagEditorTagBeforeAdd
     OnTagBeforeDelete = TagEditorTagBeforeDelete
+    OnTagAfterDrag = TagEditorTagAfterDrag
   end
   object GroupBox2: TGroupBox
     Left = 26
-    Height = 183
+    Height = 207
     Top = 233
     Width = 433
     Caption = ' Test Events '
-    ClientHeight = 163
+    ClientHeight = 187
     ClientWidth = 429
     TabOrder = 2
     object TagClickCheckBox: TCheckBox
@@ -201,6 +202,14 @@ object TagEditorFrame: TTagEditorFrame
       Width = 130
       TabOrder = 4
       Text = 'windows'
+    end
+    object TagAfterDragCheckBox: TCheckBox
+      Left = 17
+      Height = 19
+      Top = 160
+      Width = 106
+      Caption = 'OnTagAfterDrag'
+      TabOrder = 5
     end
   end
 end

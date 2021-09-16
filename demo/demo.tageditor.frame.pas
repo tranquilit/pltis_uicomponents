@@ -29,6 +29,7 @@ type
     TagBeforeDeleteCheckBox: TCheckBox;
     Label7: TLabel;
     TagBeforeDeleteEdit: TEdit;
+    TagAfterDragCheckBox: TCheckBox;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -40,6 +41,8 @@ type
       var aAbort: Boolean);
     procedure TagEditorTagBeforeDelete(Sender: TObject; aTag: TTagItem;
       var aAbort: Boolean);
+    procedure TagEditorTagAfterDrag(Sender: TObject; aTag: TTagItem; aPreIndex,
+      aNewIndex: Integer);
   end;
 
 implementation
@@ -105,6 +108,17 @@ begin
       ShowMessage('You cannot delete "' + TagBeforeDeleteEdit.Text + '"');
       aAbort := True;
     end;
+end;
+
+procedure TTagEditorFrame.TagEditorTagAfterDrag(Sender: TObject;
+  aTag: TTagItem; aPreIndex, aNewIndex: Integer);
+begin
+  if TagAfterDragCheckBox.Checked then
+    ShowMessage(
+      'Tag: ' + aTag.Text + LineEnding +
+      '- pre index: ' + aPreIndex.ToString + LineEnding +
+      '- new index: ' + aNewIndex.ToString
+    );
 end;
 
 end.

@@ -31,7 +31,7 @@ type
   ETagEditor = class(Exception);
 
   TClickInfo = cardinal;
-  GetTagIndex = word;
+  TTagIndex = word;
 
   TTagContext = record
     CanDelete: Boolean;
@@ -100,6 +100,8 @@ type
 
   TOnTagBeforeDelete = procedure(Sender: TObject; aTag: TTagItem; var aAbort: Boolean) of object;
 
+  TOnTagAfterDrag = procedure (Sender: TObject; aTag: TTagItem; aPreIndex, aNewIndex: Integer) of object;
+
   TTisTagEditor = class(TCustomControl)
   private
     FActualTagHeight: integer;
@@ -146,6 +148,7 @@ type
     FOnTagClick: TOnTagClick;
     FOnTagBeforeAdd: TOnTagBeforeAdd;
     FOnTagBeforeDelete: TOnTagBeforeDelete;
+    FOnTagAfterDrag: TOnTagAfterDrag;
     FOnChange: TNotifyEvent;
     function GetClickInfoAt(X, Y: integer): TClickInfo;
     function GetReadOnly: Boolean;
@@ -202,6 +205,7 @@ type
     procedure DoChange; virtual;
     function AddTag: Boolean;
     procedure DeleteTag(aTagIndex: Integer); virtual;
+    procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -243,6 +247,7 @@ type
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
     property OnTagBeforeAdd: TOnTagBeforeAdd read FOnTagBeforeAdd write FOnTagBeforeAdd;
     property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
+    property OnTagAfterDrag: TOnTagAfterDrag read FOnTagAfterDrag write FOnTagAfterDrag;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
@@ -670,6 +675,15 @@ begin
   DoChange;
 end;
 
+procedure TTisTagEditor.DoAfterDrag(aPreIndex, aNewIndex: Integer);
+begin
+  if assigned(FOnTagAfterDrag) then
+  begin
+    FOnTagAfterDrag(self, FTags.Items[aNewIndex], aPreIndex, aNewIndex);
+    DoChange;
+  end;
+end;
+
 procedure TTisTagEditor.FixPosAndScrollWindow;
 var
   r: TRect;
@@ -843,7 +857,7 @@ procedure TTisTagEditor.MouseDown(Button: TMouseButton; Shift: TShiftState;
 begin
   Inc(Y, FScrollInfo.nPos);
   FMouseDownClickInfo := GetClickInfoAt(X, Y);
-  if GetTagIndex(FMouseDownClickInfo) <> EDITOR then
+  if TTagIndex(FMouseDownClickInfo) <> EDITOR then
     SetFocus;
 end;
 
@@ -873,7 +887,7 @@ var
 begin
   inherited;
   Inc(Y, FScrollInfo.nPos);
-  if IsKeyDown(VK_LBUTTON) and InRange(GetTagIndex(FMouseDownClickInfo),
+  if IsKeyDown(VK_LBUTTON) and InRange(TTagIndex(FMouseDownClickInfo),
     TAG_LOW, TAG_HIGH) and (FCanDragTags) then
   begin
     FDragging := True;
@@ -889,7 +903,7 @@ begin
     ShowCaret(Handle);
     Exit;
   end;
-  case GetTagIndex(GetClickInfoAt(X, Y)) of
+  case TTagIndex(GetClickInfoAt(X, Y)) of
     NOWHERE:
       Cursor := crArrow;
     EDITOR:
@@ -903,11 +917,11 @@ procedure TTisTagEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X: integer; Y: integer);
 var
   pnt: TPoint;
-  CanRemove: Boolean;
   ClickInfo: TClickInfo;
   i: word;
   p: cardinal;
-  SepIndex: integer;
+  SepIndex: Integer;
+  oldpos, newpos: TTagIndex;
 begin
   inherited;
   Inc(Y, FScrollInfo.nPos);
@@ -917,19 +931,21 @@ begin
     FDragging := False;
     Screen.Cursor := crDefault;
     SepIndex := GetSeparatorIndexAt(X, Y);
-    if not InRange(SepIndex, GetTagIndex(FMouseDownClickInfo),
-      GetTagIndex(FMouseDownClickInfo) + 1) then
+    if not InRange(SepIndex, TTagIndex(FMouseDownClickInfo),
+      TTagIndex(FMouseDownClickInfo) + 1) then
     begin
-      FTags.Move(GetTagIndex(FMouseDownClickInfo),
-        SepIndex - IfThen(SepIndex > GetTagIndex(FMouseDownClickInfo), 1, 0));
+      oldpos := TTagIndex(FMouseDownClickInfo);
+      newpos := TTagIndex(SepIndex - IfThen(SepIndex > TTagIndex(FMouseDownClickInfo), 1, 0));
+      FTags.Move(oldpos, newpos);
+      DoAfterDrag(oldpos, newpos);
       Paint;
     end;
-    Exit;
+    exit;
   end;
   ClickInfo := GetClickInfoAt(X, Y);
   if ClickInfo <> FMouseDownClickInfo then
     Exit;
-  i := GetTagIndex(ClickInfo);
+  i := TTagIndex(ClickInfo);
   p := GetTagPart(ClickInfo);
   case i of
     EDITOR:
