@@ -173,7 +173,7 @@ type
     procedure SetCloseTagButton(const Value: Boolean);
     procedure SetMaxHeight(const Value: integer);
     procedure SetMultiLine(const Value: Boolean);
-    procedure SetPasteText(AText: string);
+    procedure SetTagsFromDelimitedText(const aText: string);
     procedure SetTags(const Value: TTags);
     procedure SetReadOnly(const Value: Boolean);
     procedure SetSpacing(const Value: integer);
@@ -182,6 +182,8 @@ type
     procedure SetTagHeight(const Value: integer);
     procedure SetTagRoundBorder(const Value: integer);
     procedure SetTagTextColor(const Value: TColor);
+    function GetAsArray: TStringArray;
+    procedure SetAsArray(aValue: TStringArray);
     procedure ShowEditor;
     procedure TagChange(Sender: TObject);
     procedure UpdateMetrics;
@@ -209,6 +211,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    /// it will clear all tags
+    // - it will not perform OnTagBeforeDelete event
+    procedure Clear; virtual;
   published
     // ------------------------------- inherited properties ----------------------------------
     property Anchors;
@@ -243,6 +248,7 @@ type
     property TagRoundBorder: integer read FTagRoundBorder write SetTagRoundBorder;
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
+    property AsArray: TStringArray read GetAsArray write SetAsArray;
     // ------------------------------- new events ----------------------------------
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
     property OnTagBeforeAdd: TOnTagBeforeAdd read FOnTagBeforeAdd write FOnTagBeforeAdd;
@@ -500,6 +506,12 @@ begin
   inherited Destroy;
 end;
 
+procedure TTisTagEditor.Clear;
+begin
+  FTags.Clear;
+  DoChange;
+end;
+
 procedure TTisTagEditor.EditEnter(Sender: TObject);
 begin
   if FEditPos.Y + FEdit.Height > FScrollInfo.nPos + ClientHeight then
@@ -559,7 +571,7 @@ begin
     WM_PASTE:
       begin
         if Clipboard.HasFormat(CF_TEXT) then
-          SetPasteText(Clipboard.AsText);
+          SetTagsFromDelimitedText(Clipboard.AsText);
       end;
     WM_SIZE:
       begin
@@ -1231,28 +1243,26 @@ begin
   end;
 end;
 
-procedure TTisTagEditor.SetPasteText(AText: string);
+procedure TTisTagEditor.SetTagsFromDelimitedText(const aText: string);
 var
   sl: TStringList;
   i: integer;
   ctx: TTagContext;
 begin
-  if AText = '' then
-    Exit;
+  if aText = '' then
+    exit;
   sl := TStringList.Create;
   ctx.CanDelete := FDeleteTagButton;
   ctx.BgColor := FTagBgColor;
   ctx.BorderColor := FTagBorderColor;
   ctx.TextColor := FTagTextColor;
   try
-    sl.DelimitedText := AText;
+    sl.DelimitedText := aText;
     for i := 0 to sl.Count - 1 do
-    begin
       FTags.Add(ctx, sl[i]);
-    end;
   finally
     sl.Free;
-    Paint;
+    DoChange;
   end;
 end;
 
@@ -1316,6 +1326,31 @@ begin
     FTagTextColor := Value;
     Invalidate;
   end;
+end;
+
+function TTisTagEditor.GetAsArray: TStringArray;
+var
+  i: Integer;
+begin
+  SetLength(result, FTags.Count);
+  for i := 0 to FTags.Count -1 do
+    result[i] := FTags.Items[i].Text;
+end;
+
+procedure TTisTagEditor.SetAsArray(aValue: TStringArray);
+var
+  i: Integer;
+  s: string;
+begin
+  FTags.Clear;
+  s := '';
+  for i := 0 to high(aValue) do
+  begin
+    if i > 0 then
+      s := s + ',';
+    s := s + aValue[i];
+  end;
+  SetTagsFromDelimitedText(s);
 end;
 
 procedure TTisTagEditor.ShowEditor;

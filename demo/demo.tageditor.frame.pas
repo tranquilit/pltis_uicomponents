@@ -6,7 +6,11 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
-  ExtCtrls, tis.ui.tageditor.core;
+  ExtCtrls,
+  mormot.core.base,
+  mormot.core.data,
+  mormot.core.text,
+  tis.ui.tageditor.core;
 
 type
   TTagEditorFrame = class(TFrame)
@@ -33,6 +37,9 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
+    TagClearAllLabel: TLabel;
+    ShowTagsAsArrayLabel: TLabel;
+    InputTagsAsArrayLabel: TLabel;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -46,6 +53,9 @@ type
       var aAbort: Boolean);
     procedure TagEditorTagAfterDrag(Sender: TObject; aTag: TTagItem; aPreIndex,
       aNewIndex: Integer);
+    procedure TagClearAllLabelClick(Sender: TObject);
+    procedure ShowTagsAsArrayLabelClick(Sender: TObject);
+    procedure InputTagsAsArrayLabelClick(Sender: TObject);
   end;
 
 implementation
@@ -122,6 +132,37 @@ begin
       '- pre index: ' + aPreIndex.ToString + LineEnding +
       '- new index: ' + aNewIndex.ToString
     );
+end;
+
+procedure TTagEditorFrame.TagClearAllLabelClick(Sender: TObject);
+begin
+  TagEditor.Clear;
+end;
+
+procedure TTagEditorFrame.ShowTagsAsArrayLabelClick(Sender: TObject);
+var
+  a: TRawUtf8DynArray;
+begin
+  a := nil;
+  StringDynArrayToRawUtf8DynArray(TagEditor.AsArray, a);
+  ShowMessage(Utf8ToString(RawUtf8ArrayToCsv(a)));
+end;
+
+procedure TTagEditorFrame.InputTagsAsArrayLabelClick(Sender: TObject);
+var
+  input: string;
+  sl: TStringList;
+  a: TRawUtf8DynArray;
+begin
+  input := InputBox('Delimited Text', 'Type tags using "," among then', '');
+  sl := TStringList.Create;
+  try
+    sl.DelimitedText := input;
+    StringListToRawUtf8DynArray(sl, a);
+    TagEditor.AsArray := a;
+  finally
+    sl.Free;
+  end;
 end;
 
 end.
