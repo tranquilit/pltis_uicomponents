@@ -156,14 +156,15 @@ var
   a: TRawUtf8DynArray;
 begin
   input := InputBox('Delimited Text', 'Type tags using "," among then', '');
-  sl := TStringList.Create;
-  try
-    sl.DelimitedText := input;
-    StringListToRawUtf8DynArray(sl, a);
-    TagEditor.AsArray := a;
-  finally
-    sl.Free;
-  end;
+  if input <> '' then
+    sl := TStringList.Create;
+    try
+      sl.DelimitedText := input;
+      StringListToRawUtf8DynArray(sl, a);
+      TagEditor.AsArray := a;
+    finally
+      sl.Free;
+    end;
 end;
 
 end.
