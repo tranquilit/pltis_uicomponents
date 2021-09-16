@@ -94,8 +94,9 @@ type
     property TagEditor: TTisTagEditor read FTagEditor;
   end;
 
-  TOnTagClick = procedure(Sender: TObject; aTagIndex: integer;
-    const aTagCaption: string) of object;
+  TOnTagClick = procedure(Sender: TObject; aTag: TTagItem) of object;
+
+  TOnTagBeforeAdd = procedure(Sender: TObject; const aTag: string; var aAbort: Boolean) of object;
 
   TOnTagBeforeDelete = procedure(Sender: TObject; aTag: TTagItem; var aAbort: Boolean) of object;
 
@@ -239,10 +240,10 @@ type
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     // ------------------------------- new events ----------------------------------
+    property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
     property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
     property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
-    property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
   end;
 
 implementation
@@ -937,7 +938,7 @@ begin
           case p of
             PART_BODY:
               if Assigned(FOnTagClick) then
-                FOnTagClick(Self, i, FTags.Items[i].Text);
+                FOnTagClick(Self, FTags.Items[i]);
             PART_REMOVE_BUTTON:
               begin
                 if not FDeleteTagButton then
