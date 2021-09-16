@@ -137,7 +137,6 @@ type
     FShrunk: Boolean;
     FSpaceAccepts: Boolean;
     FSpacing: integer;
-    FTagAdded: TNotifyEvent;
     FTagBgColor: TColor;
     FTagBorderColor: TColor;
     FTagHeight: integer;
@@ -145,9 +144,9 @@ type
     FTagTextColor: TColor;
     FTrimInput: Boolean;
     FOnTagClick: TOnTagClick;
-    FOnChange: TNotifyEvent;
+    FOnTagBeforeAdd: TOnTagBeforeAdd;
     FOnTagBeforeDelete: TOnTagBeforeDelete;
-    function AcceptTag: Boolean;
+    FOnChange: TNotifyEvent;
     function GetClickInfoAt(X, Y: integer): TClickInfo;
     function GetReadOnly: Boolean;
     function GetSeparatorIndexAt(X, Y: integer): integer;
@@ -201,6 +200,7 @@ type
     function CreateEdit: TEdit; virtual;
     function CreatePopupMenu: TPopupMenu; virtual;
     procedure DoChange; virtual;
+    function AddTag: Boolean;
     procedure DeleteTag(aTagIndex: Integer); virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -241,8 +241,8 @@ type
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     // ------------------------------- new events ----------------------------------
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
+    property OnTagBeforeAdd: TOnTagBeforeAdd read FOnTagBeforeAdd write FOnTagBeforeAdd;
     property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
-    property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
@@ -505,7 +505,7 @@ end;
 procedure TTisTagEditor.EditExit(Sender: TObject);
 begin
   if FEdit.Text <> '' then
-    AcceptTag
+    AddTag
   else
     HideEditor;
 end;
@@ -626,6 +626,35 @@ begin
   Invalidate;
 end;
 
+function TTisTagEditor.AddTag: Boolean;
+var
+  aborted: Boolean;
+begin
+  result := False;
+  if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
+    exit;
+  Assert(FEdit.Visible);
+  if FTrimInput then
+    FEdit.Text := Trim(FEdit.Text);
+  if (FEdit.Text = '') or ((not AllowDuplicates) and
+    (FTags.IndexOf(FEdit.Text) <> -1)) then
+  begin
+    beep;
+    exit;
+  end;
+  if assigned(FOnTagBeforeAdd) then
+  begin
+    aborted := False;
+    FOnTagBeforeAdd(self, FEdit.Text, aborted);
+    if aborted then
+      exit;
+  end;
+  FTags.Add(FEdit.Text);
+  result := True;
+  DoChange;
+  HideEditor;
+end;
+
 procedure TTisTagEditor.DeleteTag(aTagIndex: Integer);
 var
   aborted: Boolean;
@@ -668,30 +697,6 @@ begin
   FixPosAndScrollWindow;
 end;
 
-function TTisTagEditor.AcceptTag: Boolean;
-begin
-  result := False;
-  if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
-    exit;
-  Assert(FEdit.Visible);
-  if FTrimInput then
-    FEdit.Text := Trim(FEdit.Text);
-  if (FEdit.Text = '') or ((not AllowDuplicates) and
-    (FTags.IndexOf(FEdit.Text) <> -1)) then
-  begin
-    beep;
-    exit;
-  end;
-  FTags.Add(FEdit.Text);
-  result := True;
-  if Assigned(FTagAdded) then
-  begin
-    FTagAdded(Self);
-    DoChange;
-  end;
-  HideEditor;
-end;
-
 procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
 begin
   if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and FNoLeadingSpaceInput then
@@ -705,7 +710,7 @@ begin
   case ord(Key) of
     VK_RETURN:
       begin
-        AcceptTag;
+        AddTag;
         ShowEditor;
         Key := #0;
       end;
