@@ -41,16 +41,6 @@ type
     TextColor: TColor;
   end;
 
-  TOnTagClick = procedure(Sender: TObject; aTagIndex: integer;
-    const aTagCaption: string) of object;
-
-  TOnRemoveConfirm = procedure(Sender: TObject; aTagIndex: integer;
-    const aTagCaption: string; var aCanRemove: Boolean) of object;
-
-  TOnBeforeTagRemove = procedure(Sender: TObject; aTagIndex: integer) of object;
-
-  TOnAfterTagRemove = procedure(Sender: TObject; aTagIndex: integer) of object;
-
   TTags = class;
   TTisTagEditor = class;
 
@@ -104,6 +94,11 @@ type
     property TagEditor: TTisTagEditor read FTagEditor;
   end;
 
+  TOnTagClick = procedure(Sender: TObject; aTagIndex: integer;
+    const aTagCaption: string) of object;
+
+  TOnBeforeTagRemove = procedure(Sender: TObject; aTagIndex: integer) of object;
+
   TTisTagEditor = class(TCustomControl)
   private
     FActualTagHeight: integer;
@@ -151,7 +146,6 @@ type
     FOnTagClick: TOnTagClick;
     FOnChange: TNotifyEvent;
     FOnBeforeTagRemove: TOnBeforeTagRemove;
-    FOnRemoveConfirm: TOnRemoveConfirm;
     function AcceptTag: Boolean;
     function GetClickInfoAt(X, Y: integer): TClickInfo;
     function GetReadOnly: Boolean;
@@ -244,10 +238,9 @@ type
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     // ------------------------------- new events ----------------------------------
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnBeforeTagRemove: TOnBeforeTagRemove read FOnBeforeTagRemove write FOnBeforeTagRemove;
-    property OnRemoveConfirm: TOnRemoveConfirm read FOnRemoveConfirm write FOnRemoveConfirm;
     property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
   end;
 
@@ -940,13 +933,6 @@ begin
               begin
                 if not FDeleteTagButton then
                   exit;
-                if Assigned(FOnRemoveConfirm) then
-                begin
-                  CanRemove := False;
-                  FOnRemoveConfirm(Self, i, FTags.Items[i].Text, CanRemove);
-                  if not CanRemove then
-                    exit;
-                end;
                 if Assigned(FOnBeforeTagRemove) then
                   FOnBeforeTagRemove(Self, i);
                 FTags.Delete(i);
