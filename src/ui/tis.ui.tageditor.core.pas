@@ -690,10 +690,7 @@ end;
 procedure TTisTagEditor.DoAfterDrag(aPreIndex, aNewIndex: Integer);
 begin
   if assigned(FOnTagAfterDrag) then
-  begin
     FOnTagAfterDrag(self, FTags.Items[aNewIndex], aPreIndex, aNewIndex);
-    DoChange;
-  end;
 end;
 
 procedure TTisTagEditor.FixPosAndScrollWindow;
@@ -950,7 +947,7 @@ begin
       newpos := TTagIndex(SepIndex - IfThen(SepIndex > TTagIndex(FMouseDownClickInfo), 1, 0));
       FTags.Move(oldpos, newpos);
       DoAfterDrag(oldpos, newpos);
-      Paint;
+      DoChange;
     end;
     exit;
   end;
