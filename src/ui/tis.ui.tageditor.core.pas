@@ -97,7 +97,7 @@ type
   TOnTagClick = procedure(Sender: TObject; aTagIndex: integer;
     const aTagCaption: string) of object;
 
-  TOnBeforeTagRemove = procedure(Sender: TObject; aTagIndex: integer) of object;
+  TOnTagBeforeDelete = procedure(Sender: TObject; aTag: TTagItem; var aAbort: Boolean) of object;
 
   TTisTagEditor = class(TCustomControl)
   private
@@ -145,7 +145,7 @@ type
     FTrimInput: Boolean;
     FOnTagClick: TOnTagClick;
     FOnChange: TNotifyEvent;
-    FOnBeforeTagRemove: TOnBeforeTagRemove;
+    FOnTagBeforeDelete: TOnTagBeforeDelete;
     function AcceptTag: Boolean;
     function GetClickInfoAt(X, Y: integer): TClickInfo;
     function GetReadOnly: Boolean;
@@ -200,6 +200,7 @@ type
     function CreateEdit: TEdit; virtual;
     function CreatePopupMenu: TPopupMenu; virtual;
     procedure DoChange; virtual;
+    procedure DeleteTag(aTagIndex: Integer); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -238,7 +239,7 @@ type
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     // ------------------------------- new events ----------------------------------
-    property OnBeforeTagRemove: TOnBeforeTagRemove read FOnBeforeTagRemove write FOnBeforeTagRemove;
+    property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
     property OnTagAdded: TNotifyEvent read FTagAdded write FTagAdded;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
@@ -511,12 +512,7 @@ end;
 procedure TTisTagEditor.DoPopupMenuDeleteItem(Sender: TObject);
 begin
   if Sender is TMenuItem then
-  begin
-    if Assigned(FOnBeforeTagRemove) then
-      FOnBeforeTagRemove(Self, TMenuItem(Sender).Tag);
-    FTags.Delete(TMenuItem(Sender).Tag);
-    DoChange;
-  end;
+    DeleteTag(TMenuItem(Sender).Tag);
 end;
 
 procedure TTisTagEditor.TagChange(Sender: TObject);
@@ -626,6 +622,22 @@ procedure TTisTagEditor.DoChange;
 begin
   if assigned(FOnChange) then
     FOnChange(self);
+  Invalidate;
+end;
+
+procedure TTisTagEditor.DeleteTag(aTagIndex: Integer);
+var
+  aborted: Boolean;
+begin
+  if assigned(FOnTagBeforeDelete) then
+  begin
+    aborted := False;
+    FOnTagBeforeDelete(self, FTags.Items[aTagIndex], aborted);
+    if aborted then
+      exit;
+  end;
+  FTags.Delete(aTagIndex);
+  DoChange;
 end;
 
 procedure TTisTagEditor.FixPosAndScrollWindow;
@@ -677,7 +689,6 @@ begin
     DoChange;
   end;
   HideEditor;
-  Invalidate;
 end;
 
 procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
@@ -701,10 +712,7 @@ begin
       begin
         if (FEdit.Text = '') and (FTags.Count > 0) then
         begin
-          if Assigned(FOnBeforeTagRemove) then
-            FOnBeforeTagRemove(Sender, FTags.Count - 1);
-          FTags.Delete(FTags.Count - 1);
-          DoChange;
+          DeleteTag(FTags.Count-1);
           Paint;
         end;
       end;
@@ -721,6 +729,7 @@ procedure TTisTagEditor.HideEditor;
 begin
   FEdit.Text := '';
   FEdit.Hide;
+  Invalidate;
 end;
 
 procedure TTisTagEditor.KeyDown(var Key: word; Shift: TShiftState);
@@ -933,10 +942,7 @@ begin
               begin
                 if not FDeleteTagButton then
                   exit;
-                if Assigned(FOnBeforeTagRemove) then
-                  FOnBeforeTagRemove(Self, i);
-                FTags.Delete(i);
-                DoChange;
+                DeleteTag(i);
                 Paint;
               end;
           end;
