@@ -220,7 +220,7 @@ type
     function CreatePopupMenu: TPopupMenu; virtual;
     /// add a new tag
     // - returns TRUE if tag was included
-    function AddTag: Boolean; virtual;
+    function AddTag(const aText: string): Boolean; virtual;
     /// delete a tag using its index
     procedure DeleteTag(aTagIndex: Integer); virtual;
     /// event implementation for OnTagBeforeAdd
@@ -235,7 +235,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     /// it will clear all tags
-    // - it will not perform OnTagBeforeDelete event
+    // - it will not perform any event, such as OnTagBeforeAdd, OnTagBeforeDelete
     procedure Clear; virtual;
   published
     // ------------------------------- inherited properties ----------------------------------
@@ -271,6 +271,8 @@ type
     property TagRoundBorder: integer read FTagRoundBorder write SetTagRoundBorder;
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
+    /// use this property to get/set tags as array
+    // - changing its value it will call all events related with adding and deleting tags
     property AsArray: TStringArray read GetAsArray write SetAsArray;
     // ------------------------------- new events ----------------------------------
     /// event to execute some code when the user clicks on a tag
@@ -559,9 +561,8 @@ end;
 procedure TTisTagEditor.EditExit(Sender: TObject);
 begin
   if FEdit.Text <> '' then
-    AddTag
-  else
-    HideEditor;
+    AddTag(FEdit.Text);
+  HideEditor;
 end;
 
 procedure TTisTagEditor.DoPopupMenuDeleteItem(Sender: TObject);
@@ -673,26 +674,31 @@ begin
   result.Items.Add(mi);
 end;
 
-function TTisTagEditor.AddTag: Boolean;
+function TTisTagEditor.AddTag(const aText: string): Boolean;
+var
+  ctx: TTagContext;
+  s: string;
 begin
   result := False;
   if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
     exit;
-  assert(FEdit.Visible);
+  s := aText;
   if FTrimInput then
-    FEdit.Text := Trim(FEdit.Text);
-  if (FEdit.Text = '') or ((not AllowDuplicates) and
-    (FTags.IndexOf(FEdit.Text) <> -1)) then
+    s := Trim(aText);
+  if (s = '') or ((not AllowDuplicates) and (FTags.IndexOf(s) <> -1)) then
   begin
     beep;
     exit;
   end;
-  if DoTagBeforeAdd(FEdit.Text) then
+  if DoTagBeforeAdd(s) then
   begin
-    DoTagAfterAdd(FTags.Add(FEdit.Text));
+    ctx.CanDelete := FDeleteTagButton;
+    ctx.BgColor := FTagBgColor;
+    ctx.BorderColor := FTagBorderColor;
+    ctx.TextColor := FTagTextColor;
+    DoTagAfterAdd(FTags.Add(ctx, s));
     result := True;
     DoChange;
-    HideEditor;
   end;
 end;
 
@@ -728,7 +734,10 @@ end;
 procedure TTisTagEditor.DoTagAfterAdd(aTag: TTagItem);
 begin
   if assigned(FOnTagAfterAdd) then
+  begin
     FOnTagAfterAdd(self, aTag);
+    DoChange;
+  end;
 end;
 
 procedure TTisTagEditor.DoChange;
@@ -741,7 +750,10 @@ end;
 procedure TTisTagEditor.DoAfterDrag(aPreIndex, aNewIndex: Integer);
 begin
   if assigned(FOnTagAfterDrag) then
+  begin
     FOnTagAfterDrag(self, FTags.Items[aNewIndex], aPreIndex, aNewIndex);
+    DoChange;
+  end;
 end;
 
 procedure TTisTagEditor.FixPosAndScrollWindow;
@@ -785,7 +797,7 @@ begin
   case ord(Key) of
     VK_RETURN:
       begin
-        AddTag;
+        AddTag(FEdit.Text);
         ShowEditor;
         Key := #0;
       end;
@@ -1295,18 +1307,13 @@ end;
 procedure TTisTagEditor.SetTagsFromDelimitedText(const aText: string);
 var
   i: integer;
-  ctx: TTagContext;
   a: TStringArray;
 begin
   if aText = '' then
     exit;
-  ctx.CanDelete := FDeleteTagButton;
-  ctx.BgColor := FTagBgColor;
-  ctx.BorderColor := FTagBorderColor;
-  ctx.TextColor := FTagTextColor;
   a := aText.Split(TAG_TEXT_DELIMITER);
-  for i := 0 to high(a) do
-    FTags.Add(ctx, a[i]);
+  for i := low(a) to high(a) do
+    AddTag(a[i]);
   DoChange;
 end;
 
@@ -1384,17 +1391,12 @@ end;
 procedure TTisTagEditor.SetAsArray(aValue: TStringArray);
 var
   i: Integer;
-  s: string;
 begin
-  FTags.Clear;
-  s := '';
+  for i := FTags.Count -1 downto 0 do
+    DeleteTag(i);
   for i := 0 to high(aValue) do
-  begin
-    if i > 0 then
-      s := s + ',';
-    s := s + aValue[i];
-  end;
-  SetTagsFromDelimitedText(s);
+    AddTag(aValue[i]);
+  DoChange;
 end;
 
 procedure TTisTagEditor.ShowEditor;
