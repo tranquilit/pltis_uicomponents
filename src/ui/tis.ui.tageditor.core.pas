@@ -207,6 +207,7 @@ type
     procedure DoChange; virtual;
     function AddTag: Boolean;
     procedure DeleteTag(aTagIndex: Integer); virtual;
+    function DoTagBeforeAdd(const aTag: string): Boolean; virtual;
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -644,8 +645,6 @@ begin
 end;
 
 function TTisTagEditor.AddTag: Boolean;
-var
-  aborted: Boolean;
 begin
   result := False;
   if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
@@ -659,17 +658,13 @@ begin
     beep;
     exit;
   end;
-  if assigned(FOnTagBeforeAdd) then
+  if DoTagBeforeAdd(FEdit.Text) then
   begin
-    aborted := False;
-    FOnTagBeforeAdd(self, FEdit.Text, aborted);
-    if aborted then
-      exit;
+    DoTagAfterAdd(FTags.Add(FEdit.Text));
+    result := True;
+    DoChange;
+    HideEditor;
   end;
-  FTags.Add(FEdit.Text);
-  result := True;
-  DoChange;
-  HideEditor;
 end;
 
 procedure TTisTagEditor.DeleteTag(aTagIndex: Integer);
@@ -687,6 +682,19 @@ begin
   DoChange;
 end;
 
+function TTisTagEditor.DoTagBeforeAdd(const aTag: string): Boolean;
+var
+  aborted: Boolean;
+begin
+  result := True;
+  if assigned(FOnTagBeforeAdd) then
+  begin
+    aborted := False;
+    FOnTagBeforeAdd(self, FEdit.Text, aborted);
+    if aborted then
+      result := False;
+  end;
+end;
 procedure TTisTagEditor.DoAfterDrag(aPreIndex, aNewIndex: Integer);
 begin
   if assigned(FOnTagAfterDrag) then
