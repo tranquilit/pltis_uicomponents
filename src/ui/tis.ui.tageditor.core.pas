@@ -94,14 +94,25 @@ type
     property TagEditor: TTisTagEditor read FTagEditor;
   end;
 
+  /// event to execute some code when the user clicks on a tag
+  // - use aTag to know which tag was clicked
   TOnTagClick = procedure(Sender: TObject; aTag: TTagItem) of object;
 
+  /// event that occurs before adding a new tag
+  // - use aAbort to stop inclusion
   TOnTagBeforeAdd = procedure(Sender: TObject; const aTag: string; var aAbort: Boolean) of object;
 
+  /// event that occurs after adding a new tag
+  // - use aTag to change some properties
   TOnTagAfterAdd = procedure(Sender: TObject; aTag: TTagItem) of object;
 
+  /// event that occurs before deleting a new tag
+  // - use aAbort to stop deletion
   TOnTagBeforeDelete = procedure(Sender: TObject; aTag: TTagItem; var aAbort: Boolean) of object;
 
+  /// event that occurs after draging a tag
+  // - use aTag to change some properties
+  // - use aPreIndex abd aNewIndex to know the old and new positions
   TOnTagAfterDrag = procedure (Sender: TObject; aTag: TTagItem; aPreIndex, aNewIndex: Integer) of object;
 
   TTisTagEditor = class(TCustomControl)
@@ -207,11 +218,18 @@ type
     function CreateTags(aTagEditor: TTisTagEditor): TTags; virtual;
     function CreateEdit: TEdit; virtual;
     function CreatePopupMenu: TPopupMenu; virtual;
+    /// add a new tag
+    // - returns TRUE if tag was included
     function AddTag: Boolean; virtual;
+    /// delete a tag using its index
     procedure DeleteTag(aTagIndex: Integer); virtual;
+    /// event implementation for OnTagBeforeAdd
     function DoTagBeforeAdd(const aTag: string): Boolean; virtual;
+    /// event implementation for OnTagAfterAdd
     procedure DoTagAfterAdd(aTag: TTagItem); virtual;
+    /// event implementation for DoChange
     procedure DoChange; virtual;
+    /// event implementation for AfterDrag
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -255,11 +273,23 @@ type
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     property AsArray: TStringArray read GetAsArray write SetAsArray;
     // ------------------------------- new events ----------------------------------
+    /// event to execute some code when the user clicks on a tag
+    // - use aTag to know which tag was clicked
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
+    /// event that occurs before adding a new tag
+    // - use aAbort to stop inclusion
     property OnTagBeforeAdd: TOnTagBeforeAdd read FOnTagBeforeAdd write FOnTagBeforeAdd;
+    /// event that occurs after adding a new tag
+    // - use aTag to change some properties
     property OnTagAfterAdd: TOnTagAfterAdd read FOnTagAfterAdd write FOnTagAfterAdd;
+    /// event that occurs before deleting a new tag
+    // - use aAbort to stop deletion
     property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
+    /// event that occurs after draging a tag
+    // - use aTag to change some properties
+    // - use aPreIndex abd aNewIndex to know the old and new positions
     property OnTagAfterDrag: TOnTagAfterDrag read FOnTagAfterDrag write FOnTagAfterDrag;
+    /// event that occurs after changing something
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
