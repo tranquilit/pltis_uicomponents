@@ -41,6 +41,10 @@ type
     TagClearAllLabel: TLabel;
     ShowTagsAsArrayLabel: TLabel;
     InputTagsAsArrayLabel: TLabel;
+    Bevel4: TBevel;
+    TagAfterAddCheckBox: TCheckBox;
+    TagAfterAddEdit: TEdit;
+    Label8: TLabel;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -57,6 +61,7 @@ type
     procedure TagClearAllLabelClick(Sender: TObject);
     procedure ShowTagsAsArrayLabelClick(Sender: TObject);
     procedure InputTagsAsArrayLabelClick(Sender: TObject);
+    procedure TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
   end;
 
 implementation
@@ -165,6 +170,12 @@ begin
     finally
       sl.Free;
     end;
+end;
+
+procedure TTagEditorFrame.TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
+begin
+  if TagAfterAddCheckBox.Checked then
+    aTag.Text := FormatString('%%', [TagAfterAddEdit.Text, aTag.Text]);
 end;
 
 end.

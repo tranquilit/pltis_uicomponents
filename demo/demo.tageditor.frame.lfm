@@ -1,14 +1,14 @@
 object TagEditorFrame: TTagEditorFrame
   Left = 0
-  Height = 464
+  Height = 518
   Top = 0
   Width = 510
-  ClientHeight = 464
+  ClientHeight = 518
   ClientWidth = 510
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326
-  DesignTop = 167
+  DesignTop = 113
   object GroupBox1: TGroupBox
     Left = 24
     Height = 162
@@ -135,16 +135,17 @@ object TagEditorFrame: TTagEditorFrame
     TagTextColor = clWhite
     OnTagClick = TagEditorTagClick
     OnTagBeforeAdd = TagEditorTagBeforeAdd
+    OnTagAfterAdd = TagEditorTagAfterAdd
     OnTagBeforeDelete = TagEditorTagBeforeDelete
     OnTagAfterDrag = TagEditorTagAfterDrag
   end
   object GroupBox2: TGroupBox
     Left = 24
-    Height = 175
+    Height = 240
     Top = 256
     Width = 462
     Caption = ' Test Events '
-    ClientHeight = 155
+    ClientHeight = 220
     ClientWidth = 458
     TabOrder = 2
     object TagClickCheckBox: TCheckBox
@@ -184,9 +185,9 @@ object TagEditorFrame: TTagEditorFrame
       Text = 'abc'
     end
     object TagBeforeDeleteCheckBox: TCheckBox
-      Left = 216
+      Left = 17
       Height = 19
-      Top = 48
+      Top = 112
       Width = 122
       Caption = 'OnTagBeforeDelete'
       Checked = True
@@ -194,25 +195,25 @@ object TagEditorFrame: TTagEditorFrame
       TabOrder = 3
     end
     object Label7: TLabel
-      Left = 232
+      Left = 33
       Height = 15
-      Top = 72
+      Top = 136
       Width = 129
       Caption = 'don''t delete, if tag name'
       ParentColor = False
     end
     object TagBeforeDeleteEdit: TEdit
-      Left = 364
+      Left = 165
       Height = 23
-      Top = 69
+      Top = 133
       Width = 77
       TabOrder = 4
       Text = 'windows'
     end
     object TagAfterDragCheckBox: TCheckBox
-      Left = 17
+      Left = 16
       Height = 19
-      Top = 112
+      Top = 175
       Width = 106
       Caption = 'OnTagAfterDrag'
       Checked = True
@@ -228,7 +229,7 @@ object TagEditorFrame: TTagEditorFrame
       Shape = bsBottomLine
     end
     object Bevel2: TBevel
-      Left = 17
+      Left = 16
       Height = 8
       Top = 96
       Width = 427
@@ -238,10 +239,44 @@ object TagEditorFrame: TTagEditorFrame
     object Bevel3: TBevel
       Left = 17
       Height = 8
-      Top = 136
+      Top = 199
       Width = 427
       Anchors = [akTop, akLeft, akRight]
       Shape = bsBottomLine
+    end
+    object Bevel4: TBevel
+      Left = 17
+      Height = 8
+      Top = 160
+      Width = 427
+      Anchors = [akTop, akLeft, akRight]
+      Shape = bsBottomLine
+    end
+    object TagAfterAddCheckBox: TCheckBox
+      Left = 264
+      Height = 19
+      Top = 48
+      Width = 103
+      Caption = 'OnTagAfterAdd'
+      Checked = True
+      State = cbChecked
+      TabOrder = 6
+    end
+    object TagAfterAddEdit: TEdit
+      Left = 344
+      Height = 23
+      Top = 69
+      Width = 77
+      TabOrder = 7
+      Text = '#'
+    end
+    object Label8: TLabel
+      Left = 288
+      Height = 15
+      Top = 72
+      Width = 45
+      Caption = 'new text'
+      ParentColor = False
     end
   end
   object TagClearAllLabel: TLabel
