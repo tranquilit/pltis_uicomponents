@@ -305,6 +305,7 @@ const
   NOWHERE = MAXWORD;
   PART_BODY = $00000000;
   PART_REMOVE_BUTTON = $00010000;
+  DELIMITER = ',';
 
 function IsKeyDown(const VK: integer): Boolean;
 begin
@@ -1305,6 +1306,8 @@ begin
   ctx.BorderColor := FTagBorderColor;
   ctx.TextColor := FTagTextColor;
   try
+    sl.Delimiter := DELIMITER;
+    sl.StrictDelimiter := True;
     sl.DelimitedText := aText;
     for i := 0 to sl.Count - 1 do
       FTags.Add(ctx, sl[i]);
