@@ -305,7 +305,7 @@ const
   NOWHERE = MAXWORD;
   PART_BODY = $00000000;
   PART_REMOVE_BUTTON = $00010000;
-  DELIMITER = ',';
+  TAG_TEXT_DELIMITER = ',';
 
 function IsKeyDown(const VK: integer): Boolean;
 begin
@@ -463,7 +463,7 @@ begin
   result := '';
   for i := 0 to Self.Count - 1 do
   begin
-    result := result + IfThen(result <> '', ',') + Self.Items[i].Text;
+    result := result + IfThen(result <> '', TAG_TEXT_DELIMITER) + Self.Items[i].Text;
   end;
 end;
 
@@ -1294,27 +1294,20 @@ end;
 
 procedure TTisTagEditor.SetTagsFromDelimitedText(const aText: string);
 var
-  sl: TStringList;
   i: integer;
   ctx: TTagContext;
+  a: TStringArray;
 begin
   if aText = '' then
     exit;
-  sl := TStringList.Create;
   ctx.CanDelete := FDeleteTagButton;
   ctx.BgColor := FTagBgColor;
   ctx.BorderColor := FTagBorderColor;
   ctx.TextColor := FTagTextColor;
-  try
-    sl.Delimiter := DELIMITER;
-    sl.StrictDelimiter := True;
-    sl.DelimitedText := aText;
-    for i := 0 to sl.Count - 1 do
-      FTags.Add(ctx, sl[i]);
-  finally
-    sl.Free;
-    DoChange;
-  end;
+  a := aText.Split(TAG_TEXT_DELIMITER);
+  for i := 0 to high(a) do
+    FTags.Add(ctx, a[i]);
+  DoChange;
 end;
 
 procedure TTisTagEditor.SetTags(const Value: TTags);
