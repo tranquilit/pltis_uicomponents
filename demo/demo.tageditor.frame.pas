@@ -66,6 +66,9 @@ type
 
 implementation
 
+uses
+  tisstrings;
+
 {$R *.lfm}
 
 { TTagEditorFrame }
@@ -146,30 +149,17 @@ begin
 end;
 
 procedure TTagEditorFrame.ShowTagsAsArrayLabelClick(Sender: TObject);
-var
-  a: TRawUtf8DynArray;
 begin
-  a := nil;
-  StringDynArrayToRawUtf8DynArray(TagEditor.AsArray, a);
-  ShowMessage(Utf8ToString(RawUtf8ArrayToCsv(a)));
+  ShowMessage(TagEditor.AsArray.Join(','));
 end;
 
 procedure TTagEditorFrame.InputTagsAsArrayLabelClick(Sender: TObject);
 var
   input: string;
-  sl: TStringList;
-  a: TRawUtf8DynArray;
 begin
   input := InputBox('Delimited Text', 'Type tags using "," among then', '');
   if input <> '' then
-    sl := TStringList.Create;
-    try
-      sl.DelimitedText := input;
-      StringListToRawUtf8DynArray(sl, a);
-      TagEditor.AsArray := a;
-    finally
-      sl.Free;
-    end;
+    TagEditor.AsArray := input.Split(',');
 end;
 
 procedure TTagEditorFrame.TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
