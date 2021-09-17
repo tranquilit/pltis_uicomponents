@@ -777,8 +777,9 @@ begin
     Key := #0;
     Exit;
   end;
-  if ((Key = chr(VK_SPACE)) and FSpaceAccepts) or
-    ((Key = ',') and FCommaAccepts) or ((Key = ';') and FSemicolonAccepts) then
+  if ((Key = chr(VK_SPACE)) and not FSpaceAccepts) or
+    ((Key = ',') and not FCommaAccepts) or
+    ((Key = ';') and not FSemicolonAccepts) then
     Key := chr(VK_RETURN);
   case ord(Key) of
     VK_RETURN:
