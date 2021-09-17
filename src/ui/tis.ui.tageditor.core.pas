@@ -98,6 +98,8 @@ type
 
   TOnTagBeforeAdd = procedure(Sender: TObject; const aTag: string; var aAbort: Boolean) of object;
 
+  TOnTagAfterAdd = procedure(Sender: TObject; aTag: TTagItem) of object;
+
   TOnTagBeforeDelete = procedure(Sender: TObject; aTag: TTagItem; var aAbort: Boolean) of object;
 
   TOnTagAfterDrag = procedure (Sender: TObject; aTag: TTagItem; aPreIndex, aNewIndex: Integer) of object;
@@ -147,6 +149,7 @@ type
     FTrimInput: Boolean;
     FOnTagClick: TOnTagClick;
     FOnTagBeforeAdd: TOnTagBeforeAdd;
+    FOnTagAfterAdd: TOnTagAfterAdd;
     FOnTagBeforeDelete: TOnTagBeforeDelete;
     FOnTagAfterDrag: TOnTagAfterDrag;
     FOnChange: TNotifyEvent;
@@ -204,10 +207,11 @@ type
     function CreateTags(aTagEditor: TTisTagEditor): TTags; virtual;
     function CreateEdit: TEdit; virtual;
     function CreatePopupMenu: TPopupMenu; virtual;
-    procedure DoChange; virtual;
-    function AddTag: Boolean;
+    function AddTag: Boolean; virtual;
     procedure DeleteTag(aTagIndex: Integer); virtual;
     function DoTagBeforeAdd(const aTag: string): Boolean; virtual;
+    procedure DoTagAfterAdd(aTag: TTagItem); virtual;
+    procedure DoChange; virtual;
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
     constructor Create(AOwner: TComponent); override;
@@ -253,6 +257,7 @@ type
     // ------------------------------- new events ----------------------------------
     property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
     property OnTagBeforeAdd: TOnTagBeforeAdd read FOnTagBeforeAdd write FOnTagBeforeAdd;
+    property OnTagAfterAdd: TOnTagAfterAdd read FOnTagAfterAdd write FOnTagAfterAdd;
     property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
     property OnTagAfterDrag: TOnTagAfterDrag read FOnTagAfterDrag write FOnTagAfterDrag;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -637,19 +642,12 @@ begin
   result.Items.Add(mi);
 end;
 
-procedure TTisTagEditor.DoChange;
-begin
-  if assigned(FOnChange) then
-    FOnChange(self);
-  Invalidate;
-end;
-
 function TTisTagEditor.AddTag: Boolean;
 begin
   result := False;
   if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
     exit;
-  Assert(FEdit.Visible);
+  assert(FEdit.Visible);
   if FTrimInput then
     FEdit.Text := Trim(FEdit.Text);
   if (FEdit.Text = '') or ((not AllowDuplicates) and
@@ -695,6 +693,20 @@ begin
       result := False;
   end;
 end;
+
+procedure TTisTagEditor.DoTagAfterAdd(aTag: TTagItem);
+begin
+  if assigned(FOnTagAfterAdd) then
+    FOnTagAfterAdd(self, aTag);
+end;
+
+procedure TTisTagEditor.DoChange;
+begin
+  if assigned(FOnChange) then
+    FOnChange(self);
+  Invalidate;
+end;
+
 procedure TTisTagEditor.DoAfterDrag(aPreIndex, aNewIndex: Integer);
 begin
   if assigned(FOnTagAfterDrag) then
