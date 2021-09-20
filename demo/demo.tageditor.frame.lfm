@@ -133,6 +133,7 @@ object TagEditorFrame: TTagEditorFrame
     TagBorderColor = clNavy
     TagRoundBorder = 0
     TagTextColor = clWhite
+    InputOptions = [ioTrimText]
     OnTagClick = TagEditorTagClick
     OnTagBeforeAdd = TagEditorTagBeforeAdd
     OnTagAfterAdd = TagEditorTagAfterAdd

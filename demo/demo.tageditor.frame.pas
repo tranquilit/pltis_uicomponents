@@ -80,7 +80,10 @@ end;
 
 procedure TTagEditorFrame.AllowDuplicatesCheckBoxChange(Sender: TObject);
 begin
-  TagEditor.AllowDuplicates := AllowDuplicatesCheckBox.Checked;
+  if AllowDuplicatesCheckBox.Checked then
+    TagEditor.InputOptions := TagEditor.InputOptions + [ioAllowDuplicates]
+  else
+    TagEditor.InputOptions := TagEditor.InputOptions - [ioAllowDuplicates];
 end;
 
 procedure TTagEditorFrame.MultiLinesCheckBoxChange(Sender: TObject);

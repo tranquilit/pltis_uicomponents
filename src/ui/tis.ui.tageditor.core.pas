@@ -115,10 +115,18 @@ type
   // - use aPreIndex abd aNewIndex to know the old and new positions
   TOnTagAfterDrag = procedure (Sender: TObject; aTag: TTagItem; aPreIndex, aNewIndex: Integer) of object;
 
+  /// input options
+  TInputOption = (
+    ioAllowDuplicates,
+    ioAllowLeadingSpace,
+    ioTrimText
+  );
+
+  TInputOptions = set of TInputOption;
+
   TTisTagEditor = class(TCustomControl)
   private
     FActualTagHeight: integer;
-    FAllowDuplicates: Boolean;
     FAutoHeight: Boolean;
     FBgColor: TColor;
     FBorderColor: TColor;
@@ -139,7 +147,6 @@ type
     FMaxTags: integer;
     FMouseDownClickInfo: TClickInfo;
     FMultiLine: Boolean;
-    FNoLeadingSpaceInput: Boolean;
     FTags: TTags;
     FNumRows: integer;
     FPopupMenu: TPopupMenu;
@@ -157,7 +164,7 @@ type
     FTagHeight: integer;
     FTagRoundBorder: integer;
     FTagTextColor: TColor;
-    FTrimInput: Boolean;
+    FInputOptions: TInputOptions;
     FOnTagClick: TOnTagClick;
     FOnTagBeforeAdd: TOnTagBeforeAdd;
     FOnTagAfterAdd: TOnTagAfterAdd;
@@ -247,7 +254,6 @@ type
     property TabStop;
     property Tag;
     // ------------------------------- new properties ----------------------------------
-    property AllowDuplicates: Boolean read FAllowDuplicates write FAllowDuplicates default False;
     property AutoHeight: Boolean read FAutoHeight write SetAutoHeight;
     property BgColor: TColor read FBgColor write SetBgColor;
     property BorderColor: TColor read FBorderColor write SetBorderColor;
@@ -260,7 +266,6 @@ type
     property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
     property MaxTags: integer read FMaxTags write FMaxTags default 0;
     property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
-    property NoLeadingSpaceInput: Boolean read FNoLeadingSpaceInput write FNoLeadingSpaceInput default True;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
     property SemicolonAccepts: Boolean read FSemicolonAccepts write FSemicolonAccepts default True;
     property SpaceAccepts: Boolean read FSpaceAccepts write FSpaceAccepts default True;
@@ -270,7 +275,7 @@ type
     property TagHeight: integer read FTagHeight write SetTagHeight default 32;
     property TagRoundBorder: integer read FTagRoundBorder write SetTagRoundBorder;
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
-    property TrimInput: Boolean read FTrimInput write FTrimInput default True;
+    property InputOptions: TInputOptions read FInputOptions write FInputOptions;
     /// use this property to get/set tags as array
     // - if you change its value, it will trigger all events related with adding and deleting tags
     property AsArray: TStringArray read GetAsArray write SetAsArray;
@@ -516,9 +521,7 @@ begin
   FSpaceAccepts := True;
   FCommaAccepts := True;
   FSemicolonAccepts := True;
-  FTrimInput := True;
-  FNoLeadingSpaceInput := True;
-  FAllowDuplicates := False;
+  FInputOptions := [ioTrimText];
   FMultiLine := False;
   FTagHeight := 32;
   FShrunk := False;
@@ -683,9 +686,9 @@ begin
   if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
     exit;
   s := aText;
-  if FTrimInput then
+  if ioTrimText in FInputOptions then
     s := Trim(aText);
-  if (s = '') or ((not AllowDuplicates) and (FTags.IndexOf(s) <> -1)) then
+  if (s = '') or ((not (ioAllowDuplicates in FInputOptions)) and (FTags.IndexOf(s) <> -1)) then
   begin
     beep;
     exit;
@@ -785,7 +788,7 @@ end;
 
 procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and FNoLeadingSpaceInput then
+  if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and not (ioAllowLeadingSpace in FInputOptions) then
   begin
     Key := #0;
     Exit;
