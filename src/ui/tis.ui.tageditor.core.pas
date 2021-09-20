@@ -272,7 +272,7 @@ type
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     property TrimInput: Boolean read FTrimInput write FTrimInput default True;
     /// use this property to get/set tags as array
-    // - changing its value it will call all events related with adding and deleting tags
+    // - if you change its value, it will trigger all events related with adding and deleting tags
     property AsArray: TStringArray read GetAsArray write SetAsArray;
     // ------------------------------- new events ----------------------------------
     /// event to execute some code when the user clicks on a tag
@@ -1054,6 +1054,8 @@ begin
 end;
 
 procedure TTisTagEditor.UpdateMetrics;
+const
+  CLOSE_TEXT = 'X';
 var
   i: integer;
   X, Y: integer;
@@ -1067,7 +1069,7 @@ begin
   SetLength(FWidths, FTags.Count);
   SetLength(FCloseBtnLefts, FTags.Count);
   SetLength(FCloseBtnTops, FTags.Count);
-  FCloseBtnWidth := Canvas.TextWidth('X');
+  FCloseBtnWidth := Canvas.TextWidth(CLOSE_TEXT);
   FShrunk := False;
   FNumRows := 1;
   if FMultiLine then
@@ -1078,7 +1080,7 @@ begin
     for i := 0 to FTags.Count - 1 do
     begin
       FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text +
-        IfThen(DeleteTagButton, ' ×', '')) + 2 * FSpacing;
+        IfThen(DeleteTagButton, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
       FLefts[i] := X;
       FRights[i] := X + FWidths[i];
       FTops[i] := Y;
@@ -1106,7 +1108,7 @@ begin
     for i := 0 to FTags.Count - 1 do
     begin
       FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text +
-        IfThen(DeleteTagButton, ' ×', '')) + 2 * FSpacing;
+        IfThen(DeleteTagButton, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
       FLefts[i] := X;
       FRights[i] := X + FWidths[i];
       FTops[i] := Y;
@@ -1151,7 +1153,7 @@ begin
   if FTags.Count > 0 then
     FEditPos := Point(FRights[FTags.Count - 1] + FSpacing,
       FTops[FTags.Count - 1] + (FActualTagHeight - FEdit.Height) div 2);
-  if FMultiLine and (FEditPos.X + 64 > ClientWidth) and (FTags.Count > 0) then
+  if FMultiLine and (FEditPos.X + 64 { FEdit } > ClientWidth) and (FTags.Count > 0) then
   begin
     FEditPos := Point(FSpacing, FTops[FTags.Count - 1] + FTagHeight + FSpacing +
       (FActualTagHeight - FEdit.Height) div 2);
@@ -1159,8 +1161,7 @@ begin
   end;
   FDesiredHeight := FSpacing + FNumRows * (FTagHeight + FSpacing);
   AdjustedFDesiredHeight := Min(FDesiredHeight, FMaxHeight);
-  if FMultiLine and FAutoHeight and (ClientHeight <> AdjustedFDesiredHeight)
-  then
+  if FMultiLine and FAutoHeight and (ClientHeight <> AdjustedFDesiredHeight) then
     ClientHeight := AdjustedFDesiredHeight;
   UpdateScrollBars;
 end;
