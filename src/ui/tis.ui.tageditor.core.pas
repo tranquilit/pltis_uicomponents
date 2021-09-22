@@ -120,6 +120,7 @@ type
     ioAllowDragging,
     ioAllowDuplicates,
     ioAllowLeadingSpace,
+    ioShowDeleteButton,
     ioTrimText
   );
   TInputOptions = set of TInputOption;
@@ -130,9 +131,13 @@ type
     FForbiddenChars: string;
     FInputOptions: TInputOptions;
     FMaxTags: Integer;
+    FDeleteIcon: TIcon;
+    procedure SetDeleteIcon(aValue: TIcon);
   public
     constructor Create;
+    destructor Destroy; override;
   published
+    property DeleteIcon: TIcon read FDeleteIcon write SetDeleteIcon;
     property ForbiddenChars: string read FForbiddenChars write FForbiddenChars;
     property MaxTags: Integer read FMaxTags write FMaxTags default 0;
     property Options: TInputOptions read FInputOptions write FInputOptions;
@@ -156,8 +161,6 @@ type
     FLefts, FRights, FWidths, FTops, FBottoms: array of integer;
     FCloseBtnLefts, FCloseBtnTops: array of integer;
     FCloseBtnWidth: integer;
-    FDeleteButtonIcon: TIcon;
-    FDeleteTagButton: Boolean;
     FDesiredHeight: integer;
     FDragging: Boolean;
     FEdit: TEdit;
@@ -206,8 +209,6 @@ type
     procedure SetAutoHeight(const Value: Boolean);
     procedure SetBgColor(const Value: TColor);
     procedure SetBorderColor(const Value: TColor);
-    procedure SetButtonIcon(const Value: TIcon);
-    procedure SetCloseTagButton(const Value: Boolean);
     procedure SetMaxHeight(const Value: integer);
     procedure SetMultiLine(const Value: Boolean);
     procedure SetTagsFromDelimitedText(const aText: string);
@@ -274,8 +275,6 @@ type
     property BgColor: TColor read FBgColor write SetBgColor;
     property BorderColor: TColor read FBorderColor write SetBorderColor;
     property Tags: TTags read FTags write SetTags;
-    property DeleteButtonIcon: TIcon read FDeleteButtonIcon write SetButtonIcon;
-    property DeleteTagButton: Boolean read FDeleteTagButton write SetCloseTagButton default True;
     property EditorColor: TColor read FEditorColor write FEditorColor default clWindow;
     property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
     property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
@@ -430,7 +429,7 @@ end;
 constructor TTagItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
-  FCanDelete := GetTagEditor.DeleteTagButton;
+  FCanDelete := ioShowDeleteButton in GetTagEditor.TagInput.Options;
   FBgColor := GetTagEditor.FTagBgColor;
   FTextColor := GetTagEditor.FTagTextColor;
 end;
@@ -499,7 +498,7 @@ function TTags.Add(const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
   result.FText := aText;
-  result.FCanDelete := FTagEditor.FDeleteTagButton;
+  result.FCanDelete := ioShowDeleteButton in FTagEditor.TagInput.Options;
   result.FBgColor := FTagEditor.FTagBgColor;
   result.FBorderColor := FTagEditor.FTagBorderColor;
   result.FTextColor := FTagEditor.FTagTextColor;
@@ -513,11 +512,28 @@ end;
 
 { TTisTagInput }
 
+procedure TTisTagInput.SetDeleteIcon(aValue: TIcon);
+begin
+  if aValue <> nil then
+  begin
+    if (not(InRange(aValue.Height, 8, 10))) and (not(InRange(aValue.Width, 8, 10))) then
+      raise ETagEditor.Create('The icon size should be 8x8 or 10x10');
+    FDeleteIcon.Assign(aValue);
+  end;
+end;
+
 constructor TTisTagInput.Create;
 begin
   inherited Create;
-  FInputOptions := [ioTrimText, ioAllowDragging];
+  FInputOptions := [ioAllowDragging, ioShowDeleteButton, ioTrimText];
   FForbiddenChars := '= !@|():&%$/\[]<>*+?;,`¨''';
+  FDeleteIcon := TIcon.Create;
+end;
+
+destructor TTisTagInput.Destroy;
+begin
+  FDeleteIcon.Free;
+  inherited Destroy;
 end;
 
 { TTagEditor }
@@ -550,8 +566,6 @@ begin
   FScrollInfo.cbSize := sizeof(FScrollInfo);
   FScrollBarVisible := False;
   TabStop := True;
-  FDeleteTagButton := True;
-  FDeleteButtonIcon := TIcon.Create;
 end;
 
 destructor TTisTagEditor.Destroy;
@@ -561,7 +575,6 @@ begin
   FTags := nil;
   FPopupMenu.Free;
   FEdit.Free;
-  FDeleteButtonIcon.Free;
   inherited Destroy;
 end;
 
@@ -712,7 +725,7 @@ begin
   end;
   if DoTagBeforeAdd(s) then
   begin
-    ctx.CanDelete := FDeleteTagButton;
+    ctx.CanDelete := ioShowDeleteButton in FTagInput.Options;
     ctx.BgColor := FTagBgColor;
     ctx.BorderColor := FTagBorderColor;
     ctx.TextColor := FTagTextColor;
@@ -1050,7 +1063,7 @@ begin
                 FOnTagClick(Self, FTags.Items[i]);
             PART_REMOVE_BUTTON:
               begin
-                if not FDeleteTagButton then
+                if not (ioShowDeleteButton in FTagInput.Options) then
                   exit;
                 DeleteTag(i);
                 Paint;
@@ -1095,7 +1108,7 @@ begin
     for i := 0 to FTags.Count - 1 do
     begin
       FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text +
-        IfThen(DeleteTagButton, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
+        IfThen(ioShowDeleteButton in FTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
       FLefts[i] := X;
       FRights[i] := X + FWidths[i];
       FTops[i] := Y;
@@ -1123,7 +1136,7 @@ begin
     for i := 0 to FTags.Count - 1 do
     begin
       FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text +
-        IfThen(DeleteTagButton, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
+        IfThen(ioShowDeleteButton in FTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
       FLefts[i] := X;
       FRights[i] := X + FWidths[i];
       FTops[i] := Y;
@@ -1212,15 +1225,15 @@ begin
     Canvas.Brush.Style := bsClear;
     R.Left := R.Left + FSpacing;
     S := FTags.Items[i].Text;
-    if (not FShrunk) and (FDeleteTagButton) then
+    if (not FShrunk) and (ioShowDeleteButton in FTagInput.Options) then
     begin
-      if FDeleteButtonIcon.Empty then
+      if FTagInput.DeleteIcon.Empty then
         S := S + ' X'
       else
       {$ifdef windows} //todo
         Windows.DrawIconEx(Canvas.Handle, FCloseBtnLefts[i], FCloseBtnTops[i] + 10,
-          FDeleteButtonIcon.Handle, FDeleteButtonIcon.Width,
-          FDeleteButtonIcon.Height, 0, DI_NORMAL, DI_NORMAL);
+          FTagInput.DeleteIcon.Handle, FTagInput.DeleteIcon.Width,
+          FTagInput.DeleteIcon.Height, 0, DI_NORMAL, DI_NORMAL);
       {$endif}
     end;
     DrawText(Canvas.Handle, PChar(S), -1, R, DT_SINGLELINE or DT_VCENTER or
@@ -1280,21 +1293,6 @@ begin
     FBorderColor := Value;
     Invalidate;
   end;
-end;
-
-procedure TTisTagEditor.SetButtonIcon(const Value: TIcon);
-begin
-  if Value <> nil then
-  begin
-    if (not(InRange(Value.Height, 8, 10))) and (not(InRange(Value.Width, 8, 10))) then
-      raise ETagEditor.Create('The icon size should be 8x8 or 10x10');
-    FDeleteButtonIcon.Assign(Value);
-  end;
-end;
-
-procedure TTisTagEditor.SetCloseTagButton(const Value: Boolean);
-begin
-  FDeleteTagButton := Value;
 end;
 
 procedure TTisTagEditor.SetMaxHeight(const Value: integer);
