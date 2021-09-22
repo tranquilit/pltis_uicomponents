@@ -124,6 +124,17 @@ type
 
   TInputOptions = set of TInputOption;
 
+  TTisTagInput = class(TPersistent)
+  private
+    FForbiddenChars: string;
+    FInputOptions: TInputOptions;
+  public
+    constructor Create;
+  published
+    property ForbiddenChars: string read FForbiddenChars write FForbiddenChars;
+    property Options: TInputOptions read FInputOptions write FInputOptions;
+  end;
+
   TTisTagEditor = class(TCustomControl)
   private
     FActualTagHeight: integer;
@@ -142,8 +153,7 @@ type
     FEdit: TEdit;
     FEditorColor: TColor;
     FEditPos: TPoint;
-    FForbiddenChars: string;
-    FInputOptions: TInputOptions;
+    FTagInput: TTisTagInput;
     FMaxHeight: integer;
     FMaxTags: integer;
     FMouseDownClickInfo: TClickInfo;
@@ -260,13 +270,12 @@ type
     property DeleteButtonIcon: TIcon read FDeleteButtonIcon write SetButtonIcon;
     property DeleteTagButton: Boolean read FDeleteTagButton write SetCloseTagButton default True;
     property EditorColor: TColor read FEditorColor write FEditorColor default clWindow;
-    property InputOptions: TInputOptions read FInputOptions write FInputOptions;
-    property ForbiddenChars: string read FForbiddenChars write FForbiddenChars;
     property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
     property MaxTags: integer read FMaxTags write FMaxTags default 0;
     property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
     property Spacing: integer read FSpacing write SetSpacing;
+    property TagInput: TTisTagInput read FTagInput write FTagInput;
     property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
     property TagBorderColor: TColor read FTagBorderColor write SetTagBorderColor;
     property TagHeight: integer read FTagHeight write SetTagHeight default 32;
@@ -496,6 +505,15 @@ begin
     Self.Delete(0);
 end;
 
+{ TTisTagInput }
+
+constructor TTisTagInput.Create;
+begin
+  inherited Create;
+  FInputOptions := [ioTrimText];
+  FForbiddenChars := '= !@|():&%$/\[]<>*+?;,`¨''';
+end;
+
 { TTagEditor }
 
 constructor TTisTagEditor.Create(AOwner: TComponent);
@@ -508,14 +526,13 @@ begin
   FEdit := CreateEdit;
   FTags := CreateTags(Self);
   FPopupMenu := CreatePopupMenu;
+  FTagInput := TTisTagInput.Create;
   FBgColor := clWindow;
   FBorderColor := clWindowFrame;
   FTagBgColor := clSkyBlue;
   FTagBorderColor := clNavy;
   FSpacing := 8;
   FTagTextColor := clWhite;
-  FInputOptions := [ioTrimText];
-  FForbiddenChars := '= !@|():&%$/\[]<>*+?;,`¨''';
   FMultiLine := False;
   FTagHeight := 32;
   FShrunk := False;
@@ -534,6 +551,7 @@ end;
 
 destructor TTisTagEditor.Destroy;
 begin
+  FTagInput.Free;
   FTags.Free;
   FTags := nil;
   FPopupMenu.Free;
@@ -680,9 +698,9 @@ begin
   if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
     exit;
   s := aText;
-  if ioTrimText in FInputOptions then
+  if ioTrimText in FTagInput.Options then
     s := Trim(aText);
-  if (s = '') or ((not (ioAllowDuplicates in FInputOptions)) and (FTags.IndexOf(s) <> -1)) then
+  if (s = '') or ((not (ioAllowDuplicates in FTagInput.Options)) and (FTags.IndexOf(s) <> -1)) then
   begin
     beep;
     exit;
@@ -779,12 +797,12 @@ end;
 
 procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and not (ioAllowLeadingSpace in FInputOptions) then
+  if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and not (ioAllowLeadingSpace in FTagInput.Options) then
   begin
     Key := #0;
     Exit;
   end;
-  if Pos(Key, FForbiddenChars) > 0 then
+  if Pos(Key, FTagInput.ForbiddenChars) > 0 then
     Key := chr(VK_RETURN);
   case ord(Key) of
     VK_RETURN:
