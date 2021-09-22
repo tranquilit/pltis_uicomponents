@@ -93,7 +93,7 @@ end;
 
 procedure TTagEditorFrame.MaxTagsEditEditingDone(Sender: TObject);
 begin
-  TagEditor.MaxTags := MaxTagsEdit.Value;
+  TagEditor.TagInput.MaxTags := MaxTagsEdit.Value;
 end;
 
 procedure TTagEditorFrame.BgColorBoxChange(Sender: TObject);

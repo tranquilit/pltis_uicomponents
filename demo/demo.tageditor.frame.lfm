@@ -130,6 +130,7 @@ object TagEditorFrame: TTagEditorFrame
       end>
     Spacing = 8
     TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨'''
+    TagInput.Options = [ioAllowDragging, ioTrimText]
     TagBgColor = clSkyBlue
     TagBorderColor = clNavy
     TagRoundBorder = 0
