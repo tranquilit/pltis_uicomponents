@@ -121,9 +121,9 @@ type
     ioAllowLeadingSpace,
     ioTrimText
   );
-
   TInputOptions = set of TInputOption;
 
+  /// tag input properties and events
   TTisTagInput = class(TPersistent)
   private
     FForbiddenChars: string;
@@ -135,6 +135,14 @@ type
     property Options: TInputOptions read FInputOptions write FInputOptions;
   end;
 
+  /// an editor for tags
+  // - can be created dynamically by typing
+  // - can be created by the Tags property, defining custom colors
+  // - can create new tags at runtime
+  // - for each tag a "hidden" Variant value can be added
+  // - allows drag and drop tags
+  // - a custom icon can be defined, drawn next to each tag that allows you to delete the tag with 1 click
+  // - custom events for handling user actions
   TTisTagEditor = class(TCustomControl)
   private
     FActualTagHeight: integer;
