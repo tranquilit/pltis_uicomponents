@@ -728,7 +728,7 @@ begin
   if assigned(FOnTagBeforeAdd) then
   begin
     aborted := False;
-    FOnTagBeforeAdd(self, FEdit.Text, aborted);
+    FOnTagBeforeAdd(self, aTag, aborted);
     if aborted then
       result := False;
   end;
