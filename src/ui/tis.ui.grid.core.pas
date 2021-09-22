@@ -411,7 +411,7 @@ type
     /// load Settings from an IniFile
     procedure LoadSettingsFromIni(const aFileName: TFileName);
     // ------------------------------- inherited events ----------------------------------
-    property OnCompareNodes; // hiding from Object Inspector, use OnVariantCompare event instead
+    property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ----------------------------------
     /// direct access to the low-level internal data
     // - if you change its content directly, you should call LoadData by hand for VirtualTree be aware about it
@@ -640,7 +640,7 @@ type
     /// comparing rows of objects
     // - aPropertyName is the header column it was clicked
     // - aRow1, aRow2 are the whole lines that should be compared
-    // - aReverse indicates if it is ascendend or desdencent
+    // - aReverse indicates desdencent sort
     // - assign aHandle to True if you did some comparison, otherwise assign to False or do nothing
     // to let grid do the job itself
     // - on user callback, the compararison could be like this:
