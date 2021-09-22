@@ -135,7 +135,6 @@ type
     FLefts, FRights, FWidths, FTops, FBottoms: array of integer;
     FCloseBtnLefts, FCloseBtnTops: array of integer;
     FCloseBtnWidth: integer;
-    FCommaAccepts: Boolean;
     FDeleteButtonIcon: TIcon;
     FDeleteTagButton: Boolean;
     FDesiredHeight: integer;
@@ -143,6 +142,8 @@ type
     FEdit: TEdit;
     FEditorColor: TColor;
     FEditPos: TPoint;
+    FForbiddenChars: string;
+    FInputOptions: TInputOptions;
     FMaxHeight: integer;
     FMaxTags: integer;
     FMouseDownClickInfo: TClickInfo;
@@ -155,16 +156,13 @@ type
     FSavedReadOnly: Boolean;
     FScrollBarVisible: Boolean;
     FScrollInfo: TScrollInfo;
-    FSemicolonAccepts: Boolean;
     FShrunk: Boolean;
-    FSpaceAccepts: Boolean;
     FSpacing: integer;
     FTagBgColor: TColor;
     FTagBorderColor: TColor;
     FTagHeight: integer;
     FTagRoundBorder: integer;
     FTagTextColor: TColor;
-    FInputOptions: TInputOptions;
     FOnTagClick: TOnTagClick;
     FOnTagBeforeAdd: TOnTagBeforeAdd;
     FOnTagAfterAdd: TOnTagAfterAdd;
@@ -258,24 +256,22 @@ type
     property BgColor: TColor read FBgColor write SetBgColor;
     property BorderColor: TColor read FBorderColor write SetBorderColor;
     property CanDragTags: Boolean read FCanDragTags write SetCanDragTags default True;
-    property CommaAccepts: Boolean read FCommaAccepts write FCommaAccepts default True;
     property Tags: TTags read FTags write SetTags;
     property DeleteButtonIcon: TIcon read FDeleteButtonIcon write SetButtonIcon;
     property DeleteTagButton: Boolean read FDeleteTagButton write SetCloseTagButton default True;
     property EditorColor: TColor read FEditorColor write FEditorColor default clWindow;
+    property InputOptions: TInputOptions read FInputOptions write FInputOptions;
+    property ForbiddenChars: string read FForbiddenChars write FForbiddenChars;
     property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
     property MaxTags: integer read FMaxTags write FMaxTags default 0;
     property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
-    property SemicolonAccepts: Boolean read FSemicolonAccepts write FSemicolonAccepts default True;
-    property SpaceAccepts: Boolean read FSpaceAccepts write FSpaceAccepts default True;
     property Spacing: integer read FSpacing write SetSpacing;
     property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
     property TagBorderColor: TColor read FTagBorderColor write SetTagBorderColor;
     property TagHeight: integer read FTagHeight write SetTagHeight default 32;
     property TagRoundBorder: integer read FTagRoundBorder write SetTagRoundBorder;
     property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
-    property InputOptions: TInputOptions read FInputOptions write FInputOptions;
     /// use this property to get/set tags as array
     // - if you change its value, it will trigger all events related with adding and deleting tags
     property AsArray: TStringArray read GetAsArray write SetAsArray;
@@ -518,10 +514,8 @@ begin
   FTagBorderColor := clNavy;
   FSpacing := 8;
   FTagTextColor := clWhite;
-  FSpaceAccepts := True;
-  FCommaAccepts := True;
-  FSemicolonAccepts := True;
   FInputOptions := [ioTrimText];
+  FForbiddenChars := '= !@|():&%$/\[]<>*+?;,`¨''';
   FMultiLine := False;
   FTagHeight := 32;
   FShrunk := False;
@@ -790,9 +784,7 @@ begin
     Key := #0;
     Exit;
   end;
-  if ((Key = chr(VK_SPACE)) and not FSpaceAccepts) or
-    ((Key = ',') and not FCommaAccepts) or
-    ((Key = ';') and not FSemicolonAccepts) then
+  if Pos(Key, FForbiddenChars) > 0 then
     Key := chr(VK_RETURN);
   case ord(Key) of
     VK_RETURN:
