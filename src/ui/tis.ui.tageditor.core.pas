@@ -117,6 +117,7 @@ type
 
   /// input options
   TInputOption = (
+    ioAllowDragging,
     ioAllowDuplicates,
     ioAllowLeadingSpace,
     ioTrimText
@@ -128,10 +129,12 @@ type
   private
     FForbiddenChars: string;
     FInputOptions: TInputOptions;
+    FMaxTags: Integer;
   public
     constructor Create;
   published
     property ForbiddenChars: string read FForbiddenChars write FForbiddenChars;
+    property MaxTags: Integer read FMaxTags write FMaxTags default 0;
     property Options: TInputOptions read FInputOptions write FInputOptions;
   end;
 
@@ -149,7 +152,6 @@ type
     FAutoHeight: Boolean;
     FBgColor: TColor;
     FBorderColor: TColor;
-    FCanDragTags: Boolean;
     FCaretVisible: Boolean;
     FLefts, FRights, FWidths, FTops, FBottoms: array of integer;
     FCloseBtnLefts, FCloseBtnTops: array of integer;
@@ -163,7 +165,6 @@ type
     FEditPos: TPoint;
     FTagInput: TTisTagInput;
     FMaxHeight: integer;
-    FMaxTags: integer;
     FMouseDownClickInfo: TClickInfo;
     FMultiLine: Boolean;
     FTags: TTags;
@@ -206,7 +207,6 @@ type
     procedure SetBgColor(const Value: TColor);
     procedure SetBorderColor(const Value: TColor);
     procedure SetButtonIcon(const Value: TIcon);
-    procedure SetCanDragTags(const Value: Boolean);
     procedure SetCloseTagButton(const Value: Boolean);
     procedure SetMaxHeight(const Value: integer);
     procedure SetMultiLine(const Value: Boolean);
@@ -273,13 +273,11 @@ type
     property AutoHeight: Boolean read FAutoHeight write SetAutoHeight;
     property BgColor: TColor read FBgColor write SetBgColor;
     property BorderColor: TColor read FBorderColor write SetBorderColor;
-    property CanDragTags: Boolean read FCanDragTags write SetCanDragTags default True;
     property Tags: TTags read FTags write SetTags;
     property DeleteButtonIcon: TIcon read FDeleteButtonIcon write SetButtonIcon;
     property DeleteTagButton: Boolean read FDeleteTagButton write SetCloseTagButton default True;
     property EditorColor: TColor read FEditorColor write FEditorColor default clWindow;
     property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
-    property MaxTags: integer read FMaxTags write FMaxTags default 0;
     property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
     property Spacing: integer read FSpacing write SetSpacing;
@@ -490,7 +488,7 @@ end;
 function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
-  result.FText := AText;
+  result.FText := aText;
   result.FCanDelete := aItemConfig.CanDelete;
   result.FBgColor := aItemConfig.BgColor;
   result.FBorderColor := aItemConfig.BorderColor;
@@ -518,7 +516,7 @@ end;
 constructor TTisTagInput.Create;
 begin
   inherited Create;
-  FInputOptions := [ioTrimText];
+  FInputOptions := [ioTrimText, ioAllowDragging];
   FForbiddenChars := '= !@|():&%$/\[]<>*+?;,`¨''';
 end;
 
@@ -551,7 +549,6 @@ begin
   FPrevScrollPos := 0;
   FScrollInfo.cbSize := sizeof(FScrollInfo);
   FScrollBarVisible := False;
-  FCanDragTags := True;
   TabStop := True;
   FDeleteTagButton := True;
   FDeleteButtonIcon := TIcon.Create;
@@ -703,7 +700,7 @@ var
   s: string;
 begin
   result := False;
-  if (FTags.Count = FMaxTags) and (FMaxTags > 0) then
+  if (FTags.Count = FTagInput.MaxTags) and (FTagInput.MaxTags > 0) then
     exit;
   s := aText;
   if ioTrimText in FTagInput.Options then
@@ -979,7 +976,7 @@ begin
   inherited;
   Inc(Y, FScrollInfo.nPos);
   if IsKeyDown(VK_LBUTTON) and InRange(TTagIndex(FMouseDownClickInfo),
-    TAG_LOW, TAG_HIGH) and (FCanDragTags) then
+    TAG_LOW, TAG_HIGH) and (ioAllowDragging in FTagInput.Options) then
   begin
     FDragging := True;
     Screen.Cursor := crDrag;
@@ -1293,11 +1290,6 @@ begin
       raise ETagEditor.Create('The icon size should be 8x8 or 10x10');
     FDeleteButtonIcon.Assign(Value);
   end;
-end;
-
-procedure TTisTagEditor.SetCanDragTags(const Value: Boolean);
-begin
-  FCanDragTags := Value;
 end;
 
 procedure TTisTagEditor.SetCloseTagButton(const Value: Boolean);
