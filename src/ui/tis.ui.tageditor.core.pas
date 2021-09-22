@@ -737,10 +737,7 @@ end;
 procedure TTisTagEditor.DoTagAfterAdd(aTag: TTagItem);
 begin
   if assigned(FOnTagAfterAdd) then
-  begin
     FOnTagAfterAdd(self, aTag);
-    DoChange;
-  end;
 end;
 
 procedure TTisTagEditor.DoChange;
