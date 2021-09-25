@@ -106,6 +106,8 @@ object TagEditorFrame: TTagEditorFrame
     AutoHeight = False
     BgColor = clWhite
     BorderColor = clWindowFrame
+    Spacing = 8
+    TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨'''
     Tags = <    
       item
         CanDelete = True
@@ -128,12 +130,6 @@ object TagEditorFrame: TTagEditorFrame
         Text = 'mac'
         TextColor = clWhite
       end>
-    Spacing = 8
-    TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨'''
-    TagBgColor = clSkyBlue
-    TagBorderColor = clNavy
-    TagRoundBorder = 0
-    TagTextColor = clWhite
     OnTagClick = TagEditorTagClick
     OnTagBeforeAdd = TagEditorTagBeforeAdd
     OnTagAfterAdd = TagEditorTagAfterAdd
@@ -321,8 +317,8 @@ object TagEditorFrame: TTagEditorFrame
     Left = 192
     Height = 15
     Top = 184
-    Width = 129
-    Caption = 'input tags delimited text'
+    Width = 143
+    Caption = 'input tags as delimited text'
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlue
     Font.Height = -12

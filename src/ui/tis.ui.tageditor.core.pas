@@ -46,12 +46,12 @@ type
 
   TTagItem = class(TCollectionItem)
   private
-    FCanDelete: Boolean;
-    FBgColor: TColor;
-    FBorderColor: TColor;
-    FValue: Variant;
-    FTextColor: TColor;
-    FText: string;
+    fCanDelete: Boolean;
+    fBgColor: TColor;
+    fBorderColor: TColor;
+    fValue: Variant;
+    fTextColor: TColor;
+    fText: string;
     function GetTagEditor: TTisTagEditor;
     procedure UpdateTagEditor;
     procedure SetCanDelete(const aValue: Boolean);
@@ -64,34 +64,34 @@ type
   public
     constructor Create(aCollection: TCollection); override;
   published
-    property CanDelete: Boolean read FCanDelete write SetCanDelete;
-    property BgColor: TColor read FBgColor write SetBgColor;
-    property BorderColor: TColor read FBorderColor
+    property CanDelete: Boolean read fCanDelete write SetCanDelete;
+    property BgColor: TColor read fBgColor write SetBgColor;
+    property BorderColor: TColor read fBorderColor
       write SetBorderColor;
-    property Value: Variant read FValue write FValue;
-    property Text: string read FText write SetText;
-    property TextColor: TColor read FTextColor write SetTextColor;
+    property Value: Variant read fValue write fValue;
+    property Text: string read fText write SetText;
+    property TextColor: TColor read fTextColor write SetTextColor;
   end;
 
   TTagItemClass = class of TTagItem;
 
   TTags = class(TCollection)
   private
-    FTagEditor: TTisTagEditor;
-    function GetTagItem(Index: integer): TTagItem;
-    procedure SetTagItem(Index: integer; const Value: TTagItem);
+    fTagEditor: TTisTagEditor;
+    function GetTagItem(Index: Integer): TTagItem;
+    procedure SetTagItem(Index: Integer; const Value: TTagItem);
   protected
     function GetOwner: TPersistent; override;
   public
     constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
-    function IndexOf(const aText: string): integer;
+    function IndexOf(const aText: string): Integer;
     function DelimitedText: string;
     function Add(aItemConfig: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
-    property Items[Index: integer]: TTagItem read GetTagItem
+    property Items[Index: Integer]: TTagItem read GetTagItem
       write SetTagItem; default;
-    property TagEditor: TTisTagEditor read FTagEditor;
+    property TagEditor: TTisTagEditor read fTagEditor;
   end;
 
   /// event to execute some code when the user clicks on a tag
@@ -128,19 +128,23 @@ type
   /// tag input properties and events
   TTisTagInput = class(TPersistent)
   private
-    FForbiddenChars: string;
-    FInputOptions: TInputOptions;
-    FMaxTags: Integer;
-    FDeleteIcon: TIcon;
+    fForbiddenChars: string;
+    fOptions: TInputOptions;
+    fMaxTags: Integer;
+    fDeleteIcon: TIcon;
     procedure SetDeleteIcon(aValue: TIcon);
+  protected
+    const DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨''';
+    const DefaultOptions = [ioAllowDragging, ioShowDeleteButton, ioTrimText];
+    const DefaultMaxTags = 0;
   public
     constructor Create;
     destructor Destroy; override;
   published
-    property DeleteIcon: TIcon read FDeleteIcon write SetDeleteIcon;
-    property ForbiddenChars: string read FForbiddenChars write FForbiddenChars;
-    property MaxTags: Integer read FMaxTags write FMaxTags default 0;
-    property Options: TInputOptions read FInputOptions write FInputOptions;
+    property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
+    property ForbiddenChars: string read fForbiddenChars write fForbiddenChars;
+    property MaxTags: Integer read fMaxTags write fMaxTags default DefaultMaxTags;
+    property Options: TInputOptions read fOptions write fOptions default DefaultOptions;
   end;
 
   /// an editor for tags
@@ -153,50 +157,50 @@ type
   // - custom events for handling user actions
   TTisTagEditor = class(TCustomControl)
   private
-    FActualTagHeight: integer;
-    FAutoHeight: Boolean;
-    FBgColor: TColor;
-    FBorderColor: TColor;
-    FCaretVisible: Boolean;
-    FLefts, FRights, FWidths, FTops, FBottoms: array of integer;
-    FCloseBtnLefts, FCloseBtnTops: array of integer;
-    FCloseBtnWidth: integer;
-    FDesiredHeight: integer;
-    FDragging: Boolean;
-    FEdit: TEdit;
-    FEditorColor: TColor;
-    FEditPos: TPoint;
-    FTagInput: TTisTagInput;
-    FMaxHeight: integer;
-    FMouseDownClickInfo: TClickInfo;
-    FMultiLine: Boolean;
-    FTags: TTags;
-    FNumRows: integer;
-    FPopupMenu: TPopupMenu;
-    FPrevScrollPos: integer;
-    FReadOnly: Boolean;
-    FSavedReadOnly: Boolean;
-    FScrollBarVisible: Boolean;
-    FScrollInfo: TScrollInfo;
-    FShrunk: Boolean;
-    FSpacing: integer;
-    FTagBgColor: TColor;
-    FTagBorderColor: TColor;
-    FTagHeight: integer;
-    FTagRoundBorder: integer;
-    FTagTextColor: TColor;
-    FOnTagClick: TOnTagClick;
-    FOnTagBeforeAdd: TOnTagBeforeAdd;
-    FOnTagAfterAdd: TOnTagAfterAdd;
-    FOnTagBeforeDelete: TOnTagBeforeDelete;
-    FOnTagAfterDrag: TOnTagAfterDrag;
-    FOnChange: TNotifyEvent;
-    function GetClickInfoAt(X, Y: integer): TClickInfo;
+    fActualTagHeight: Integer;
+    fAutoHeight: Boolean;
+    fBgColor: TColor;
+    fBorderColor: TColor;
+    fCaretVisible: Boolean;
+    fLefts, fRights, fWidths, fTops, fBottoms: array of Integer;
+    fCloseBtnLefts, fCloseBtnTops: array of Integer;
+    fCloseBtnWidth: Integer;
+    fDesiredHeight: Integer;
+    fDragging: Boolean;
+    fEdit: TEdit;
+    fEditorColor: TColor;
+    fEditPos: TPoint;
+    fTagInput: TTisTagInput;
+    fMaxHeight: Integer;
+    fMouseDownClickInfo: TClickInfo;
+    fMultiLine: Boolean;
+    fTags: TTags;
+    fNumRows: Integer;
+    fPopupMenu: TPopupMenu;
+    fPrevScrollPos: Integer;
+    fReadOnly: Boolean;
+    fSavedReadOnly: Boolean;
+    fScrollBarVisible: Boolean;
+    fScrollInfo: TScrollInfo;
+    fShrunk: Boolean;
+    fSpacing: Integer;
+    fTagBgColor: TColor;
+    fTagBorderColor: TColor;
+    fTagHeight: Integer;
+    fTagRoundBorder: Integer;
+    fTagTextColor: TColor;
+    fOnTagClick: TOnTagClick;
+    fOnTagBeforeAdd: TOnTagBeforeAdd;
+    fOnTagAfterAdd: TOnTagAfterAdd;
+    fOnTagBeforeDelete: TOnTagBeforeDelete;
+    fOnTagAfterDrag: TOnTagAfterDrag;
+    fOnChange: TNotifyEvent;
+    function GetClickInfoAt(X, Y: Integer): TClickInfo;
     function GetReadOnly: Boolean;
-    function GetSeparatorIndexAt(X, Y: integer): integer;
-    function GetShrunkClientRect(const Amount: integer): TRect;
-    function IsFirstOnRow(TagIndex: integer): Boolean; inline;
-    function IsLastOnRow(TagIndex: integer): Boolean;
+    function GetSeparatorIndexAt(X, Y: Integer): Integer;
+    function GetShrunkClientRect(const Amount: Integer): TRect;
+    function IsFirstOnRow(TagIndex: Integer): Boolean; inline;
+    function IsLastOnRow(TagIndex: Integer): Boolean;
     procedure CreateCaret;
     procedure DestroyCaret;
     procedure DrawFocusRect;
@@ -209,16 +213,16 @@ type
     procedure SetAutoHeight(const Value: Boolean);
     procedure SetBgColor(const Value: TColor);
     procedure SetBorderColor(const Value: TColor);
-    procedure SetMaxHeight(const Value: integer);
+    procedure SetMaxHeight(const Value: Integer);
     procedure SetMultiLine(const Value: Boolean);
     procedure SetTagsFromDelimitedText(const aText: string);
     procedure SetTags(const Value: TTags);
     procedure SetReadOnly(const Value: Boolean);
-    procedure SetSpacing(const Value: integer);
+    procedure SetSpacing(const Value: Integer);
     procedure SetTagBgColor(const Value: TColor);
     procedure SetTagBorderColor(const Value: TColor);
-    procedure SetTagHeight(const Value: integer);
-    procedure SetTagRoundBorder(const Value: integer);
+    procedure SetTagHeight(const Value: Integer);
+    procedure SetTagRoundBorder(const Value: Integer);
     procedure SetTagTextColor(const Value: TColor);
     function GetAsArray: TStringArray;
     procedure SetAsArray(aValue: TStringArray);
@@ -227,15 +231,19 @@ type
     procedure UpdateMetrics;
     procedure UpdateScrollBars;
   protected
+    const DefaultSpacing = 8;
+    const DefaultMaxHeight = 512;
+    const DefaultTagHeight = 32;
+  protected
     // ------------------------------- inherited methods ----------------------------------
     procedure CreateParams(var Params: TCreateParams); override;
     procedure KeyDown(var Key: word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: integer;
-      Y: integer); override;
-    procedure MouseMove(Shift: TShiftState; X: integer; Y: integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: integer;
-      Y: integer); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer;
+      Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X: Integer; Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer;
+      Y: Integer); override;
     procedure Paint; override;
     procedure WndProc(var Message: TMessage); override;
     // ----------------------------------- new methods --------------------------------------
@@ -256,7 +264,7 @@ type
     /// event implementation for AfterDrag
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     /// it will clear all tags
     // - it will not perform any event, such as OnTagBeforeAdd, OnTagBeforeDelete
@@ -271,43 +279,44 @@ type
     property TabStop;
     property Tag;
     // ------------------------------- new properties ----------------------------------
-    property AutoHeight: Boolean read FAutoHeight write SetAutoHeight;
-    property BgColor: TColor read FBgColor write SetBgColor;
-    property BorderColor: TColor read FBorderColor write SetBorderColor;
-    property Tags: TTags read FTags write SetTags;
-    property EditorColor: TColor read FEditorColor write FEditorColor default clWindow;
-    property MaxHeight: integer read FMaxHeight write SetMaxHeight default 512;
-    property MultiLine: Boolean read FMultiLine write SetMultiLine default False;
-    property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
-    property Spacing: integer read FSpacing write SetSpacing;
-    property TagInput: TTisTagInput read FTagInput write FTagInput;
-    property TagBgColor: TColor read FTagBgColor write SetTagBgColor;
-    property TagBorderColor: TColor read FTagBorderColor write SetTagBorderColor;
-    property TagHeight: integer read FTagHeight write SetTagHeight default 32;
-    property TagRoundBorder: integer read FTagRoundBorder write SetTagRoundBorder;
-    property TagTextColor: TColor read FTagTextColor write SetTagTextColor;
     /// use this property to get/set tags as array
     // - if you change its value, it will trigger all events related with adding and deleting tags
     property AsArray: TStringArray read GetAsArray write SetAsArray;
+    property AutoHeight: Boolean read fAutoHeight write SetAutoHeight;
+    property BgColor: TColor read fBgColor write SetBgColor default clWindow;
+    property BorderColor: TColor read fBorderColor write SetBorderColor default clWindowFrame;
+    property EditorColor: TColor read fEditorColor write fEditorColor default clWindow;
+    property MaxHeight: Integer read fMaxHeight write SetMaxHeight default DefaultMaxHeight;
+    property MultiLine: Boolean read fMultiLine write SetMultiLine default False;
+    property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
+    property Spacing: Integer read fSpacing write SetSpacing default DefaultSpacing;
+    property TagInput: TTisTagInput read fTagInput write fTagInput;
+    property TagBgColor: TColor read fTagBgColor write SetTagBgColor default clSkyBlue;
+    property TagBorderColor: TColor read fTagBorderColor write SetTagBorderColor default clNavy;
+    property TagHeight: Integer read fTagHeight write SetTagHeight default DefaultTagHeight;
+    property TagRoundBorder: Integer read fTagRoundBorder write SetTagRoundBorder default 0;
+    property TagTextColor: TColor read fTagTextColor write SetTagTextColor default clWhite;
+    property Tags: TTags read fTags write SetTags;
+
     // ------------------------------- new events ----------------------------------
     /// event to execute some code when the user clicks on a tag
     // - use aTag to know which tag was clicked
-    property OnTagClick: TOnTagClick read FOnTagClick write FOnTagClick;
+    property OnTagClick: TOnTagClick read fOnTagClick write fOnTagClick;
     /// event that occurs before adding a new tag
     // - use aAbort to stop inclusion
-    property OnTagBeforeAdd: TOnTagBeforeAdd read FOnTagBeforeAdd write FOnTagBeforeAdd;
+    property OnTagBeforeAdd: TOnTagBeforeAdd read fOnTagBeforeAdd write fOnTagBeforeAdd;
     /// event that occurs after adding a new tag
     // - use aTag to change some properties
-    property OnTagAfterAdd: TOnTagAfterAdd read FOnTagAfterAdd write FOnTagAfterAdd;
+    property OnTagAfterAdd: TOnTagAfterAdd read fOnTagAfterAdd write fOnTagAfterAdd;
     /// event that occurs before deleting a new tag
     // - use aAbort to stop deletion
-    property OnTagBeforeDelete: TOnTagBeforeDelete read FOnTagBeforeDelete write FOnTagBeforeDelete;
+    property OnTagBeforeDelete: TOnTagBeforeDelete read fOnTagBeforeDelete write fOnTagBeforeDelete;
     /// event that occurs after draging a tag
     // - use aTag to change some properties
     // - use aPreIndex abd aNewIndex to know the old and new positions
-    property OnTagAfterDrag: TOnTagAfterDrag read FOnTagAfterDrag write FOnTagAfterDrag;
+    property OnTagAfterDrag: TOnTagAfterDrag read fOnTagAfterDrag write fOnTagAfterDrag;
     /// event that occurs after changing something
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+    property OnChange: TNotifyEvent read fOnChange write fOnChange;
   end;
 
 implementation
@@ -318,13 +327,13 @@ uses
 const
   TAG_LOW = 0;
   TAG_HIGH = MAXWORD - 2;
+  TAG_TEXT_DELIMITER = ',';
   EDITOR = MAXWORD - 1;
   NOWHERE = MAXWORD;
   PART_BODY = $00000000;
   PART_REMOVE_BUTTON = $00010000;
-  TAG_TEXT_DELIMITER = ',';
 
-function IsKeyDown(const VK: integer): Boolean;
+function IsKeyDown(const VK: Integer): Boolean;
 begin
   IsKeyDown := GetKeyState(VK) and $8000 <> 0;
 end;
@@ -362,7 +371,7 @@ end;
 function TTagItem.GetTagEditor: TTisTagEditor;
 begin
   if Assigned(Collection) and (Collection is TTags) then
-    result := TTags(Collection).FTagEditor
+    result := TTags(Collection).fTagEditor
   else
     result := nil;
 end;
@@ -380,42 +389,42 @@ end;
 
 procedure TTagItem.SetCanDelete(const aValue: Boolean);
 begin
-  FCanDelete := aValue;
+  fCanDelete := aValue;
 end;
 
 procedure TTagItem.SetBgColor(const aValue: TColor);
 begin
-  if FBgColor <> aValue then
+  if fBgColor <> aValue then
   begin
-    FBgColor := aValue;
-    TextColor := GetBlackOrWhite(FBgColor);
+    fBgColor := aValue;
+    TextColor := GetBlackOrWhite(fBgColor);
     UpdateTagEditor;
   end;
 end;
 
 procedure TTagItem.SetBorderColor(const aValue: TColor);
 begin
-  if FBorderColor <> aValue then
+  if fBorderColor <> aValue then
   begin
-    FBorderColor := aValue;
+    fBorderColor := aValue;
     UpdateTagEditor;
   end;
 end;
 
 procedure TTagItem.SetText(const aValue: string);
 begin
-  if FText <> aValue then
+  if fText <> aValue then
   begin
-    FText := aValue;
+    fText := aValue;
     UpdateTagEditor;
   end;
 end;
 
 procedure TTagItem.SetTextColor(const aValue: TColor);
 begin
-  if FTextColor <> aValue then
+  if fTextColor <> aValue then
   begin
-    FTextColor := aValue;
+    fTextColor := aValue;
     UpdateTagEditor;
   end;
 end;
@@ -429,45 +438,45 @@ end;
 constructor TTagItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
-  FCanDelete := ioShowDeleteButton in GetTagEditor.TagInput.Options;
-  FBgColor := GetTagEditor.FTagBgColor;
-  FTextColor := GetTagEditor.FTagTextColor;
+  fCanDelete := ioShowDeleteButton in GetTagEditor.TagInput.Options;
+  fBgColor := GetTagEditor.fTagBgColor;
+  fTextColor := GetTagEditor.fTagTextColor;
 end;
 
 { TTags }
 
-function TTags.GetTagItem(Index: integer): TTagItem;
+function TTags.GetTagItem(Index: Integer): TTagItem;
 begin
   result := TTagItem(inherited Items[Index]);
 end;
 
-procedure TTags.SetTagItem(Index: integer; const Value: TTagItem);
+procedure TTags.SetTagItem(Index: Integer; const Value: TTagItem);
 begin
   Items[Index].Assign(Value);
 end;
 
 function TTags.GetOwner: TPersistent;
 begin
-  result := FTagEditor;
+  result := fTagEditor;
 end;
 
 constructor TTags.Create(aTagEditor: TTisTagEditor;
   aTagsItemClass: TTagItemCLass);
 begin
   inherited Create(aTagsItemClass);
-  FTagEditor := aTagEditor;
+  fTagEditor := aTagEditor;
 end;
 
-function TTags.IndexOf(const aText: string): integer;
+function TTags.IndexOf(const aText: string): Integer;
 var
-  Index: integer;
+  i: Integer;
 begin
   result := -1;
-  for index := 0 to Self.Count - 1 do
+  for i := 0 to Self.Count - 1 do
   begin
-    if Self.Items[index].Text = aText then
+    if Self.Items[i].Text = aText then
     begin
-      result := index;
+      result := i;
       break;
     end;
   end;
@@ -475,7 +484,7 @@ end;
 
 function TTags.DelimitedText: string;
 var
-  i: integer;
+  i: Integer;
 begin
   result := '';
   for i := 0 to Self.Count - 1 do
@@ -487,21 +496,21 @@ end;
 function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
-  result.FText := aText;
-  result.FCanDelete := aItemConfig.CanDelete;
-  result.FBgColor := aItemConfig.BgColor;
-  result.FBorderColor := aItemConfig.BorderColor;
-  result.FTextColor := aItemConfig.TextColor;
+  result.fText := aText;
+  result.fCanDelete := aItemConfig.CanDelete;
+  result.fBgColor := aItemConfig.BgColor;
+  result.fBorderColor := aItemConfig.BorderColor;
+  result.fTextColor := aItemConfig.TextColor;
 end;
 
 function TTags.Add(const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
-  result.FText := aText;
-  result.FCanDelete := ioShowDeleteButton in FTagEditor.TagInput.Options;
-  result.FBgColor := FTagEditor.FTagBgColor;
-  result.FBorderColor := FTagEditor.FTagBorderColor;
-  result.FTextColor := FTagEditor.FTagTextColor;
+  result.fText := aText;
+  result.fCanDelete := ioShowDeleteButton in fTagEditor.TagInput.Options;
+  result.fBgColor := fTagEditor.fTagBgColor;
+  result.fBorderColor := fTagEditor.fTagBorderColor;
+  result.fTextColor := fTagEditor.fTagTextColor;
 end;
 
 procedure TTags.DeleteAll;
@@ -518,83 +527,84 @@ begin
   begin
     if (not(InRange(aValue.Height, 8, 10))) and (not(InRange(aValue.Width, 8, 10))) then
       raise ETagEditor.Create('The icon size should be 8x8 or 10x10');
-    FDeleteIcon.Assign(aValue);
+    fDeleteIcon.Assign(aValue);
   end;
 end;
 
 constructor TTisTagInput.Create;
 begin
   inherited Create;
-  FInputOptions := [ioAllowDragging, ioShowDeleteButton, ioTrimText];
-  FForbiddenChars := '= !@|():&%$/\[]<>*+?;,`¨''';
-  FDeleteIcon := TIcon.Create;
+  fDeleteIcon := TIcon.Create;
+  fForbiddenChars := DefaultForbiddenChars;
+  fMaxTags := DefaultMaxTags;
+  fOptions := DefaultOptions;
 end;
 
 destructor TTisTagInput.Destroy;
 begin
-  FDeleteIcon.Free;
+  fDeleteIcon.Free;
   inherited Destroy;
 end;
 
 { TTagEditor }
 
-constructor TTisTagEditor.Create(AOwner: TComponent);
+constructor TTisTagEditor.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   Left := 48;
   Height := 47;
   Top := 48;
   Width := 221;
-  FEdit := CreateEdit;
-  FTags := CreateTags(Self);
-  FPopupMenu := CreatePopupMenu;
-  FTagInput := TTisTagInput.Create;
-  FBgColor := clWindow;
-  FBorderColor := clWindowFrame;
-  FTagBgColor := clSkyBlue;
-  FTagBorderColor := clNavy;
-  FSpacing := 8;
-  FTagTextColor := clWhite;
-  FMultiLine := False;
-  FTagHeight := 32;
-  FShrunk := False;
-  FEditorColor := clWindow;
-  FMaxHeight := 512;
-  FCaretVisible := False;
-  FDragging := False;
-  FPrevScrollPos := 0;
-  FScrollInfo.cbSize := sizeof(FScrollInfo);
-  FScrollBarVisible := False;
+  fEdit := CreateEdit;
+  fTags := CreateTags(Self);
+  fPopupMenu := CreatePopupMenu;
+  fTagInput := TTisTagInput.Create;
+  fBgColor := clWindow;
+  fBorderColor := clWindowFrame;
+  fTagBgColor := clSkyBlue;
+  fTagBorderColor := clNavy;
+  fSpacing := DefaultSpacing;
+  fTagTextColor := clWhite;
+  fMultiLine := False;
+  fTagHeight := DefaultTagHeight;
+  fShrunk := False;
+  fEditorColor := clWindow;
+  fMaxHeight := DefaultMaxHeight;
+  fCaretVisible := False;
+  fDragging := False;
+  fPrevScrollPos := 0;
+  fScrollInfo.cbSize := sizeof(fScrollInfo);
+  fScrollBarVisible := False;
   TabStop := True;
 end;
 
 destructor TTisTagEditor.Destroy;
 begin
-  FTagInput.Free;
-  FTags.Free;
-  FTags := nil;
-  FPopupMenu.Free;
-  FEdit.Free;
+  fTagInput.Free;
+  fTags.Free;
+  fTags := nil;
+  fPopupMenu.Free;
+  fEdit.Free;
   inherited Destroy;
 end;
 
 procedure TTisTagEditor.Clear;
 begin
-  FTags.Clear;
+  fTags.Clear;
   DoChange;
 end;
 
 procedure TTisTagEditor.EditEnter(Sender: TObject);
 begin
-  if FEditPos.Y + FEdit.Height > FScrollInfo.nPos + ClientHeight then
-    FScrollInfo.nPos := FEditPos.Y + ClientHeight - FEdit.Height;
+  if fEditPos.Y + fEdit.Height > fScrollInfo.nPos + ClientHeight then
+    fScrollInfo.nPos := fEditPos.Y + ClientHeight - fEdit.Height;
   FixPosAndScrollWindow;
 end;
 
 procedure TTisTagEditor.EditExit(Sender: TObject);
 begin
-  if FEdit.Text <> '' then
-    AddTag(FEdit.Text);
+  if fEdit.Text <> '' then
+    AddTag(fEdit.Text);
   HideEditor;
 end;
 
@@ -607,8 +617,8 @@ end;
 procedure TTisTagEditor.TagChange(Sender: TObject);
 begin
   Invalidate;
-  if Assigned(FOnChange) then
-    FOnChange(Self);
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 procedure TTisTagEditor.WndProc(var Message: TMessage);
@@ -625,19 +635,19 @@ begin
       Invalidate;
     WM_KILLFOCUS:
       begin
-        if FCaretVisible then
+        if fCaretVisible then
           DestroyCaret;
-        FDragging := False;
+        fDragging := False;
         Invalidate;
       end;
     WM_COPY:
-      Clipboard.AsText := FTags.DelimitedText;
+      Clipboard.AsText := fTags.DelimitedText;
     LM_CLEAR:
-      FTags.Clear;
+      fTags.Clear;
     WM_CUT:
       begin
-        Clipboard.AsText := FTags.DelimitedText;
-        FTags.DeleteAll;
+        Clipboard.AsText := fTags.DelimitedText;
+        fTags.DeleteAll;
       end;
     WM_PASTE:
       begin
@@ -651,23 +661,23 @@ begin
       end;
     WM_VSCROLL:
       begin
-        FScrollInfo.fMask := SIF_ALL;
-        GetScrollInfo(Handle, SB_VERT, FScrollInfo);
+        fScrollInfo.fMask := SIF_ALL;
+        GetScrollInfo(Handle, SB_VERT, fScrollInfo);
         case Message.WParam of
           SB_TOP:
-            FScrollInfo.nPos := FScrollInfo.nMin;
+            fScrollInfo.nPos := fScrollInfo.nMin;
           SB_BOTTOM:
-            FScrollInfo.nPos := FScrollInfo.nMax;
+            fScrollInfo.nPos := fScrollInfo.nMax;
           SB_PAGEUP:
-            Dec(FScrollInfo.nPos, FScrollInfo.nPage);
+            Dec(fScrollInfo.nPos, fScrollInfo.nPage);
           SB_PAGEDOWN:
-            Inc(FScrollInfo.nPos, FScrollInfo.nPage);
+            Inc(fScrollInfo.nPos, fScrollInfo.nPage);
           SB_LINEUP:
-            Dec(FScrollInfo.nPos, FTagHeight);
+            Dec(fScrollInfo.nPos, fTagHeight);
           SB_LINEDOWN:
-            Inc(FScrollInfo.nPos, FTagHeight);
+            Inc(fScrollInfo.nPos, fTagHeight);
           SB_THUMBTRACK:
-            FScrollInfo.nPos := FScrollInfo.nTrackPos;
+            fScrollInfo.nPos := fScrollInfo.nTrackPos;
         end;
         FixPosAndScrollWindow;
         Message.result := 0;
@@ -713,23 +723,23 @@ var
   s: string;
 begin
   result := False;
-  if (FTags.Count = FTagInput.MaxTags) and (FTagInput.MaxTags > 0) then
+  if (fTags.Count = fTagInput.MaxTags) and (fTagInput.MaxTags > 0) then
     exit;
   s := aText;
-  if ioTrimText in FTagInput.Options then
+  if ioTrimText in fTagInput.Options then
     s := Trim(aText);
-  if (s = '') or ((not (ioAllowDuplicates in FTagInput.Options)) and (FTags.IndexOf(s) <> -1)) then
+  if (s = '') or ((not (ioAllowDuplicates in fTagInput.Options)) and (fTags.IndexOf(s) <> -1)) then
   begin
     beep;
     exit;
   end;
   if DoTagBeforeAdd(s) then
   begin
-    ctx.CanDelete := ioShowDeleteButton in FTagInput.Options;
-    ctx.BgColor := FTagBgColor;
-    ctx.BorderColor := FTagBorderColor;
-    ctx.TextColor := FTagTextColor;
-    DoTagAfterAdd(FTags.Add(ctx, s));
+    ctx.CanDelete := ioShowDeleteButton in fTagInput.Options;
+    ctx.BgColor := fTagBgColor;
+    ctx.BorderColor := fTagBorderColor;
+    ctx.TextColor := fTagTextColor;
+    DoTagAfterAdd(fTags.Add(ctx, s));
     result := True;
     DoChange;
   end;
@@ -739,14 +749,14 @@ procedure TTisTagEditor.DeleteTag(aTagIndex: Integer);
 var
   aborted: Boolean;
 begin
-  if assigned(FOnTagBeforeDelete) then
+  if assigned(fOnTagBeforeDelete) then
   begin
     aborted := False;
-    FOnTagBeforeDelete(self, FTags.Items[aTagIndex], aborted);
+    fOnTagBeforeDelete(self, fTags.Items[aTagIndex], aborted);
     if aborted then
       exit;
   end;
-  FTags.Delete(aTagIndex);
+  fTags.Delete(aTagIndex);
   DoChange;
 end;
 
@@ -755,10 +765,10 @@ var
   aborted: Boolean;
 begin
   result := True;
-  if assigned(FOnTagBeforeAdd) then
+  if assigned(fOnTagBeforeAdd) then
   begin
     aborted := False;
-    FOnTagBeforeAdd(self, aTag, aborted);
+    fOnTagBeforeAdd(self, aTag, aborted);
     if aborted then
       result := False;
   end;
@@ -766,22 +776,22 @@ end;
 
 procedure TTisTagEditor.DoTagAfterAdd(aTag: TTagItem);
 begin
-  if assigned(FOnTagAfterAdd) then
-    FOnTagAfterAdd(self, aTag);
+  if assigned(fOnTagAfterAdd) then
+    fOnTagAfterAdd(self, aTag);
 end;
 
 procedure TTisTagEditor.DoChange;
 begin
-  if assigned(FOnChange) then
-    FOnChange(self);
+  if assigned(fOnChange) then
+    fOnChange(self);
   Invalidate;
 end;
 
 procedure TTisTagEditor.DoAfterDrag(aPreIndex, aNewIndex: Integer);
 begin
-  if assigned(FOnTagAfterDrag) then
+  if assigned(fOnTagAfterDrag) then
   begin
-    FOnTagAfterDrag(self, FTags.Items[aNewIndex], aPreIndex, aNewIndex);
+    fOnTagAfterDrag(self, fTags.Items[aNewIndex], aPreIndex, aNewIndex);
     DoChange;
   end;
 end;
@@ -790,50 +800,50 @@ procedure TTisTagEditor.FixPosAndScrollWindow;
 var
   r: TRect;
 begin
-  FScrollInfo.fMask := SIF_POS;
-  SetScrollInfo(Handle, SB_VERT, FScrollInfo, True);
-  GetScrollInfo(Handle, SB_VERT, FScrollInfo);
-  if FScrollInfo.nPos <> FPrevScrollPos then
+  fScrollInfo.fMask := SIF_POS;
+  SetScrollInfo(Handle, SB_VERT, fScrollInfo, True);
+  GetScrollInfo(Handle, SB_VERT, fScrollInfo);
+  if fScrollInfo.nPos <> fPrevScrollPos then
   begin
     r := GetShrunkClientRect(3);
-    ScrollWindowEx(Handle, 0, FPrevScrollPos - FScrollInfo.nPos,
+    ScrollWindowEx(Handle, 0, fPrevScrollPos - fScrollInfo.nPos,
       @r, @r, 0, nil, SW_INVALIDATE);
-    FPrevScrollPos := FScrollInfo.nPos;
+    fPrevScrollPos := fScrollInfo.nPos;
     Update;
   end;
 end;
 
 procedure TTisTagEditor.UpdateScrollBars;
 begin
-  FScrollInfo.fMask := SIF_RANGE or SIF_PAGE;
-  FScrollInfo.nMin := 0;
-  FScrollInfo.nMax := FDesiredHeight - 1;
-  FScrollInfo.nPage := ClientHeight;
-  SetScrollInfo(Handle, SB_VERT, FScrollInfo, True);
+  fScrollInfo.fMask := SIF_RANGE or SIF_PAGE;
+  fScrollInfo.nMin := 0;
+  fScrollInfo.nMax := fDesiredHeight - 1;
+  fScrollInfo.nPage := ClientHeight;
+  SetScrollInfo(Handle, SB_VERT, fScrollInfo, True);
   FixPosAndScrollWindow;
 end;
 
 procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Key = chr(VK_SPACE)) and (FEdit.Text = '') and not (ioAllowLeadingSpace in FTagInput.Options) then
+  if (Key = chr(VK_SPACE)) and (fEdit.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options) then
   begin
     Key := #0;
-    Exit;
+    exit;
   end;
-  if Pos(Key, FTagInput.ForbiddenChars) > 0 then
+  if Pos(Key, fTagInput.ForbiddenChars) > 0 then
     Key := chr(VK_RETURN);
   case ord(Key) of
     VK_RETURN:
       begin
-        AddTag(FEdit.Text);
+        AddTag(fEdit.Text);
         ShowEditor;
         Key := #0;
       end;
     VK_BACK:
       begin
-        if (FEdit.Text = '') and (FTags.Count > 0) then
+        if (fEdit.Text = '') and (fTags.Count > 0) then
         begin
-          DeleteTag(FTags.Count-1);
+          DeleteTag(fTags.Count-1);
           Paint;
         end;
       end;
@@ -848,8 +858,8 @@ end;
 
 procedure TTisTagEditor.HideEditor;
 begin
-  FEdit.Text := '';
-  FEdit.Hide;
+  fEdit.Text := '';
+  fEdit.Hide;
   Invalidate;
 end;
 
@@ -876,41 +886,41 @@ begin
       begin
         Perform(WM_COPY, 0, 0);
         Key := #0;
-        Exit;
+        exit;
       end;
     ^X:
       begin
         Perform(WM_CUT, 0, 0);
         Key := #0;
-        Exit;
+        exit;
       end;
     ^V:
       begin
         Perform(WM_PASTE, 0, 0);
         Key := #0;
-        Exit;
+        exit;
       end;
   end;
   ShowEditor;
-  FEdit.Perform(WM_CHAR, ord(Key), 0);
+  fEdit.Perform(WM_CHAR, ord(Key), 0);
 end;
 
-function TTisTagEditor.GetClickInfoAt(X, Y: integer): TClickInfo;
+function TTisTagEditor.GetClickInfoAt(X, Y: Integer): TClickInfo;
 var
-  i: integer;
+  i: Integer;
 begin
   result := NOWHERE;
-  if (X >= FEditPos.X) and (Y >= FEditPos.Y) then
-    Exit(EDITOR);
+  if (X >= fEditPos.X) and (Y >= fEditPos.Y) then
+    exit(EDITOR);
 
-  for i := 0 to FTags.Count - 1 do
-    if InRange(X, FLefts[i], FRights[i]) and InRange(Y, FTops[i], FBottoms[i])
+  for i := 0 to fTags.Count - 1 do
+    if InRange(X, fLefts[i], fRights[i]) and InRange(Y, fTops[i], fBottoms[i])
     then
     begin
       result := i;
-      if InRange(X, FCloseBtnLefts[i], FCloseBtnLefts[i] + FCloseBtnWidth) and
-        InRange(Y, FCloseBtnTops[i], FCloseBtnTops[i] + FActualTagHeight) and
-        not FShrunk then
+      if InRange(X, fCloseBtnLefts[i], fCloseBtnLefts[i] + fCloseBtnWidth) and
+        InRange(Y, fCloseBtnTops[i], fCloseBtnTops[i] + fActualTagHeight) and
+        not fShrunk then
         result := result or PART_REMOVE_BUTTON;
       break;
     end;
@@ -918,62 +928,62 @@ end;
 
 function TTisTagEditor.GetReadOnly: Boolean;
 begin
-  result := FReadOnly;
+  result := fReadOnly;
 end;
 
-function TTisTagEditor.IsFirstOnRow(TagIndex: integer): Boolean;
+function TTisTagEditor.IsFirstOnRow(TagIndex: Integer): Boolean;
 begin
-  result := (TagIndex = 0) or (FTops[TagIndex] > FTops[TagIndex - 1]);
+  result := (TagIndex = 0) or (fTops[TagIndex] > fTops[TagIndex - 1]);
 end;
 
-function TTisTagEditor.IsLastOnRow(TagIndex: integer): Boolean;
+function TTisTagEditor.IsLastOnRow(TagIndex: Integer): Boolean;
 begin
-  result := (TagIndex = FTags.Count - 1) or
-    (FTops[TagIndex] < FTops[TagIndex + 1]);
+  result := (TagIndex = fTags.Count - 1) or
+    (fTops[TagIndex] < fTops[TagIndex + 1]);
 end;
 
-function TTisTagEditor.GetSeparatorIndexAt(X, Y: integer): integer;
+function TTisTagEditor.GetSeparatorIndexAt(X, Y: Integer): Integer;
 var
-  i: integer;
+  i: Integer;
 begin
-  result := FTags.Count;
-  Y := Max(Y, FSpacing + 1);
-  for i := FTags.Count - 1 downto 0 do
+  result := fTags.Count;
+  Y := Max(Y, fSpacing + 1);
+  for i := fTags.Count - 1 downto 0 do
   begin
-    if Y < FTops[i] then
+    if Y < fTops[i] then
       Continue;
-    if (IsLastOnRow(i) and (X >= FRights[i])) or
-      ((X < FRights[i]) and (IsFirstOnRow(i) or (FRights[i - 1] < X))) then
+    if (IsLastOnRow(i) and (X >= fRights[i])) or
+      ((X < fRights[i]) and (IsFirstOnRow(i) or (fRights[i - 1] < X))) then
     begin
       result := i;
-      if (IsLastOnRow(i) and (X >= FRights[i])) then
+      if (IsLastOnRow(i) and (X >= fRights[i])) then
         Inc(result);
-      Exit;
+      exit;
     end;
   end;
 end;
 
 procedure TTisTagEditor.MouseDown(Button: TMouseButton; Shift: TShiftState;
-  X: integer; Y: integer);
+  X: Integer; Y: Integer);
 begin
-  Inc(Y, FScrollInfo.nPos);
-  FMouseDownClickInfo := GetClickInfoAt(X, Y);
-  if TTagIndex(FMouseDownClickInfo) <> EDITOR then
+  Inc(Y, fScrollInfo.nPos);
+  fMouseDownClickInfo := GetClickInfoAt(X, Y);
+  if TTagIndex(fMouseDownClickInfo) <> EDITOR then
     SetFocus;
 end;
 
 procedure TTisTagEditor.CreateCaret;
 begin
-  if not FCaretVisible then
-    FCaretVisible := LCLIntf.CreateCaret(Handle, 0, 0, FActualTagHeight);
+  if not fCaretVisible then
+    fCaretVisible := LCLIntf.CreateCaret(Handle, 0, 0, fActualTagHeight);
 end;
 
 procedure TTisTagEditor.DestroyCaret;
 begin
-  if not FCaretVisible then
-    Exit;
+  if not fCaretVisible then
+    exit;
   LCLIntf.DestroyCaret(Handle);
-  FCaretVisible := False;
+  fCaretVisible := False;
 end;
 
 procedure TTisTagEditor.CreateParams(var Params: TCreateParams);
@@ -982,27 +992,27 @@ begin
   Params.Style := Params.Style or WS_VSCROLL;
 end;
 
-procedure TTisTagEditor.MouseMove(Shift: TShiftState; X: integer; Y: integer);
+procedure TTisTagEditor.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
 var
-  SepIndex: integer;
+  SepIndex: Integer;
 begin
   inherited;
-  Inc(Y, FScrollInfo.nPos);
-  if IsKeyDown(VK_LBUTTON) and InRange(TTagIndex(FMouseDownClickInfo),
-    TAG_LOW, TAG_HIGH) and (ioAllowDragging in FTagInput.Options) then
+  Inc(Y, fScrollInfo.nPos);
+  if IsKeyDown(VK_LBUTTON) and InRange(TTagIndex(fMouseDownClickInfo),
+    TAG_LOW, TAG_HIGH) and (ioAllowDragging in fTagInput.Options) then
   begin
-    FDragging := True;
+    fDragging := True;
     Screen.Cursor := crDrag;
     SepIndex := GetSeparatorIndexAt(X, Y);
     CreateCaret;
-    if SepIndex = FTags.Count then
-      SetCaretPos(FLefts[SepIndex - 1] + FWidths[SepIndex - 1] + FSpacing div 2,
-        FTops[SepIndex - 1] - FScrollInfo.nPos)
+    if SepIndex = fTags.Count then
+      SetCaretPos(fLefts[SepIndex - 1] + fWidths[SepIndex - 1] + fSpacing div 2,
+        fTops[SepIndex - 1] - fScrollInfo.nPos)
     else
-      SetCaretPos(FLefts[SepIndex] - FSpacing div 2,
-        FTops[SepIndex] - FScrollInfo.nPos);
+      SetCaretPos(fLefts[SepIndex] - fSpacing div 2,
+        fTops[SepIndex] - fScrollInfo.nPos);
     ShowCaret(Handle);
-    Exit;
+    exit;
   end;
   case TTagIndex(GetClickInfoAt(X, Y)) of
     NOWHERE:
@@ -1015,39 +1025,39 @@ begin
 end;
 
 procedure TTisTagEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
-  X: integer; Y: integer);
+  X: Integer; Y: Integer);
 var
   pnt: TPoint;
-  ClickInfo: TClickInfo;
+  info: TClickInfo;
   i: word;
   p: cardinal;
   SepIndex: Integer;
   oldpos, newpos: TTagIndex;
 begin
   inherited;
-  Inc(Y, FScrollInfo.nPos);
-  if FDragging then
+  Inc(Y, fScrollInfo.nPos);
+  if fDragging then
   begin
     DestroyCaret;
-    FDragging := False;
+    fDragging := False;
     Screen.Cursor := crDefault;
     SepIndex := GetSeparatorIndexAt(X, Y);
-    if not InRange(SepIndex, TTagIndex(FMouseDownClickInfo),
-      TTagIndex(FMouseDownClickInfo) + 1) then
+    if not InRange(SepIndex, TTagIndex(fMouseDownClickInfo),
+      TTagIndex(fMouseDownClickInfo) + 1) then
     begin
-      oldpos := TTagIndex(FMouseDownClickInfo);
-      newpos := TTagIndex(SepIndex - IfThen(SepIndex > TTagIndex(FMouseDownClickInfo), 1, 0));
-      FTags.Move(oldpos, newpos);
+      oldpos := TTagIndex(fMouseDownClickInfo);
+      newpos := TTagIndex(SepIndex - IfThen(SepIndex > TTagIndex(fMouseDownClickInfo), 1, 0));
+      fTags.Move(oldpos, newpos);
       DoAfterDrag(oldpos, newpos);
       DoChange;
     end;
     exit;
   end;
-  ClickInfo := GetClickInfoAt(X, Y);
-  if ClickInfo <> FMouseDownClickInfo then
-    Exit;
-  i := TTagIndex(ClickInfo);
-  p := GetTagPart(ClickInfo);
+  info := GetClickInfoAt(X, Y);
+  if info <> fMouseDownClickInfo then
+    exit;
+  i := TTagIndex(info);
+  p := GetTagPart(info);
   case i of
     EDITOR:
       ShowEditor;
@@ -1059,11 +1069,11 @@ begin
         begin
           case p of
             PART_BODY:
-              if Assigned(FOnTagClick) then
-                FOnTagClick(Self, FTags.Items[i]);
+              if Assigned(fOnTagClick) then
+                fOnTagClick(Self, fTags.Items[i]);
             PART_REMOVE_BUTTON:
               begin
-                if not (ioShowDeleteButton in FTagInput.Options) then
+                if not (ioShowDeleteButton in fTagInput.Options) then
                   exit;
                 DeleteTag(i);
                 Paint;
@@ -1072,10 +1082,10 @@ begin
         end;
       mbRight:
         begin
-          FPopupMenu.Items[0].Tag := i;
+          fPopupMenu.Items[0].Tag := i;
           pnt := ClientToScreen(Point(X, Y));
-          FPopupMenu.Items[0].Caption := 'Delete "' + FTags.Items[i].Text + '"';
-          FPopupMenu.Popup(pnt.X, pnt.Y - FScrollInfo.nPos);
+          fPopupMenu.Items[0].Caption := 'Delete "' + fTags.Items[i].Text + '"';
+          fPopupMenu.Popup(pnt.X, pnt.Y - fScrollInfo.nPos);
         end;
     end;
   end;
@@ -1085,177 +1095,177 @@ procedure TTisTagEditor.UpdateMetrics;
 const
   CLOSE_TEXT = 'X';
 var
-  i: integer;
-  X, Y: integer;
-  MeanWidth: integer;
-  AdjustedFDesiredHeight: integer;
+  i: Integer;
+  X, Y: Integer;
+  MeanWidth: Integer;
+  AdjustedFDesiredHeight: Integer;
 begin
-  SetLength(FLefts, FTags.Count);
-  SetLength(FRights, FTags.Count);
-  SetLength(FTops, FTags.Count);
-  SetLength(FBottoms, FTags.Count);
-  SetLength(FWidths, FTags.Count);
-  SetLength(FCloseBtnLefts, FTags.Count);
-  SetLength(FCloseBtnTops, FTags.Count);
-  FCloseBtnWidth := Canvas.TextWidth(CLOSE_TEXT);
-  FShrunk := False;
-  FNumRows := 1;
-  if FMultiLine then
+  SetLength(fLefts, fTags.Count);
+  SetLength(fRights, fTags.Count);
+  SetLength(fTops, fTags.Count);
+  SetLength(fBottoms, fTags.Count);
+  SetLength(fWidths, fTags.Count);
+  SetLength(fCloseBtnLefts, fTags.Count);
+  SetLength(fCloseBtnTops, fTags.Count);
+  fCloseBtnWidth := Canvas.TextWidth(CLOSE_TEXT);
+  fShrunk := False;
+  fNumRows := 1;
+  if fMultiLine then
   begin
-    FActualTagHeight := FTagHeight;
-    X := FSpacing;
-    Y := FSpacing;
-    for i := 0 to FTags.Count - 1 do
+    fActualTagHeight := fTagHeight;
+    X := fSpacing;
+    Y := fSpacing;
+    for i := 0 to fTags.Count - 1 do
     begin
-      FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text +
-        IfThen(ioShowDeleteButton in FTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
-      FLefts[i] := X;
-      FRights[i] := X + FWidths[i];
-      FTops[i] := Y;
-      FBottoms[i] := Y + FTagHeight;
-      if X + FWidths[i] + FSpacing > ClientWidth then
+      fWidths[i] := Canvas.TextWidth(fTags.Items[i].Text +
+        IfThen(ioShowDeleteButton in fTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * fSpacing;
+      fLefts[i] := X;
+      fRights[i] := X + fWidths[i];
+      fTops[i] := Y;
+      fBottoms[i] := Y + fTagHeight;
+      if X + fWidths[i] + fSpacing > ClientWidth then
       begin
-        X := FSpacing;
-        Inc(Y, FTagHeight + FSpacing);
-        Inc(FNumRows);
-        FLefts[i] := X;
-        FRights[i] := X + FWidths[i];
-        FTops[i] := Y;
-        FBottoms[i] := Y + FTagHeight;
+        X := fSpacing;
+        Inc(Y, fTagHeight + fSpacing);
+        Inc(fNumRows);
+        fLefts[i] := X;
+        fRights[i] := X + fWidths[i];
+        fTops[i] := Y;
+        fBottoms[i] := Y + fTagHeight;
       end;
-      FCloseBtnLefts[i] := X + FWidths[i] - FCloseBtnWidth - FSpacing;
-      FCloseBtnTops[i] := Y;
-      Inc(X, FWidths[i] + FSpacing);
+      fCloseBtnLefts[i] := X + fWidths[i] - fCloseBtnWidth - fSpacing;
+      fCloseBtnTops[i] := Y;
+      Inc(X, fWidths[i] + fSpacing);
     end;
   end
   else
   begin
-    FActualTagHeight := ClientHeight - 2 * FSpacing;
-    X := FSpacing;
-    Y := FSpacing;
-    for i := 0 to FTags.Count - 1 do
+    fActualTagHeight := ClientHeight - 2 * fSpacing;
+    X := fSpacing;
+    Y := fSpacing;
+    for i := 0 to fTags.Count - 1 do
     begin
-      FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text +
-        IfThen(ioShowDeleteButton in FTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * FSpacing;
-      FLefts[i] := X;
-      FRights[i] := X + FWidths[i];
-      FTops[i] := Y;
-      FBottoms[i] := Y + FActualTagHeight;
-      Inc(X, FWidths[i] + FSpacing);
-      FCloseBtnLefts[i] := FRights[i] - FCloseBtnWidth - FSpacing;
-      FCloseBtnTops[i] := Y;
+      fWidths[i] := Canvas.TextWidth(fTags.Items[i].Text +
+        IfThen(ioShowDeleteButton in fTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * fSpacing;
+      fLefts[i] := X;
+      fRights[i] := X + fWidths[i];
+      fTops[i] := Y;
+      fBottoms[i] := Y + fActualTagHeight;
+      Inc(X, fWidths[i] + fSpacing);
+      fCloseBtnLefts[i] := fRights[i] - fCloseBtnWidth - fSpacing;
+      fCloseBtnTops[i] := Y;
     end;
-    FShrunk := X + 64 { FEdit } > ClientWidth;
-    if FShrunk then
+    fShrunk := X + 64 { fEdit } > ClientWidth;
+    if fShrunk then
     begin
-      X := FSpacing;
-      Y := FSpacing;
-      for i := 0 to FTags.Count - 1 do
+      X := fSpacing;
+      Y := fSpacing;
+      for i := 0 to fTags.Count - 1 do
       begin
-        FWidths[i] := Canvas.TextWidth(FTags.Items[i].Text) + 2 * FSpacing;
-        FLefts[i] := X;
-        FRights[i] := X + FWidths[i];
-        FTops[i] := Y;
-        FBottoms[i] := Y + FActualTagHeight;
-        Inc(X, FWidths[i] + FSpacing);
-        FCloseBtnLefts[i] := FRights[i] - FCloseBtnWidth - FSpacing;
-        FCloseBtnTops[i] := Y;
+        fWidths[i] := Canvas.TextWidth(fTags.Items[i].Text) + 2 * fSpacing;
+        fLefts[i] := X;
+        fRights[i] := X + fWidths[i];
+        fTops[i] := Y;
+        fBottoms[i] := Y + fActualTagHeight;
+        Inc(X, fWidths[i] + fSpacing);
+        fCloseBtnLefts[i] := fRights[i] - fCloseBtnWidth - fSpacing;
+        fCloseBtnTops[i] := Y;
       end;
-      if X + 64 { FEdit } > ClientWidth then
+      if X + 64 { fEdit } > ClientWidth then
       begin
-        MeanWidth := (ClientWidth - 2 * FSpacing - 64 { FEdit } )
-          div FTags.Count - FSpacing;
-        X := FSpacing;
-        for i := 0 to FTags.Count - 1 do
+        MeanWidth := (ClientWidth - 2 * fSpacing - 64 { fEdit } )
+          div fTags.Count - fSpacing;
+        X := fSpacing;
+        for i := 0 to fTags.Count - 1 do
         begin
-          FWidths[i] := Min(FWidths[i], MeanWidth);
-          FLefts[i] := X;
-          FRights[i] := X + FWidths[i];
-          Inc(X, FWidths[i] + FSpacing);
+          fWidths[i] := Min(fWidths[i], MeanWidth);
+          fLefts[i] := X;
+          fRights[i] := X + fWidths[i];
+          Inc(X, fWidths[i] + fSpacing);
         end;
       end;
     end;
   end;
-  FEditPos := Point(FSpacing,
-    FSpacing + (FActualTagHeight - FEdit.Height) div 2);
-  if FTags.Count > 0 then
-    FEditPos := Point(FRights[FTags.Count - 1] + FSpacing,
-      FTops[FTags.Count - 1] + (FActualTagHeight - FEdit.Height) div 2);
-  if FMultiLine and (FEditPos.X + 64 { FEdit } > ClientWidth) and (FTags.Count > 0) then
+  fEditPos := Point(fSpacing,
+    fSpacing + (fActualTagHeight - fEdit.Height) div 2);
+  if fTags.Count > 0 then
+    fEditPos := Point(fRights[fTags.Count - 1] + fSpacing,
+      fTops[fTags.Count - 1] + (fActualTagHeight - fEdit.Height) div 2);
+  if fMultiLine and (fEditPos.X + 64 { fEdit } > ClientWidth) and (fTags.Count > 0) then
   begin
-    FEditPos := Point(FSpacing, FTops[FTags.Count - 1] + FTagHeight + FSpacing +
-      (FActualTagHeight - FEdit.Height) div 2);
-    Inc(FNumRows);
+    fEditPos := Point(fSpacing, fTops[fTags.Count - 1] + fTagHeight + fSpacing +
+      (fActualTagHeight - fEdit.Height) div 2);
+    Inc(fNumRows);
   end;
-  FDesiredHeight := FSpacing + FNumRows * (FTagHeight + FSpacing);
-  AdjustedFDesiredHeight := Min(FDesiredHeight, FMaxHeight);
-  if FMultiLine and FAutoHeight and (ClientHeight <> AdjustedFDesiredHeight) then
+  fDesiredHeight := fSpacing + fNumRows * (fTagHeight + fSpacing);
+  AdjustedFDesiredHeight := Min(fDesiredHeight, fMaxHeight);
+  if fMultiLine and fAutoHeight and (ClientHeight <> AdjustedFDesiredHeight) then
     ClientHeight := AdjustedFDesiredHeight;
   UpdateScrollBars;
 end;
 
 procedure TTisTagEditor.Paint;
 var
-  i: integer;
-  w: integer;
-  X, Y, newEditWidth: integer;
+  i: Integer;
+  w: Integer;
+  X, Y, newEditWidth: Integer;
   R: TRect;
   S: string;
   clip: HRGN;
 begin
   inherited Paint;
   UpdateMetrics;
-  Canvas.Brush.Color := FBgColor;
-  Canvas.Pen.Color := FBorderColor;
+  Canvas.Brush.Color := fBgColor;
+  Canvas.Pen.Color := fBorderColor;
   Canvas.Rectangle(ClientRect);
   Canvas.Font.Assign(Self.Font);
   clip := CreateRectRgnIndirect(GetShrunkClientRect(3));
   SelectClipRgn(Canvas.Handle, clip);
   DeleteObject(clip);
-  for i := 0 to FTags.Count - 1 do
+  for i := 0 to fTags.Count - 1 do
   begin
-    X := FLefts[i];
-    Y := FTops[i] - FScrollInfo.nPos;
-    w := FWidths[i];
-    R := Rect(X, Y, X + w, Y + FActualTagHeight);
-    Canvas.Brush.Color := FTags.Items[i].FBgColor;
-    Canvas.Pen.Color := FTags.Items[i].FBorderColor;
-    Canvas.RoundRect(R, FTagRoundBorder, FTagRoundBorder);
-    Canvas.Font.Color := FTags.Items[i].FTextColor;
+    X := fLefts[i];
+    Y := fTops[i] - fScrollInfo.nPos;
+    w := fWidths[i];
+    R := Rect(X, Y, X + w, Y + fActualTagHeight);
+    Canvas.Brush.Color := fTags.Items[i].fBgColor;
+    Canvas.Pen.Color := fTags.Items[i].fBorderColor;
+    Canvas.RoundRect(R, fTagRoundBorder, fTagRoundBorder);
+    Canvas.Font.Color := fTags.Items[i].fTextColor;
     Canvas.Brush.Style := bsClear;
-    R.Left := R.Left + FSpacing;
-    S := FTags.Items[i].Text;
-    if (not FShrunk) and (ioShowDeleteButton in FTagInput.Options) then
+    R.Left := R.Left + fSpacing;
+    S := fTags.Items[i].Text;
+    if (not fShrunk) and (ioShowDeleteButton in fTagInput.Options) then
     begin
-      if FTagInput.DeleteIcon.Empty then
+      if fTagInput.DeleteIcon.Empty then
         S := S + ' X'
       else
       {$ifdef windows} //todo
-        Windows.DrawIconEx(Canvas.Handle, FCloseBtnLefts[i], FCloseBtnTops[i] + 10,
-          FTagInput.DeleteIcon.Handle, FTagInput.DeleteIcon.Width,
-          FTagInput.DeleteIcon.Height, 0, DI_NORMAL, DI_NORMAL);
+        Windows.DrawIconEx(Canvas.Handle, fCloseBtnLefts[i], fCloseBtnTops[i] + 10,
+          fTagInput.DeleteIcon.Handle, fTagInput.DeleteIcon.Width,
+          fTagInput.DeleteIcon.Height, 0, DI_NORMAL, DI_NORMAL);
       {$endif}
     end;
     DrawText(Canvas.Handle, PChar(S), -1, R, DT_SINGLELINE or DT_VCENTER or
       DT_LEFT or DT_END_ELLIPSIS or DT_NOPREFIX);
     Canvas.Brush.Style := bsSolid;
   end;
-  if FEdit.Visible then
+  if fEdit.Visible then
   begin
-    newEditWidth := ClientWidth - FEditPos.X - FSpacing;
-    if newEditWidth < FEdit.Width then
-      FEdit.Width := newEditWidth;
-    FEdit.Left := FEditPos.X;
-    if newEditWidth > FEdit.Width then
-      FEdit.Width := newEditWidth;
-    FEdit.Top := FEditPos.Y - FScrollInfo.nPos;
+    newEditWidth := ClientWidth - fEditPos.X - fSpacing;
+    if newEditWidth < fEdit.Width then
+      fEdit.Width := newEditWidth;
+    fEdit.Left := fEditPos.X;
+    if newEditWidth > fEdit.Width then
+      fEdit.Width := newEditWidth;
+    fEdit.Top := fEditPos.Y - fScrollInfo.nPos;
   end;
   SelectClipRgn(Canvas.Handle, 0);
   if Focused then
     DrawFocusRect;
 end;
 
-function TTisTagEditor.GetShrunkClientRect(const Amount: integer): TRect;
+function TTisTagEditor.GetShrunkClientRect(const Amount: Integer): TRect;
 begin
   result := Rect(Amount, Amount, ClientWidth - Amount, ClientHeight - Amount);
 end;
@@ -1270,52 +1280,52 @@ end;
 
 procedure TTisTagEditor.SetAutoHeight(const Value: Boolean);
 begin
-  if FAutoHeight <> Value then
+  if fAutoHeight <> Value then
   begin
-    FAutoHeight := Value;
+    fAutoHeight := Value;
     Invalidate;
   end;
 end;
 
 procedure TTisTagEditor.SetBgColor(const Value: TColor);
 begin
-  if FBgColor <> Value then
+  if fBgColor <> Value then
   begin
-    FBgColor := Value;
+    fBgColor := Value;
     Invalidate;
   end;
 end;
 
 procedure TTisTagEditor.SetBorderColor(const Value: TColor);
 begin
-  if FBorderColor <> Value then
+  if fBorderColor <> Value then
   begin
-    FBorderColor := Value;
+    fBorderColor := Value;
     Invalidate;
   end;
 end;
 
-procedure TTisTagEditor.SetMaxHeight(const Value: integer);
+procedure TTisTagEditor.SetMaxHeight(const Value: Integer);
 begin
-  if FMaxHeight <> Value then
+  if fMaxHeight <> Value then
   begin
-    FMaxHeight := Value;
+    fMaxHeight := Value;
     Invalidate;
   end;
 end;
 
 procedure TTisTagEditor.SetMultiLine(const Value: Boolean);
 begin
-  if FMultiLine <> Value then
+  if fMultiLine <> Value then
   begin
-    FMultiLine := Value;
+    fMultiLine := Value;
     Invalidate;
   end;
 end;
 
 procedure TTisTagEditor.SetTagsFromDelimitedText(const aText: string);
 var
-  i: integer;
+  i: Integer;
   a: TStringArray;
 begin
   if aText = '' then
@@ -1333,57 +1343,57 @@ end;
 
 procedure TTisTagEditor.SetReadOnly(const Value: Boolean);
 begin
-  if FReadOnly <> Value then
+  if fReadOnly <> Value then
   begin
-    FReadOnly := Value;
-    FEdit.ReadOnly := Value;
+    fReadOnly := Value;
+    fEdit.ReadOnly := Value;
   end;
-  FSavedReadOnly := FReadOnly;
+  fSavedReadOnly := fReadOnly;
 end;
 
 procedure TTisTagEditor.SetTagBgColor(const Value: TColor);
 begin
-  if FTagBgColor <> Value then
+  if fTagBgColor <> Value then
   begin
-    FTagBgColor := Value;
-    TagTextColor := GetBlackOrWhite(FTagBgColor);
+    fTagBgColor := Value;
+    TagTextColor := GetBlackOrWhite(fTagBgColor);
     Invalidate;
   end;
 end;
 
 procedure TTisTagEditor.SetTagBorderColor(const Value: TColor);
 begin
-  if FTagBorderColor <> Value then
+  if fTagBorderColor <> Value then
   begin
-    FTagBorderColor := Value;
+    fTagBorderColor := Value;
     Invalidate;
   end;
 end;
 
-procedure TTisTagEditor.SetTagHeight(const Value: integer);
+procedure TTisTagEditor.SetTagHeight(const Value: Integer);
 begin
-  if FTagHeight <> Value then
+  if fTagHeight <> Value then
   begin
-    FTagHeight := Value;
+    fTagHeight := Value;
     Invalidate;
   end;
 end;
 
-procedure TTisTagEditor.SetTagRoundBorder(const Value: integer);
+procedure TTisTagEditor.SetTagRoundBorder(const Value: Integer);
 begin
   if Value > 10 then
-    FTagRoundBorder := 10
+    fTagRoundBorder := 10
   else if Value < 0 then
-    FTagRoundBorder := 0
+    fTagRoundBorder := 0
   else
-    FTagRoundBorder := Value;
+    fTagRoundBorder := Value;
 end;
 
 procedure TTisTagEditor.SetTagTextColor(const Value: TColor);
 begin
-  if FTagTextColor <> Value then
+  if fTagTextColor <> Value then
   begin
-    FTagTextColor := Value;
+    fTagTextColor := Value;
     Invalidate;
   end;
 end;
@@ -1392,16 +1402,16 @@ function TTisTagEditor.GetAsArray: TStringArray;
 var
   i: Integer;
 begin
-  SetLength(result, FTags.Count);
-  for i := 0 to FTags.Count -1 do
-    result[i] := FTags.Items[i].Text;
+  SetLength(result, fTags.Count);
+  for i := 0 to fTags.Count -1 do
+    result[i] := fTags.Items[i].Text;
 end;
 
 procedure TTisTagEditor.SetAsArray(aValue: TStringArray);
 var
   i: Integer;
 begin
-  for i := FTags.Count -1 downto 0 do
+  for i := fTags.Count -1 downto 0 do
     DeleteTag(i);
   for i := 0 to high(aValue) do
     AddTag(aValue[i]);
@@ -1410,20 +1420,20 @@ end;
 
 procedure TTisTagEditor.ShowEditor;
 begin
-  FEdit.Left := FEditPos.X;
-  FEdit.Top := FEditPos.Y;
-  FEdit.Width := ClientWidth - FEdit.Left - FSpacing;
-  FEdit.Color := FEditorColor;
-  FEdit.Text := '';
-  FEdit.Show;
-  FEdit.SetFocus;
+  fEdit.Left := fEditPos.X;
+  fEdit.Top := fEditPos.Y;
+  fEdit.Width := ClientWidth - fEdit.Left - fSpacing;
+  fEdit.Color := fEditorColor;
+  fEdit.Text := '';
+  fEdit.Show;
+  fEdit.SetFocus;
 end;
 
-procedure TTisTagEditor.SetSpacing(const Value: integer);
+procedure TTisTagEditor.SetSpacing(const Value: Integer);
 begin
-  if FSpacing <> Value then
+  if fSpacing <> Value then
   begin
-    FSpacing := Value;
+    fSpacing := Value;
     Invalidate;
   end;
 end;
