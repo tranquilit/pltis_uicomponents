@@ -134,6 +134,8 @@ type
     fItemWidth: Integer;
     fSorted: Boolean;
     fStyle: TComboBoxStyle;
+    fOnDrawItem: TDrawItemEvent;
+    fOnMeasureItem: TMeasureItemEvent;
     procedure SetItems(aValue: TStrings);
   protected
     const DefaultAutoComplete = [cbactEnabled, cbactEndOfLineComplete, cbactSearchAscending];
@@ -152,6 +154,9 @@ type
     // - it is something related with TComboBox
     // - use TAB instead
     property Style: TComboBoxStyle read fStyle write fStyle default csSimple;
+    // ------- events compatible with TComboBox events-------------------------
+    property OnDrawItem: TDrawItemEvent read fOnDrawItem write fOnDrawItem;
+    property OnMeasureItem: TMeasureItemEvent read fOnMeasureItem write fOnMeasureItem;
   end;
 
   /// tag input properties and events
@@ -814,6 +819,8 @@ begin
     fComboBox.ItemWidth := ItemWidth;
     fComboBox.Sorted := Sorted;
     fComboBox.Style := Style;
+    fComboBox.OnDrawItem := OnDrawItem;
+    fComboBox.OnMeasureItem := OnMeasureItem;
   end;
 end;
 
