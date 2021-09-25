@@ -148,6 +148,9 @@ type
     property Items: TStrings read fItems write SetItems;
     property ItemWidth: Integer read fItemWidth write fItemWidth default 0;
     property Sorted: Boolean read fSorted write fSorted default False;
+    /// BUG: using Style=csSimple typing ENTER will not add a new tag
+    // - it is something related with TComboBox
+    // - use TAB instead
     property Style: TComboBoxStyle read fStyle write fStyle default csSimple;
   end;
 
@@ -168,9 +171,6 @@ type
     constructor Create;
     destructor Destroy; override;
   published
-    /// bug: using Style=csSimple typing ENTER will not add a new tag
-    // - it is something related with TComboBox
-    // - use TAB instead
     property ComboBox: TTisTagComboBoxOptions read fComboBox write fComboBox;
     property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
     property ForbiddenChars: string read fForbiddenChars write fForbiddenChars;
