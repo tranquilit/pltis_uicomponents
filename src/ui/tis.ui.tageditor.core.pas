@@ -125,6 +125,7 @@ type
   );
   TInputOptions = set of TInputOption;
 
+  /// properties and events for ComboBox that shows up inside the editor
   TTisTagComboBoxOptions = class(TPersistent)
   private
     fAutoDropDown: Boolean;
@@ -140,6 +141,7 @@ type
     constructor Create;
     destructor Destroy; override;
   published
+    // ------- properties compatible with TComboBox properties-------------------------
     property AutoDropDown: Boolean read fAutoDropDown write fAutoDropDown default False;
     property AutoComplete: TComboBoxAutoCompleteText
       read fAutoComplete write fAutoComplete default DefaultAutoComplete;
@@ -166,6 +168,9 @@ type
     constructor Create;
     destructor Destroy; override;
   published
+    /// bug: using Style=csSimple typing ENTER will not add a new tag
+    // - it is something related with TComboBox
+    // - use TAB instead
     property ComboBox: TTisTagComboBoxOptions read fComboBox write fComboBox;
     property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
     property ForbiddenChars: string read fForbiddenChars write fForbiddenChars;
