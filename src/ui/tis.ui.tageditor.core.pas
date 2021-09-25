@@ -1505,6 +1505,7 @@ begin
   fComboBox.Width := ClientWidth - fComboBox.Left - fSpacing;
   fComboBox.Color := fEditorColor;
   fComboBox.Text := '';
+  LoadComboBox;
   fComboBox.Show;
   fComboBox.SetFocus;
 end;
