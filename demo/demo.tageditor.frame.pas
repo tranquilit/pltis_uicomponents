@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
-  ExtCtrls,
+  ExtCtrls, Buttons,
   mormot.core.base,
   mormot.core.data,
   mormot.core.text,
@@ -45,6 +45,9 @@ type
     TagAfterAddCheckBox: TCheckBox;
     TagAfterAddEdit: TEdit;
     Label8: TLabel;
+    ItemsMemo: TMemo;
+    Label4: TLabel;
+    ItemsUpdateButton: TBitBtn;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -62,6 +65,7 @@ type
     procedure ShowTagsAsArrayLabelClick(Sender: TObject);
     procedure InputTagsAsArrayLabelClick(Sender: TObject);
     procedure TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
+    procedure ItemsUpdateButtonClick(Sender: TObject);
   end;
 
 implementation
@@ -169,6 +173,11 @@ procedure TTagEditorFrame.TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
 begin
   if TagAfterAddCheckBox.Checked then
     aTag.Text := FormatString('%%', [TagAfterAddEdit.Text, aTag.Text]);
+end;
+
+procedure TTagEditorFrame.ItemsUpdateButtonClick(Sender: TObject);
+begin
+  TagEditor.TagInput.ComboBox.Items.Assign(ItemsMemo.Lines);
 end;
 
 end.

@@ -2,9 +2,9 @@ object TagEditorFrame: TTagEditorFrame
   Left = 0
   Height = 518
   Top = 0
-  Width = 510
+  Width = 565
   ClientHeight = 518
-  ClientWidth = 510
+  ClientWidth = 565
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326
@@ -13,94 +13,123 @@ object TagEditorFrame: TTagEditorFrame
     Left = 24
     Height = 162
     Top = 16
-    Width = 464
+    Width = 528
     Caption = ' Options '
     ClientHeight = 142
-    ClientWidth = 460
+    ClientWidth = 524
     TabOrder = 0
     object AutoHeightCheckBox: TCheckBox
-      Left = 32
+      Left = 16
       Height = 19
-      Top = 15
+      Top = 16
       Width = 85
       Caption = 'Auto Height'
       OnClick = AutoHeightCheckBoxClick
       TabOrder = 0
     end
     object AllowDuplicatesCheckBox: TCheckBox
-      Left = 32
+      Left = 16
       Height = 19
-      Top = 52
+      Top = 40
       Width = 108
       Caption = 'Allow Duplicates'
       OnChange = AllowDuplicatesCheckBoxChange
       TabOrder = 2
     end
     object MaxTagsEdit: TSpinEdit
-      Left = 252
+      Left = 196
       Height = 23
-      Top = 11
-      Width = 75
+      Top = 16
+      Width = 94
       OnEditingDone = MaxTagsEditEditingDone
       TabOrder = 1
     end
     object Label1: TLabel
-      Left = 196
+      Left = 140
       Height = 15
-      Top = 19
+      Top = 21
       Width = 49
       Caption = 'Max Tags'
       ParentColor = False
     end
     object MultiLinesCheckBox: TCheckBox
-      Left = 32
+      Left = 16
       Height = 19
-      Top = 88
+      Top = 64
       Width = 78
       Caption = 'Multi Lines'
       OnChange = MultiLinesCheckBoxChange
       TabOrder = 4
     end
     object Label2: TLabel
-      Left = 196
+      Left = 140
       Height = 15
-      Top = 56
+      Top = 57
       Width = 46
       Caption = 'Bg Color'
       ParentColor = False
     end
     object TextColorBox: TColorBox
-      Left = 252
+      Left = 196
       Height = 26
-      Top = 81
-      Width = 150
+      Top = 86
+      Width = 94
       ItemHeight = 20
       OnChange = TextColorBoxChange
       TabOrder = 5
     end
     object Label3: TLabel
-      Left = 192
+      Left = 136
       Height = 15
-      Top = 92
+      Top = 93
       Width = 53
       Caption = 'Text Color'
       ParentColor = False
     end
     object BgColorBox: TColorBox
-      Left = 252
+      Left = 196
       Height = 26
-      Top = 45
-      Width = 150
+      Top = 50
+      Width = 94
       ItemHeight = 20
       OnChange = BgColorBoxChange
       TabOrder = 3
+    end
+    object ItemsMemo: TMemo
+      Left = 352
+      Height = 90
+      Top = 16
+      Width = 150
+      Lines.Strings = (
+        'Windows'
+        'Linux'
+        'Mac'
+      )
+      TabOrder = 6
+    end
+    object Label4: TLabel
+      Left = 352
+      Height = 15
+      Top = 0
+      Width = 29
+      Caption = 'Items'
+      ParentColor = False
+    end
+    object ItemsUpdateButton: TBitBtn
+      Left = 392
+      Height = 24
+      Top = 109
+      Width = 75
+      Caption = 'update'
+      OnClick = ItemsUpdateButtonClick
+      TabOrder = 7
     end
   end
   object TagEditor: TTisTagEditor
     Left = 24
     Height = 35
     Top = 208
-    Width = 464
+    Width = 527
     TabOrder = 1
     TabStop = True
     AutoHeight = False
@@ -117,21 +146,21 @@ object TagEditorFrame: TTagEditorFrame
         CanDelete = True
         BgColor = clGreen
         BorderColor = clBlack
-        Text = 'windows'
+        Text = 'Windows'
         TextColor = clWhite
       end    
       item
         CanDelete = True
         BgColor = clBlue
         BorderColor = clBlack
-        Text = 'linux'
+        Text = 'Linux'
         TextColor = clWhite
       end    
       item
         CanDelete = True
         BgColor = clRed
         BorderColor = clBlack
-        Text = 'mac'
+        Text = 'Mac'
         TextColor = clWhite
       end>
     OnTagClick = TagEditorTagClick
@@ -144,10 +173,10 @@ object TagEditorFrame: TTagEditorFrame
     Left = 24
     Height = 240
     Top = 256
-    Width = 462
+    Width = 528
     Caption = ' Test Events '
     ClientHeight = 220
-    ClientWidth = 458
+    ClientWidth = 524
     TabOrder = 2
     object TagClickCheckBox: TCheckBox
       Left = 17
@@ -225,7 +254,7 @@ object TagEditorFrame: TTagEditorFrame
       Left = 17
       Height = 8
       Top = 30
-      Width = 427
+      Width = 493
       Anchors = [akTop, akLeft, akRight]
       Shape = bsBottomLine
     end
@@ -233,7 +262,7 @@ object TagEditorFrame: TTagEditorFrame
       Left = 16
       Height = 8
       Top = 96
-      Width = 427
+      Width = 493
       Anchors = [akTop, akLeft, akRight]
       Shape = bsBottomLine
     end
@@ -241,7 +270,7 @@ object TagEditorFrame: TTagEditorFrame
       Left = 17
       Height = 8
       Top = 199
-      Width = 427
+      Width = 493
       Anchors = [akTop, akLeft, akRight]
       Shape = bsBottomLine
     end
@@ -249,7 +278,7 @@ object TagEditorFrame: TTagEditorFrame
       Left = 17
       Height = 8
       Top = 160
-      Width = 427
+      Width = 493
       Anchors = [akTop, akLeft, akRight]
       Shape = bsBottomLine
     end
