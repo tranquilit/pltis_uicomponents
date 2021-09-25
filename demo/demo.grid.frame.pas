@@ -79,7 +79,7 @@ end;
 
 procedure TGridFrame.AddRowsButtonClick(Sender: TObject);
 var
-    d: PDocVariantData;
+  d: PDocVariantData;
 begin
   if InOutputEdit.Text <> '' then
   begin

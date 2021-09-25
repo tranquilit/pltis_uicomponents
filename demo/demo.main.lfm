@@ -30,35 +30,6 @@ object MainForm: TMainForm
         Align = alClient
         ClientHeight = 523
         ClientWidth = 743
-        inherited Panel4: TPanel
-          Height = 252
-          Width = 743
-          ClientHeight = 252
-          ClientWidth = 743
-          inherited Grid: TTisGrid
-            Height = 164
-            Width = 723
-            Header.DefaultHeight = 29
-            Header.Height = 44
-            Header.MaxHeight = 152
-            Header.MinHeight = 29
-          end
-          inherited GridTotalLabel: TLabel
-            Left = 632
-          end
-        end
-        inherited Panel1: TPanel
-          Top = 264
-          Width = 743
-          ClientWidth = 743
-          inherited InOutputEdit: TSynEdit
-            Width = 713
-          end
-        end
-        inherited Splitter: TSplitter
-          Top = 252
-          Width = 743
-        end
       end
     end
     object TagEditorTab: TTabSheet
