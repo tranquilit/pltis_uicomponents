@@ -105,8 +105,12 @@ object TagEditorFrame: TTagEditorFrame
     TabStop = True
     AutoHeight = False
     BgColor = clWhite
-    BorderColor = clWindowFrame
-    Spacing = 8
+    TagInput.ComboBox.Items.Strings = (
+      'Windows'
+      'Linux'
+      'Mac'
+    )
+    TagInput.ComboBox.Style = csDropDown
     TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨'''
     Tags = <    
       item

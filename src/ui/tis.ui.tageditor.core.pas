@@ -125,13 +125,38 @@ type
   );
   TInputOptions = set of TInputOption;
 
+  TTisTagComboBoxOptions = class(TPersistent)
+  private
+    fAutoDropDown: Boolean;
+    fAutoComplete: TComboBoxAutoCompleteText;
+    fItems: TStrings;
+    fItemWidth: Integer;
+    fSorted: Boolean;
+    fStyle: TComboBoxStyle;
+    procedure SetItems(aValue: TStrings);
+  protected
+    const DefaultAutoComplete = [cbactEnabled, cbactEndOfLineComplete, cbactSearchAscending];
+  public
+    constructor Create;
+    destructor Destroy; override;
+  published
+    property AutoDropDown: Boolean read fAutoDropDown write fAutoDropDown default False;
+    property AutoComplete: TComboBoxAutoCompleteText
+      read fAutoComplete write fAutoComplete default DefaultAutoComplete;
+    property Items: TStrings read fItems write SetItems;
+    property ItemWidth: Integer read fItemWidth write fItemWidth default 0;
+    property Sorted: Boolean read fSorted write fSorted default False;
+    property Style: TComboBoxStyle read fStyle write fStyle default csSimple;
+  end;
+
   /// tag input properties and events
   TTisTagInput = class(TPersistent)
   private
-    fForbiddenChars: string;
-    fOptions: TInputOptions;
-    fMaxTags: Integer;
+    fComboBox: TTisTagComboBoxOptions;
     fDeleteIcon: TIcon;
+    fOptions: TInputOptions;
+    fForbiddenChars: string;
+    fMaxTags: Integer;
     procedure SetDeleteIcon(aValue: TIcon);
   protected
     const DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨''';
@@ -141,6 +166,7 @@ type
     constructor Create;
     destructor Destroy; override;
   published
+    property ComboBox: TTisTagComboBoxOptions read fComboBox write fComboBox;
     property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
     property ForbiddenChars: string read fForbiddenChars write fForbiddenChars;
     property MaxTags: Integer read fMaxTags write fMaxTags default DefaultMaxTags;
@@ -167,7 +193,7 @@ type
     fCloseBtnWidth: Integer;
     fDesiredHeight: Integer;
     fDragging: Boolean;
-    fEdit: TEdit;
+    fComboBox: TComboBox;
     fEditorColor: TColor;
     fEditPos: TPoint;
     fTagInput: TTisTagInput;
@@ -204,10 +230,10 @@ type
     procedure CreateCaret;
     procedure DestroyCaret;
     procedure DrawFocusRect;
-    procedure EditEnter(Sender: TObject);
-    procedure EditExit(Sender: TObject);
-    procedure EditKeyPress(Sender: TObject; var Key: Char);
-    procedure FixPosAndScrollWindow;
+    procedure ComboBoxEnter(Sender: TObject);
+    procedure ComboBoxExit(Sender: TObject);
+    procedure ComboBoxKeyPress(Sender: TObject; var Key: Char);
+    procedure ComboBoxEditingDone(Sender: TObject);
     procedure HideEditor;
     procedure DoPopupMenuDeleteItem(Sender: TObject);
     procedure SetAutoHeight(const Value: Boolean);
@@ -228,6 +254,7 @@ type
     procedure SetAsArray(aValue: TStringArray);
     procedure ShowEditor;
     procedure TagChange(Sender: TObject);
+    procedure FixPosAndScrollWindow;
     procedure UpdateMetrics;
     procedure UpdateScrollBars;
   protected
@@ -236,6 +263,7 @@ type
     const DefaultTagHeight = 32;
   protected
     // ------------------------------- inherited methods ----------------------------------
+    procedure Loaded; override;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure KeyDown(var Key: word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
@@ -247,9 +275,10 @@ type
     procedure Paint; override;
     procedure WndProc(var Message: TMessage); override;
     // ----------------------------------- new methods --------------------------------------
-    function CreateTags(aTagEditor: TTisTagEditor): TTags; virtual;
-    function CreateEdit: TEdit; virtual;
-    function CreatePopupMenu: TPopupMenu; virtual;
+    function NewTags(aTagEditor: TTisTagEditor): TTags; virtual;
+    function NewComboBox: TComboBox; virtual;
+    function NewPopupMenu: TPopupMenu; virtual;
+    procedure LoadComboBox; virtual;
     /// add a new tag
     // - returns TRUE if tag was included
     function AddTag(const aText: string): Boolean; virtual;
@@ -297,7 +326,6 @@ type
     property TagRoundBorder: Integer read fTagRoundBorder write SetTagRoundBorder default 0;
     property TagTextColor: TColor read fTagTextColor write SetTagTextColor default clWhite;
     property Tags: TTags read fTags write SetTags;
-
     // ------------------------------- new events ----------------------------------
     /// event to execute some code when the user clicks on a tag
     // - use aTag to know which tag was clicked
@@ -364,6 +392,28 @@ begin
     (GetBValue(longword(aValue)) * 2)) < 1000 then
     result := clWhite else
     result := clBlack;
+end;
+
+{ TTisTagComboBoxOptions }
+
+procedure TTisTagComboBoxOptions.SetItems(aValue: TStrings);
+begin
+  if (aValue <> fItems) then
+    fItems.Assign(aValue);
+end;
+
+constructor TTisTagComboBoxOptions.Create;
+begin
+  inherited Create;
+  fAutoComplete := DefaultAutoComplete;
+  fItems := TStringlist.Create;
+  fStyle := csSimple;
+end;
+
+destructor TTisTagComboBoxOptions.Destroy;
+begin
+  fItems.Free;
+  inherited Destroy;
 end;
 
 { TTagItem }
@@ -534,6 +584,7 @@ end;
 constructor TTisTagInput.Create;
 begin
   inherited Create;
+  fComboBox := TTisTagComboBoxOptions.Create;
   fDeleteIcon := TIcon.Create;
   fForbiddenChars := DefaultForbiddenChars;
   fMaxTags := DefaultMaxTags;
@@ -542,6 +593,7 @@ end;
 
 destructor TTisTagInput.Destroy;
 begin
+  fComboBox.Free;
   fDeleteIcon.Free;
   inherited Destroy;
 end;
@@ -555,10 +607,10 @@ begin
   Height := 47;
   Top := 48;
   Width := 221;
-  fEdit := CreateEdit;
-  fTags := CreateTags(Self);
-  fPopupMenu := CreatePopupMenu;
   fTagInput := TTisTagInput.Create;
+  fComboBox := NewComboBox;
+  fTags := NewTags(Self);
+  fPopupMenu := NewPopupMenu;
   fBgColor := clWindow;
   fBorderColor := clWindowFrame;
   fTagBgColor := clSkyBlue;
@@ -584,7 +636,7 @@ begin
   fTags.Free;
   fTags := nil;
   fPopupMenu.Free;
-  fEdit.Free;
+  fComboBox.Free;
   inherited Destroy;
 end;
 
@@ -594,31 +646,58 @@ begin
   DoChange;
 end;
 
-procedure TTisTagEditor.EditEnter(Sender: TObject);
+procedure TTisTagEditor.ComboBoxEnter(Sender: TObject);
 begin
-  if fEditPos.Y + fEdit.Height > fScrollInfo.nPos + ClientHeight then
-    fScrollInfo.nPos := fEditPos.Y + ClientHeight - fEdit.Height;
+  if fEditPos.Y + fComboBox.Height > fScrollInfo.nPos + ClientHeight then
+    fScrollInfo.nPos := fEditPos.Y + ClientHeight - fComboBox.Height;
   FixPosAndScrollWindow;
 end;
 
-procedure TTisTagEditor.EditExit(Sender: TObject);
+procedure TTisTagEditor.ComboBoxExit(Sender: TObject);
 begin
-  if fEdit.Text <> '' then
-    AddTag(fEdit.Text);
+  if fComboBox.Text <> '' then
+    AddTag(fComboBox.Text);
   HideEditor;
+end;
+
+procedure TTisTagEditor.ComboBoxKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (Key = chr(VK_SPACE)) and (fComboBox.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options) then
+  begin
+    Key := #0;
+    exit;
+  end;
+  if Pos(Key, fTagInput.ForbiddenChars) > 0 then
+    Key := chr(VK_RETURN);
+  case ord(Key) of
+    VK_BACK:
+      begin
+        if (fComboBox.Text = '') and (fTags.Count > 0) then
+          DeleteTag(fTags.Count-1);
+      end;
+    VK_ESCAPE:
+      begin
+        HideEditor;
+        self.SetFocus;
+      end;
+  end;
+end;
+
+procedure TTisTagEditor.ComboBoxEditingDone(Sender: TObject);
+begin
+  if not fComboBox.Visible then
+    exit; // it could be invisible, if user has typed VK_ESCAPE
+  if fComboBox.Text <> '' then
+  begin
+    AddTag(fComboBox.Text);
+    ShowEditor;
+  end;
 end;
 
 procedure TTisTagEditor.DoPopupMenuDeleteItem(Sender: TObject);
 begin
   if Sender is TMenuItem then
     DeleteTag(TMenuItem(Sender).Tag);
-end;
-
-procedure TTisTagEditor.TagChange(Sender: TObject);
-begin
-  Invalidate;
-  if Assigned(fOnChange) then
-    fOnChange(Self);
 end;
 
 procedure TTisTagEditor.WndProc(var Message: TMessage);
@@ -686,26 +765,28 @@ begin
   inherited WndProc(Message);
 end;
 
-function TTisTagEditor.CreateTags(aTagEditor: TTisTagEditor): TTags;
+function TTisTagEditor.NewTags(aTagEditor: TTisTagEditor): TTags;
 begin
   result := TTags.Create(aTagEditor, TTagItem);
 end;
 
-function TTisTagEditor.CreateEdit: TEdit;
+function TTisTagEditor.NewComboBox: TComboBox;
 begin
-  result := TEdit.Create(Self);
+  result := TComboBox.Create(self);
   result.Top := 0;
   result.Left := 0;
   result.Width := 0;
-  result.Parent := Self;
+  result.Parent := self;
   result.BorderStyle := bsNone;
   result.Visible := False;
-  result.OnKeyPress := EditKeyPress;
-  result.OnEnter := EditEnter;
-  result.OnExit := EditExit;
+  result.BorderWidth := 0;
+  result.OnKeyPress := ComboBoxKeyPress;
+  result.OnEnter := ComboBoxEnter;
+  result.OnExit := ComboBoxExit;
+  result.OnEditingDone := ComboBoxEditingDone;
 end;
 
-function TTisTagEditor.CreatePopupMenu: TPopupMenu;
+function TTisTagEditor.NewPopupMenu: TPopupMenu;
 var
   mi: TMenuItem;
 begin
@@ -715,6 +796,20 @@ begin
   mi.OnClick := DoPopupMenuDeleteItem;
   mi.Hint := 'Delete selected tag.';
   result.Items.Add(mi);
+end;
+
+procedure TTisTagEditor.LoadComboBox;
+begin
+  with fTagInput.ComboBox do
+  begin
+    fComboBox.AutoDropDown := AutoDropDown;
+    fComboBox.AutoComplete := cbactEnabled in AutoComplete;
+    fComboBox.AutoCompleteText := AutoComplete;
+    fComboBox.Items.Assign(Items);
+    fComboBox.ItemWidth := ItemWidth;
+    fComboBox.Sorted := Sorted;
+    fComboBox.Style := Style;
+  end;
 end;
 
 function TTisTagEditor.AddTag(const aText: string): Boolean;
@@ -823,43 +918,16 @@ begin
   FixPosAndScrollWindow;
 end;
 
-procedure TTisTagEditor.EditKeyPress(Sender: TObject; var Key: Char);
+procedure TTisTagEditor.Loaded;
 begin
-  if (Key = chr(VK_SPACE)) and (fEdit.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options) then
-  begin
-    Key := #0;
-    exit;
-  end;
-  if Pos(Key, fTagInput.ForbiddenChars) > 0 then
-    Key := chr(VK_RETURN);
-  case ord(Key) of
-    VK_RETURN:
-      begin
-        AddTag(fEdit.Text);
-        ShowEditor;
-        Key := #0;
-      end;
-    VK_BACK:
-      begin
-        if (fEdit.Text = '') and (fTags.Count > 0) then
-        begin
-          DeleteTag(fTags.Count-1);
-          Paint;
-        end;
-      end;
-    VK_ESCAPE:
-      begin
-        HideEditor;
-        Self.SetFocus;
-        Key := #0;
-      end;
-  end;
+  inherited Loaded;
+  LoadComboBox;
 end;
 
 procedure TTisTagEditor.HideEditor;
 begin
-  fEdit.Text := '';
-  fEdit.Hide;
+  fComboBox.Text := '';
+  fComboBox.Hide;
   Invalidate;
 end;
 
@@ -902,7 +970,7 @@ begin
       end;
   end;
   ShowEditor;
-  fEdit.Perform(WM_CHAR, ord(Key), 0);
+  fComboBox.Perform(WM_CHAR, ord(Key), 0);
 end;
 
 function TTisTagEditor.GetClickInfoAt(X, Y: Integer): TClickInfo;
@@ -1155,7 +1223,7 @@ begin
       fCloseBtnLefts[i] := fRights[i] - fCloseBtnWidth - fSpacing;
       fCloseBtnTops[i] := Y;
     end;
-    fShrunk := X + 64 { fEdit } > ClientWidth;
+    fShrunk := X + 64 { fComboBox } > ClientWidth;
     if fShrunk then
     begin
       X := fSpacing;
@@ -1171,9 +1239,9 @@ begin
         fCloseBtnLefts[i] := fRights[i] - fCloseBtnWidth - fSpacing;
         fCloseBtnTops[i] := Y;
       end;
-      if X + 64 { fEdit } > ClientWidth then
+      if X + 64 { fComboBox } > ClientWidth then
       begin
-        MeanWidth := (ClientWidth - 2 * fSpacing - 64 { fEdit } )
+        MeanWidth := (ClientWidth - 2 * fSpacing - 64 { fComboBox } )
           div fTags.Count - fSpacing;
         X := fSpacing;
         for i := 0 to fTags.Count - 1 do
@@ -1187,14 +1255,14 @@ begin
     end;
   end;
   fEditPos := Point(fSpacing,
-    fSpacing + (fActualTagHeight - fEdit.Height) div 2);
+    fSpacing + (fActualTagHeight - fComboBox.Height) div 2);
   if fTags.Count > 0 then
     fEditPos := Point(fRights[fTags.Count - 1] + fSpacing,
-      fTops[fTags.Count - 1] + (fActualTagHeight - fEdit.Height) div 2);
-  if fMultiLine and (fEditPos.X + 64 { fEdit } > ClientWidth) and (fTags.Count > 0) then
+      fTops[fTags.Count - 1] + (fActualTagHeight - fComboBox.Height) div 2);
+  if fMultiLine and (fEditPos.X + 64 { fComboBox } > ClientWidth) and (fTags.Count > 0) then
   begin
     fEditPos := Point(fSpacing, fTops[fTags.Count - 1] + fTagHeight + fSpacing +
-      (fActualTagHeight - fEdit.Height) div 2);
+      (fActualTagHeight - fComboBox.Height) div 2);
     Inc(fNumRows);
   end;
   fDesiredHeight := fSpacing + fNumRows * (fTagHeight + fSpacing);
@@ -1250,15 +1318,15 @@ begin
       DT_LEFT or DT_END_ELLIPSIS or DT_NOPREFIX);
     Canvas.Brush.Style := bsSolid;
   end;
-  if fEdit.Visible then
+  if fComboBox.Visible then
   begin
     newEditWidth := ClientWidth - fEditPos.X - fSpacing;
-    if newEditWidth < fEdit.Width then
-      fEdit.Width := newEditWidth;
-    fEdit.Left := fEditPos.X;
-    if newEditWidth > fEdit.Width then
-      fEdit.Width := newEditWidth;
-    fEdit.Top := fEditPos.Y - fScrollInfo.nPos;
+    if newEditWidth < fComboBox.Width then
+      fComboBox.Width := newEditWidth;
+    fComboBox.Left := fEditPos.X;
+    if newEditWidth > fComboBox.Width then
+      fComboBox.Width := newEditWidth;
+    fComboBox.Top := fEditPos.Y - fScrollInfo.nPos;
   end;
   SelectClipRgn(Canvas.Handle, 0);
   if Focused then
@@ -1346,7 +1414,7 @@ begin
   if fReadOnly <> Value then
   begin
     fReadOnly := Value;
-    fEdit.ReadOnly := Value;
+    fComboBox.ReadOnly := Value;
   end;
   fSavedReadOnly := fReadOnly;
 end;
@@ -1420,13 +1488,20 @@ end;
 
 procedure TTisTagEditor.ShowEditor;
 begin
-  fEdit.Left := fEditPos.X;
-  fEdit.Top := fEditPos.Y;
-  fEdit.Width := ClientWidth - fEdit.Left - fSpacing;
-  fEdit.Color := fEditorColor;
-  fEdit.Text := '';
-  fEdit.Show;
-  fEdit.SetFocus;
+  fComboBox.Left := fEditPos.X;
+  fComboBox.Top := fEditPos.Y;
+  fComboBox.Width := ClientWidth - fComboBox.Left - fSpacing;
+  fComboBox.Color := fEditorColor;
+  fComboBox.Text := '';
+  fComboBox.Show;
+  fComboBox.SetFocus;
+end;
+
+procedure TTisTagEditor.TagChange(Sender: TObject);
+begin
+  Invalidate;
+  if Assigned(fOnChange) then
+    fOnChange(Self);
 end;
 
 procedure TTisTagEditor.SetSpacing(const Value: Integer);
