@@ -16,7 +16,7 @@ Main Features:
 
 - 
 
-<img src="../images/tisgrid.png">
+<img src="./images/tisgrid.png">
 
 
 ### TTisTagEditor Component
