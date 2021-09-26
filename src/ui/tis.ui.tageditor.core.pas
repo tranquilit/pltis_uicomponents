@@ -150,9 +150,10 @@ type
     property Items: TStrings read fItems write SetItems;
     property ItemWidth: Integer read fItemWidth write fItemWidth default 0;
     property Sorted: Boolean read fSorted write fSorted default False;
-    /// BUG: using Style=csSimple typing ENTER will not add a new tag
-    // - it is something related with TComboBox
-    // - use TAB instead
+    /// BUG related with TComboBox: using Style=csSimple typing ENTER will not
+    // add a new tag, use TAB instead
+    // - if you have Items, ENTER will not choose a item in list either
+    // - it is better using Sytle=csDropDown if you have a list of items
     property Style: TComboBoxStyle read fStyle write fStyle default csSimple;
     // ------- events compatible with TComboBox events-------------------------
     property OnDrawItem: TDrawItemEvent read fOnDrawItem write fOnDrawItem;
