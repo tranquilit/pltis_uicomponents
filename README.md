@@ -36,7 +36,7 @@ Main Features:
 - input properties to define forbidden chars, max tags, allow duplicates, etc
 - autocomplete with properties do define items, sorted, style, etc
 
-<img src="../images/tistageditor.png">
+<img src="./images/tistageditor.png">
 
 ## Dependencies
 
