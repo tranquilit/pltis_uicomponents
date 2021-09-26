@@ -50,6 +50,7 @@ type
     ItemsUpdateButton: TBitBtn;
     Label5: TLabel;
     DropDownCheckBox: TCheckBox;
+    AutoCompleteCheckBox: TCheckBox;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -69,6 +70,7 @@ type
     procedure TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
     procedure ItemsUpdateButtonClick(Sender: TObject);
     procedure DropDownCheckBoxClick(Sender: TObject);
+    procedure AutoCompleteCheckBoxClick(Sender: TObject);
   end;
 
 implementation
@@ -190,6 +192,15 @@ begin
       Style := csDropDown
     else
       Style := csSimple;
+end;
+
+procedure TTagEditorFrame.AutoCompleteCheckBoxClick(Sender: TObject);
+begin
+  with TagEditor.TagComboBox do
+    if AutoCompleteCheckBox.Checked then
+      AutoComplete := AutoComplete + [cbactEnabled]
+    else
+      AutoComplete := AutoComplete - [cbactEnabled];
 end;
 
 end.
