@@ -152,8 +152,10 @@ type
     property Sorted: Boolean read fSorted write fSorted default False;
     /// BUG related with TComboBox: using Style=csSimple typing ENTER will not
     // add a new tag, use TAB instead
-    // - if you have Items, ENTER will not choose a item in list either
-    // - it is better using Sytle=csDropDown if you have a list of items
+    // - if you have Items, ENTER will not choose a item on the list either, if
+    // AutoComplete has cbactEnabled
+    // - it is better using Sytle=csDropDown with default AutoComplete, if you
+    // have a list of items
     property Style: TComboBoxStyle read fStyle write fStyle default csSimple;
     // ------- events compatible with TComboBox events-------------------------
     property OnDrawItem: TDrawItemEvent read fOnDrawItem write fOnDrawItem;
