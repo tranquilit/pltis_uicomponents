@@ -104,7 +104,19 @@ object TagEditorFrame: TTagEditorFrame
         'Windows'
         'Linux'
         'Mac'
+        'FreeBSD'
+        'DOS'
+        'OS/2'
+        'AIX'
+        'Android'
+        'Haiku'
+        'Nintendo'
+        'AmigaOS'
+        'MorphOS'
+        'AROS'
+        'Atari'
       )
+      ScrollBars = ssAutoVertical
       TabOrder = 6
     end
     object Label4: TLabel
