@@ -1,23 +1,23 @@
 object TagEditorFrame: TTagEditorFrame
   Left = 0
-  Height = 518
+  Height = 541
   Top = 0
   Width = 565
-  ClientHeight = 518
+  ClientHeight = 541
   ClientWidth = 565
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326
   DesignTop = 113
   object GroupBox1: TGroupBox
-    Left = 24
+    Left = 16
     Height = 162
-    Top = 16
+    Top = 115
     Width = 528
     Caption = ' Options '
     ClientHeight = 142
     ClientWidth = 524
-    TabOrder = 0
+    TabOrder = 1
     object AutoHeightCheckBox: TCheckBox
       Left = 16
       Height = 19
@@ -116,30 +116,33 @@ object TagEditorFrame: TTagEditorFrame
       ParentColor = False
     end
     object ItemsUpdateButton: TBitBtn
-      Left = 392
+      Left = 352
       Height = 24
       Top = 109
       Width = 75
-      Caption = 'update'
+      Caption = 'add/update'
       OnClick = ItemsUpdateButtonClick
       TabOrder = 7
     end
+    object DropDownCheckBox: TCheckBox
+      Left = 16
+      Height = 19
+      Top = 89
+      Width = 77
+      Caption = 'DropDown'
+      OnClick = DropDownCheckBoxClick
+      TabOrder = 8
+    end
   end
   object TagEditor: TTisTagEditor
-    Left = 24
+    Left = 16
     Height = 35
-    Top = 208
+    Top = 32
     Width = 527
-    TabOrder = 1
+    TabOrder = 0
     TabStop = True
     AutoHeight = False
     BgColor = clWhite
-    TagInput.ComboBox.Items.Strings = (
-      'Windows'
-      'Linux'
-      'Mac'
-    )
-    TagInput.ComboBox.Style = csDropDown
     TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨'''
     Tags = <    
       item
@@ -170,9 +173,9 @@ object TagEditorFrame: TTagEditorFrame
     OnTagAfterDrag = TagEditorTagAfterDrag
   end
   object GroupBox2: TGroupBox
-    Left = 24
+    Left = 16
     Height = 240
-    Top = 256
+    Top = 283
     Width = 528
     Caption = ' Test Events '
     ClientHeight = 220
@@ -311,9 +314,9 @@ object TagEditorFrame: TTagEditorFrame
   end
   object TagClearAllLabel: TLabel
     Cursor = crHandPoint
-    Left = 24
+    Left = 232
     Height = 15
-    Top = 184
+    Top = 11
     Width = 40
     Caption = 'clear all'
     Font.CharSet = ANSI_CHARSET
@@ -329,9 +332,9 @@ object TagEditorFrame: TTagEditorFrame
   end
   object ShowTagsAsArrayLabel: TLabel
     Cursor = crHandPoint
-    Left = 80
+    Left = 288
     Height = 15
-    Top = 184
+    Top = 11
     Width = 96
     Caption = 'show tags as array'
     Font.CharSet = ANSI_CHARSET
@@ -347,9 +350,9 @@ object TagEditorFrame: TTagEditorFrame
   end
   object InputTagsAsArrayLabel: TLabel
     Cursor = crHandPoint
-    Left = 192
+    Left = 400
     Height = 15
-    Top = 184
+    Top = 11
     Width = 143
     Caption = 'input tags as delimited text'
     Font.CharSet = ANSI_CHARSET
@@ -362,5 +365,13 @@ object TagEditorFrame: TTagEditorFrame
     ParentColor = False
     ParentFont = False
     OnClick = InputTagsAsArrayLabelClick
+  end
+  object Label5: TLabel
+    Left = 16
+    Height = 15
+    Top = 11
+    Width = 52
+    Caption = 'Tag Editor'
+    ParentColor = False
   end
 end

@@ -48,6 +48,8 @@ type
     ItemsMemo: TMemo;
     Label4: TLabel;
     ItemsUpdateButton: TBitBtn;
+    Label5: TLabel;
+    DropDownCheckBox: TCheckBox;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -66,6 +68,7 @@ type
     procedure InputTagsAsArrayLabelClick(Sender: TObject);
     procedure TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
     procedure ItemsUpdateButtonClick(Sender: TObject);
+    procedure DropDownCheckBoxClick(Sender: TObject);
   end;
 
 implementation
@@ -178,6 +181,15 @@ end;
 procedure TTagEditorFrame.ItemsUpdateButtonClick(Sender: TObject);
 begin
   TagEditor.TagInput.ComboBox.Items.Assign(ItemsMemo.Lines);
+end;
+
+procedure TTagEditorFrame.DropDownCheckBoxClick(Sender: TObject);
+begin
+  with TagEditor.TagInput.ComboBox do
+    if DropDownCheckBox.Checked then
+      Style := csDropDown
+    else
+      Style := csSimple;
 end;
 
 end.
