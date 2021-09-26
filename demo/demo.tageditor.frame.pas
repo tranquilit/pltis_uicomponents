@@ -180,12 +180,12 @@ end;
 
 procedure TTagEditorFrame.ItemsUpdateButtonClick(Sender: TObject);
 begin
-  TagEditor.TagInput.ComboBox.Items.Assign(ItemsMemo.Lines);
+  TagEditor.TagComboBox.Items.Assign(ItemsMemo.Lines);
 end;
 
 procedure TTagEditorFrame.DropDownCheckBoxClick(Sender: TObject);
 begin
-  with TagEditor.TagInput.ComboBox do
+  with TagEditor.TagComboBox do
     if DropDownCheckBox.Checked then
       Style := csDropDown
     else

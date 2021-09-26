@@ -291,12 +291,10 @@ object TagEditorFrame: TTagEditorFrame
       Top = 48
       Width = 103
       Caption = 'OnTagAfterAdd'
-      Checked = True
-      State = cbChecked
       TabOrder = 6
     end
     object TagAfterAddEdit: TEdit
-      Left = 344
+      Left = 328
       Height = 23
       Top = 69
       Width = 77
@@ -307,8 +305,8 @@ object TagEditorFrame: TTagEditorFrame
       Left = 288
       Height = 15
       Top = 72
-      Width = 45
-      Caption = 'new text'
+      Width = 30
+      Caption = 'prefix'
       ParentColor = False
     end
   end

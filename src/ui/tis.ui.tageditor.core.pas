@@ -126,7 +126,7 @@ type
   TInputOptions = set of TInputOption;
 
   /// properties and events for ComboBox that shows up inside the editor
-  TTisTagComboBoxOptions = class(TPersistent)
+  TTagComboBoxOptions = class(TPersistent)
   private
     fAutoDropDown: Boolean;
     fAutoComplete: TComboBoxAutoCompleteText;
@@ -161,9 +161,8 @@ type
   end;
 
   /// tag input properties and events
-  TTisTagInput = class(TPersistent)
+  TTagInput = class(TPersistent)
   private
-    fComboBox: TTisTagComboBoxOptions;
     fDeleteIcon: TIcon;
     fOptions: TInputOptions;
     fForbiddenChars: string;
@@ -177,7 +176,6 @@ type
     constructor Create;
     destructor Destroy; override;
   published
-    property ComboBox: TTisTagComboBoxOptions read fComboBox write fComboBox;
     property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
     property ForbiddenChars: string read fForbiddenChars write fForbiddenChars;
     property MaxTags: Integer read fMaxTags write fMaxTags default DefaultMaxTags;
@@ -207,7 +205,8 @@ type
     fComboBox: TComboBox;
     fEditorColor: TColor;
     fEditPos: TPoint;
-    fTagInput: TTisTagInput;
+    fTagComboBox: TTagComboBoxOptions;
+    fTagInput: TTagInput;
     fMaxHeight: Integer;
     fMouseDownClickInfo: TClickInfo;
     fMultiLine: Boolean;
@@ -330,7 +329,8 @@ type
     property MultiLine: Boolean read fMultiLine write SetMultiLine default False;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
     property Spacing: Integer read fSpacing write SetSpacing default DefaultSpacing;
-    property TagInput: TTisTagInput read fTagInput write fTagInput;
+    property TagComboBox: TTagComboBoxOptions read fTagComboBox write fTagComboBox;
+    property TagInput: TTagInput read fTagInput write fTagInput;
     property TagBgColor: TColor read fTagBgColor write SetTagBgColor default clSkyBlue;
     property TagBorderColor: TColor read fTagBorderColor write SetTagBorderColor default clNavy;
     property TagHeight: Integer read fTagHeight write SetTagHeight default DefaultTagHeight;
@@ -405,15 +405,15 @@ begin
     result := clBlack;
 end;
 
-{ TTisTagComboBoxOptions }
+{ TTagComboBoxOptions }
 
-procedure TTisTagComboBoxOptions.SetItems(aValue: TStrings);
+procedure TTagComboBoxOptions.SetItems(aValue: TStrings);
 begin
   if (aValue <> fItems) then
     fItems.Assign(aValue);
 end;
 
-constructor TTisTagComboBoxOptions.Create;
+constructor TTagComboBoxOptions.Create;
 begin
   inherited Create;
   fAutoComplete := DefaultAutoComplete;
@@ -421,7 +421,7 @@ begin
   fStyle := csSimple;
 end;
 
-destructor TTisTagComboBoxOptions.Destroy;
+destructor TTagComboBoxOptions.Destroy;
 begin
   fItems.Free;
   inherited Destroy;
@@ -580,9 +580,9 @@ begin
     Self.Delete(0);
 end;
 
-{ TTisTagInput }
+{ TTagInput }
 
-procedure TTisTagInput.SetDeleteIcon(aValue: TIcon);
+procedure TTagInput.SetDeleteIcon(aValue: TIcon);
 begin
   if aValue <> nil then
   begin
@@ -592,19 +592,17 @@ begin
   end;
 end;
 
-constructor TTisTagInput.Create;
+constructor TTagInput.Create;
 begin
   inherited Create;
-  fComboBox := TTisTagComboBoxOptions.Create;
   fDeleteIcon := TIcon.Create;
   fForbiddenChars := DefaultForbiddenChars;
   fMaxTags := DefaultMaxTags;
   fOptions := DefaultOptions;
 end;
 
-destructor TTisTagInput.Destroy;
+destructor TTagInput.Destroy;
 begin
-  fComboBox.Free;
   fDeleteIcon.Free;
   inherited Destroy;
 end;
@@ -618,7 +616,8 @@ begin
   Height := 47;
   Top := 48;
   Width := 221;
-  fTagInput := TTisTagInput.Create;
+  fTagComboBox := TTagComboBoxOptions.Create;
+  fTagInput := TTagInput.Create;
   fComboBox := NewComboBox;
   fTags := NewTags(Self);
   fPopupMenu := NewPopupMenu;
@@ -643,6 +642,7 @@ end;
 
 destructor TTisTagEditor.Destroy;
 begin
+  fTagComboBox.Free;
   fTagInput.Free;
   fTags.Free;
   fTags := nil;
@@ -811,7 +811,7 @@ end;
 
 procedure TTisTagEditor.LoadComboBox;
 begin
-  with fTagInput.ComboBox do
+  with fTagComboBox do
   begin
     fComboBox.AutoDropDown := AutoDropDown;
     fComboBox.AutoComplete := cbactEnabled in AutoComplete;
