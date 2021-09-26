@@ -185,13 +185,16 @@ type
   end;
 
   /// an editor for tags
-  // - can be created dynamically by typing
-  // - can be created by the Tags property, defining custom colors
-  // - can create new tags at runtime
+  // - tags can be created at runtime by typing, of course :)
+  // - tags can be created by using Tags property
+  // - custom colors can be defined for each tag
   // - for each tag a "hidden" Variant value can be added
-  // - allows drag and drop tags
-  // - a custom icon can be defined, drawn next to each tag that allows you to delete the tag with 1 click
-  // - custom events for handling user actions
+  // - allows drag and drop tags among them
+  // - each tag can have a "X" that allows you to delete the tag with 1 click
+  // - a custom icon can be defined to replace the "X"
+  // - custom events, such Before/After add/delete, for handling user actions
+  // - input properties to define forbidden chars, max tags, allow duplicates, etc
+  // - autocomplete with properties do define items, sorted, style, etc
   TTisTagEditor = class(TCustomControl)
   private
     fActualTagHeight: Integer;
