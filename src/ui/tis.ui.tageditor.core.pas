@@ -138,7 +138,7 @@ type
     fOnMeasureItem: TMeasureItemEvent;
     procedure SetItems(aValue: TStrings);
   protected
-    const DefaultAutoComplete = [cbactEnabled, cbactEndOfLineComplete, cbactSearchAscending];
+    const DefaultAutoComplete = StdCtrls.DefaultComboBoxAutoCompleteText;
   public
     constructor Create;
     destructor Destroy; override;
