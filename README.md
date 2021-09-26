@@ -50,3 +50,7 @@ On Lazarus it has been tested using these versions:
 - FPC 3.2.0 win32/win64
 - Lazarus 2.0.12 r64642
 
+## Demo
+
+You may want to take a look in the [demo project](./demo) to see each component working!
+
