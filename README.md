@@ -10,14 +10,21 @@ Most components are related to User Interface.
 
 ### TTisGrid Component
 
-Based on TVirtualStringTree grid, this grid works with JSON and mORMot's TDocVariantData for databackend.
+Based on TVirtualStringTree grid, this grid works with JSON and mORMot's TDocVariantData at the backend.
 
 Main Features:
 
-- 
+- JSON/TDocVariantData data backend
+- design time component Editor to configure title, name, datatype, width, etc, either using sample JSON data from clipboard or Add/Remove column buttons
+- autoconfigure itself, if a TDocVariantData is assigned to grid.Data property
+- handle both expanded or compact JSON data from mORMot providers (array of arrays or array of json objects)
+- user can hide/show columns in runtime
+- user can save state/configuration
+- Popup menu for Search, Copy line/cell, delete/select rows, export to CSV file
+- user can customize Popup menu, either hide/show some itens or include new ones
+- user can paste JSON directly on grid
 
 <img src="./images/tisgrid.png">
-
 
 ### TTisTagEditor Component
 
@@ -34,7 +41,7 @@ Main Features:
 - a custom icon can be defined to replace the "X"
 - custom events, such Before/After add/delete, for handling user actions
 - input properties to define forbidden chars, max tags, allow duplicates, etc
-- autocomplete with properties do define items, sorted, style, etc
+- autocomplete option, with properties to define a list of items, style, search ascending/case sensitive, etc
 
 <img src="./images/tistageditor.png">
 
