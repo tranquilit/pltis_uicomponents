@@ -930,7 +930,7 @@ procedure TTisTagEditor.UpdateScrollBars;
 begin
   fScrollInfo.fMask := SIF_RANGE or SIF_PAGE;
   fScrollInfo.nMin := 0;
-  fScrollInfo.nMax := fDesiredHeight - 1;
+  fScrollInfo.nMax := IfThen(fMultiLine, fDesiredHeight - 1, 0);
   fScrollInfo.nPage := ClientHeight;
   SetScrollInfo(Handle, SB_VERT, fScrollInfo, True);
   FixPosAndScrollWindow;
