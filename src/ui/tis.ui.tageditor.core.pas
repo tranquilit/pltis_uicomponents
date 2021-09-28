@@ -249,7 +249,6 @@ type
     procedure ComboBoxExit(Sender: TObject);
     procedure ComboBoxKeyPress(Sender: TObject; var Key: Char);
     procedure ComboBoxEditingDone(Sender: TObject);
-    procedure HideEditor;
     procedure DoPopupMenuDeleteItem(Sender: TObject);
     procedure SetAutoHeight(const Value: Boolean);
     procedure SetBgColor(const Value: TColor);
@@ -267,7 +266,8 @@ type
     procedure SetTagTextColor(const Value: TColor);
     function GetAsArray: TStringArray;
     procedure SetAsArray(aValue: TStringArray);
-    procedure ShowEditor;
+    procedure HideComboBox;
+    procedure ShowComboBox;
     procedure TagChange(Sender: TObject);
     procedure FixPosAndScrollWindow;
     procedure UpdateMetrics;
@@ -673,7 +673,7 @@ procedure TTisTagEditor.ComboBoxExit(Sender: TObject);
 begin
   if fComboBox.Text <> '' then
     AddTag(fComboBox.Text);
-  HideEditor;
+  HideComboBox;
 end;
 
 procedure TTisTagEditor.ComboBoxKeyPress(Sender: TObject; var Key: Char);
@@ -693,7 +693,7 @@ begin
       end;
     VK_ESCAPE:
       begin
-        HideEditor;
+        HideComboBox;
         self.SetFocus;
       end;
   end;
@@ -706,7 +706,7 @@ begin
   if fComboBox.Text <> '' then
   begin
     AddTag(fComboBox.Text);
-    ShowEditor;
+    ShowComboBox;
   end;
 end;
 
@@ -942,25 +942,18 @@ begin
   LoadComboBox;
 end;
 
-procedure TTisTagEditor.HideEditor;
-begin
-  fComboBox.Text := '';
-  fComboBox.Hide;
-  Invalidate;
-end;
-
 procedure TTisTagEditor.KeyDown(var Key: word; Shift: TShiftState);
 begin
   inherited;
   case Key of
     VK_END:
-      ShowEditor;
+      ShowComboBox;
     VK_DELETE:
       Perform(LM_CLEAR, 0, 0);
     VK_INSERT:
       Perform(WM_PASTE, 0, 0);
     VK_F2:
-      ShowEditor;
+      ShowComboBox;
   end;
 end;
 
@@ -987,7 +980,7 @@ begin
         exit;
       end;
   end;
-  ShowEditor;
+  ShowComboBox;
   fComboBox.Perform(WM_CHAR, ord(Key), 0);
 end;
 
@@ -1146,7 +1139,7 @@ begin
   p := GetTagPart(info);
   case i of
     EDITOR:
-      ShowEditor;
+      ShowComboBox;
     NOWHERE:
       ;
   else
@@ -1504,7 +1497,14 @@ begin
   DoChange;
 end;
 
-procedure TTisTagEditor.ShowEditor;
+procedure TTisTagEditor.HideComboBox;
+begin
+  fComboBox.Text := '';
+  fComboBox.Hide;
+  Invalidate;
+end;
+
+procedure TTisTagEditor.ShowComboBox;
 begin
   fComboBox.Left := fEditPos.X;
   fComboBox.Top := fEditPos.Y;
@@ -1514,6 +1514,11 @@ begin
   LoadComboBox;
   fComboBox.Show;
   fComboBox.SetFocus;
+  SetWindowRgn(
+    fComboBox.Handle,
+    CreateRectRgn(2, 2, fComboBox.Width-2, fComboBox.Height-3),
+    True
+  );
 end;
 
 procedure TTisTagEditor.TagChange(Sender: TObject);
