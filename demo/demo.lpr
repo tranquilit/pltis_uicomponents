@@ -12,7 +12,8 @@ uses
   forms,
   demo.main,
   demo.grid.frame,
-  demo.tageditor.frame;
+  demo.tageditor.frame,
+  demo.searchedit.frame;
 
 {$R *.res}
 

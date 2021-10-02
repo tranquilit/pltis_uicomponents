@@ -19,7 +19,8 @@ uses
   comctrls,
   Menus,
   demo.grid.frame,
-  demo.tageditor.frame;
+  demo.tageditor.frame,
+  demo.searchedit.frame;
 
 type
   TMainForm = class(TForm)
@@ -28,6 +29,8 @@ type
     TagEditorTab: TTabSheet;
     freGrid: TGridFrame;
     freTagEditor: TTagEditorFrame;
+    SearchEditTab: TTabSheet;
+    freSearchEdit: TSearchEditFrame;
     procedure FormCreate(Sender: TObject);
   end;
 

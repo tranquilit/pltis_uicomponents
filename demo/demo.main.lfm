@@ -30,6 +30,31 @@ object MainForm: TMainForm
         Align = alClient
         ClientHeight = 523
         ClientWidth = 743
+        inherited Panel4: TPanel
+          Height = 252
+          Width = 743
+          ClientHeight = 252
+          ClientWidth = 743
+          inherited Grid: TTisGrid
+            Height = 164
+            Width = 723
+          end
+        end
+        inherited Panel1: TPanel
+          Top = 264
+          Width = 743
+          ClientWidth = 743
+          inherited InOutputEdit: TSynEdit
+            Width = 713
+          end
+          inherited GridTotalLabel: TLabel
+            Left = 626
+          end
+        end
+        inherited Splitter: TSplitter
+          Top = 252
+          Width = 743
+        end
       end
     end
     object TagEditorTab: TTabSheet
@@ -43,6 +68,36 @@ object MainForm: TMainForm
         Align = alClient
         ClientHeight = 523
         ClientWidth = 743
+        inherited GroupBox1: TGroupBox
+          inherited ItemsMemo: TMemo
+            Lines.Strings = (
+              'Windows'
+              'Linux'
+              'Mac'
+              'FreeBSD'
+              'DOS'
+              'OS/2'
+              'AIX'
+              'Android'
+              'Haiku'
+              'Nintendo'
+              'AmigaOS'
+              'MorphOS'
+              'AROS'
+              'Atari'
+            )
+          end
+        end
+      end
+    end
+    object SearchEditTab: TTabSheet
+      Caption = 'SearchEdit'
+      ClientHeight = 523
+      ClientWidth = 743
+      inline freSearchEdit: TSearchEditFrame
+        Height = 523
+        Width = 743
+        Align = alClient
       end
     end
   end
