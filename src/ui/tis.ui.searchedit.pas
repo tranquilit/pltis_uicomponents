@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.searchedit;
 
-{$mode objfpc}{$H+}
+{$i mormot.defines.inc}
 
 interface
 
@@ -198,7 +198,7 @@ begin
   if assigned(fEmbeddedImage) then
     fEmbeddedImage.SetBounds(0, 0,  fSearchIconSize, fSearchIconSize);
   if assigned(fButton) then // should be checked
-    fButton.SetBounds(aLeft + aWidth + 2, aTop, 35, aHeight);
+    fButton.SetBounds(aLeft + aWidth + 2, aTop, 23, aHeight);
 end;
 
 constructor TTisSearchEdit.Create(aOwner: TComponent);
