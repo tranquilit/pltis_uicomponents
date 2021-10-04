@@ -10,7 +10,8 @@ unit demo.searchedit.frame;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, tis.ui.searchedit;
+  Classes, SysUtils, Forms, Controls, ExtCtrls, Buttons,
+  tis.ui.searchedit;
 
 type
   TSearchEditFrame = class(TFrame)
