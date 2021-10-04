@@ -34,7 +34,8 @@ uses
   mormot.core.text,
   mormot.core.buffers,
   tisstrings,
-  tis.core.os;
+  tis.core.os,
+  tis.core.utils;
 
 type
   TTisGrid = class;
@@ -1047,7 +1048,7 @@ begin
   begin
     fEdit.Show;
     fEdit.SelectAll;
-    fEdit.SetFocus;
+    fEdit.SetFocusSafe;
   end;
 end;
 
@@ -2018,7 +2019,7 @@ begin
          SelectNodes(p,p,False);
          FocusedNode := p;
          FocusedColumn := col;
-         SetFocus;
+         SetFocusSafe;
          exit;
        end;
        // on teste a partir du suivant
@@ -2036,6 +2037,7 @@ begin
    end;
    fStartSearchNode := nil;
    ShowMessageFmt(RsNoRecordFind,[TextToFind]);
+   SetFocusSafe;
   finally
   end;
 end;
