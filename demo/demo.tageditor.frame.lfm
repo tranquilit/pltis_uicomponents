@@ -372,6 +372,7 @@ object TagEditorFrame: TTagEditorFrame
     Cursor = crHandPoint
     Left = 382
     Height = 15
+    Hint = 'you can use any char from TagInput.DelimiterChars'
     Top = 11
     Width = 143
     Caption = 'input tags as delimited text'
@@ -384,6 +385,8 @@ object TagEditorFrame: TTagEditorFrame
     Font.Style = [fsUnderline]
     ParentColor = False
     ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
     OnClick = InputTagsAsArrayLabelClick
   end
   object Label5: TLabel
