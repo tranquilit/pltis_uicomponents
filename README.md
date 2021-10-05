@@ -45,6 +45,21 @@ Main Features:
 
 <img src="./images/tistageditor.png">
 
+### TTisControlSynEditor Component
+
+Based on Lazarus TSynEdit component, this is a modified version specifically made for our Wapt Packages control files edition.
+It mainly allows to add markups based on control keys.
+
+Main Features:
+
+- Error markups: Set all the line with red waves under the value (one per key)
+- Info markups: Highlight a specific value with linked to a control key (multiple per key)
+- Custom colors can be defined for each info
+- Find starting position of given control key
+- Find current control key linked to the cursor position
+
+<img src="./images/tiscontrolsyneditor.png">
+
 ## Dependencies
 
 First of all, you should have these libraries installed in your environment:
