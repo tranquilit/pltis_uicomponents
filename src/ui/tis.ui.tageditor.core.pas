@@ -166,19 +166,24 @@ type
   TTagInput = class(TPersistent)
   private
     fDeleteIcon: TIcon;
-    fOptions: TInputOptions;
+    fDelimiterChars: string;
     fForbiddenChars: string;
     fMaxTags: Integer;
+    fOptions: TInputOptions;
     procedure SetDeleteIcon(aValue: TIcon);
+    procedure SetDelimiterChars(const aValue: string);
   protected
-    const DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨''';
+    const DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?`¨''';
+    const DefaultDelimiterChars = ',;';
     const DefaultOptions = [ioAllowDragging, ioShowDeleteButton, ioTrimText];
     const DefaultMaxTags = 0;
   public
     constructor Create;
     destructor Destroy; override;
+    function DefaultDelimiter: Char; virtual;
   published
     property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
+    property DelimiterChars: string read fDelimiterChars write SetDelimiterChars;
     property ForbiddenChars: string read fForbiddenChars write fForbiddenChars;
     property MaxTags: Integer read fMaxTags write fMaxTags default DefaultMaxTags;
     property Options: TInputOptions read fOptions write fOptions default DefaultOptions;
@@ -371,7 +376,6 @@ uses
 const
   TAG_LOW = 0;
   TAG_HIGH = MAXWORD - 2;
-  TAG_TEXT_DELIMITER = ',';
   EDITOR = MAXWORD - 1;
   NOWHERE = MAXWORD;
   PART_BODY = $00000000;
@@ -555,7 +559,7 @@ begin
   result := '';
   for i := 0 to Self.Count - 1 do
   begin
-    result := result + IfThen(result <> '', TAG_TEXT_DELIMITER) + Self.Items[i].Text;
+    result := result + IfThen(result <> '', TagEditor.TagInput.DefaultDelimiter) + Self.Items[i].Text;
   end;
 end;
 
@@ -597,10 +601,21 @@ begin
   end;
 end;
 
+procedure TTagInput.SetDelimiterChars(const aValue: string);
+begin
+  if fDelimiterChars = aValue then
+    exit;
+  if Trim(aValue) = '' then
+    fDelimiterChars := DefaultDelimiterChars
+  else
+    fDelimiterChars := aValue;
+end;
+
 constructor TTagInput.Create;
 begin
   inherited Create;
   fDeleteIcon := TIcon.Create;
+  fDelimiterChars := DefaultDelimiterChars;
   fForbiddenChars := DefaultForbiddenChars;
   fMaxTags := DefaultMaxTags;
   fOptions := DefaultOptions;
@@ -610,6 +625,11 @@ destructor TTagInput.Destroy;
 begin
   fDeleteIcon.Free;
   inherited Destroy;
+end;
+
+function TTagInput.DefaultDelimiter: Char;
+begin
+  result := fDelimiterChars[1];
 end;
 
 { TTagEditor }
@@ -678,13 +698,18 @@ end;
 
 procedure TTisTagEditor.ComboBoxKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Key = chr(VK_SPACE)) and (fComboBox.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options) then
+  if ((Key = chr(VK_SPACE)) and (fComboBox.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options)) or
+    (Pos(Key, fTagInput.ForbiddenChars) > 0) then
   begin
     Key := #0;
     exit;
   end;
-  if Pos(Key, fTagInput.ForbiddenChars) > 0 then
-    Key := chr(VK_RETURN);
+  if Pos(Key, fTagInput.DelimiterChars) > 0  then
+  begin
+    Key := #0;
+    ComboBoxEditingDone(fComboBox);
+    exit;
+  end;
   case ord(Key) of
     VK_BACK:
       begin
@@ -1409,7 +1434,7 @@ var
 begin
   if aText = '' then
     exit;
-  a := aText.Split(TAG_TEXT_DELIMITER);
+  a := aText.Split(TagInput.DefaultDelimiterChars.ToCharArray);
   for i := low(a) to high(a) do
     AddTag(a[i]);
   DoChange;

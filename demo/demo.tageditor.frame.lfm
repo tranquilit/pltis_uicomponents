@@ -156,7 +156,7 @@ object TagEditorFrame: TTagEditorFrame
     end
   end
   object TagEditor: TTisTagEditor
-    Left = 16
+    Left = 17
     Height = 35
     Top = 32
     Width = 527
@@ -164,7 +164,8 @@ object TagEditorFrame: TTagEditorFrame
     TabStop = True
     AutoHeight = False
     BgColor = clWhite
-    TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?;,`¨'''
+    TagInput.DelimiterChars = ',;'
+    TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?`¨'''
     Tags = <    
       item
         CanDelete = True
