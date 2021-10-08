@@ -249,7 +249,7 @@ end;
 
 procedure TTisSearchEdit.DoClearClick(aSender: TObject);
 begin
-  Text := '';
+  Clear;
   if Assigned(fOnClearButtonClick) then
     fOnClearButtonClick(aSender);
 end;
@@ -270,12 +270,15 @@ begin
 end;
 
 procedure TTisSearchEdit.Searching;
+var
+  t: TTimer;
 begin
-  if assigned(fInput.Timer) then
+  t := fInput.Timer;
+  if assigned(t) then
   begin
-    fInput.Timer.Enabled := False;
+    t.Enabled := False;
     if (Length(Text) >= fInput.MinChars) then
-      fInput.Timer.Enabled := True;
+      t.Enabled := True;
   end;
 end;
 
