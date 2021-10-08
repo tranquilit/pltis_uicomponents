@@ -135,7 +135,10 @@ var
     begin
       aButton.Left := lw;
       inc(lw, aButton.Width + 2);
-    end;
+      aButton.Visible := True;
+    end
+    else
+      aButton.Visible := False;
   end;
 
 begin
