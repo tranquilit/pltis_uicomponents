@@ -187,9 +187,12 @@ end;
 
 procedure TTisSearchEdit.Search;
 begin
-  fInput.Timer.Enabled := False;
-  if assigned(fInput.Timer) and (Length(Text) >= fInput.MinChars) then
-    fInput.Timer.Enabled := True;
+  if assigned(fInput.Timer) then
+  begin
+    fInput.Timer.Enabled := False;
+    if (Length(Text) >= fInput.MinChars) then
+      fInput.Timer.Enabled := True;
+  end;
 end;
 
 constructor TTisSearchEdit.Create(aOwner: TComponent);
