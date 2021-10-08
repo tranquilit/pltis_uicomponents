@@ -62,7 +62,7 @@ type
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
-    procedure Search; virtual;
+    procedure Searching; virtual;
   protected
     const DefaultOptions = [boShowSearchButton];
   public
@@ -162,7 +162,9 @@ end;
 procedure TTisSearchEdit.DoSearch(aSender: TObject);
 begin
   if Assigned(fOnSearchButtonClick) then
-    fOnSearchButtonClick(aSender);
+    fOnSearchButtonClick(aSender)
+  else
+    Searching;
 end;
 
 procedure TTisSearchEdit.DoClear(aSender: TObject);
@@ -185,7 +187,7 @@ begin
   SetUpButtons;
 end;
 
-procedure TTisSearchEdit.Search;
+procedure TTisSearchEdit.Searching;
 begin
   if assigned(fInput.Timer) then
   begin
@@ -216,7 +218,7 @@ procedure TTisSearchEdit.TextChanged;
 begin
   inherited TextChanged;
   if ioAutoSearch in fInput.Options then
-    Search;
+    Searching;
 end;
 
 procedure TTisSearchEdit.EnabledChanged;
@@ -227,7 +229,7 @@ end;
 procedure TTisSearchEdit.EditingDone;
 begin
   inherited EditingDone;
-  Search;
+  Searching;
 end;
 
 initialization

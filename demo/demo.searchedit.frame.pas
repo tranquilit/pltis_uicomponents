@@ -35,6 +35,7 @@ type
     Label6: TLabel;
     AutoSearchCheckBox: TCheckBox;
     SearchingLabel: TLabel;
+    SearchButtonClickCheckBox: TCheckBox;
     procedure SearchButtonCheckBoxChange(Sender: TObject);
     procedure ClearButtonCheckBoxChange(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -42,6 +43,7 @@ type
     procedure MinCharsEditChange(Sender: TObject);
     procedure AutoSearchCheckBoxChange(Sender: TObject);
     procedure SearchEditChange(Sender: TObject);
+    procedure SearchButtonClickCheckBoxChange(Sender: TObject);
   private
 
   public
@@ -97,7 +99,16 @@ end;
 
 procedure TSearchEditFrame.SearchEditChange(Sender: TObject);
 begin
+  SearchingLabel.Caption := '';
   SearchingLabel.Visible := SearchEdit.Text <> '';
+end;
+
+procedure TSearchEditFrame.SearchButtonClickCheckBoxChange(Sender: TObject);
+begin
+  if SearchButtonClickCheckBox.Checked then
+    SearchEdit.OnSearchButtonClick := SearchEditSearchButtonClick
+  else
+    SearchEdit.OnSearchButtonClick := nil;
 end;
 
 constructor TSearchEditFrame.Create(aOwner: TComponent);
