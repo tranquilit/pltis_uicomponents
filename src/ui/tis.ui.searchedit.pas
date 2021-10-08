@@ -14,6 +14,39 @@ uses
   ExtCtrls, Buttons;
 
 type
+  TButton = class(TPersistent)
+  private
+    fButton: TSpeedButton;
+    function GetFlat: Boolean;
+    procedure SetFlat(aValue: Boolean);
+    function GetGlyph: TBitmap;
+    procedure SetGlyph(aValue: TBitmap);
+    function GetVisible: Boolean;
+    procedure SetVisible(aValue: Boolean);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Button: TSpeedButton read fButton;
+  published
+    // ------------------------------- new properties ----------------------------------
+    property Flat: Boolean read GetFlat write SetFlat default False;
+    property Glyph: TBitmap read GetGlyph write SetGlyph;
+    property Visible: Boolean read GetVisible write SetVisible default True;
+  end;
+
+  TButtons = class(TPersistent)
+  private
+    fSearch: TButton;
+    fClear: TButton;
+    procedure SetUpImages;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  published
+    property Search: TButton read fSearch write fSearch;
+    property Clear: TButton read fClear write fClear;
+  end;
+
   TInputOption = (
     ioAutoSearch
   );
@@ -35,36 +68,23 @@ type
     property Timer: TTimer read fTimer write fTimer;
   end;
 
-  TSearchOption = (
-    boShowSearchButton,
-    boShowClearButton
-  );
-
-  TSearchOptions = set of TSearchOption;
-
   TTisSearchEdit = class(TEdit)
   private
-    fSearchButton: TSpeedButton;
-    fClearButton: TSpeedButton;
-    fOptions: TSearchOptions;
+    fButtons: TButtons;
     fInput: TInput;
-    fOnSearchButtonClick: TNotifyEvent;
+    fOnButtonSearchClick: TNotifyEvent;
     fOnClearButtonClick: TNotifyEvent;
     procedure SetUpEdit;
-    procedure SetUpImages;
     procedure SetUpButtons;
     procedure SetDefault;
-    procedure SetOptions(const aValue: TSearchOptions);
-    procedure DoSearch(aSender: TObject);
-    procedure DoClear(aSender: TObject);
+    procedure DoSearchClick(aSender: TObject);
+    procedure DoClearClick(aSender: TObject);
   protected
     // ------------------------------- inherited methods ----------------------------------
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
     procedure Searching; virtual;
-  protected
-    const DefaultOptions = [boShowSearchButton];
   public
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
@@ -74,16 +94,92 @@ type
     procedure EditingDone; override;
   published
     // ------------------------------- new properties ----------------------------------
-    property Options: TSearchOptions read fOptions write SetOptions default DefaultOptions;
+    property Buttons: TButtons read fButtons write fButtons;
     property Input: TInput read fInput write fInput;
     // ------------------------------- new events ----------------------------------
-    property OnSearchButtonClick: TNotifyEvent read fOnSearchButtonClick write fOnSearchButtonClick;
-    property OnClearButtonClick: TNotifyEvent read fOnClearButtonClick write fOnClearButtonClick;
+    property OnButtonSearchClick: TNotifyEvent read fOnButtonSearchClick write fOnButtonSearchClick;
+    property OnButtonClearClick: TNotifyEvent read fOnClearButtonClick write fOnClearButtonClick;
   end;
 
 implementation
 
 {$R icons.rc}
+
+{ TButton }
+
+function TButton.GetFlat: Boolean;
+begin
+  result := fButton.Flat;
+end;
+
+procedure TButton.SetFlat(aValue: Boolean);
+begin
+  fButton.Flat := aValue;
+end;
+
+function TButton.GetGlyph: TBitmap;
+begin
+  result := fButton.Glyph;
+end;
+
+procedure TButton.SetGlyph(aValue: TBitmap);
+begin
+  fButton.Glyph.Assign(aValue);
+end;
+
+function TButton.GetVisible: Boolean;
+begin
+  result := fButton.Visible;
+end;
+
+procedure TButton.SetVisible(aValue: Boolean);
+begin
+  fButton.Visible := aValue;
+end;
+
+constructor TButton.Create;
+begin
+  inherited Create;
+  fButton := TSpeedButton.Create(nil);
+end;
+
+destructor TButton.Destroy;
+begin
+  fButton.Free;
+  inherited Destroy;
+end;
+
+{ TButtons }
+
+procedure TButtons.SetUpImages;
+var
+  img: TImage;
+begin
+  img := TImage.Create(nil);
+  try
+    img.Picture.LoadFromResourceName(HINSTANCE, 'TIS_SEARCH_ICON', TPortableNetworkGraphic);
+    fSearch.Glyph.Assign(img.Picture.Bitmap);
+    //img.Picture.LoadFromResourceName(HINSTANCE, 'TIS_CLEAR_ICON', TPortableNetworkGraphic);
+    //fClear.Glyph.Assign(img.Picture.Bitmap);
+  finally
+    img.Free;
+  end;
+end;
+
+constructor TButtons.Create;
+begin
+  inherited Create;
+  fSearch := TButton.Create;
+  fClear := TButton.Create;
+  SetUpImages;
+end;
+
+destructor TButtons.Destroy;
+begin
+  fSearch.Free;
+  fClear.Free;
+  inherited Destroy;
+end;
 
 { TInput }
 
@@ -94,7 +190,6 @@ begin
   fOptions := DefaultOptions;
 end;
 
-
 { TTisSearchEdit }
 
 procedure TTisSearchEdit.SetUpEdit;
@@ -104,73 +199,49 @@ begin
   ControlStyle := ControlStyle - [csSetCaption];
 end;
 
-procedure TTisSearchEdit.SetUpImages;
-var
-  img: TImage;
-begin
-  img := TImage.Create(nil);
-  try
-    img.Picture.LoadFromResourceName(HINSTANCE, 'TIS_SEARCH_ICON', TPortableNetworkGraphic);
-    fSearchButton.Glyph.Assign(img.Picture.Bitmap);
-    //img.Picture.LoadFromResourceName(HINSTANCE, 'TIS_CLEAR_ICON', TPortableNetworkGraphic);
-    //fClearButton.Glyph.Assign(img.Picture.Bitmap);
-  finally
-    img.Free;
-  end;
-end;
-
 procedure TTisSearchEdit.SetUpButtons;
 var
   lw: Integer;
 
-  procedure SetUp(aButton: TSpeedButton; aChange: Boolean; aClick: TNotifyEvent);
+  procedure SetUp(aButton: TButton; aClick: TNotifyEvent);
   begin
-    if not assigned(aButton) then // must be checked
-      exit;
-    aButton.ControlStyle := ControlStyle + [csNoDesignSelectable];
-    aButton.Flat := True;
-    aButton.OnClick := aClick;
-    aButton.SetBounds(Left, Top, aButton.Width, aButton.Height);
-    if aChange then
+    with aButton do
     begin
-      aButton.Left := lw;
-      inc(lw, aButton.Width + 2);
-      aButton.Visible := True;
-    end
-    else
-      aButton.Visible := False;
+      Button.ControlStyle := ControlStyle + [csNoDesignSelectable];
+      Button.OnClick := aClick;
+      Button.SetBounds(Left, Top, Button.Width, Button.Height);
+      if Button.Visible then
+      begin
+        Button.Left := lw;
+        inc(lw, Button.Width + 2);
+      end;
+    end;
   end;
 
 begin
-  lw := Left + Width + 2;
-  SetUp(fSearchButton, boShowSearchButton in fOptions, DoSearch);
-  SetUp(fClearButton, boShowClearButton in fOptions, DoClear);
+  if assigned(fButtons) then // must be checked
+  begin
+    lw := Left + Width + 2;
+    SetUp(fButtons.Search, DoSearchClick);
+    SetUp(fButtons.Clear, DoClearClick);
+  end;
 end;
 
 procedure TTisSearchEdit.SetDefault;
 begin
   Width := 130;
   Height := 24;
-  Options := DefaultOptions;
 end;
 
-procedure TTisSearchEdit.SetOptions(const aValue: TSearchOptions);
+procedure TTisSearchEdit.DoSearchClick(aSender: TObject);
 begin
-  if fOptions = aValue then
-    exit;
-  fOptions := aValue;
-  SetUpButtons;
-end;
-
-procedure TTisSearchEdit.DoSearch(aSender: TObject);
-begin
-  if Assigned(fOnSearchButtonClick) then
-    fOnSearchButtonClick(aSender)
+  if Assigned(fOnButtonSearchClick) then
+    fOnButtonSearchClick(aSender)
   else
     Searching;
 end;
 
-procedure TTisSearchEdit.DoClear(aSender: TObject);
+procedure TTisSearchEdit.DoClearClick(aSender: TObject);
 begin
   Text := '';
   if Assigned(fOnClearButtonClick) then
@@ -180,8 +251,10 @@ end;
 procedure TTisSearchEdit.SetParent(aNewParent: TWinControl);
 begin
   inherited SetParent(aNewParent);
-  fSearchButton.Parent := aNewParent;
-  fClearButton.Parent := aNewParent;
+  if csDestroying in ComponentState then
+    exit;
+  fButtons.Search.Button.Parent := aNewParent;
+  fButtons.Clear.Button.Parent := aNewParent;
 end;
 
 procedure TTisSearchEdit.DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer);
@@ -203,16 +276,15 @@ end;
 constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
+  fButtons := TButtons.Create;
   fInput := TInput.Create;
-  fSearchButton := TSpeedButton.Create(self);
-  fClearButton := TSpeedButton.Create(self);
   SetDefault;
   SetUpEdit;
-  SetUpImages;
 end;
 
 destructor TTisSearchEdit.Destroy;
 begin
+  fButtons.Free;
   fInput.Free;
   inherited Destroy;
 end;
