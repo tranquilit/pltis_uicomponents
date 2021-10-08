@@ -15,7 +15,7 @@ uses
 
 type
   TInputOption = (
-    ioReturnKeyStartsSearching
+    ioAutoSearch
   );
 
   TInputOptions = set of TInputOption;
@@ -27,7 +27,7 @@ type
     fTimer: TTimer;
   protected
     const DefaultMinChars = 1;
-    const DefaultOptions = [ioReturnKeyStartsSearching];
+    const DefaultOptions = [ioAutoSearch];
   published
     constructor Create;
     property MinChars: Integer read fMinChars write fMinChars default DefaultMinChars;
@@ -61,6 +61,8 @@ type
     // ------------------------------- inherited methods ----------------------------------
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
+    // ------------------------------- new methods ----------------------------------
+    procedure Search; virtual;
   protected
     const DefaultOptions = [boShowSearchButton];
   public
@@ -69,6 +71,7 @@ type
     destructor Destroy; override;
     procedure TextChanged; override;
     procedure EnabledChanged; override;
+    procedure EditingDone; override;
   published
     // ------------------------------- new properties ----------------------------------
     property Options: TSearchOptions read fOptions write SetOptions default DefaultOptions;
@@ -182,6 +185,15 @@ begin
   SetUpButtons;
 end;
 
+procedure TTisSearchEdit.Search;
+begin
+  if assigned(fInput.Timer) and (Length(Text) >= fInput.MinChars) then
+  begin
+    fInput.Timer.Enabled := False;
+    fInput.Timer.Enabled := True;
+  end;
+end;
+
 constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -202,11 +214,19 @@ end;
 procedure TTisSearchEdit.TextChanged;
 begin
   inherited TextChanged;
+  if ioAutoSearch in fInput.Options then
+    Search;
 end;
 
 procedure TTisSearchEdit.EnabledChanged;
 begin
   inherited EnabledChanged;
+end;
+
+procedure TTisSearchEdit.EditingDone;
+begin
+  inherited EditingDone;
+  Search;
 end;
 
 initialization
