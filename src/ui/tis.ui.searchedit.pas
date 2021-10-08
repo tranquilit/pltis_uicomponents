@@ -163,10 +163,10 @@ var
 begin
   img := TImage.Create(nil);
   try
-    img.Picture.LoadFromResourceName(HINSTANCE, 'TIS_SEARCH_ICON', TPortableNetworkGraphic);
+    img.Picture.LoadFromLazarusResource('searchedit_search');
     fSearch.Glyph.Assign(img.Picture.Bitmap);
-    //img.Picture.LoadFromResourceName(HINSTANCE, 'TIS_CLEAR_ICON', TPortableNetworkGraphic);
-    //fClear.Glyph.Assign(img.Picture.Bitmap);
+    img.Picture.LoadFromLazarusResource('searchedit_clear');
+    fClear.Glyph.Assign(img.Picture.Bitmap);
   finally
     img.Free;
   end;
