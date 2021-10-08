@@ -14,8 +14,11 @@ uses
   ExtCtrls, Buttons;
 
 type
+  TTisSearchEdit = class;
+
   TButton = class(TPersistent)
   private
+    fSearchEdit: TTisSearchEdit;
     fButton: TSpeedButton;
     function GetFlat: Boolean;
     procedure SetFlat(aValue: Boolean);
@@ -24,7 +27,7 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(aValue: Boolean);
   public
-    constructor Create;
+    constructor Create(aSearchEdit: TTisSearchEdit);
     destructor Destroy; override;
     property Button: TSpeedButton read fButton;
   published
@@ -40,7 +43,7 @@ type
     fClear: TButton;
     procedure SetUpImages;
   public
-    constructor Create;
+    constructor Create(aSearchEdit: TTisSearchEdit);
     destructor Destroy; override;
   published
     property Search: TButton read fSearch write fSearch;
@@ -89,6 +92,7 @@ type
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Invalidate; override;
     procedure TextChanged; override;
     procedure EnabledChanged; override;
     procedure EditingDone; override;
@@ -135,11 +139,13 @@ end;
 procedure TButton.SetVisible(aValue: Boolean);
 begin
   fButton.Visible := aValue;
+  fSearchEdit.Invalidate;
 end;
 
-constructor TButton.Create;
+constructor TButton.Create(aSearchEdit: TTisSearchEdit);
 begin
   inherited Create;
+  fSearchEdit := aSearchEdit;
   fButton := TSpeedButton.Create(nil);
 end;
 
@@ -166,11 +172,11 @@ begin
   end;
 end;
 
-constructor TButtons.Create;
+constructor TButtons.Create(aSearchEdit: TTisSearchEdit);
 begin
   inherited Create;
-  fSearch := TButton.Create;
-  fClear := TButton.Create;
+  fSearch := TButton.Create(aSearchEdit);
+  fClear := TButton.Create(aSearchEdit);
   SetUpImages;
 end;
 
@@ -276,7 +282,7 @@ end;
 constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
-  fButtons := TButtons.Create;
+  fButtons := TButtons.Create(self);
   fInput := TInput.Create;
   SetDefault;
   SetUpEdit;
@@ -287,6 +293,12 @@ begin
   fButtons.Free;
   fInput.Free;
   inherited Destroy;
+end;
+
+procedure TTisSearchEdit.Invalidate;
+begin
+  inherited Invalidate;
+  SetUpButtons;
 end;
 
 procedure TTisSearchEdit.TextChanged;
