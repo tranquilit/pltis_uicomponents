@@ -22,26 +22,26 @@ uses
 type
   TSearchEditFrame = class(TFrame)
     Label1: TLabel;
-    GroupBox1: TGroupBox;
-    DataMemo: TMemo;
-    Grid: TTisGrid;
     SearchButtonCheckBox: TCheckBox;
     ClearButtonCheckBox: TCheckBox;
     Timer: TTimer;
     GroupBox2: TGroupBox;
     Label4: TLabel;
-    MaxTagsEdit: TSpinEdit;
+    DelayEdit: TSpinEdit;
     Label5: TLabel;
-    UpdateButton: TSpeedButton;
     SearchEdit: TTisSearchEdit;
     Label2: TLabel;
     MinCharsEdit: TSpinEdit;
     Label6: TLabel;
+    AutoSearchCheckBox: TCheckBox;
+    SearchingLabel: TLabel;
     procedure SearchButtonCheckBoxChange(Sender: TObject);
     procedure ClearButtonCheckBoxChange(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
-    procedure UpdateButtonClick(Sender: TObject);
     procedure SearchEditSearchButtonClick(Sender: TObject);
+    procedure MinCharsEditChange(Sender: TObject);
+    procedure AutoSearchCheckBoxChange(Sender: TObject);
+    procedure SearchEditChange(Sender: TObject);
   private
 
   public
@@ -72,28 +72,9 @@ end;
 
 procedure TSearchEditFrame.TimerTimer(Sender: TObject);
 begin
-  //
-end;
-
-procedure TSearchEditFrame.UpdateButtonClick(Sender: TObject);
-var
-  i: Integer;
-  d: TDocVariantData;
-  r: PVariant;
-  res: RawUtf8;
-begin
-  res := '';
-  for i := 0 to DataMemo.Lines.Count -1 do
-  begin
-    if i > 0 then
-      res := res + ',';
-    res := res + '{"result":"' + StringToUtf8(DataMemo.Lines[i]) + '"}';
-  end;
-  d.InitJson('['+res+']', JSON_FAST_FLOAT);
-  Grid.Clear;
-  for r in d.Items do
-    Grid.Data.AddItem(r^);
-  Grid.LoadData;
+  Timer.Enabled := False;
+  SearchingLabel.Visible := True;
+  SearchingLabel.Caption := 'Searching for... "' + SearchEdit.Text + '"';
 end;
 
 procedure TSearchEditFrame.SearchEditSearchButtonClick(Sender: TObject);
@@ -101,12 +82,32 @@ begin
   SearchEdit.Text := InputBox('Search', 'Type a text', '');
 end;
 
+procedure TSearchEditFrame.MinCharsEditChange(Sender: TObject);
+begin
+  SearchEdit.Input.MinChars := MinCharsEdit.Value;
+end;
+
+procedure TSearchEditFrame.AutoSearchCheckBoxChange(Sender: TObject);
+begin
+  if AutoSearchCheckBox.Checked then
+    SearchEdit.Input.Options := SearchEdit.Input.Options + [ioAutoSearch]
+  else
+    SearchEdit.Input.Options := SearchEdit.Input.Options - [ioAutoSearch];
+end;
+
+procedure TSearchEditFrame.SearchEditChange(Sender: TObject);
+begin
+  SearchingLabel.Visible := SearchEdit.Text <> '';
+end;
+
 constructor TSearchEditFrame.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   SearchButtonCheckBox.Checked := boShowSearchButton in SearchEdit.Options;
   ClearButtonCheckBox.Checked := boShowClearButton in SearchEdit.Options;
+  DelayEdit.Value := Timer.Interval;
   MinCharsEdit.Value := SearchEdit.Input.MinChars;
+  AutoSearchCheckBox.Checked := ioAutoSearch in SearchEdit.Input.Options;
 end;
 
 end.
