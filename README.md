@@ -47,7 +47,7 @@ Main Features:
 
 ### TTisControlSynEditor Component
 
-Based on Lazarus TSynEdit component, this is a modified version specifically made for our Wapt Packages control files edition.
+Based on Lazarus TSynEdit component, this is a modified version specifically made for our WAPT Packages control files edition.
 It mainly allows to add markups based on control keys.
 
 Main Features:
@@ -76,6 +76,16 @@ Main Features:
 - Drag the graph with the middle mouse button pressed
 
 <img src="./images/tislvlgraphcontrol.png">
+
+### TTisSearchEdit Component
+
+Based on simple TEdit component, this is our improved version specifically made for WAPT Enterprise version.
+
+Main Features:
+
+- ...
+
+<img src="./images/tissearchedit.png">
 
 ## Dependencies
 
