@@ -44,12 +44,12 @@ type
     procedure MinCharsEditChange(Sender: TObject);
     procedure AutoSearchCheckBoxChange(Sender: TObject);
     procedure ButtonSearchClickCheckBoxChange(Sender: TObject);
-    procedure SearchEditButtonSearchClick(Sender: TObject);
-    procedure SearchEditButtonClearClick(Sender: TObject);
     procedure ButtonClearClickCheckBoxChange(Sender: TObject);
     procedure TimerStartTimer(Sender: TObject);
     procedure SearchEditChange(Sender: TObject);
     procedure SearchEditEditingDone(Sender: TObject);
+    procedure SearchEditButtons0Click(Sender: TObject);
+    procedure SearchEditButtons1Click(Sender: TObject);
   private
 
   public
@@ -64,12 +64,12 @@ implementation
 
 procedure TSearchEditFrame.SearchButtonCheckBoxChange(Sender: TObject);
 begin
-  SearchEdit.Buttons.Search.Visible := SearchButtonCheckBox.Checked;
+  SearchEdit.Buttons[0].Visible := SearchButtonCheckBox.Checked;
 end;
 
 procedure TSearchEditFrame.ClearButtonCheckBoxChange(Sender: TObject);
 begin
-  SearchEdit.Buttons.Clear.Visible := ClearButtonCheckBox.Checked;
+  SearchEdit.Buttons[1].Visible := ClearButtonCheckBox.Checked;
 end;
 
 procedure TSearchEditFrame.TimerTimer(Sender: TObject);
@@ -95,28 +95,20 @@ end;
 
 procedure TSearchEditFrame.ButtonSearchClickCheckBoxChange(Sender: TObject);
 begin
-  if ButtonSearchClickCheckBox.Checked then
-    SearchEdit.OnButtonSearchClick := SearchEditButtonSearchClick
-  else
-    SearchEdit.OnButtonSearchClick := nil;
-end;
-
-procedure TSearchEditFrame.SearchEditButtonSearchClick(Sender: TObject);
-begin
-  SearchEdit.Text := InputBox('Search', 'Type a text', '');
-end;
-
-procedure TSearchEditFrame.SearchEditButtonClearClick(Sender: TObject);
-begin
-  SearchEdit.Text := InputBox('After clean', 'Type a default text', '');
+  with SearchEdit.Buttons[0] do
+    if ButtonSearchClickCheckBox.Checked then
+      OnClick := SearchEditButtons0Click
+    else
+      OnClick := nil;
 end;
 
 procedure TSearchEditFrame.ButtonClearClickCheckBoxChange(Sender: TObject);
 begin
-  if ButtonClearClickCheckBox.Checked then
-    SearchEdit.OnButtonClearClick := SearchEditButtonClearClick
-  else
-    SearchEdit.OnButtonClearClick := nil;
+  with SearchEdit.Buttons[1] do
+    if ButtonClearClickCheckBox.Checked then
+      OnClick := SearchEditButtons1Click
+    else
+      OnClick := nil;
 end;
 
 procedure TSearchEditFrame.TimerStartTimer(Sender: TObject);
@@ -135,11 +127,21 @@ begin
   SearchingLabel.Visible := SearchEdit.Text <> '';
 end;
 
+procedure TSearchEditFrame.SearchEditButtons0Click(Sender: TObject);
+begin
+  SearchEdit.Text := InputBox('Search', 'Type a text', '');
+end;
+
+procedure TSearchEditFrame.SearchEditButtons1Click(Sender: TObject);
+begin
+  SearchEdit.Text := InputBox('After clean', 'Type a default text', '');
+end;
+
 constructor TSearchEditFrame.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  SearchButtonCheckBox.Checked := SearchEdit.Buttons.Search.Visible;
-  ClearButtonCheckBox.Checked := SearchEdit.Buttons.Clear.Visible;
+  SearchButtonCheckBox.Checked := SearchEdit.Buttons[0].Visible;
+  ClearButtonCheckBox.Checked := SearchEdit.Buttons[1].Visible;
   DelayEdit.Value := Timer.Interval;
   MinCharsEdit.Value := SearchEdit.Input.MinChars;
   AutoSearchCheckBox.Checked := ioAutoSearch in SearchEdit.Input.Options;
