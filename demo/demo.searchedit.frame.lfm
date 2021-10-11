@@ -2,12 +2,12 @@ object SearchEditFrame: TSearchEditFrame
   Left = 0
   Height = 384
   Top = 0
-  Width = 359
+  Width = 411
   ClientHeight = 384
-  ClientWidth = 359
+  ClientWidth = 411
   TabOrder = 0
-  DesignLeft = 417
-  DesignTop = 281
+  DesignLeft = 409
+  DesignTop = 276
   object Label1: TLabel
     Left = 32
     Height = 15
