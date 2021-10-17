@@ -84,7 +84,11 @@
       <Item14>
         <Filename Value="..\src\ui\tis.ui.lvlgraphcontrol.pas"/>
         <UnitName Value="tis.ui.lvlgraphcontrol"/>
-      </Item14>
+      </Item15>
+      <Item15>
+        <Filename Value="..\src\ui\tis.ui.parts.buttons.pas"/>
+        <UnitName Value="tis.ui.parts.buttons"/>
+      </Item15>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>
