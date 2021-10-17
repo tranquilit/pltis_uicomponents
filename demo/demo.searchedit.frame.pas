@@ -10,46 +10,50 @@ unit demo.searchedit.frame;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ExtCtrls, Buttons, StdCtrls, Spin,
+  Classes,
+  SysUtils,
+  Forms,
+  Controls,
+  ExtCtrls,
+  Buttons,
+  StdCtrls,
+  Spin,
   Dialogs,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
   mormot.core.text,
-  tis.ui.grid.core,
   tis.ui.searchedit;
 
 type
   TSearchEditFrame = class(TFrame)
     Label1: TLabel;
-    SearchButtonCheckBox: TCheckBox;
-    ClearButtonCheckBox: TCheckBox;
-    Timer: TTimer;
     GroupBox2: TGroupBox;
     Label4: TLabel;
-    DelayEdit: TSpinEdit;
+    IntervalEdit: TSpinEdit;
     Label5: TLabel;
     SearchEdit: TTisSearchEdit;
-    Label2: TLabel;
-    MinCharsEdit: TSpinEdit;
-    Label6: TLabel;
     AutoSearchCheckBox: TCheckBox;
     SearchingLabel: TLabel;
-    ButtonSearchClickCheckBox: TCheckBox;
-    ButtonClearClickCheckBox: TCheckBox;
     DoneLabel: TLabel;
+    GroupBox1: TGroupBox;
+    SearchButtonCheckBox: TCheckBox;
+    ButtonSearchClickCheckBox: TCheckBox;
+    GroupBox3: TGroupBox;
+    ClearButtonCheckBox: TCheckBox;
+    ButtonClearClickCheckBox: TCheckBox;
     procedure SearchButtonCheckBoxChange(Sender: TObject);
     procedure ClearButtonCheckBoxChange(Sender: TObject);
-    procedure TimerTimer(Sender: TObject);
-    procedure MinCharsEditChange(Sender: TObject);
     procedure AutoSearchCheckBoxChange(Sender: TObject);
     procedure ButtonSearchClickCheckBoxChange(Sender: TObject);
     procedure ButtonClearClickCheckBoxChange(Sender: TObject);
-    procedure TimerStartTimer(Sender: TObject);
     procedure SearchEditChange(Sender: TObject);
     procedure SearchEditEditingDone(Sender: TObject);
     procedure SearchEditButtons0Click(Sender: TObject);
     procedure SearchEditButtons1Click(Sender: TObject);
+    procedure IntervalEditEditingDone(Sender: TObject);
+    procedure SearchEditSearch(Sender: TObject);
+    procedure SearchEditStartSearch(Sender: TObject);
   private
 
   public
@@ -72,25 +76,9 @@ begin
   SearchEdit.Buttons[1].Visible := ClearButtonCheckBox.Checked;
 end;
 
-procedure TSearchEditFrame.TimerTimer(Sender: TObject);
-begin
-  Timer.Enabled := False;
-  SearchingLabel.Visible := SearchEdit.Text <> '';
-  SearchingLabel.Caption := 'Searching for... "' + SearchEdit.Text + '"';
-  DoneLabel.Visible := SearchingLabel.Visible;
-end;
-
-procedure TSearchEditFrame.MinCharsEditChange(Sender: TObject);
-begin
-  SearchEdit.Input.MinChars := MinCharsEdit.Value;
-end;
-
 procedure TSearchEditFrame.AutoSearchCheckBoxChange(Sender: TObject);
 begin
-  if AutoSearchCheckBox.Checked then
-    SearchEdit.Input.Options := SearchEdit.Input.Options + [ioAutoSearch]
-  else
-    SearchEdit.Input.Options := SearchEdit.Input.Options - [ioAutoSearch];
+  SearchEdit.AutoSearch := AutoSearchCheckBox.Checked
 end;
 
 procedure TSearchEditFrame.ButtonSearchClickCheckBoxChange(Sender: TObject);
@@ -109,11 +97,6 @@ begin
       OnClick := SearchEditButtons1Click
     else
       OnClick := nil;
-end;
-
-procedure TSearchEditFrame.TimerStartTimer(Sender: TObject);
-begin
-  DoneLabel.Visible := False;
 end;
 
 procedure TSearchEditFrame.SearchEditChange(Sender: TObject);
@@ -137,14 +120,30 @@ begin
   SearchEdit.Text := InputBox('After clean', 'Type a default text', '');
 end;
 
+procedure TSearchEditFrame.IntervalEditEditingDone(Sender: TObject);
+begin
+  SearchEdit.SearchInterval := IntervalEdit.Value;
+end;
+
+procedure TSearchEditFrame.SearchEditStartSearch(Sender: TObject);
+begin
+  DoneLabel.Visible := False;
+end;
+
+procedure TSearchEditFrame.SearchEditSearch(Sender: TObject);
+begin
+  SearchingLabel.Visible := SearchEdit.Text <> '';
+  SearchingLabel.Caption := 'Searching for... "' + SearchEdit.Text + '"';
+  DoneLabel.Visible := SearchingLabel.Visible;
+end;
+
 constructor TSearchEditFrame.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   SearchButtonCheckBox.Checked := SearchEdit.Buttons[0].Visible;
   ClearButtonCheckBox.Checked := SearchEdit.Buttons[1].Visible;
-  DelayEdit.Value := Timer.Interval;
-  MinCharsEdit.Value := SearchEdit.Input.MinChars;
-  AutoSearchCheckBox.Checked := ioAutoSearch in SearchEdit.Input.Options;
+  IntervalEdit.Value := SearchEdit.SearchInterval;
+  AutoSearchCheckBox.Checked := SearchEdit.AutoSearch;
 end;
 
 end.

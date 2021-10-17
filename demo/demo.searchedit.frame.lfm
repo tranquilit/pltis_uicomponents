@@ -1,69 +1,52 @@
 object SearchEditFrame: TSearchEditFrame
   Left = 0
-  Height = 384
+  Height = 457
   Top = 0
-  Width = 411
-  ClientHeight = 384
-  ClientWidth = 411
+  Width = 379
+  ClientHeight = 457
+  ClientWidth = 379
   TabOrder = 0
   DesignLeft = 409
-  DesignTop = 276
+  DesignTop = 123
   object Label1: TLabel
     Left = 32
     Height = 15
-    Top = 16
+    Top = 29
     Width = 35
     Caption = 'Search'
     ParentColor = False
   end
-  object SearchButtonCheckBox: TCheckBox
-    Left = 96
-    Height = 19
-    Top = 66
-    Width = 55
-    Caption = 'Search'
-    OnChange = SearchButtonCheckBoxChange
-    TabOrder = 0
-  end
-  object ClearButtonCheckBox: TCheckBox
-    Left = 152
-    Height = 19
-    Top = 66
-    Width = 47
-    Caption = 'Clear'
-    OnChange = ClearButtonCheckBoxChange
-    TabOrder = 1
-  end
   object GroupBox2: TGroupBox
     Left = 32
-    Height = 192
-    Top = 102
-    Width = 304
+    Height = 264
+    Top = 104
+    Width = 312
     Caption = ' Options '
-    ClientHeight = 172
-    ClientWidth = 300
-    TabOrder = 2
+    ClientHeight = 244
+    ClientWidth = 308
+    TabOrder = 1
     object Label4: TLabel
-      Left = 49
+      Left = 120
       Height = 15
-      Top = 17
-      Width = 29
-      Caption = 'Delay'
+      Top = 24
+      Width = 39
+      Caption = 'Interval'
       ParentColor = False
     end
-    object DelayEdit: TSpinEdit
-      Left = 88
+    object IntervalEdit: TSpinEdit
+      Left = 168
       Height = 23
-      Top = 17
+      Top = 21
       Width = 48
       MaxValue = 5000
+      OnEditingDone = IntervalEditEditingDone
       TabOrder = 0
       Value = 1000
     end
     object Label5: TLabel
-      Left = 141
+      Left = 224
       Height = 12
-      Top = 22
+      Top = 27
       Width = 12
       Caption = 'ms'
       Font.CharSet = ANSI_CHARSET
@@ -75,63 +58,84 @@ object SearchEditFrame: TSearchEditFrame
       ParentColor = False
       ParentFont = False
     end
-    object MinCharsEdit: TSpinEdit
-      Left = 88
-      Height = 23
-      Top = 56
-      Width = 38
-      OnChange = MinCharsEditChange
-      TabOrder = 1
-      Value = 1
-    end
-    object Label6: TLabel
-      Left = 24
-      Height = 15
-      Top = 61
-      Width = 54
-      Caption = 'Min Chars'
-      ParentColor = False
-    end
     object AutoSearchCheckBox: TCheckBox
-      Left = 88
+      Left = 16
       Height = 19
-      Top = 96
+      Top = 24
       Width = 84
       Caption = 'Auto Search'
       OnChange = AutoSearchCheckBoxChange
+      TabOrder = 1
+    end
+    object GroupBox1: TGroupBox
+      Left = 16
+      Height = 64
+      Top = 80
+      Width = 275
+      Caption = ' Search Button'
+      ClientHeight = 44
+      ClientWidth = 271
       TabOrder = 2
+      object SearchButtonCheckBox: TCheckBox
+        Left = 16
+        Height = 19
+        Top = 8
+        Width = 54
+        Caption = 'Visible'
+        OnChange = SearchButtonCheckBoxChange
+        TabOrder = 0
+      end
+      object ButtonSearchClickCheckBox: TCheckBox
+        Left = 104
+        Height = 19
+        Top = 8
+        Width = 107
+        Caption = 'Custom OnClick'
+        Checked = True
+        OnChange = ButtonSearchClickCheckBoxChange
+        State = cbChecked
+        TabOrder = 1
+      end
     end
-    object ButtonSearchClickCheckBox: TCheckBox
-      Left = 88
-      Height = 19
-      Top = 120
-      Width = 97
-      Caption = 'OnSearchClick'
-      Checked = True
-      OnChange = ButtonSearchClickCheckBoxChange
-      State = cbChecked
+    object GroupBox3: TGroupBox
+      Left = 16
+      Height = 64
+      Top = 160
+      Width = 275
+      Caption = ' Clear Button'
+      ClientHeight = 44
+      ClientWidth = 271
       TabOrder = 3
-    end
-    object ButtonClearClickCheckBox: TCheckBox
-      Left = 88
-      Height = 19
-      Top = 144
-      Width = 89
-      Caption = 'OnClearClick'
-      Checked = True
-      OnChange = ButtonClearClickCheckBoxChange
-      State = cbChecked
-      TabOrder = 4
+      object ClearButtonCheckBox: TCheckBox
+        Left = 16
+        Height = 19
+        Top = 16
+        Width = 54
+        Caption = 'Visible'
+        OnChange = ClearButtonCheckBoxChange
+        TabOrder = 0
+      end
+      object ButtonClearClickCheckBox: TCheckBox
+        Left = 104
+        Height = 19
+        Top = 16
+        Width = 107
+        Caption = 'Custom OnClick'
+        Checked = True
+        OnChange = ButtonClearClickCheckBoxChange
+        State = cbChecked
+        TabOrder = 1
+      end
     end
   end
   object SearchEdit: TTisSearchEdit
     Left = 32
     Height = 23
-    Top = 32
-    Width = 250
+    Top = 45
+    Width = 264
     OnChange = SearchEditChange
     OnEditingDone = SearchEditEditingDone
-    TabOrder = 3
+    TabOrder = 0
     TextHint = 'Search keywords'
     Buttons = <    
       item
@@ -168,7 +172,7 @@ object SearchEditFrame: TSearchEditFrame
           C446B9BFBC13000000000000000000000000000000000000000000000000
         }
         Kind = bkSearch
-        OnClick = SearchEditButtons0Click
+        Name = 'Search0'
       end    
       item
         Glyph.Data = {
@@ -208,22 +212,15 @@ object SearchEditFrame: TSearchEditFrame
           0000000000000000000000000000000000000000000000000000
         }
         Kind = bkClear
-        OnClick = SearchEditButtons1Click
+        Name = 'Clear1'
       end>
-    Input.Timer = Timer
-  end
-  object Label2: TLabel
-    Left = 48
-    Height = 15
-    Top = 67
-    Width = 44
-    Caption = 'Buttons:'
-    ParentColor = False
+    OnStartSearch = SearchEditStartSearch
+    OnSearch = SearchEditSearch
   end
   object SearchingLabel: TLabel
-    Left = 40
+    Left = 48
     Height = 20
-    Top = 312
+    Top = 384
     Width = 101
     Caption = 'Searching for... '
     Font.CharSet = ANSI_CHARSET
@@ -237,9 +234,9 @@ object SearchEditFrame: TSearchEditFrame
     Visible = False
   end
   object DoneLabel: TLabel
-    Left = 56
+    Left = 64
     Height = 20
-    Top = 336
+    Top = 416
     Width = 39
     Caption = 'Done.'
     Font.CharSet = ANSI_CHARSET
@@ -251,12 +248,5 @@ object SearchEditFrame: TSearchEditFrame
     ParentColor = False
     ParentFont = False
     Visible = False
-  end
-  object Timer: TTimer
-    Enabled = False
-    OnTimer = TimerTimer
-    OnStartTimer = TimerStartTimer
-    Left = 256
-    Top = 174
   end
 end
