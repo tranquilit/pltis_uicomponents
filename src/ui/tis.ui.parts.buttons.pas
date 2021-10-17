@@ -34,6 +34,7 @@ type
   private
     fButton: TSpeedButton;
     fKind: TButtonKind;
+    fName: string;
     function GetFlat: Boolean;
     procedure SetFlat(aValue: Boolean);
     function GetGlyph: TBitmap;
@@ -41,9 +42,8 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(aValue: Boolean);
     procedure SetKind(aValue: TButtonKind);
-    function GetOnClick: TNotifyEvent;
-    procedure SetOnClick(aValue: TNotifyEvent);
   protected
+    // ------------------------------- new properties ----------------------------------
     function Buttons: TButtonCollection;
   public
     destructor Destroy; override;
@@ -53,9 +53,8 @@ type
     property Flat: Boolean read GetFlat write SetFlat default False;
     property Glyph: TBitmap read GetGlyph write SetGlyph;
     property Kind: TButtonKind read fKind write SetKind default bkCustom;
+    property Name: string read fName write fName;
     property Visible: Boolean read GetVisible write SetVisible default True;
-    // ------------------------------- new events ----------------------------------
-    property OnClick: TNotifyEvent read GetOnClick write SetOnClick;
   end;
 
   TButtonCollection = class(TCollection)
@@ -126,16 +125,6 @@ begin
   finally
     img.Free;
   end;
-end;
-
-function TButtonItem.GetOnClick: TNotifyEvent;
-begin
-  result := Button.OnClick;
-end;
-
-procedure TButtonItem.SetOnClick(aValue: TNotifyEvent);
-begin
-  Button.OnClick := aValue;
 end;
 
 function TButtonItem.Buttons: TButtonCollection;
