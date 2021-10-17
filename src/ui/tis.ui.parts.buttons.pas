@@ -19,7 +19,9 @@ uses
   Dialogs,
   StdCtrls,
   ExtCtrls,
-  Buttons;
+  Buttons,
+  mormot.core.unicode,
+  mormot.core.rtti;
 
 type
   TButtonKind = (
@@ -112,31 +114,23 @@ end;
 procedure TButtonItem.SetKind(aValue: TButtonKind);
 var
   img: TImage;
-  n: string;
+  n, r: string;
 begin
   if fKind = aValue then
     exit;
   fKind := aValue;
-  Name := 'Button' + Index.ToString;
   img := TImage.Create(nil);
   try
-    case fKind of
-      bkSearch:
-      begin
-        n := 'searchedit_search';
-        Name := 'Search' + Index.ToString;
-      end;
-      bkClear:
-      begin
-        n := 'searchedit_clear';
-        Name := 'Clear' + Index.ToString;
-      end
+    n := Utf8ToString(LowerCase(GetEnumNameTrimed(TypeInfo(TButtonKind), ord(aValue))));
+    r := 'searchedit_' + n;
+    Name := n + Index.ToString;
+    if Assigned(LazarusResources.Find(r)) then
+    begin
+      img.Picture.LoadFromLazarusResource(r);
+      Button.Glyph.Assign(img.Picture.Bitmap);
+    end
     else
-      exit;
-    end;
-    LazarusResources.fi;
-    img.Picture.LoadFromLazarusResource(n);
-    Button.Glyph.Assign(img.Picture.Bitmap);
+      Button.Glyph.Clear;
     Buttons.Invalidate;
   finally
     img.Free;
