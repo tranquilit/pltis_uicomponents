@@ -61,6 +61,8 @@ type
     procedure TextChanged; override;
     procedure EnabledChanged; override;
     procedure EditingDone; override;
+    // ------------------------------- new methods ----------------------------------
+    procedure Search; virtual;
   published
     // ------------------------------- new properties ----------------------------------
     property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
@@ -163,7 +165,11 @@ begin
   else
     case b.Kind of
       bkSearch:
-        ; // it will call EditingDone automatically
+        if not fAutoSearch then
+        begin
+          if DoBeforeSearch then
+            DoTimer(self);
+        end;
       bkClear:
         Clear;
     end;
@@ -206,11 +212,11 @@ end;
 procedure TTisSearchEdit.EditingDone;
 begin
   inherited EditingDone;
-  if not fAutoSearch then
-  begin
-    if DoBeforeSearch then
-      DoTimer(self);
-  end;
+end;
+
+procedure TTisSearchEdit.Search;
+begin
+  DoTimer(self);
 end;
 
 end.
