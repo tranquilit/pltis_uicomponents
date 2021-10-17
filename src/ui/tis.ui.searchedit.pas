@@ -22,6 +22,8 @@ uses
   tis.ui.parts.buttons;
 
 type
+  TOnButtonClick = procedure (Sender: TObject; aButton: TButtonItem) of object;
+
   TOnBeforeSearch = procedure(Sender: TObject; const aText: string; var aAbort: Boolean) of object;
 
   TOnSearch = procedure(Sender: TObject; const aText: string) of object;
@@ -31,6 +33,7 @@ type
     fTimer: TTimer;
     fButtons: TButtonCollection;
     fAutoSearch: Boolean;
+    fOnButtonClick: TOnButtonClick;
     fOnBeforeSearch: TOnBeforeSearch;
     fOnSearch: TOnSearch;
     procedure SetDefault;
@@ -49,7 +52,7 @@ type
     // ------------------------------- new methods ----------------------------------
     function DoBeforeSearch: Boolean; virtual;
     procedure DoTimer(Sender: TObject); virtual;
-    procedure DoButtonClearClick(Sender: TObject); virtual;
+    procedure DoButtonClick(Sender: TObject); virtual;
     procedure Setup(aButton: TButtonItem); virtual;
   public
     // ------------------------------- inherited methods ----------------------------------
@@ -64,6 +67,7 @@ type
     property Buttons: TButtonCollection read fButtons write fButtons;
     property SearchInterval: Cardinal read GetSearchInterval write SetSearchInterval default 1000;
     // ------------------------------- new events ----------------------------------
+    property OnButtonClick: TOnButtonClick read fOnButtonClick write fOnButtonClick;
     property OnBeforeSearch: TOnBeforeSearch read fOnBeforeSearch write fOnBeforeSearch;
     property OnStartSearch: TNotifyEvent read GetOnStartSearch write SetOnStartSearch;
     property OnSearch: TOnSearch read fOnSearch write fOnSearch;
@@ -149,22 +153,25 @@ begin
     fOnSearch(self, Text);
 end;
 
-procedure TTisSearchEdit.DoButtonClearClick(Sender: TObject);
+procedure TTisSearchEdit.DoButtonClick(Sender: TObject);
+var
+  b: TButtonItem;
 begin
-  Clear;
+  b := fButtons.Items[(Sender as TComponent).Tag];
+  if Assigned(fOnButtonClick) then
+    fOnButtonClick(self, b)
+  else
+    case b.Kind of
+      bkSearch:
+        ; // it will call EditingDone automatically
+      bkClear:
+        Clear;
+    end;
 end;
 
 procedure TTisSearchEdit.Setup(aButton: TButtonItem);
-var
-  b: TSpeedButton;
 begin
-  b := aButton.Button;
-  case aButton.Kind of
-    bkSearch:
-      b.OnClick := OnEditingDone;
-    bkClear:
-      b.OnClick := DoButtonClearClick;
-  end;
+  aButton.Button.OnClick := DoButtonClick;
 end;
 
 constructor TTisSearchEdit.Create(aOwner: TComponent);
