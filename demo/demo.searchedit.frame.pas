@@ -23,6 +23,7 @@ uses
   mormot.core.variants,
   mormot.core.unicode,
   mormot.core.text,
+  tis.ui.parts.buttons,
   tis.ui.searchedit;
 
 type
@@ -36,24 +37,18 @@ type
     AutoSearchCheckBox: TCheckBox;
     SearchingLabel: TLabel;
     DoneLabel: TLabel;
-    GroupBox1: TGroupBox;
     SearchButtonCheckBox: TCheckBox;
-    ButtonSearchClickCheckBox: TCheckBox;
-    GroupBox3: TGroupBox;
     ClearButtonCheckBox: TCheckBox;
-    ButtonClearClickCheckBox: TCheckBox;
+    CustomClickCheckBox: TCheckBox;
     procedure SearchButtonCheckBoxChange(Sender: TObject);
     procedure ClearButtonCheckBoxChange(Sender: TObject);
     procedure AutoSearchCheckBoxChange(Sender: TObject);
-    procedure ButtonSearchClickCheckBoxChange(Sender: TObject);
-    procedure ButtonClearClickCheckBoxChange(Sender: TObject);
-    procedure SearchEditChange(Sender: TObject);
-    procedure SearchEditEditingDone(Sender: TObject);
-    procedure SearchEditButtons0Click(Sender: TObject);
-    procedure SearchEditButtons1Click(Sender: TObject);
     procedure IntervalEditEditingDone(Sender: TObject);
     procedure SearchEditSearch(Sender: TObject);
     procedure SearchEditStartSearch(Sender: TObject);
+    procedure CustomClickCheckBoxChange(Sender: TObject);
+    procedure SearchEditButtonClick(Sender: TObject; aButton: TButtonItem);
+    procedure SearchEditStopSearch(Sender: TObject);
   private
 
   public
@@ -81,45 +76,6 @@ begin
   SearchEdit.AutoSearch := AutoSearchCheckBox.Checked
 end;
 
-procedure TSearchEditFrame.ButtonSearchClickCheckBoxChange(Sender: TObject);
-begin
-  with SearchEdit.Buttons[0] do
-    if ButtonSearchClickCheckBox.Checked then
-      OnClick := SearchEditButtons0Click
-    else
-      OnClick := nil;
-end;
-
-procedure TSearchEditFrame.ButtonClearClickCheckBoxChange(Sender: TObject);
-begin
-  with SearchEdit.Buttons[1] do
-    if ButtonClearClickCheckBox.Checked then
-      OnClick := SearchEditButtons1Click
-    else
-      OnClick := nil;
-end;
-
-procedure TSearchEditFrame.SearchEditChange(Sender: TObject);
-begin
-  if AutoSearchCheckBox.Checked then
-    SearchingLabel.Visible := SearchEdit.Text <> '';
-end;
-
-procedure TSearchEditFrame.SearchEditEditingDone(Sender: TObject);
-begin
-  SearchingLabel.Visible := SearchEdit.Text <> '';
-end;
-
-procedure TSearchEditFrame.SearchEditButtons0Click(Sender: TObject);
-begin
-  SearchEdit.Text := InputBox('Search', 'Type a text', '');
-end;
-
-procedure TSearchEditFrame.SearchEditButtons1Click(Sender: TObject);
-begin
-  SearchEdit.Text := InputBox('After clean', 'Type a default text', '');
-end;
-
 procedure TSearchEditFrame.IntervalEditEditingDone(Sender: TObject);
 begin
   SearchEdit.SearchInterval := IntervalEdit.Value;
@@ -128,6 +84,39 @@ end;
 procedure TSearchEditFrame.SearchEditStartSearch(Sender: TObject);
 begin
   DoneLabel.Visible := False;
+  if AutoSearchCheckBox.Checked then
+    SearchingLabel.Visible := SearchEdit.Text <> '';
+end;
+
+procedure TSearchEditFrame.CustomClickCheckBoxChange(Sender: TObject);
+begin
+  if CustomClickCheckBox.Checked then
+    SearchEdit.OnButtonClick := SearchEditButtonClick
+  else
+    SearchEdit.OnButtonClick := nil;
+  SearchEdit.Buttons.Invalidate; // refresh all properties and events
+end;
+
+procedure TSearchEditFrame.SearchEditButtonClick(Sender: TObject;
+  aButton: TButtonItem);
+begin
+  case aButton.Kind of
+    bkSearch:
+      begin
+        SearchEdit.Text := InputBox('Search', 'Type a text', '');
+        SearchEdit.Search;
+      end;
+    bkClear:
+      begin
+        if MessageDlg('Clear text?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+          SearchEdit.Clear;
+      end;
+  end;
+end;
+
+procedure TSearchEditFrame.SearchEditStopSearch(Sender: TObject);
+begin
+  DoneLabel.Visible := True;
 end;
 
 procedure TSearchEditFrame.SearchEditSearch(Sender: TObject);
@@ -144,6 +133,7 @@ begin
   ClearButtonCheckBox.Checked := SearchEdit.Buttons[1].Visible;
   IntervalEdit.Value := SearchEdit.SearchInterval;
   AutoSearchCheckBox.Checked := SearchEdit.AutoSearch;
+  CustomClickCheckBox.Checked := Assigned(SearchEdit.OnButtonClick);
 end;
 
 end.
