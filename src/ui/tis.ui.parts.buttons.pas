@@ -227,6 +227,7 @@ begin
       inc(m, sb.Width + SPACE);
     end;
     sb.Parent := fControl.Parent;
+    sb.Tag := i;
     sb.Invalidate;
   end;
 end;
