@@ -57,17 +57,26 @@ type
     property Visible: Boolean read GetVisible write SetVisible default True;
   end;
 
+  IButtonProperties = interface
+  ['{D8B143FB-ECD2-4F54-ADA6-E22CB34173D2}']
+    procedure Setup(aButton: TButtonItem);
+  end;
+
   TButtonCollection = class(TCollection)
   private
     fControl: TWinControl;
     function GetButtonItem(aIndex: Integer): TButtonItem;
     procedure SetButtonItem(aIndex: Integer; aValue: TButtonItem);
   protected
+    // ------------------------------- inherited methods ----------------------------------
     function GetOwner: TPersistent; override;
+    // ------------------------------- new methods ----------------------------------
   public
     constructor Create(aControl: TWinControl); reintroduce;
     function Add: TCollectionItem; reintroduce;
-    procedure Invalidate;
+    procedure Setup(aButton: TButtonItem); virtual;
+    procedure Invalidate; virtual;
+    // ------------------------------- new properties ----------------------------------
     property Control: TWinControl read fControl;
     property Items[aIndex: Integer]: TButtonItem read GetButtonItem write SetButtonItem; default;
   end;
@@ -107,18 +116,25 @@ var
 begin
   if fKind = aValue then
     exit;
-  Collection.BeginUpdate;
   fKind := aValue;
+  Name := 'Button' + Index.ToString;
   img := TImage.Create(nil);
   try
     case fKind of
       bkSearch:
+      begin
         n := 'searchedit_search';
+        Name := 'Search' + Index.ToString;
+      end;
       bkClear:
+      begin
         n := 'searchedit_clear';
+        Name := 'Clear' + Index.ToString;
+      end
     else
       exit;
     end;
+    LazarusResources.fi;
     img.Picture.LoadFromLazarusResource(n);
     Button.Glyph.Assign(img.Picture.Bitmap);
     Buttons.Invalidate;
@@ -188,25 +204,36 @@ begin
   Invalidate;
 end;
 
+procedure TButtonCollection.Setup(aButton: TButtonItem);
+var
+  props: IButtonProperties;
+begin
+  if Supports(fControl, IButtonProperties, props) then
+    props.Setup(aButton);
+end;
+
 procedure TButtonCollection.Invalidate;
 const
   SPACE = 2;
 var
   i, m: Integer;
-  b: TSpeedButton;
+  b: TButtonItem;
+  sb: TSpeedButton;
 begin
   m := fControl.Left + fControl.Width + SPACE;
   for i := 0 to Count -1 do
   begin
-    b := TButtonItem(Items[i]).Button;
-    b.SetBounds(fControl.Left, fControl.Top, b.Width, b.Height);
-    if b.Visible then
+    b := TButtonItem(Items[i]);
+    Setup(b);
+    sb := b.Button;
+    sb.SetBounds(fControl.Left, fControl.Top, sb.Width, sb.Height);
+    if sb.Visible then
     begin
-      b.Left := m;
-      inc(m, b.Width + SPACE);
+      sb.Left := m;
+      inc(m, sb.Width + SPACE);
     end;
-    b.Parent := fControl.Parent;
-    b.Invalidate;
+    sb.Parent := fControl.Parent;
+    sb.Invalidate;
   end;
 end;
 
