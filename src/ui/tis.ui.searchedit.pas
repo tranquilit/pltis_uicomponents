@@ -22,22 +22,35 @@ uses
   tis.ui.parts.buttons;
 
 type
+  TOnBeforeSearch = procedure(Sender: TObject; const aText: string; var aAbort: Boolean) of object;
 
-  TTisSearchEdit = class(TEdit)
+  TOnSearch = procedure(Sender: TObject; const aText: string) of object;
+
+  TTisSearchEdit = class(TEdit, IButtonProperties)
   private
+    fTimer: TTimer;
     fButtons: TButtonCollection;
+    fAutoSearch: Boolean;
+    fOnBeforeSearch: TOnBeforeSearch;
+    fOnSearch: TOnSearch;
     procedure SetDefault;
     procedure SetUpEdit;
-    procedure SetUpButtons;
+    // -------- Timer events --------
+    function GetSearchInterval: Cardinal;
+    procedure SetSearchInterval(aValue: Cardinal);
+    function GetOnStartSearch: TNotifyEvent;
+    procedure SetOnStartSearch(aValue: TNotifyEvent);
+    function GetOnStopSearch: TNotifyEvent;
+    procedure SetOnStopSearch(aValue: TNotifyEvent);
   protected
     // ------------------------------- inherited methods ----------------------------------
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
-    procedure Loaded; override;
     // ------------------------------- new methods ----------------------------------
-    procedure DoSearchClick(Sender: TObject); virtual;
-    procedure DoClearClick(Sender: TObject); virtual;
-    procedure Searching; virtual;
+    function DoBeforeSearch: Boolean; virtual;
+    procedure DoTimer(Sender: TObject); virtual;
+    procedure DoButtonClearClick(Sender: TObject); virtual;
+    procedure Setup(aButton: TButtonItem); virtual;
   public
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
@@ -47,8 +60,14 @@ type
     procedure EditingDone; override;
   published
     // ------------------------------- new properties ----------------------------------
+    property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
     property Buttons: TButtonCollection read fButtons write fButtons;
-    property Input: TInput read fInput write fInput;
+    property SearchInterval: Cardinal read GetSearchInterval write SetSearchInterval default 1000;
+    // ------------------------------- new events ----------------------------------
+    property OnBeforeSearch: TOnBeforeSearch read fOnBeforeSearch write fOnBeforeSearch;
+    property OnStartSearch: TNotifyEvent read GetOnStartSearch write SetOnStartSearch;
+    property OnSearch: TOnSearch read fOnSearch write fOnSearch;
+    property OnStopSearch: TNotifyEvent read GetOnStopSearch write SetOnStopSearch;
   end;
 
 implementation
@@ -68,24 +87,34 @@ begin
   ControlStyle := ControlStyle - [csSetCaption];
 end;
 
-procedure TTisSearchEdit.SetUpButtons;
-var
-  i: Integer;
-  b: TButtonItem;
+function TTisSearchEdit.GetSearchInterval: Cardinal;
 begin
-  if csDesigning in ComponentState then
-    exit;
-  for i := 0 to fButtons.Count -1 do
-  begin
-    b := fButtons.Items[i];
-    if not assigned(b.OnClick) then
-    begin
-      case b.Kind of
-        bkSearch: b.OnClick := DoSearchClick;
-        bkClear: b.OnClick := DoClearClick;
-      end;
-    end;
-  end;
+  result := fTimer.Interval;
+end;
+
+procedure TTisSearchEdit.SetSearchInterval(aValue: Cardinal);
+begin
+  fTimer.Interval := aValue;
+end;
+
+function TTisSearchEdit.GetOnStartSearch: TNotifyEvent;
+begin
+  result := fTimer.OnStartTimer;
+end;
+
+procedure TTisSearchEdit.SetOnStartSearch(aValue: TNotifyEvent);
+begin
+  fTimer.OnStartTimer := aValue;
+end;
+
+function TTisSearchEdit.GetOnStopSearch: TNotifyEvent;
+begin
+  result := fTimer.OnStopTimer;
+end;
+
+procedure TTisSearchEdit.SetOnStopSearch(aValue: TNotifyEvent);
+begin
+  fTimer.OnStopTimer := aValue;
 end;
 
 procedure TTisSearchEdit.SetParent(aNewParent: TWinControl);
@@ -99,49 +128,59 @@ end;
 procedure TTisSearchEdit.DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited DoSetBounds(aLeft, aTop, aWidth, aHeight);
-  if assigned(fButtons) then
+  if Assigned(fButtons) then
     fButtons.Invalidate;
 end;
 
-procedure TTisSearchEdit.Loaded;
+function TTisSearchEdit.DoBeforeSearch: Boolean;
+var
+  aborted: Boolean;
 begin
-  inherited Loaded;
-  SetUpButtons;
+  aborted := False;
+  if Assigned(fOnBeforeSearch) then
+    fOnBeforeSearch(self, Text, aborted);
+  result := not aborted;
 end;
 
-procedure TTisSearchEdit.DoSearchClick(Sender: TObject);
+procedure TTisSearchEdit.DoTimer(Sender: TObject);
 begin
-  Searching;
+  fTimer.Enabled := False;
+  if Assigned(fOnSearch) then
+    fOnSearch(self, Text);
 end;
 
-procedure TTisSearchEdit.DoClearClick(Sender: TObject);
+procedure TTisSearchEdit.DoButtonClearClick(Sender: TObject);
 begin
   Clear;
 end;
 
-procedure TTisSearchEdit.Searching;
+procedure TTisSearchEdit.Setup(aButton: TButtonItem);
 var
-  t: TTimer;
+  b: TSpeedButton;
 begin
-  t := fInput.Timer;
-  if assigned(t) then
-  begin
-    t.Enabled := False;
-    if (Length(Text) >= fInput.MinChars) then
-      t.Enabled := True;
+  b := aButton.Button;
+  case aButton.Kind of
+    bkSearch:
+      b.OnClick := OnEditingDone;
+    bkClear:
+      b.OnClick := DoButtonClearClick;
   end;
 end;
 
 constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
-  inherited Create(AOwner);
+  inherited Create(aOwner);
+  fTimer := TTimer.Create(nil);
+  fTimer.OnTimer := DoTimer;
   fButtons := TButtonCollection.Create(self);
+  fAutoSearch := True;
   SetDefault;
   SetUpEdit;
 end;
 
 destructor TTisSearchEdit.Destroy;
 begin
+  fTimer.Free;
   fButtons.Free;
   inherited Destroy;
 end;
@@ -149,8 +188,7 @@ end;
 procedure TTisSearchEdit.TextChanged;
 begin
   inherited TextChanged;
-  if ioAutoSearch in fInput.Options then
-    Searching;
+  fTimer.Enabled := fAutoSearch and DoBeforeSearch;
 end;
 
 procedure TTisSearchEdit.EnabledChanged;
@@ -161,10 +199,11 @@ end;
 procedure TTisSearchEdit.EditingDone;
 begin
   inherited EditingDone;
-  Searching;
+  if not fAutoSearch then
+  begin
+    if DoBeforeSearch then
+      DoTimer(self);
+  end;
 end;
-
-initialization
-  {$I tis.ui.searchedit.lrs}
 
 end.
