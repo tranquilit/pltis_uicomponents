@@ -79,7 +79,7 @@ Main Features:
 
 ### TTisSearchEdit Component
 
-Based on simple TEdit component, this is our improved version specifically made for WAPT Enterprise version.
+Based on simple TEdit component, this is our improved version specifically made for WAPT Enterprise.
 
 Main Features:
 
