@@ -22,12 +22,17 @@ uses
   tis.ui.parts.buttons;
 
 type
+  /// event when click in a button of the collection
   TOnButtonClick = procedure (Sender: TObject; aButton: TButtonItem) of object;
 
+  /// event triggered before searching a text typed by the user
   TOnBeforeSearch = procedure(Sender: TObject; const aText: string; var aAbort: Boolean) of object;
 
+  /// event triggered when user is searching a text
   TOnSearch = procedure(Sender: TObject; const aText: string) of object;
 
+  /// component that allow user searching a typed text in asynchronous mode
+  // - it will use an internal TTimer instance
   TTisSearchEdit = class(TEdit, IButtonProperties)
   private
     fTimer: TTimer;
@@ -50,29 +55,41 @@ type
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
+    /// it performs OnBeforeSearch event
     function DoBeforeSearch: Boolean; virtual;
+    /// it performs OnTimer event for the internal Timer instance
     procedure DoTimer(Sender: TObject); virtual;
+    /// it performs a custom (Kind) button click
     procedure DoButtonClick(Sender: TObject); virtual;
+    /// it implements IButtonProperties.Setup
     procedure Setup(aButton: TButtonItem); virtual;
   public
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     procedure TextChanged; override;
-    procedure EnabledChanged; override;
-    procedure EditingDone; override;
     // ------------------------------- new methods ----------------------------------
+    /// it will call DoTimer
     procedure Search; virtual;
   published
     // ------------------------------- new properties ----------------------------------
+    /// if TRUE, it will start the Timer when user start typing
     property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
+    /// a collection of buttons
     property Buttons: TButtonCollection read fButtons write fButtons;
+    /// the interval of the internal Timer
     property SearchInterval: Cardinal read GetSearchInterval write SetSearchInterval default 1000;
     // ------------------------------- new events ----------------------------------
+    /// an event that will be trigger for bkCustom Kind buttons
     property OnButtonClick: TOnButtonClick read fOnButtonClick write fOnButtonClick;
+    /// an event that will be trigger before start searching
+    // - you have an option to abort the operation
     property OnBeforeSearch: TOnBeforeSearch read fOnBeforeSearch write fOnBeforeSearch;
+    /// an event that will be trigger when the Timer starts
     property OnStartSearch: TNotifyEvent read GetOnStartSearch write SetOnStartSearch;
+    /// an event that will call the user's algorithm for searching
     property OnSearch: TOnSearch read fOnSearch write fOnSearch;
+    /// an event that will be trigger when the Timer stops
     property OnStopSearch: TNotifyEvent read GetOnStopSearch write SetOnStopSearch;
   end;
 
@@ -160,19 +177,19 @@ var
   b: TButtonItem;
 begin
   b := fButtons.Items[(Sender as TComponent).Tag];
-  if Assigned(fOnButtonClick) then
-    fOnButtonClick(self, b)
-  else
-    case b.Kind of
-      bkSearch:
-        if not fAutoSearch then
-        begin
-          if DoBeforeSearch then
-            DoTimer(self);
-        end;
-      bkClear:
-        Clear;
-    end;
+  case b.Kind of
+    bkCustom:
+      if Assigned(fOnButtonClick) then
+        fOnButtonClick(self, b);
+    bkSearch:
+      if not fAutoSearch then
+      begin
+        if DoBeforeSearch then
+          DoTimer(self);
+      end;
+    bkClear:
+      Clear;
+  end;
 end;
 
 procedure TTisSearchEdit.Setup(aButton: TButtonItem);
@@ -202,16 +219,6 @@ procedure TTisSearchEdit.TextChanged;
 begin
   inherited TextChanged;
   fTimer.Enabled := fAutoSearch and DoBeforeSearch;
-end;
-
-procedure TTisSearchEdit.EnabledChanged;
-begin
-  inherited EnabledChanged;
-end;
-
-procedure TTisSearchEdit.EditingDone;
-begin
-  inherited EditingDone;
 end;
 
 procedure TTisSearchEdit.Search;

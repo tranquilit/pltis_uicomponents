@@ -24,14 +24,17 @@ uses
   mormot.core.rtti;
 
 type
+  /// kind that will define some properties of the button
   TButtonKind = (
     bkCustom,
     bkSearch,
     bkClear
   );
 
+  /// class forward
   TButtonCollection = class;
 
+  /// define a item for the collection
   TButtonItem = class(TCollectionItem)
   private
     fButton: TSpeedButton;
@@ -52,18 +55,28 @@ type
     function Button: TSpeedButton;
   published
     // ------------------------------- new properties ----------------------------------
+    /// if the button will be flat mode
     property Flat: Boolean read GetFlat write SetFlat default False;
+    /// button icon
     property Glyph: TBitmap read GetGlyph write SetGlyph;
+    /// kind that could define some behavior for the button
     property Kind: TButtonKind read fKind write SetKind default bkCustom;
+    /// the item name
     property Name: string read fName write fName;
+    /// if the button is visible
+    // - it will visible/invisible at design time as well
     property Visible: Boolean read GetVisible write SetVisible default True;
   end;
 
+  /// a contract that will allow a better customization when addind
+  // a new button to the collection
   IButtonProperties = interface
   ['{D8B143FB-ECD2-4F54-ADA6-E22CB34173D2}']
+    /// define any property/event for the item
     procedure Setup(aButton: TButtonItem);
   end;
 
+  /// button collection
   TButtonCollection = class(TCollection)
   private
     fControl: TWinControl;
@@ -72,14 +85,20 @@ type
   protected
     // ------------------------------- inherited methods ----------------------------------
     function GetOwner: TPersistent; override;
-    // ------------------------------- new methods ----------------------------------
   public
     constructor Create(aControl: TWinControl); reintroduce;
+    // ------------------------------- new methods ----------------------------------
     function Add: TCollectionItem; reintroduce;
+    /// setup the item's properties/events using IButtonProperties implementation
+    // from Control
+    // - you can override to use another approach
     procedure Setup(aButton: TButtonItem); virtual;
+    /// call it when something was changed on items
     procedure Invalidate; virtual;
     // ------------------------------- new properties ----------------------------------
+    /// point to the control that created the collection
     property Control: TWinControl read fControl;
+    /// items of the collection
     property Items[aIndex: Integer]: TButtonItem read GetButtonItem write SetButtonItem; default;
   end;
 
@@ -227,7 +246,7 @@ begin
       inc(m, sb.Width + SPACE);
     end;
     sb.Parent := fControl.Parent;
-    sb.Tag := i;
+    sb.Tag := i; // it could be used to locate the corresponding item instance
     sb.Invalidate;
   end;
 end;
