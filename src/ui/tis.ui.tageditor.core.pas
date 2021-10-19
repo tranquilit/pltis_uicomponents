@@ -241,6 +241,7 @@ type
     fOnTagBeforeDelete: TOnTagBeforeDelete;
     fOnTagAfterDrag: TOnTagAfterDrag;
     fOnChange: TNotifyEvent;
+    fBgDisabledColor: TColor;
     function GetClickInfoAt(X, Y: Integer): TClickInfo;
     function GetReadOnly: Boolean;
     function GetSeparatorIndexAt(X, Y: Integer): Integer;
@@ -257,6 +258,7 @@ type
     procedure DoPopupMenuDeleteItem(Sender: TObject);
     procedure SetAutoHeight(const Value: Boolean);
     procedure SetBgColor(const Value: TColor);
+    procedure SetBgDisabledColor(aValue: TColor);
     procedure SetBorderColor(const Value: TColor);
     procedure SetMaxHeight(const Value: Integer);
     procedure SetMultiLine(const Value: Boolean);
@@ -313,6 +315,8 @@ type
     /// event implementation for AfterDrag
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
+    const clBgDisabledColor = $00F0F0F0;
+  public
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     /// it will clear all tags
@@ -333,6 +337,7 @@ type
     property AsArray: TStringArray read GetAsArray write SetAsArray;
     property AutoHeight: Boolean read fAutoHeight write SetAutoHeight;
     property BgColor: TColor read fBgColor write SetBgColor default clWindow;
+    property BgDisabledColor: TColor read fBgDisabledColor write SetBgDisabledColor default clBgDisabledColor;
     property BorderColor: TColor read fBorderColor write SetBorderColor default clWindowFrame;
     property EditorColor: TColor read fEditorColor write fEditorColor default clWindow;
     property MaxHeight: Integer read fMaxHeight write SetMaxHeight default DefaultMaxHeight;
@@ -647,6 +652,7 @@ begin
   fTags := NewTags(Self);
   fPopupMenu := NewPopupMenu;
   fBgColor := clWindow;
+  fBgDisabledColor := clBgDisabledColor;
   fBorderColor := clWindowFrame;
   fTagBgColor := clSkyBlue;
   fTagBorderColor := clNavy;
@@ -1319,7 +1325,7 @@ var
 begin
   inherited Paint;
   UpdateMetrics;
-  Canvas.Brush.Color := fBgColor;
+  Canvas.Brush.Color := IfThen(Enabled, fBgColor, fBgDisabledColor);
   Canvas.Pen.Color := fBorderColor;
   Canvas.Rectangle(ClientRect);
   Canvas.Font.Assign(Self.Font);
@@ -1396,6 +1402,15 @@ begin
   if fBgColor <> Value then
   begin
     fBgColor := Value;
+    Invalidate;
+  end;
+end;
+
+procedure TTisTagEditor.SetBgDisabledColor(aValue: TColor);
+begin
+  if fBgDisabledColor <> aValue then
+  begin
+    fBgDisabledColor := aValue;
     Invalidate;
   end;
 end;
