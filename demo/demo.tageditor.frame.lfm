@@ -11,11 +11,11 @@ object TagEditorFrame: TTagEditorFrame
   DesignTop = 113
   object GroupBox1: TGroupBox
     Left = 16
-    Height = 162
-    Top = 115
+    Height = 181
+    Top = 96
     Width = 528
     Caption = ' Options '
-    ClientHeight = 142
+    ClientHeight = 161
     ClientWidth = 524
     TabOrder = 1
     object AutoHeightCheckBox: TCheckBox
@@ -154,6 +154,17 @@ object TagEditorFrame: TTagEditorFrame
       OnClick = AutoCompleteCheckBoxClick
       TabOrder = 9
     end
+    object EnabledCheckBox: TCheckBox
+      Left = 16
+      Height = 19
+      Top = 136
+      Width = 62
+      Caption = 'Enabled'
+      Checked = True
+      OnClick = EnabledCheckBoxClick
+      State = cbChecked
+      TabOrder = 10
+    end
   end
   object TagEditor: TTisTagEditor
     Left = 17
@@ -163,7 +174,6 @@ object TagEditorFrame: TTagEditorFrame
     TabOrder = 0
     TabStop = True
     AutoHeight = False
-    BgColor = clWhite
     TagInput.DelimiterChars = ',;'
     TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?`¨'''
     Tags = <    

@@ -51,6 +51,7 @@ type
     Label5: TLabel;
     DropDownCheckBox: TCheckBox;
     AutoCompleteCheckBox: TCheckBox;
+    EnabledCheckBox: TCheckBox;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -71,6 +72,7 @@ type
     procedure ItemsUpdateButtonClick(Sender: TObject);
     procedure DropDownCheckBoxClick(Sender: TObject);
     procedure AutoCompleteCheckBoxClick(Sender: TObject);
+    procedure EnabledCheckBoxClick(Sender: TObject);
   end;
 
 implementation
@@ -201,6 +203,11 @@ begin
       AutoComplete := AutoComplete + [cbactEnabled]
     else
       AutoComplete := AutoComplete - [cbactEnabled];
+end;
+
+procedure TTagEditorFrame.EnabledCheckBoxClick(Sender: TObject);
+begin
+  TagEditor.Enabled := EnabledCheckBox.Checked;
 end;
 
 end.
