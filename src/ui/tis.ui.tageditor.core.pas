@@ -205,7 +205,9 @@ type
     fActualTagHeight: Integer;
     fAutoHeight: Boolean;
     fBgColor: TColor;
+    fBgColorDisabled: TColor;
     fBorderColor: TColor;
+    fBorderColorDisabled: TColor;
     fCaretVisible: Boolean;
     fLefts, fRights, fWidths, fTops, fBottoms: array of Integer;
     fCloseBtnLefts, fCloseBtnTops: array of Integer;
@@ -241,7 +243,6 @@ type
     fOnTagBeforeDelete: TOnTagBeforeDelete;
     fOnTagAfterDrag: TOnTagAfterDrag;
     fOnChange: TNotifyEvent;
-    fBgDisabledColor: TColor;
     function GetClickInfoAt(X, Y: Integer): TClickInfo;
     function GetReadOnly: Boolean;
     function GetSeparatorIndexAt(X, Y: Integer): Integer;
@@ -258,8 +259,9 @@ type
     procedure DoPopupMenuDeleteItem(Sender: TObject);
     procedure SetAutoHeight(const Value: Boolean);
     procedure SetBgColor(const Value: TColor);
-    procedure SetBgDisabledColor(aValue: TColor);
+    procedure SetBgColorDisabled(aValue: TColor);
     procedure SetBorderColor(const Value: TColor);
+    procedure SetBorderColorDisabled(aValue: TColor);
     procedure SetMaxHeight(const Value: Integer);
     procedure SetMultiLine(const Value: Boolean);
     procedure SetTagsFromDelimitedText(const aText: string);
@@ -315,7 +317,8 @@ type
     /// event implementation for AfterDrag
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
-    const clBgDisabledColor = $00F0F0F0;
+    const clBgColorDisabled = $00F0F0F0;
+    const clBorderColorDisabled = clSilver;
   public
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
@@ -328,6 +331,7 @@ type
     property Align;
     property BorderSpacing;
     property Cursor;
+    property Enabled;
     property TabOrder;
     property TabStop;
     property Tag;
@@ -337,8 +341,9 @@ type
     property AsArray: TStringArray read GetAsArray write SetAsArray;
     property AutoHeight: Boolean read fAutoHeight write SetAutoHeight;
     property BgColor: TColor read fBgColor write SetBgColor default clWindow;
-    property BgDisabledColor: TColor read fBgDisabledColor write SetBgDisabledColor default clBgDisabledColor;
+    property BgColorDisabled: TColor read fBgColorDisabled write SetBgColorDisabled default clBgColorDisabled;
     property BorderColor: TColor read fBorderColor write SetBorderColor default clWindowFrame;
+    property BorderColorDisabled: TColor read fBorderColorDisabled write SetBorderColorDisabled default clBorderColorDisabled;
     property EditorColor: TColor read fEditorColor write fEditorColor default clWindow;
     property MaxHeight: Integer read fMaxHeight write SetMaxHeight default DefaultMaxHeight;
     property MultiLine: Boolean read fMultiLine write SetMultiLine default False;
@@ -652,8 +657,9 @@ begin
   fTags := NewTags(Self);
   fPopupMenu := NewPopupMenu;
   fBgColor := clWindow;
-  fBgDisabledColor := clBgDisabledColor;
+  fBgColorDisabled := clBgColorDisabled;
   fBorderColor := clWindowFrame;
+  fBorderColorDisabled := clBorderColorDisabled;
   fTagBgColor := clSkyBlue;
   fTagBorderColor := clNavy;
   fSpacing := DefaultSpacing;
@@ -1325,8 +1331,8 @@ var
 begin
   inherited Paint;
   UpdateMetrics;
-  Canvas.Brush.Color := IfThen(Enabled, fBgColor, fBgDisabledColor);
-  Canvas.Pen.Color := fBorderColor;
+  Canvas.Brush.Color := IfThen(Enabled, fBgColor, fBgColorDisabled);
+  Canvas.Pen.Color := IfThen(Enabled, fBorderColor, fBorderColorDisabled);
   Canvas.Rectangle(ClientRect);
   Canvas.Font.Assign(Self.Font);
   clip := CreateRectRgnIndirect(GetShrunkClientRect(3));
@@ -1406,11 +1412,11 @@ begin
   end;
 end;
 
-procedure TTisTagEditor.SetBgDisabledColor(aValue: TColor);
+procedure TTisTagEditor.SetBgColorDisabled(aValue: TColor);
 begin
-  if fBgDisabledColor <> aValue then
+  if fBgColorDisabled <> aValue then
   begin
-    fBgDisabledColor := aValue;
+    fBgColorDisabled := aValue;
     Invalidate;
   end;
 end;
@@ -1420,6 +1426,15 @@ begin
   if fBorderColor <> Value then
   begin
     fBorderColor := Value;
+    Invalidate;
+  end;
+end;
+
+procedure TTisTagEditor.SetBorderColorDisabled(aValue: TColor);
+begin
+  if fBorderColorDisabled <> aValue then
+  begin
+    fBorderColorDisabled := aValue;
     Invalidate;
   end;
 end;
