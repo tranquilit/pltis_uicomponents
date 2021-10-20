@@ -354,6 +354,9 @@ type
     property TagComboBox: TTagComboBoxOptions read fTagComboBox write fTagComboBox;
     property TagInput: TTagInput read fTagInput write fTagInput;
     property TagBgColor: TColor read fTagBgColor write SetTagBgColor default clSkyBlue;
+    /// use this property to change the default behavior when Enabled is FALSE
+    // - if clDefault, the component will darkening the BgColor in all tags
+    // - otherwise, the color chose will be used for all tags
     property TagBgColorDisabled: TColor read fTagBgColorDisabled write SetTagBgColorDisabled default clDefault;
     property TagBorderColor: TColor read fTagBorderColor write SetTagBorderColor default clNavy;
     property TagHeight: Integer read fTagHeight write SetTagHeight default DefaultTagHeight;
