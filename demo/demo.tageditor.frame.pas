@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
-  ExtCtrls, Buttons,
+  ExtCtrls, Buttons, Graphics,
   mormot.core.base,
   mormot.core.data,
   mormot.core.text,
@@ -52,6 +52,9 @@ type
     DropDownCheckBox: TCheckBox;
     AutoCompleteCheckBox: TCheckBox;
     EnabledCheckBox: TCheckBox;
+    Label9: TLabel;
+    TagBgColorDisabledBox: TColorBox;
+    SpeedButton1: TSpeedButton;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -73,6 +76,8 @@ type
     procedure DropDownCheckBoxClick(Sender: TObject);
     procedure AutoCompleteCheckBoxClick(Sender: TObject);
     procedure EnabledCheckBoxClick(Sender: TObject);
+    procedure TagBgColorDisabledBoxChange(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
   end;
 
 implementation
@@ -208,6 +213,16 @@ end;
 procedure TTagEditorFrame.EnabledCheckBoxClick(Sender: TObject);
 begin
   TagEditor.Enabled := EnabledCheckBox.Checked;
+end;
+
+procedure TTagEditorFrame.TagBgColorDisabledBoxChange(Sender: TObject);
+begin
+  TagEditor.TagBgColorDisabled := TagBgColorDisabledBox.Selected;
+end;
+
+procedure TTagEditorFrame.SpeedButton1Click(Sender: TObject);
+begin
+  TagBgColorDisabledBox.Selected := clDefault;
 end;
 
 end.
