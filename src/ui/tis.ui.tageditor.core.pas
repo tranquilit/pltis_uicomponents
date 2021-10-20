@@ -424,6 +424,21 @@ begin
     result := clBlack;
 end;
 
+/// returns a darkening color
+function GetColorDisabled(aValue: TColor): TColor;
+var
+  r, g, b: Byte;
+begin
+  r := GetRValue(aValue);
+  g := GetGValue(aValue);
+  b := GetBValue(aValue);
+  result := RGB(
+    r - MulDiv(r, 50, 100),
+    g - MulDiv(g, 50, 100),
+    b - MulDiv(b, 50, 100)
+  );
+end;
+
 { TTagComboBoxOptions }
 
 procedure TTagComboBoxOptions.SetItems(aValue: TStrings);
@@ -1344,7 +1359,8 @@ begin
     Y := fTops[i] - fScrollInfo.nPos;
     w := fWidths[i];
     R := Rect(X, Y, X + w, Y + fActualTagHeight);
-    Canvas.Brush.Color := fTags.Items[i].fBgColor;
+    with fTags.Items[i] do
+      Canvas.Brush.Color := IfThen(self.Enabled, fBgColor, GetColorDisabled(fBgColor));
     Canvas.Pen.Color := fTags.Items[i].fBorderColor;
     Canvas.RoundRect(R, fTagRoundBorder, fTagRoundBorder);
     Canvas.Font.Color := fTags.Items[i].fTextColor;
