@@ -233,6 +233,7 @@ type
     fShrunk: Boolean;
     fSpacing: Integer;
     fTagBgColor: TColor;
+    fTagBgColorDisabled: TColor;
     fTagBorderColor: TColor;
     fTagHeight: Integer;
     fTagRoundBorder: Integer;
@@ -269,6 +270,7 @@ type
     procedure SetReadOnly(const Value: Boolean);
     procedure SetSpacing(const Value: Integer);
     procedure SetTagBgColor(const Value: TColor);
+    procedure SetTagBgColorDisabled(aValue: TColor);
     procedure SetTagBorderColor(const Value: TColor);
     procedure SetTagHeight(const Value: Integer);
     procedure SetTagRoundBorder(const Value: Integer);
@@ -352,6 +354,7 @@ type
     property TagComboBox: TTagComboBoxOptions read fTagComboBox write fTagComboBox;
     property TagInput: TTagInput read fTagInput write fTagInput;
     property TagBgColor: TColor read fTagBgColor write SetTagBgColor default clSkyBlue;
+    property TagBgColorDisabled: TColor read fTagBgColorDisabled write SetTagBgColorDisabled default clDefault;
     property TagBorderColor: TColor read fTagBorderColor write SetTagBorderColor default clNavy;
     property TagHeight: Integer read fTagHeight write SetTagHeight default DefaultTagHeight;
     property TagRoundBorder: Integer read fTagRoundBorder write SetTagRoundBorder default 0;
@@ -676,6 +679,7 @@ begin
   fBorderColor := clWindowFrame;
   fBorderColorDisabled := clBorderColorDisabled;
   fTagBgColor := clSkyBlue;
+  fTagBgColorDisabled := clDefault;
   fTagBorderColor := clNavy;
   fSpacing := DefaultSpacing;
   fTagTextColor := clWhite;
@@ -1360,7 +1364,17 @@ begin
     w := fWidths[i];
     R := Rect(X, Y, X + w, Y + fActualTagHeight);
     with fTags.Items[i] do
-      Canvas.Brush.Color := IfThen(self.Enabled, fBgColor, GetColorDisabled(fBgColor));
+    begin
+      Canvas.Brush.Color := IfThen(
+        self.Enabled,
+        fBgColor,
+        IfThen(
+          fTagBgColorDisabled = clDefault,
+          GetColorDisabled(fBgColor),
+          fTagBgColorDisabled
+        )
+      );
+    end;
     Canvas.Pen.Color := fTags.Items[i].fBorderColor;
     Canvas.RoundRect(R, fTagRoundBorder, fTagRoundBorder);
     Canvas.Font.Color := fTags.Items[i].fTextColor;
@@ -1507,6 +1521,16 @@ begin
   begin
     fTagBgColor := Value;
     TagTextColor := GetBlackOrWhite(fTagBgColor);
+    Invalidate;
+  end;
+end;
+
+procedure TTisTagEditor.SetTagBgColorDisabled(aValue: TColor);
+begin
+  if fTagBgColorDisabled <> aValue then
+  begin
+    fTagBgColorDisabled := aValue;
+    TagTextColor := GetBlackOrWhite(fTagBgColorDisabled);
     Invalidate;
   end;
 end;
