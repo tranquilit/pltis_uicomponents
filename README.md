@@ -60,6 +60,23 @@ Main Features:
 
 <img src="./images/tiscontrolsyneditor.png">
 
+### TTisLvlGraphControl Component
+
+Based on TLvlGraphControl component, this is a modified version made for our Wapt dependencies visualization.
+
+Main Features:
+
+- Possibility to zoom in/out
+- Have the mouse right click used to select
+- Have a specific PopupMenu on Nodes
+- Allow to have selected/focused nodes
+- Keep the focused node in the visible part of the graph
+- Each Node can have two images instead of one
+- Highlight in and/or out edges of selected nodes
+- Drag the graph with the middle mouse button pressed
+
+<img src="./images/tislvlgraphcontrol.png">
+
 ## Dependencies
 
 First of all, you should have these libraries installed in your environment:

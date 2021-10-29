@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="13">
+    <Files Count="14">
       <Item1>
         <Filename Value="..\src\ui\tis.ui.registry.pas"/>
         <HasRegisterProc Value="True"/>
@@ -81,6 +81,10 @@
         <Filename Value="..\src\ui\tis.ui.syncontroledit.pas"/>
         <UnitName Value="tis.ui.syncontroledit"/>
       </Item13>
+      <Item14>
+        <Filename Value="..\src\ui\tis.ui.lvlgraphcontrol.pas"/>
+        <UnitName Value="tis.ui.lvlgraphcontrol"/>
+      </Item14>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>

@@ -23,7 +23,8 @@ uses
   tis.ui.tageditor.core,
   tis.ui.searchedit,
   tis.ui.togglebutton,
-  tis.ui.syncontroledit;
+  tis.ui.syncontroledit,
+  tis.ui.lvlgraphcontrol;
 
 procedure Register;
 
@@ -34,7 +35,7 @@ begin
   RegisterComponents('Tranquil IT', [
     TTisGrid, TTisTagEditor,
     TTisSearchEdit, TTisToggleButton,
-    TTisControlSynEditor]);
+    TTisControlSynEditor, TTisLvlGraphControl]);
   RegisterComponentEditor(TTisGrid, TTisGridComponentEditor);
 end;
 
