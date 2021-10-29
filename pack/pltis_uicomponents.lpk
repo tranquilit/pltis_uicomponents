@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="14">
+    <Files Count="15">
       <Item1>
         <Filename Value="..\src\ui\tis.ui.registry.pas"/>
         <HasRegisterProc Value="True"/>
@@ -84,7 +84,7 @@
       <Item14>
         <Filename Value="..\src\ui\tis.ui.lvlgraphcontrol.pas"/>
         <UnitName Value="tis.ui.lvlgraphcontrol"/>
-      </Item15>
+      </Item14>
       <Item15>
         <Filename Value="..\src\ui\tis.ui.parts.buttons.pas"/>
         <UnitName Value="tis.ui.parts.buttons"/>
