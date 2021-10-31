@@ -52,6 +52,7 @@ type
     procedure SetOnStopSearch(aValue: TNotifyEvent);
   protected
     // ------------------------------- inherited methods ----------------------------------
+    procedure Loaded; override;
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
@@ -139,6 +140,12 @@ end;
 procedure TTisSearchEdit.SetOnStopSearch(aValue: TNotifyEvent);
 begin
   fTimer.OnStopTimer := aValue;
+end;
+
+procedure TTisSearchEdit.Loaded;
+begin
+  inherited Loaded;
+  fButtons.Invalidate;
 end;
 
 procedure TTisSearchEdit.SetParent(aNewParent: TWinControl);
