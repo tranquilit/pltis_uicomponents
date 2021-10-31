@@ -100,17 +100,10 @@ end;
 procedure TSearchEditFrame.SearchEditButtonClick(Sender: TObject;
   aButton: TButtonItem);
 begin
-  case aButton.Kind of
-    bkSearch:
-      begin
-        SearchEdit.Text := InputBox('Search', 'Type a text', '');
-        SearchEdit.Search;
-      end;
-    bkClear:
-      begin
-        if MessageDlg('Clear text?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-          SearchEdit.Clear;
-      end;
+  if aButton.Name = 'Custom' then
+  begin
+    SearchEdit.Text := InputBox('Search', 'Type a text', '');
+    SearchEdit.Search;
   end;
 end;
 
