@@ -67,6 +67,7 @@ type
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
+    procedure KeyPress(var aKey: char); override;
     procedure TextChanged; override;
     // ------------------------------- new methods ----------------------------------
     /// it will call DoTimer
@@ -185,7 +186,7 @@ begin
       if not fAutoSearch then
       begin
         if DoBeforeSearch then
-          DoTimer(self);
+          Search;
       end;
     bkClear:
       Clear;
@@ -213,6 +214,13 @@ begin
   fTimer.Free;
   fButtons.Free;
   inherited Destroy;
+end;
+
+procedure TTisSearchEdit.KeyPress(var aKey: char);
+begin
+  inherited KeyPress(aKey);
+  if (aKey = #13) and (not fAutoSearch) then
+    Search;
 end;
 
 procedure TTisSearchEdit.TextChanged;
