@@ -68,7 +68,7 @@ type
     property Visible: Boolean read GetVisible write SetVisible default True;
   end;
 
-  /// a contract that will allow a better customization when addind
+  /// a contract that will allow a better customization when adding
   // a new button to the collection
   IButtonProperties = interface
   ['{D8B143FB-ECD2-4F54-ADA6-E22CB34173D2}']
