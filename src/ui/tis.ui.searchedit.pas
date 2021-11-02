@@ -56,11 +56,12 @@ type
     procedure SetParent(aNewParent: TWinControl); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
-    /// it performs OnBeforeSearch event
+    /// it triggers OnBeforeSearch event
     function DoBeforeSearch: Boolean; virtual;
-    /// it performs OnSearch event
+    /// it triggers OnSearch event
+    // - first it will test DoBeforeSearch result
     procedure DoSearch(Sender: TObject); virtual;
-    /// it performs a custom (Kind) button click
+    /// it triggers a custom (Kind) button click
     procedure DoButtonClick(Sender: TObject); virtual;
     /// it implements IButtonProperties.Setup
     procedure Setup(aButton: TButtonItem); virtual;
@@ -68,10 +69,12 @@ type
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
+    /// it triggers RefreshSearch, if aKey=#13
     procedure KeyPress(var aKey: char); override;
+    /// it enables the timer if AutoSearch=TRUE
     procedure TextChanged; override;
     // ------------------------------- new methods ----------------------------------
-    /// it will call DoSearch
+    /// it triggers OnSearch event directly, even if AutoSearch=TRUE
     procedure Search; virtual;
     /// it will refresh the search
     // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
