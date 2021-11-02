@@ -58,8 +58,8 @@ type
     // ------------------------------- new methods ----------------------------------
     /// it performs OnBeforeSearch event
     function DoBeforeSearch: Boolean; virtual;
-    /// it performs OnTimer event for the internal Timer instance
-    procedure DoTimer(Sender: TObject); virtual;
+    /// it performs OnSearch event
+    procedure DoSearch(Sender: TObject); virtual;
     /// it performs a custom (Kind) button click
     procedure DoButtonClick(Sender: TObject); virtual;
     /// it implements IButtonProperties.Setup
@@ -71,7 +71,7 @@ type
     procedure KeyPress(var aKey: char); override;
     procedure TextChanged; override;
     // ------------------------------- new methods ----------------------------------
-    /// it will call DoTimer
+    /// it will call DoSearch
     procedure Search; virtual;
   published
     // ------------------------------- new properties ----------------------------------
@@ -173,7 +173,7 @@ begin
   result := not aborted;
 end;
 
-procedure TTisSearchEdit.DoTimer(Sender: TObject);
+procedure TTisSearchEdit.DoSearch(Sender: TObject);
 begin
   fTimer.Enabled := False;
   if Assigned(fOnSearch) then
@@ -209,7 +209,7 @@ constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   fTimer := TTimer.Create(nil);
-  fTimer.OnTimer := DoTimer;
+  fTimer.OnTimer := DoSearch;
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
   SetDefault;
@@ -238,7 +238,7 @@ end;
 
 procedure TTisSearchEdit.Search;
 begin
-  DoTimer(self);
+  DoSearch(self);
 end;
 
 end.
