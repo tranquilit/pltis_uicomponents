@@ -73,6 +73,9 @@ type
     // ------------------------------- new methods ----------------------------------
     /// it will call DoSearch
     procedure Search; virtual;
+    /// it will refresh the search
+    // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
+    procedure RefreshSearch; virtual;
   published
     // ------------------------------- new properties ----------------------------------
     /// if TRUE, it will start the Timer when user start typing
@@ -239,6 +242,14 @@ end;
 procedure TTisSearchEdit.Search;
 begin
   DoSearch(self);
+end;
+
+procedure TTisSearchEdit.RefreshSearch;
+begin
+  if fAutoSearch then
+    fTimer.Enabled := True
+  else
+    Search;
 end;
 
 end.
