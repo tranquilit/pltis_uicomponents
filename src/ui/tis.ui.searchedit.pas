@@ -75,6 +75,7 @@ type
     procedure TextChanged; override;
     // ------------------------------- new methods ----------------------------------
     /// it triggers OnSearch event directly, even if AutoSearch=TRUE
+    // - you might want to use RefreshSearch instead, for do not bypass AutoSearch flag
     procedure Search; virtual;
     /// it will refresh the search
     // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
