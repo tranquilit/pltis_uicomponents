@@ -79,11 +79,15 @@ Main Features:
 
 ### TTisSearchEdit Component
 
-Based on simple TEdit component, this is our improved version specifically made for WAPT Enterprise.
+Based on simple TEdit component, this component can be used to do searching asynchronously for do not freeze the UI.
 
 Main Features:
 
-- ...
+- AutoSearch property for enable/disable asynchronous search
+- Buttons collection, which enables you to add any "helper buttons" you want
+- Button Kind property, it has default implementations or bkCustom to do whatever you want
+- SearchInterval property in milliseconds for delaying the search
+- OnSearch event that has the logic for searching
 
 <img src="./images/tissearchedit.png">
 
