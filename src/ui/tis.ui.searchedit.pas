@@ -226,8 +226,8 @@ end;
 procedure TTisSearchEdit.KeyPress(var aKey: char);
 begin
   inherited KeyPress(aKey);
-  if (aKey = #13) and (not fAutoSearch) then
-    Search;
+  if aKey = #13 then
+    RefreshSearch;
 end;
 
 procedure TTisSearchEdit.TextChanged;
