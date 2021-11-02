@@ -179,7 +179,7 @@ end;
 procedure TTisSearchEdit.DoSearch(Sender: TObject);
 begin
   fTimer.Enabled := False;
-  if Assigned(fOnSearch) then
+  if DoBeforeSearch and Assigned(fOnSearch) then
     fOnSearch(self, Text);
 end;
 
@@ -193,11 +193,8 @@ begin
       if Assigned(fOnButtonClick) then
         fOnButtonClick(self, b);
     bkSearch:
-      if not fAutoSearch then
-      begin
-        if DoBeforeSearch then
-          Search;
-      end;
+      if not fAutoSearch then // must be checked for do not search twice
+        Search;
     bkClear:
       Clear;
   end;
@@ -236,7 +233,7 @@ end;
 procedure TTisSearchEdit.TextChanged;
 begin
   inherited TextChanged;
-  fTimer.Enabled := fAutoSearch and DoBeforeSearch;
+  fTimer.Enabled := fAutoSearch;
 end;
 
 procedure TTisSearchEdit.Search;
