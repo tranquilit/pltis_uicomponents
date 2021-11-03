@@ -48,6 +48,8 @@ type
     procedure SetVisible(aValue: Boolean);
     procedure SetKind(aValue: TButtonKind);
   protected
+    const DefaultFlat = True;
+  protected
     // ------------------------------- new properties ----------------------------------
     function Buttons: TButtonCollection;
   public
@@ -56,7 +58,7 @@ type
   published
     // ------------------------------- new properties ----------------------------------
     /// if the button will be flat mode
-    property Flat: Boolean read GetFlat write SetFlat default False;
+    property Flat: Boolean read GetFlat write SetFlat default DefaultFlat;
     /// button icon
     property Glyph: TBitmap read GetGlyph write SetGlyph;
     /// kind that could define some behavior for the button
@@ -183,6 +185,7 @@ begin
   if fButton = nil then
   begin
     fButton := TSpeedButton.Create(nil);
+    fButton.Flat := DefaultFlat;
     fButton.ControlStyle := fButton.ControlStyle + [csNoDesignSelectable];
   end;
   result := fButton;
