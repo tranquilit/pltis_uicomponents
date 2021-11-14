@@ -38,6 +38,7 @@ type
     fTimer: TTimer;
     fButtons: TButtonCollection;
     fAutoSearch: Boolean;
+    fSearchMaxHistory: Integer;
     fOnButtonClick: TOnButtonClick;
     fOnBeforeSearch: TOnBeforeSearch;
     fOnSearch: TOnSearch;
@@ -51,6 +52,9 @@ type
     function GetOnStopSearch: TNotifyEvent;
     procedure SetOnStopSearch(aValue: TNotifyEvent);
   protected
+    const DefaultSearchMaxHistory = 8;
+    const DefaultSearchInterval = 1000;
+  protected
     // ------------------------------- inherited methods ----------------------------------
     procedure Loaded; override;
     procedure SetParent(aNewParent: TWinControl); override;
@@ -61,7 +65,7 @@ type
     /// it triggers OnSearch event
     // - first it will test DoBeforeSearch result
     procedure DoSearch(Sender: TObject); virtual;
-    /// it triggers a custom (Kind) button click
+    /// it triggers button clicks
     procedure DoButtonClick(Sender: TObject); virtual;
     /// it implements IButtonProperties.Setup
     procedure Setup(aButton: TButtonItem); virtual;
@@ -69,7 +73,7 @@ type
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
-    /// it triggers RefreshSearch, if aKey=#13
+    /// it triggers RefreshSearch if aKey=#13, even if AutoSearch=TRUE
     procedure KeyPress(var aKey: char); override;
     // ------------------------------- new methods ----------------------------------
     /// it triggers OnSearch event directly, even if AutoSearch=TRUE
@@ -84,8 +88,10 @@ type
     property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
     /// a collection of buttons
     property Buttons: TButtonCollection read fButtons write fButtons;
+    /// the max history items that it will keep
+    property SearchMaxHistory: Integer read fSearchMaxHistory write fSearchMaxHistory default DefaultSearchMaxHistory;
     /// the interval of the internal Timer
-    property SearchInterval: Cardinal read GetSearchInterval write SetSearchInterval default 1000;
+    property SearchInterval: Cardinal read GetSearchInterval write SetSearchInterval default DefaultSearchInterval;
     // ------------------------------- new events ----------------------------------
     /// an event that will be trigger for bkCustom Kind buttons
     property OnButtonClick: TOnButtonClick read fOnButtonClick write fOnButtonClick;
@@ -213,6 +219,7 @@ begin
   fTimer.OnTimer := DoSearch;
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
+  fSearchMaxHistory := DefaultSearchMaxHistory;
   SetDefault;
   SetUpEdit;
 end;
