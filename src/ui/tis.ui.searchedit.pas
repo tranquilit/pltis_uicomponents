@@ -33,7 +33,7 @@ type
 
   /// component that allow user searching a typed text in asynchronous mode
   // - it will use an internal TTimer instance
-  TTisSearchEdit = class(TEdit, IButtonProperties)
+  TTisSearchEdit = class(TComboBox, IButtonProperties)
   private
     fTimer: TTimer;
     fButtons: TButtonCollection;
