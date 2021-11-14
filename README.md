@@ -79,7 +79,7 @@ Main Features:
 
 ### TTisSearchEdit Component
 
-Based on simple TEdit component, this component can be used to do searching asynchronously for do not freeze the UI.
+Based on simple TComboBox component, this component can be used to do searching asynchronously for do not freeze the UI.
 
 Main Features:
 
@@ -88,6 +88,8 @@ Main Features:
 - Button Kind property, it has default implementations or bkCustom to do whatever you want
 - SearchInterval property in milliseconds for delaying the search
 - OnSearch event that has the logic for searching
+- it keeps an automatically MRU history list for searched texts
+- SearchMaxHistory property to setup how many items to keep on the MRU list
 
 <img src="./images/tissearchedit.png">
 
