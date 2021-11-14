@@ -112,7 +112,6 @@ end;
 
 procedure TTisSearchEdit.SetUpEdit;
 begin
-  TextHint := 'Search keywords';
   Text := '';
   ControlStyle := ControlStyle - [csSetCaption];
 end;
