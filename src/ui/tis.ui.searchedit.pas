@@ -200,8 +200,11 @@ begin
       if Assigned(fOnButtonClick) then
         fOnButtonClick(self, b);
     bkSearch:
-      if not fAutoSearch then // must be checked for do not search twice
-        Search;
+    begin
+      RefreshSearch;
+      AddHistoryItem(Text, fSearchMaxHistory, True,
+        cbactSearchCaseSensitive in AutoCompleteText);
+    end;
     bkClear:
       Clear;
   end;
@@ -234,10 +237,13 @@ end;
 procedure TTisSearchEdit.KeyPress(var aKey: char);
 begin
   inherited KeyPress(aKey);
+  fTimer.Enabled := fAutoSearch;
   if aKey = #13 then
+  begin
     RefreshSearch;
-end;
-
+    AddHistoryItem(Text, fSearchMaxHistory, True,
+      cbactSearchCaseSensitive in AutoCompleteText);
+  end;
 end;
 
 procedure TTisSearchEdit.Search;
