@@ -71,8 +71,6 @@ type
     destructor Destroy; override;
     /// it triggers RefreshSearch, if aKey=#13
     procedure KeyPress(var aKey: char); override;
-    /// it enables the timer if AutoSearch=TRUE
-    procedure TextChanged; override;
     // ------------------------------- new methods ----------------------------------
     /// it triggers OnSearch event directly, even if AutoSearch=TRUE
     // - you might want to use RefreshSearch instead, for do not bypass AutoSearch flag
@@ -234,10 +232,6 @@ begin
     RefreshSearch;
 end;
 
-procedure TTisSearchEdit.TextChanged;
-begin
-  inherited TextChanged;
-  fTimer.Enabled := fAutoSearch;
 end;
 
 procedure TTisSearchEdit.Search;
