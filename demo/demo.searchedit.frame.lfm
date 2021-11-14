@@ -100,8 +100,9 @@ object SearchEditFrame: TSearchEditFrame
     Height = 23
     Top = 48
     Width = 240
+    AutoDropDown = True
+    ItemHeight = 15
     TabOrder = 0
-    TextHint = 'Search keywords'
     Buttons = <    
       item
         Glyph.Data = {

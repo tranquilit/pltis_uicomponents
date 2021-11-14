@@ -49,8 +49,6 @@ type
     procedure CustomClickCheckBoxChange(Sender: TObject);
     procedure SearchEditButtonClick(Sender: TObject; aButton: TButtonItem);
     procedure SearchEditStopSearch(Sender: TObject);
-  private
-
   public
     constructor Create(aOwner: TComponent); override;
   end;
