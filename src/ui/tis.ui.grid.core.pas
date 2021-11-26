@@ -2272,18 +2272,21 @@ begin
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
+var
+  d: PCardinal;
 begin
+  result := nil;
   if aNode = nil then
     aNode := FocusedNode;
   if aNode <> nil then
   begin
-    if aNode.Index < cardinal(fData.Count) then
-      result := _Safe(fData.Values[aNode.Index])
-    else
-      result := nil;
-  end
-  else
-    result := nil;
+    if aNode.Index < Cardinal(fData.Count) then
+    begin
+      d := fInternalData.Data(aNode);
+      if d <> nil then
+        result := _Safe(fData.Values[d^])
+    end;
+  end;
 end;
 
 procedure TTisGrid.LoadData;
