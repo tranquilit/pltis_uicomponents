@@ -202,9 +202,9 @@ type
   TOnGridAfterDataChange = type TNotifyEvent;
 
   /// event for comparing rows of objects
-  // - as used by TTisGrid.Sort
+  // - as used by TTisGrid.OnCompareByRow
   TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
-    const aRow1, aRow2: TDocVariantData; aReverse: Boolean; var aHandled: Boolean): PtrInt of object;
+    const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt of object;
 
   /// event to manipulate rows using copy/paste on grid
   // - use it for check/change the aData argument, before assign it, and/or abort the process
