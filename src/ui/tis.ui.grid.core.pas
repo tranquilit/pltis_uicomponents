@@ -1953,10 +1953,11 @@ function TTisGrid.DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
 var
   handled: Boolean;
 begin
+  handled := False;
   if assigned(OnCompareByRow) then
     result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled);
   if not handled then
-    result := aRow1^.CompareObject(aPropertyName, aRow2^);
+    result := aRow1^.CompareObject([aPropertyName], aRow2^);
 end;
 
 procedure TTisGrid.DoFindText(Sender: TObject);
