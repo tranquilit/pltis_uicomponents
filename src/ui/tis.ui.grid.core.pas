@@ -314,7 +314,8 @@ type
     // - returns TRUE if something has been added
     // - will call LoadData if returns TRUE
     function Add(aData: PDocVariantData): Boolean;
-    function DoVariantComparer(const aV1, aV2: variant): PtrInt; virtual;
+    function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
+      aRow2: PDocVariantData): PtrInt; virtual;
     procedure DoFindText(Sender: TObject);
     procedure DoFindNext(Sender: TObject);
     procedure DoFindReplace(Sender: TObject);
@@ -631,9 +632,8 @@ type
     property OnBeforeDeleteRows: TOnGridBeforeDeleteRows
       read fOnBeforeDeleteRows write fOnBeforeDeleteRows;
     /// comparing rows of objects
-    // - aPropertyName is the header column it was clicked
+    // - aPropertyName is the header column that was clicked
     // - aRow1, aRow2 are the whole lines that should be compared
-    // - aReverse indicates desdencent sort
     // - assign aHandle to True if you did some comparison, otherwise assign to False or do nothing
     // to let grid do the job itself
     // - on user callback, the compararison could be like this:
@@ -1914,9 +1914,15 @@ begin
     LoadData;
 end;
 
+function TTisGrid.DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
+  aRow2: PDocVariantData): PtrInt;
 var
   handled: Boolean;
 begin
+  if assigned(OnCompareByRow) then
+    result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled);
+  if not handled then
+    result := aRow1^.CompareObject(aPropertyName, aRow2^);
 end;
 
 procedure TTisGrid.DoFindText(Sender: TObject);
