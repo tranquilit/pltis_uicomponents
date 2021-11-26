@@ -1652,11 +1652,12 @@ end;
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
 var
-  d: PDocVariantData;
+  data: PCardinal;
 begin
-  d := GetNodeDataAsDocVariant(aNode);
-  if (d <> nil) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
+  data := fInternalData.Data(aNode);
+  if (data <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
   begin
+    data^ := aNode.Index;
     aNode^.CheckType := ctCheckBox;
     //aNode^.States := aNode^.States + [vsMultiline];
   end;
