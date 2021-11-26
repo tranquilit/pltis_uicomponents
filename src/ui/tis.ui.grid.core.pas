@@ -213,8 +213,15 @@ type
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
+  private type
+    TInternalData = object
+      Offset: Cardinal;
+      procedure Init(aGrid: TTisGrid);
+      function Data(aNode: PVirtualNode): Pointer;
+    end;
   private
     // ------------------------------- new fields ----------------------------------
+    fInternalData: TInternalData;
     fKeyFieldsList: array of string;
     fParentProperty: string;
     fSelectedAndTotalLabel: TLabel;
@@ -1162,6 +1169,21 @@ begin
       SendMessage(fEdit.Handle, EM_SETRECTNP, 0, PtrUInt(@R));
     end;
   end;
+end;
+
+{ TTisGrid.TInternalData }
+
+procedure TTisGrid.TInternalData.Init(aGrid: TTisGrid);
+begin
+  Offset := aGrid.AllocateInternalDataArea(SizeOf(Cardinal));
+end;
+
+function TTisGrid.TInternalData.Data(aNode: PVirtualNode): Pointer;
+begin
+  if (aNode = nil) or (Offset <= 0) then
+    result := nil
+  else
+    result := PByte(aNode) + Offset;
 end;
 
 { TTisGrid }
@@ -2181,6 +2203,7 @@ end;
 constructor TTisGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  fInternalData.Init(self);
   Clear;
   DefaultText := '';
   fZebraColor := $00EDF0F1;
