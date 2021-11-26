@@ -57,8 +57,7 @@ type
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
-      const aRow1, aRow2: TDocVariantData; aReverse: Boolean;
-      var aHandled: Boolean): PtrInt;
+      const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure ClipboardLabel1Click(Sender: TObject);
@@ -110,11 +109,12 @@ end;
 
 function TGridFrame.GridCompareByRow(sender: TTisGrid;
   const aPropertyName: RawUtf8; const aRow1, aRow2: TDocVariantData;
-  aReverse: Boolean; var aHandled: Boolean): PtrInt;
+  var aHandled: Boolean): PtrInt;
 begin
-  // if you do not want to compare, just assign False
+  // if you do not want to compare manually, just assign False or
+  // do not implement this event at all
   aHandled := True;
-  // you can change and use a customized comparison here
+  // return a customized comparison here
   result := aRow1.CompareObject([aPropertyName], aRow2);
 end;
 
