@@ -226,10 +226,6 @@ type
     fColumnToFind: integer;
     fStartSearchNode: PVirtualNode;
     fTextToFind: string;
-    fSortContext: record
-      PropertyName: RawUtf8;
-      Reverse: Boolean;
-    end;
     fData: TDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
@@ -336,8 +332,6 @@ type
     procedure DoAdvancedCustomizeColumns(Sender: TObject); virtual;
     procedure DoExpandAll(Sender: TObject); virtual;
     procedure DoCollapseAll(Sender: TObject); virtual;
-    /// handle the default sort behavious
-    procedure DoHeaderClickSort(HitInfo: TVTHeaderHitInfo);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -347,8 +341,6 @@ type
     /// destructor
     destructor Destroy; override;
     // ------------------------------- inherited methods ----------------------------------
-    procedure Sort(aNode: PVirtualNode; aColumn: TColumnIndex;
-      aDirection: TSortDirection; DoInit: Boolean); override;
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
     /// it will clear Data and everything else related
@@ -1922,22 +1914,9 @@ begin
     LoadData;
 end;
 
-function TTisGrid.DoVariantComparer(const aV1, aV2: variant): PtrInt;
 var
   handled: Boolean;
-  r1, r2: PDocVariantData;
 begin
-  handled := False;
-  with fSortContext do
-  begin
-    r1 := _Safe(aV1);
-    r2 := _Safe(aV2);
-    result := OnCompareByRow(self, PropertyName, r1^, r2^, Reverse, handled);
-    if not handled then
-      result := r1^.CompareObject(PropertyName, r2^);
-    if Reverse then
-      result := -result;
-  end;
 end;
 
 procedure TTisGrid.DoFindText(Sender: TObject);
@@ -2193,28 +2172,6 @@ begin
   FullCollapse;
 end;
 
-procedure TTisGrid.DoHeaderClickSort(HitInfo: TVTHeaderHitInfo);
-begin
-  if (HitInfo.Shift = []) and (HitInfo.Button = mbLeft) then
-  begin
-    if Header.SortColumn = HitInfo.Column then
-    begin
-      if Header.SortDirection = sdAscending then
-        Header.SortDirection := sdDescending
-      else if Header.SortDirection = sdDescending then
-      begin
-        Header.SortColumn := -1;
-        Header.SortDirection := sdAscending;
-      end;
-    end
-    else
-    begin
-      Header.SortColumn := HitInfo.Column;
-      Header.SortDirection := sdAscending;
-    end;
-  end;
-end;
-
 constructor TTisGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -2257,29 +2214,6 @@ begin
   if Assigned(fFindDlg) then
     FreeAndNil(fFindDlg);
   inherited Destroy;
-end;
-
-procedure TTisGrid.Sort(aNode: PVirtualNode; aColumn: TColumnIndex;
-  aDirection: TSortDirection; DoInit: Boolean);
-begin
-  inherited Sort(aNode, aColumn, aDirection, DoInit);
-  if aColumn = NoColumn then
-    exit;
-  fSortContext.PropertyName := TTisGridColumn(Header.Columns[aColumn]).PropertyName;
-  if fSortContext.PropertyName <> '' then
-    try
-      fSortContext.Reverse := aDirection = sdDescending;
-      if assigned(OnCompareByRow) then
-        fData.SortByRow(DoVariantComparer)
-      else
-        fData.SortArrayByField(fSortContext.PropertyName, nil, fSortContext.Reverse);
-    finally
-      with fSortContext do
-      begin
-        PropertyName := '';
-        Reverse := False;
-      end;
-    end;
 end;
 
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);
