@@ -291,6 +291,7 @@ type
       aTextType: TVSTTextType; var aText: string); override;
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
+    function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
     function GetOptionsClass: TTreeOptionsClass; override;
     function DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink; override;
@@ -1662,6 +1663,16 @@ begin
     //aNode^.States := aNode^.States + [vsMultiline];
   end;
   inherited DoInitNode(aParentNode, aNode, aInitStates);
+end;
+
+function TTisGrid.DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer;
+begin
+  result := inherited DoCompare(aNode1, aNode2, aColumn);
+  if aColumn = NoColumn then
+    exit;
+  result := DoCompareByRow(
+    TTisGridColumn(Header.Columns[aColumn]).PropertyName,
+    GetNodeDataAsDocVariant(aNode1), GetNodeDataAsDocVariant(aNode2));
 end;
 
 function TTisGrid.GetColumnClass: TVirtualTreeColumnClass;
