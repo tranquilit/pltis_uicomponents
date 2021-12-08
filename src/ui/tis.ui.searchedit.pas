@@ -219,6 +219,7 @@ constructor TTisSearchEdit.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   fTimer := TTimer.Create(nil);
+  fTimer.Enabled := False;
   fTimer.OnTimer := DoSearch;
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
