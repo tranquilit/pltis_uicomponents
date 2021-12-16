@@ -127,29 +127,22 @@ object TisGridEditor: TTisGridEditor
       OnExit = EdColumnPropertyExit
       OnKeyPress = EdColumnPropertyKeyPress
     end
-    object cbEditorType: TComboBox
+    object cbColumnDataType: TComboBox
       Left = 100
       Height = 23
       Top = 102
       Width = 186
       ItemHeight = 15
-      Items.Strings = (
-        'String'
-        'Numeric'
-        'Date'
-        'Lookup'
-        'ObjectDialog'
-        'Checkbox'
-      )
       ParentFont = False
+      Style = csDropDownList
       TabOrder = 4
     end
-    object LstEditorType: TLabel
+    object EdDataType: TLabel
       Left = 37
       Height = 15
       Top = 108
-      Width = 58
-      Caption = 'Editor Type'
+      Width = 51
+      Caption = 'Data Type'
       ParentColor = False
       ParentFont = False
     end

@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="15">
+    <Files Count="16">
       <Item1>
         <Filename Value="..\src\ui\tis.ui.registry.pas"/>
         <HasRegisterProc Value="True"/>
@@ -89,28 +89,35 @@
         <Filename Value="..\src\ui\tis.ui.parts.buttons.pas"/>
         <UnitName Value="tis.ui.parts.buttons"/>
       </Item15>
+      <Item16>
+        <Filename Value="..\src\ui\tis.ui.grid.controls.pas"/>
+        <UnitName Value="tis.ui.grid.controls"/>
+      </Item16>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>
       <OutDir Value="..\languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="5">
+    <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="DateTimeCtrlsDsgn"/>
       </Item1>
       <Item2>
-        <PackageName Value="pltis_utils"/>
+        <PackageName Value="SynEdit"/>
       </Item2>
       <Item3>
-        <PackageName Value="mormot2"/>
+        <PackageName Value="pltis_utils"/>
       </Item3>
       <Item4>
-        <PackageName Value="virtualtreeview_package"/>
+        <PackageName Value="mormot2"/>
       </Item4>
       <Item5>
-        <PackageName Value="IDEIntf"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item5>
+      <Item6>
+        <PackageName Value="IDEIntf"/>
+      </Item6>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

@@ -10,19 +10,25 @@ unit tis.ui.grid.editor;
 interface
 
 uses
-  classes,
-  sysutils,
-  fileutil,
-  forms,
-  controls,
-  graphics,
-  dialogs,
-  buttonpanel,
-  extctrls,
-  stdctrls,
-  actnlist,
-  menus,
-  componenteditors,
+  Classes,
+  SysUtils,
+  LCLIntf,
+  FileUtil,
+  Forms,
+  Controls,
+  Graphics,
+  Dialogs,
+  ButtonPanel,
+  ExtCtrls,
+  StdCtrls,
+  ActnList,
+  Menus,
+  Buttons,
+  Messages,
+  MaskEdit,
+  LCLType,
+  EditBtn,
+  ComponentEditors,
   VirtualTrees,
   mormot.core.base,
   mormot.core.variants,
@@ -51,12 +57,12 @@ type
     Grid: TTisGrid;
     UpdateColumnButton: TButton;
     ButtonPanel: TButtonPanel;
-    cbEditorType: TComboBox;
+    cbColumnDataType: TComboBox;
     EdColumnTitle: TLabeledEdit;
     EdColumnProperty: TLabeledEdit;
     EdColumnIndex: TLabeledEdit;
     EdPosition: TEdit;
-    LstEditorType: TLabel;
+    EdDataType: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -92,7 +98,7 @@ type
     procedure EdColumnIndexChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
-      aColPosition: string);
+      aColPosition: string; const aColDataType: TTisColumnDataType);
     procedure ClearPropertiesPanel;
   end;
 
@@ -109,7 +115,7 @@ type
 implementation
 
 uses
-  propedits;
+  PropEdits;
 
 {$R *.lfm}
 
@@ -160,7 +166,7 @@ begin
   begin
     col := TTisGridColumn(Grid.Header.Columns[idx]);
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position));
+      IntToStr(col.Position), col.DataType);
   end
   else
     ClearPropertiesPanel;
@@ -217,12 +223,14 @@ end;
 procedure TTisGridEditor.ActUpdateColumnExecute(Sender: TObject);
 var
   col: TTisGridColumn;
+  a: TTisColumnDataTypeAdapter;
 begin
   col := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
   if col <> nil then
   begin
     col.Text := EdColumnTitle.Text;
     col.PropertyName := EdColumnProperty.Text;
+    col.DataType := a.CaptionToEnum(cbColumnDataType.Text);
   end;
   Grid.Invalidate;
 end;
@@ -288,8 +296,11 @@ begin
 end;
 
 procedure TTisGridEditor.FormCreate(Sender: TObject);
+var
+  a: TTisColumnDataTypeAdapter;
 begin
   ButtonPanel.OKButton.Default := False;
+  a.EnumsToStrings(cbColumnDataType.Items);
 end;
 
 procedure TTisGridEditor.GridHeaderDragging(Sender: TVTHeader;
@@ -306,7 +317,7 @@ begin
   col := TTisGridColumn(Grid.Header.Columns[HitInfo.Column]);
   if col <> nil then
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position))
+      IntToStr(col.Position), col.DataType)
   else
     ClearPropertiesPanel;
 end;
@@ -317,18 +328,21 @@ begin
   ActDelColumn.Enabled := ActUpdateColumn.Enabled;
 end;
 
-procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle,
-  aColProperty, aColPosition: string);
+procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
+  aColPosition: string; const aColDataType: TTisColumnDataType);
+var
+  a: TTisColumnDataTypeAdapter;
 begin
   EdColumnIndex.Text := aColIndex;
   EdColumnTitle.Text := aColTitle;
   EdColumnProperty.Text := aColProperty;
+  cbColumnDataType.ItemIndex := a.EnumToIndex(aColDataType);
   EdPosition.Text := aColPosition;
 end;
 
 procedure TTisGridEditor.ClearPropertiesPanel;
 begin
-  SetPropertiesPanel('','', '', '');
+  SetPropertiesPanel('', '', '', '', low(TTisColumnDataType));
 end;
 
 { TTisGridComponentEditor }

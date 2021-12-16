@@ -11,46 +11,116 @@ interface
 
 uses
   {$ifdef windows}
-  windows,
+  Windows,
   {$endif}
-  classes,
-  sysutils,
-  controls,
-  math,
-  menus,
-  graphics,
-  clipbrd,
-  lcltype,
-  dialogs,
-  lmessages,
-  stdctrls,
-  types,
-  defaulttranslator,
+  Classes,
+  SysUtils,
+  Controls,
+  Math,
+  Menus,
+  Graphics,
+  Clipbrd,
+  LMessages,
+  StdCtrls,
+  Types,
+  LCLIntf,
+  LCLType,
+  Forms,
+  Dialogs,
+  Buttons,
+  Messages,
+  EditBtn,
+  DefaultTranslator,
   VirtualTrees,
   mormot.core.base,
   mormot.core.data, // for dvoNameCaseSensitive
+  mormot.core.datetime,
   mormot.core.variants,
   mormot.core.unicode,
   mormot.core.text,
   mormot.core.buffers,
   tisstrings,
   tis.core.os,
-  tis.core.utils;
+  tis.core.utils,
+  tis.ui.grid.controls;
 
 type
+  ETisGrid = class(Exception);
+
   TTisGrid = class;
+
+  TTisColumnDataType = (
+    cdtString,
+    cdtDate,
+    cdtDateTime,
+    cdtInteger,
+    cdtFloat,
+    cdtBoolean,
+    cdtMemo
+  );
+
+  TTisColumnDataTypes = set of TTisColumnDataType;
+
+  /// adapter for TTisColumnDataType
+  TTisColumnDataTypeAdapter = object
+    /// convert enum to caption
+    function EnumToCaption(const aValue: TTisColumnDataType): string;
+    /// convert enum to index
+    function EnumToIndex(const aValue: TTisColumnDataType): Integer;
+    /// convert caption to enum
+    // - if aValue not found, it will return the first element
+    function CaptionToEnum(const aValue: string): TTisColumnDataType;
+    /// convert caption to index
+    // - if aValue not found, it will return the first element
+    function CaptionToIndex(const aValue: string): Integer;
+    /// convert all enums to strings
+    // - you can customize elements using aCustom
+    procedure EnumsToStrings(aDest: TStrings; const aCustom: TTisColumnDataTypes = [
+      low(TTisColumnDataType)..high(TTisColumnDataType)]);
+  end;
+
+  /// it implements a link for edit controls, for each data type
+  TTisGridEditLink = class(TInterfacedObject, IVTEditLink)
+  private
+    fControl: TTisGridControl;
+    fGrid: TTisGrid;
+    fNode: PVirtualNode;
+    fColumn: Integer;
+  protected
+    procedure EditExit(Sender: TObject);
+    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure SetupControlClasses; virtual;
+  public var
+    /// use this array to change the default control for each data type
+    ControlClasses: array[TTisColumnDataType] of TTisGridControlClass;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function BeginEdit: Boolean; stdcall;
+    function CancelEdit: Boolean; stdcall;
+    function EndEdit: Boolean; stdcall;
+    function GetBounds: TRect; stdcall;
+    function PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNode; aColumn: TColumnIndex): Boolean; stdcall;
+    procedure ProcessMessage(var aMessage: TMessage); stdcall;
+    procedure SetBounds(R: TRect); stdcall;
+  end;
 
   TTisGridColumn = class(TVirtualTreeColumn)
   private
     fPropertyName: RawUtf8;
+    fDataType: TTisColumnDataType;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
+  protected const
+    DefaultDataType = cdtString;
   public
+    constructor Create(aCollection: TCollection); override;
     procedure Assign(aSource: TPersistent); override;
   published
     property Text: TCaption read GetTitle write SetTitle;
     property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
+    property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
   end;
 
   TTisHeaderPopupOption = (
@@ -90,65 +160,6 @@ type
     property Options: TTisHeaderPopupOptions read fOptions write fOptions default [];
     property OnAddHeaderPopupItem: TOnAddHeaderPopupItem read fOnAddHeaderPopupItem write fOnAddHeaderPopupItem;
     property OnColumnChange: TOnColumnChange read fOnColumnChange write fOnColumnChange;
-  end;
-
-  TTisStringEditLink = class;
-
-  /// implementation of a generic node cell editor
-  TTisEdit = class(TCustomEdit)
-  private
-    procedure CMAutoAdjust(var {%H-}Message: TLMessage); message CM_AUTOADJUST;
-    procedure CMExit(var {%H-}Message: TLMessage); message CM_EXIT;
-    procedure CMRelease(var {%H-}Message: TLMessage); message CM_RELEASE;
-    procedure CNCommand(var {%H-}Message: TLMCommand); message CN_COMMAND;
-    procedure WMChar(var Message: TLMChar); message LM_CHAR;
-    procedure WMDestroy(var Message: TLMDestroy); message LM_DESTROY;
-    procedure WMGetDlgCode(var Message: TLMNoParams); message LM_GETDLGCODE;
-    procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
-  protected
-    fRefLink: IVTEditLink;
-    fLink: TTisStringEditLink;
-    /// changes the size of the edit to accomodate as much as possible of its text within its container window
-    // - newChar describes the next character which will be added to the edit's text.
-    procedure AutoAdjustSize; virtual;
-    procedure CreateParams(var Params: TCreateParams); override;
-  public
-    constructor Create(aLink: TTisStringEditLink); reintroduce;
-    procedure Release; virtual;
-    property AutoSelect;
-    property AutoSize;
-    property BorderStyle;
-    property CharCase;
-    property MaxLength;
-    property PasswordChar;
-  end;
-
-  TTisStringEditLink = class(TInterfacedObject, IVTEditLink)
-  private
-    fEdit: TTisEdit;        // a normal custom edit control
-    procedure SetEdit(const Value: TTisEdit);
-  protected
-    fTree: TTisGrid;        // a back reference to the tree calling
-    fNode: PVirtualNode;    // the node to be edited
-    fColumn: TColumnIndex;  // the column of the node
-    fAlignment: TAlignment;
-    fTextBounds: TRect;     // smallest rectangle around the text
-    fStopping: Boolean;     // set to True when the edit link requests stopping the edit action
-  public
-    constructor Create;
-    destructor Destroy; override;
-    /// notifies the edit link that editing can start now. descendants may cancel node edit
-    // by returning False
-    function BeginEdit: Boolean; virtual; stdcall;
-    function CancelEdit: Boolean; virtual; stdcall;
-    function EndEdit: Boolean; virtual; stdcall;
-    function GetBounds: TRect; virtual; stdcall;
-    /// retrieves the true text bounds from the owner tree
-    function PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNode; aColumn: TColumnIndex): Boolean; virtual; stdcall;
-    procedure ProcessMessage(var Message: TLMessage); virtual; stdcall;
-    /// sets the outer bounds of the edit control and the actual edit area in the control
-    procedure SetBounds(R: TRect); virtual; stdcall;
-    property Edit: TTisEdit read fEdit write SetEdit;
   end;
 
   TTisDataEvent = (
@@ -379,6 +390,7 @@ type
     /// returns a list of nodes that matching with key and value
     function GetNodesBy(const aKey, aValue: RawUtf8): TNodeArray; overload;
     function FindColumnByPropertyName(const aPropertyName: RawUtf8): TTisGridColumn;
+    function FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
     /// append a list of rows to the Grid
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
@@ -683,18 +695,226 @@ resourcestring
 implementation
 
 uses
-  inifiles,
-  lclintf,
-  messages,
-  forms,
-  variants,
+  IniFiles,
+  Variants,
   tis.ui.grid.editor;
+
+{ TTisColumnDataTypeAdapter }
+
+var
+  COLUMNDATATYPES: array [TTisColumnDataType] of record
+    Caption: string;
+  end = (
+    (Caption: 'String'),
+    (Caption: 'Date'),
+    (Caption: 'DateTime'),
+    (Caption: 'Integer'),
+    (Caption: 'Float'),
+    (Caption: 'Boolean'),
+    (Caption: 'Memo')
+  );
+
+function TTisColumnDataTypeAdapter.EnumToCaption(const aValue: TTisColumnDataType): string;
+begin
+  result := COLUMNDATATYPES[aValue].Caption;
+end;
+
+function TTisColumnDataTypeAdapter.EnumToIndex(const aValue: TTisColumnDataType): Integer;
+begin
+  result := ord(aValue);
+end;
+
+function TTisColumnDataTypeAdapter.CaptionToEnum(const aValue: string): TTisColumnDataType;
+var
+  i: TTisColumnDataType;
+begin
+  result := low(TTisColumnDataType);
+  for i := low(COLUMNDATATYPES) to high(COLUMNDATATYPES) do
+    if COLUMNDATATYPES[i].Caption = aValue then
+    begin
+      result := i;
+      exit;
+    end;
+end;
+
+function TTisColumnDataTypeAdapter.CaptionToIndex(const aValue: string): Integer;
+begin
+  result := ord(CaptionToEnum(aValue));
+end;
+
+procedure TTisColumnDataTypeAdapter.EnumsToStrings(aDest: TStrings;
+  const aCustom: TTisColumnDataTypes);
+var
+  i: TTisColumnDataType;
+begin
+  for i := low(TTisColumnDataType) to high(TTisColumnDataType) do
+    if i in aCustom then
+      aDest.Append(EnumToCaption(i));
+end;
+
+{ TTisGridEditLink }
+
+procedure TTisGridEditLink.EditExit(Sender: TObject);
+begin
+  fGrid.EndEditNode;
+end;
+
+procedure TTisGridEditLink.EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  CanAdvance: Boolean;
+begin
+  CanAdvance := True;
+  case Key of
+    VK_ESCAPE:
+      if CanAdvance then
+      begin
+        fGrid.CancelEditNode;
+        Key := 0;
+      end;
+    VK_RETURN:
+      if CanAdvance then
+      begin
+        fGrid.EndEditNode;
+        Key := 0;
+      end;
+    VK_UP,
+    VK_DOWN:
+      begin
+        // Consider special cases before finishing edit mode.
+        CanAdvance := Shift = [];
+        if fControl.Internal is TCustomComboBox then
+          CanAdvance := CanAdvance and not TCustomComboBox(fControl.Internal).DroppedDown;
+        if CanAdvance then
+        begin
+          // Forward the keypress to the tree. It will asynchronously change the focused node.
+          PostMessage(fGrid.Handle, WM_KEYDOWN, Key, 0);
+          Key := 0;
+        end;
+      end;
+  end;
+end;
+
+procedure TTisGridEditLink.SetupControlClasses;
+begin
+  ControlClasses[cdtString] := TTisGridSearchEditControl;
+  ControlClasses[cdtDate] := TTisGridDateEditControl;
+  ControlClasses[cdtDateTime] := TTisGridDateTimeEditControl;
+  ControlClasses[cdtInteger] := TTisGridSpinEditControl;
+  ControlClasses[cdtFloat] := TTisGridSpinFloatEditControl;
+  ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
+  ControlClasses[cdtMemo] := TTisGridSearchEditControl;
+end;
+
+constructor TTisGridEditLink.Create;
+begin
+  inherited Create;
+  SetupControlClasses;
+end;
+
+destructor TTisGridEditLink.Destroy;
+begin
+  fControl.Free;
+  inherited Destroy;
+end;
+
+function TTisGridEditLink.BeginEdit: Boolean; stdcall;
+begin
+  result := True;
+  fControl.Internal.Show;
+  fControl.Internal.SetFocus;
+end;
+
+function TTisGridEditLink.CancelEdit: Boolean; stdcall;
+begin
+  result := True;
+  fControl.Internal.Hide;
+end;
+
+function TTisGridEditLink.EndEdit: Boolean; stdcall;
+var
+  d: PDocVariantData;
+  c: TTisGridColumn;
+begin
+  result := True;
+  d := fGrid.GetNodeDataAsDocVariant(fNode);
+  c := fGrid.FindColumnByIndex(fColumn);
+  case c.DataType of
+    cdtDate:
+      d^.U[c.PropertyName] := DateToIso8601Text(fControl.GetValue);
+    cdtDateTime:
+      d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
+    cdtInteger:
+      d^.I[c.PropertyName] := fControl.GetValue;
+    cdtFloat:
+      d^.D[c.PropertyName] := fControl.GetValue;
+    cdtBoolean:
+      d^.B[c.PropertyName] := fControl.GetValue;
+  else
+    d^.S[c.PropertyName] := fControl.Internal.Caption;
+  end;
+  fGrid.InvalidateNode(fNode);
+  fGrid.SetFocusSafe;
+end;
+
+function TTisGridEditLink.GetBounds: TRect; stdcall;
+begin
+  result := fControl.Internal.BoundsRect;
+end;
+
+function TTisGridEditLink.PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNode;
+  aColumn: TColumnIndex): Boolean; stdcall;
+var
+  d: PDocVariantData;
+  c: TTisGridColumn;
+begin
+  result := True;
+  fGrid := aTree as TTisGrid;
+  fNode := aNode;
+  fColumn := aColumn;
+  FreeAndNil(fControl);
+  d := fGrid.GetNodeDataAsDocVariant(fNode);
+  c := fGrid.FindColumnByIndex(fColumn);
+  fControl := ControlClasses[c.DataType].Create;
+  fControl.SetEvents(EditKeyDown, EditExit);
+  fControl.Internal.Visible := False;
+  fControl.Internal.Parent := fGrid;
+  case c.DataType of
+    cdtString, cdtMemo:
+      fControl.SetValue(d^.S[c.PropertyName]);
+    cdtDate, cdtDateTime:
+      fControl.SetValue(Iso8601ToDateTime(d^.U[c.PropertyName]));
+    cdtInteger:
+      fControl.SetValue(d^.I[c.PropertyName]);
+    cdtFloat:
+      fControl.SetValue(d^.D[c.PropertyName]);
+    cdtBoolean:
+      fControl.SetValue(d^.B[c.PropertyName]);
+  else
+    fControl.Internal.Caption := d^.S[c.PropertyName];
+  end;
+end;
+
+procedure TTisGridEditLink.ProcessMessage(var aMessage: TMessage); stdcall;
+begin
+  fControl.Internal.WindowProc(aMessage);
+end;
+
+procedure TTisGridEditLink.SetBounds(R: TRect); stdcall;
+var
+  dummy: Integer;
+begin
+  // Since we don't want to activate grid extensions in the tree (this would
+  // influence how the selection is drawn)
+  // we have to set the edit's width explicitly to the width of the column.
+  fGrid.Header.Columns.GetColumnBounds(fColumn, dummy, R.Right);
+  fControl.Internal.BoundsRect := R;
+end;
 
 { TTisGridColumn }
 
 function TTisGridColumn.GetTitle: TCaption;
 begin
-  result := GetText();
+  result := GetText;
 end;
 
 procedure TTisGridColumn.SetTitle(const aValue: TCaption);
@@ -711,11 +931,23 @@ begin
   fPropertyName := aValue;
 end;
 
+constructor TTisGridColumn.Create(aCollection: TCollection);
+begin
+  inherited Create(aCollection);
+  fDataType := DefaultDataType;
+end;
+
 procedure TTisGridColumn.Assign(aSource: TPersistent);
+var
+  c: TTisGridColumn;
 begin
   inherited Assign(aSource);
   if aSource is TTisGridColumn then
-    PropertyName := TTisGridColumn(aSource).PropertyName;
+  begin
+    c := TTisGridColumn(aSource);
+    PropertyName := c.PropertyName;
+    DataType := c.DataType;
+  end;
 end;
 
 type
@@ -818,358 +1050,6 @@ begin
     end;
   end;
   inherited Popup(x, y);
-end;
-
-{ TTisEdit }
-
-procedure TTisEdit.CMAutoAdjust(var Message: TLMessage);
-begin
-  AutoAdjustSize;
-end;
-
-procedure TTisEdit.CMExit(var Message: TLMessage);
-begin
-  if Assigned(fLink) and not fLink.fStopping then
-    with fLink, fTree do
-    begin
-      if (toAutoAcceptEditChange in TreeOptions.StringOptions) then
-        DoEndEdit
-      else
-        DoCancelEdit;
-    end;
-end;
-
-procedure TTisEdit.CMRelease(var Message: TLMessage);
-begin
-  Free;
-end;
-
-procedure TTisEdit.CNCommand(var Message: TLMCommand);
-begin
-  {if Assigned(fLink) and Assigned(fLink.fTree) and (Message.NotifyCode = EN_UPDATE) and
-    not (toGridExtensions in fLink.fTree.FOptions.FMiscOptions) and
-    not (vsMultiline in fLink.fNode.States) then
-    // Instead directly calling AutoAdjustSize it is necessary on Win9x/Me to decouple this notification message
-    // and eventual resizing. Hence we use a message to accomplish that.
-    if IsWinNT then
-      AutoAdjustSize
-    else
-      PostMessage(Handle, CM_AUTOADJUST, 0, 0);}
-end;
-
-procedure TTisEdit.WMChar(var Message: TLMChar);
-begin
-  if not (Message.CharCode in [VK_ESCAPE, VK_TAB]) then
-    inherited;
-end;
-
-procedure TTisEdit.WMDestroy(var Message: TLMDestroy);
-begin
-  // If editing stopped by other means than accept or cancel then we have to do default processing for
-  // pending changes.
-  if Assigned(fLink) and not fLink.fStopping then
-  begin
-    with fLink, fTree do
-    begin
-      if (toAutoAcceptEditChange in TreeOptions.StringOptions) and Modified then
-        Text[fNode, fColumn] := fEdit.Text;
-    end;
-    fLink := nil;
-    fRefLink := nil;
-  end;
-  inherited;
-end;
-
-procedure TTisEdit.WMGetDlgCode(var Message: TLMNoParams);
-begin
-  inherited;
-  Message.result := Message.result or DLGC_WANTALLKEYS or DLGC_WANTTAB or DLGC_WANTARROWS;
-end;
-
-procedure TTisEdit.WMKeyDown(var Message: TLMKeyDown);
-// Handles some control keys.
-var
-  Shift: TShiftState;
-  EndEdit: Boolean;
-  Tree: TTisGrid;
-begin
-  case Message.CharCode of
-    VK_ESCAPE:
-      begin
-        Tree := fLink.fTree;
-        fLink.fTree.DoCancelEdit;
-        Tree.SetFocus;
-      end;
-    VK_RETURN:
-      begin
-        EndEdit := not (vsMultiline in fLink.fNode^.States);
-        if not EndEdit then
-        begin
-          // If a multiline node is being edited the finish editing only if Ctrl+Enter was pressed,
-          // otherwise allow to insert line breaks into the text.
-          Shift := KeyDataToShiftState(Message.KeyData);
-          EndEdit := ssCtrl in Shift;
-        end;
-        if EndEdit then
-        begin
-          Tree := fLink.fTree;
-          fLink.fTree.InvalidateNode(fLink.fNode);
-          fLink.fTree.DoEndEdit;
-          Tree.SetFocus;
-        end;
-      end;
-    VK_UP,VK_DOWN:
-      begin
-        if not (vsMultiline in fLink.fNode^.States) then
-        begin
-          Tree := (fLink as TTisStringEditLink).fTree;
-          Tree.InvalidateNode((fLink as TTisStringEditLink).fNode);
-          Tree.DoEndEdit;
-          Tree.SetFocus;
-          SendMessage(Tree.Handle,Message.Msg,Message.CharCode,Message.KeyData);
-        end
-        else
-          inherited;
-      end;
-    VK_TAB:
-      begin
-        Tree := (fLink as TTisStringEditLink).fTree;
-        Tree.InvalidateNode((fLink as TTisStringEditLink).fNode);
-        Tree.DoEndEdit;
-        Tree.SetFocus;
-        SendMessage(Tree.Handle,Message.Msg,Message.CharCode,Message.KeyData);
-      end;
-  else
-    inherited;
-  end;
-end;
-
-procedure TTisEdit.AutoAdjustSize;
-var
-  DC: HDC;
-  Size: TSize;
-  LastFont: THandle;
-begin
-  if not (vsMultiline in fLink.fNode^.States) then
-  begin
-    DC := GetDC(Handle);
-    LastFont := SelectObject(DC, Font.Reference.Handle);
-    try
-      // Read needed space for the current text.
-      GetTextExtentPoint32(DC, PChar(Text), Length(Text), Size);
-      Inc(Size.cx, 2 * fLink.fTree.TextMargin);
-      // Repaint associated node if the edit becomes smaller.
-      if Size.cx < Width then
-        fLink.fTree.InvalidateNode(fLink.fNode);
-      if fLink.fAlignment = taRightJustify then
-        fLink.SetBounds(Rect(Left + Width - Size.cx, Top, Left + Width, Top + Height))
-      else
-        fLink.SetBounds(Rect(Left, Top, Left + Size.cx, Top + Height));
-    finally
-      SelectObject(DC, LastFont);
-      ReleaseDC(Handle, DC);
-    end;
-  end;
-end;
-
-procedure TTisEdit.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  // Only with multiline style we can use the text formatting rectangle.
-  // This does not harm formatting as single line control, if we don't use word wrapping.
-  with Params do
-  begin
-    //todo: delphi uses Multiline for all
-    //Style := Style or ES_MULTILINE;
-    if vsMultiline in fLink.fNode^.States then
-    begin
-      Style := Style and not (ES_AUTOHSCROLL or WS_HSCROLL) or WS_VSCROLL or ES_AUTOVSCROLL;
-      Style := Style or ES_MULTILINE;
-    end;
-    {if tsUseThemes in fLink.fTree.States then
-    begin
-      Style := Style and not WS_BORDER;
-      ExStyle := ExStyle or WS_EX_CLIENTEDGE;
-    end
-    else}
-    begin
-      Style := Style or WS_BORDER;
-      ExStyle := ExStyle and not WS_EX_CLIENTEDGE;
-    end;
-  end;
-end;
-
-constructor TTisEdit.Create(aLink: TTisStringEditLink);
-begin
-  inherited Create(nil);
-  ShowHint := False;
-  ParentShowHint := False;
-  fRefLink := aLink; // this assignment increases the reference count for the interface.
-  fLink := aLink; // this reference is used to access the link.
-end;
-
-procedure TTisEdit.Release;
-begin
-  if HandleAllocated then
-    PostMessage(Handle, CM_RELEASE, 0, 0);
-end;
-
-{ TTisStringEditLink }
-
-procedure TTisStringEditLink.SetEdit(const Value: TTisEdit);
-begin
-  if Assigned(fEdit) then
-    fEdit.Free;
-  fEdit := Value;
-end;
-
-constructor TTisStringEditLink.Create;
-begin
-  inherited Create;
-  fEdit := TTisEdit.Create(self);
-  with fEdit do
-  begin
-    Visible := False;
-    BorderStyle := bsSingle;
-    AutoSize := False;
-  end;
-end;
-
-destructor TTisStringEditLink.Destroy;
-begin
-  fEdit.Release;
-  inherited Destroy;
-end;
-
-function TTisStringEditLink.BeginEdit: Boolean; stdcall;
-begin
-  result := not fStopping;
-  if result then
-  begin
-    fEdit.Show;
-    fEdit.SelectAll;
-    fEdit.SetFocusSafe;
-  end;
-end;
-
-function TTisStringEditLink.CancelEdit: Boolean; stdcall;
-begin
-  result := not fStopping;
-  if result then
-  begin
-    fStopping := True;
-    fEdit.Hide;
-    fTree.CancelEditNode;
-    fEdit.fLink := nil;
-    fEdit.fRefLink := nil;
-  end;
-end;
-
-function TTisStringEditLink.EndEdit: Boolean; stdcall;
-begin
-  result := not fStopping;
-  if result then
-  try
-    fStopping := True;
-    if fEdit.Modified then
-      fTree.Text[fNode, fColumn] := fEdit.Text;
-    fEdit.Hide;
-    fEdit.fLink := nil;
-    fEdit.fRefLink := nil;
-  except
-    fStopping := False;
-    raise;
-  end;
-end;
-
-function TTisStringEditLink.GetBounds: TRect; stdcall;
-begin
-  result := fEdit.BoundsRect;
-end;
-
-function TTisStringEditLink.PrepareEdit(aTree: TBaseVirtualTree;
-  aNode: PVirtualNode; aColumn: TColumnIndex): Boolean; stdcall;
-var
-  Text: string;
-  Allowed: Boolean;
-begin
-  result := aTree is TCustomVirtualStringTree;
-  if result then
-  begin
-    fTree := aTree as TTisGrid;
-    fNode := aNode;
-    fColumn := aColumn;
-    // initial size, font and text of the node
-    fTree.GetTextInfo(aNode, aColumn, fEdit.Font, fTextBounds, Text);
-    fEdit.Font.Color := clWindowText;
-    fEdit.Parent := aTree;
-    fEdit.HandleNeeded;
-    fEdit.Text := Text;
-    if Assigned(TTisGrid(aTree).OnEditing) then
-    begin
-      Allowed := (toEditable in TTisGrid(aTree).TreeOptions.MiscOptions) and
-        not (toReadOnly in TTisGrid(aTree).TreeOptions.MiscOptions);
-      TTisGrid(aTree).OnEditing(aTree, aNode, aColumn, Allowed);
-      fEdit.ReadOnly := not Allowed;
-    end
-    else
-      fEdit.ReadOnly := not (toEditable in TTisGrid(aTree).TreeOptions.MiscOptions) or (toReadOnly in TTisGrid(aTree).TreeOptions.MiscOptions);
-    if aColumn <= NoColumn then
-    begin
-      fEdit.BidiMode := fTree.BidiMode;
-      fAlignment := fTree.Alignment;
-    end
-    else
-    begin
-      fEdit.BidiMode := fTree.Header.Columns[aColumn].BidiMode;
-      fAlignment := fTree.Header.Columns[aColumn].Alignment;
-    end;
-    if fEdit.BidiMode <> bdLeftToRight then
-      ChangeBidiModeAlignment(fAlignment);
-  end;
-end;
-
-procedure TTisStringEditLink.ProcessMessage(var Message: TLMessage); stdcall;
-begin
-  Message.Result := SendMessage(fEdit.Handle, Message.msg, Message.wParam, Message.lParam);
-  //fEdit.WindowProc(Message);
-end;
-
-procedure TTisStringEditLink.SetBounds(R: TRect); stdcall;
-var
-  AOffset: Integer;
-begin
-  if not fStopping then
-  begin
-    with R do
-    begin
-      // Set the edit's bounds but make sure there's a minimum width and the right border does not
-      // extend beyond the parent's left/right border.
-      if Left < 0 then
-        Left := 0;
-      if Right - Left < 30 then
-      begin
-        if fAlignment = taRightJustify then
-          Left := Right - 30
-        else
-          Right := Left + 30;
-      end;
-      if Right > fTree.ClientWidth then
-        Right := fTree.ClientWidth;
-      fEdit.BoundsRect := R;
-      // The selected text shall exclude the text margins and be centered vertically.
-      // We have to take out the two pixel border of the edit control as well as a one pixel "edit border" the
-      // control leaves around the (selected) text.
-      R := fEdit.ClientRect;
-      AOffset := 2;
-      {if tsUseThemes in fTree.FStates then
-        Inc(Offset);}
-      InflateRect(R, -fTree.TextMargin + AOffset, AOffset);
-      if not (vsMultiline in fNode^.States) then
-        OffsetRect(R, 0, fTextBounds.Top - fEdit.Top);
-      SendMessage(fEdit.Handle, EM_SETRECTNP, 0, PtrUInt(@R));
-    end;
-  end;
 end;
 
 { TTisGrid.TInternalData }
@@ -1687,10 +1567,10 @@ end;
 
 function TTisGrid.DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink;
 begin
-  //result := inherited DoCreateEditor(Node, Column);
-  // Enable generic label editing support if the application does not have own editors.
-  //if result = nil then
-  result := TTisStringEditLink.Create;
+  if assigned(OnCreateEditor) then
+    OnCreateEditor(Self, aNode, aColumn, result)
+  else
+    result := TTisGridEditLink.Create;
 end;
 
 procedure TTisGrid.PrepareCell(var PaintInfo: TVTPaintInfo;
@@ -1902,6 +1782,11 @@ begin
       break;
     end;
   end;
+end;
+
+function TTisGrid.FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
+begin
+  result := TTisGridColumn(Header.Columns[aIndex]);
 end;
 
 procedure TTisGrid.FindDlgFind(Sender: TObject);

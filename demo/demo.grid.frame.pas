@@ -21,7 +21,6 @@ uses
   Menus,
   SynEdit,
   VirtualTrees,
-  Types,
   mormot.core.base,
   mormot.core.text,
   mormot.core.unicode,

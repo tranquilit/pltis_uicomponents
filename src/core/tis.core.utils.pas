@@ -10,11 +10,12 @@ unit tis.core.utils;
 interface
 
 uses
-  classes,
-  sysutils,
-  controls,
+  Classes,
+  SysUtils,
+  Controls,
+  Variants,
   ComCtrls,
-  forms,
+  Forms,
   mormot.core.base,
   mormot.core.unicode,
   mormot.core.text;

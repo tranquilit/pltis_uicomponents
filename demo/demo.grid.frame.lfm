@@ -6,7 +6,7 @@ object GridFrame: TGridFrame
   ClientHeight = 589
   ClientWidth = 877
   TabOrder = 0
-  DesignLeft = 235
+  DesignLeft = 236
   DesignTop = 118
   object Panel4: TPanel
     Left = 0
@@ -42,7 +42,7 @@ object GridFrame: TGridFrame
       WantTabs = True
       SelectedAndTotalLabel = GridTotalLabel
       TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
-      TreeOptions.MiscOptions = [toAcceptOLEDrop, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag]
+      TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
       TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toAlwaysHideSelection]
       TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
       ZebraColor = 15593713
