@@ -45,7 +45,8 @@ begin
           TPageControl(p.Parent).ActivePage := TTabSheet(p);
         p := p.Parent;
       end;
-      SetFocus;
+      if CanFocus then
+        SetFocus;
     end;
   except
   end;
