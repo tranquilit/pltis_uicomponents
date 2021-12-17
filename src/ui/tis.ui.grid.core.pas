@@ -222,7 +222,7 @@ type
   TOnGridPaste = procedure(sender: TTisGrid; aRow: PDocVariantData; var aAbort: Boolean) of object;
 
   /// event that allows the user to change some properties of the edit control
-  // - you can check the data type to know which type of control was returned
+  // - you can check aDataType to know which type of control was returned in aControl
   TOnGridPrepareEditor = procedure(sender: TTisGrid; const aDataType: TTisColumnDataType;
     aControl: TWinControl) of object;
 
