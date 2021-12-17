@@ -23,7 +23,7 @@ Main Features:
 - Popup menu for Search, Copy line/cell, delete/select rows, export to CSV file
 - user can customize Popup menu, either hide/show some itens or include new ones
 - user can paste JSON directly on grid
-- in-place editor defining a Data Type for each column on Grid Editor 
+- in-place editors, by defining a Data Type for each column using the Grid Editor 
 - user don't need to use OnCreateEditor event to set a edit control, as it is automatically set by the grid, but he/she can use such event if they want to override the default edit control
 - user can choose any Data Type for any column, but if the value could not be cast, there will not have error on editing (default values will be use)
 - if user do not like those (default) controls, he/she can change it by implementing a inheritance from TTisGridControl and changing the TTisGridEditLink.ControlClasses for each data type they want to, which will change the edit control for all grids in the project
