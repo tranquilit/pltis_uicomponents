@@ -1855,8 +1855,10 @@ var
 begin
   handled := False;
   if assigned(OnCompareByRow) then
-    result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled);
-  if not handled then
+    result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled)
+  else
+    result := 0;
+  if not handled then // use default comparison
     result := aRow1^.CompareObject([aPropertyName], aRow2^);
 end;
 
