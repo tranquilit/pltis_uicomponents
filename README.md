@@ -27,6 +27,7 @@ Main Features:
 - user don't need to use OnCreateEditor event to set a edit control, as it is automatically set by the grid, but he/she can use such event if they want to override the default edit control
 - user can choose any Data Type for any column, but if the value could not be cast, there will not have error on editing (default values will be use)
 - if user do not like those (default) controls, he/she can change it by implementing a inheritance from TTisGridControl and changing the TTisGridEditLink.ControlClasses for each data type they want to, which will change the edit control for all grids in the project
+- user can customize any property of an edit control, before it shows up
 
 <img src="./images/tisgrid.png">
 
