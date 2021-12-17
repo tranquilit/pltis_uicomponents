@@ -67,7 +67,7 @@ type
   /// control used for all Date data type
   TTisGridDateEditControl = class(TTisGridControl)
   protected
-    function Internal: TDateEdit;
+    function Internal: TDateTimePicker;
   public
     constructor Create; override;
     procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent); override;
@@ -75,10 +75,16 @@ type
     procedure SetValue(const aValue: Variant); override;
   end;
 
+  /// control used for all Time data type
+  TTisGridTimeEditControl = class(TTisGridDateEditControl)
+  public
+    constructor Create; override;
+    function GetValue: Variant; override;
+    procedure SetValue(const aValue: Variant); override;
+  end;
+
   /// control used for all DateTime data type
-  TTisGridDateTimeEditControl = class(TTisGridControl)
-  protected
-    function Internal: TDateTimePicker;
+  TTisGridDateTimeEditControl = class(TTisGridDateEditControl)
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -161,15 +167,16 @@ end;
 
 { TTisGridDateEditControl }
 
-function TTisGridDateEditControl.Internal: TDateEdit;
+function TTisGridDateEditControl.Internal: TDateTimePicker;
 begin
-  result := fInternal as TDateEdit;
+  result := fInternal as TDateTimePicker;
 end;
 
 constructor TTisGridDateEditControl.Create;
 begin
   inherited Create;
-  fInternal := TDateEdit.Create(nil);
+  fInternal := TDateTimePicker.Create(nil);
+  Internal.Kind := dtkDate;
 end;
 
 procedure TTisGridDateEditControl.SetEvents(aOnKeyDown: TKeyEvent;
@@ -189,17 +196,29 @@ begin
   Internal.Date := VarToDateTime(aValue);
 end;
 
-{ TTisGridDateTimeEditControl }
+{ TTisGridTimeEditControl }
 
-function TTisGridDateTimeEditControl.Internal: TDateTimePicker;
+constructor TTisGridTimeEditControl.Create;
 begin
-  result := fInternal as TDateTimePicker;
+  inherited Create;
+  Internal.Kind := dtkTime;
 end;
+
+function TTisGridTimeEditControl.GetValue: Variant;
+begin
+  result := Internal.Time;
+end;
+
+procedure TTisGridTimeEditControl.SetValue(const aValue: Variant);
+begin
+  Internal.Time := VarToDateTime(aValue);
+end;
+
+{ TTisGridDateTimeEditControl }
 
 constructor TTisGridDateTimeEditControl.Create;
 begin
   inherited Create;
-  fInternal := TDateTimePicker.Create(nil);
   Internal.Kind := dtkDateTime;
 end;
 

@@ -52,6 +52,7 @@ type
   TTisColumnDataType = (
     cdtString,
     cdtDate,
+    cdtTime,
     cdtDateTime,
     cdtInteger,
     cdtFloat,
@@ -705,7 +706,7 @@ implementation
 
 uses
   IniFiles,
-  Variants,
+  Variants, DateUtils,
   tis.ui.grid.editor;
 
 { TTisColumnDataTypeAdapter }
@@ -716,6 +717,7 @@ var
   end = (
     (Caption: 'String'),
     (Caption: 'Date'),
+    (Caption: 'Time'),
     (Caption: 'DateTime'),
     (Caption: 'Integer'),
     (Caption: 'Float'),
@@ -807,6 +809,7 @@ procedure TTisGridEditLink.SetupControlClasses;
 begin
   ControlClasses[cdtString] := TTisGridSearchEditControl;
   ControlClasses[cdtDate] := TTisGridDateEditControl;
+  ControlClasses[cdtTime] := TTisGridTimeEditControl;
   ControlClasses[cdtDateTime] := TTisGridDateTimeEditControl;
   ControlClasses[cdtInteger] := TTisGridIntegerEditControl;
   ControlClasses[cdtFloat] := TTisGridFloatEditControl;
@@ -850,6 +853,8 @@ begin
   case c.DataType of
     cdtDate:
       d^.U[c.PropertyName] := DateToIso8601Text(fControl.GetValue);
+    cdtTime:
+      d^.U[c.PropertyName] := TimeToIso8601(fControl.GetValue, True);
     cdtDateTime:
       d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
     cdtInteger:
@@ -890,7 +895,7 @@ begin
   case c.DataType of
     cdtString, cdtMemo:
       fControl.SetValue(d^.S[c.PropertyName]);
-    cdtDate, cdtDateTime:
+    cdtDate, cdtTime, cdtDateTime:
       fControl.SetValue(Iso8601ToDateTime(d^.U[c.PropertyName]));
     cdtInteger:
       fControl.SetValue(d^.I[c.PropertyName]);
