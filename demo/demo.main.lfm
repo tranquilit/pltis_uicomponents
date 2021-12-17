@@ -2,10 +2,10 @@ object MainForm: TMainForm
   Left = 376
   Height = 551
   Top = 109
-  Width = 751
+  Width = 790
   Caption = 'UI Demo'
   ClientHeight = 551
-  ClientWidth = 751
+  ClientWidth = 790
   OnCreate = FormCreate
   Position = poScreenCenter
   LCLVersion = '2.0.12.0'
@@ -13,7 +13,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 551
     Top = 0
-    Width = 751
+    Width = 790
     ActivePage = GridTab
     Align = alClient
     ParentFont = False
@@ -22,38 +22,42 @@ object MainForm: TMainForm
     object GridTab: TTabSheet
       Caption = 'Grid'
       ClientHeight = 523
-      ClientWidth = 743
+      ClientWidth = 782
       ParentFont = False
       inline freGrid: TGridFrame
         Height = 523
-        Width = 743
+        Width = 782
         Align = alClient
         ClientHeight = 523
-        ClientWidth = 743
+        ClientWidth = 782
         inherited Panel4: TPanel
           Height = 252
-          Width = 743
+          Width = 782
           ClientHeight = 252
-          ClientWidth = 743
+          ClientWidth = 782
           inherited Grid: TTisGrid
             Height = 164
-            Width = 723
+            Width = 762
+          end
+          inherited GroupBox3: TGroupBox
+            Width = 455
+            ClientWidth = 451
           end
         end
         inherited Panel1: TPanel
           Top = 264
-          Width = 743
-          ClientWidth = 743
+          Width = 782
+          ClientWidth = 782
           inherited InOutputEdit: TSynEdit
-            Width = 713
+            Width = 752
           end
           inherited GridTotalLabel: TLabel
-            Left = 626
+            Left = 665
           end
         end
         inherited Splitter: TSplitter
           Top = 252
-          Width = 743
+          Width = 782
         end
       end
     end
@@ -98,6 +102,8 @@ object MainForm: TMainForm
         Height = 523
         Width = 743
         Align = alClient
+        ClientHeight = 523
+        ClientWidth = 743
       end
     end
   end

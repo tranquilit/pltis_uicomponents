@@ -49,22 +49,23 @@ object GridFrame: TGridFrame
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExportExcel]
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
+      OnPrepareEditor = GridPrepareEditor
     end
     object GroupBox1: TGroupBox
       Left = 8
       Height = 64
       Top = 8
-      Width = 416
+      Width = 264
       Caption = ' Data '
       ClientHeight = 44
-      ClientWidth = 412
+      ClientWidth = 260
       TabOrder = 1
       object CustomizeButton: TSpeedButton
-        Left = 14
+        Left = 8
         Height = 25
         Hint = 'Open Grid Editor'
-        Top = 7
-        Width = 90
+        Top = 8
+        Width = 74
         Caption = 'Customize'
         OnClick = CustomizeButtonClick
         ShowHint = True
@@ -72,11 +73,11 @@ object GridFrame: TGridFrame
         ParentShowHint = False
       end
       object AddRowsButton: TSpeedButton
-        Left = 112
+        Left = 88
         Height = 25
         Hint = 'Add rows from Input JSON'
-        Top = 7
-        Width = 112
+        Top = 8
+        Width = 72
         Caption = 'Add Rows'
         OnClick = AddRowsButtonClick
         ShowHint = True
@@ -84,11 +85,11 @@ object GridFrame: TGridFrame
         ParentShowHint = False
       end
       object DeleteRowsButton: TSpeedButton
-        Left = 232
+        Left = 168
         Height = 25
         Hint = 'Delete rows from Input JSON'
-        Top = 7
-        Width = 112
+        Top = 8
+        Width = 80
         Caption = 'Delete Rows'
         OnClick = DeleteRowsButtonClick
         ShowHint = True
@@ -97,20 +98,20 @@ object GridFrame: TGridFrame
       end
     end
     object GroupBox2: TGroupBox
-      Left = 456
+      Left = 280
       Height = 64
       Top = 8
-      Width = 280
+      Width = 152
       Caption = ' Settings '
       ClientHeight = 44
-      ClientWidth = 276
+      ClientWidth = 148
       TabOrder = 2
       object SettingsSaveButton: TSpeedButton
         Left = 14
         Height = 25
         Hint = 'Open Grid Editor'
-        Top = 7
-        Width = 106
+        Top = 8
+        Width = 58
         Caption = 'Save'
         OnClick = SettingsSaveButtonClick
         ShowHint = True
@@ -118,16 +119,70 @@ object GridFrame: TGridFrame
         ParentShowHint = False
       end
       object SettingsLoadButton: TSpeedButton
-        Left = 128
+        Left = 80
         Height = 25
         Hint = 'Open Grid Editor'
-        Top = 7
-        Width = 102
+        Top = 8
+        Width = 56
         Caption = 'Load'
         OnClick = SettingsLoadButtonClick
         ShowHint = True
         ParentFont = False
         ParentShowHint = False
+      end
+    end
+    object GroupBox3: TGroupBox
+      Left = 448
+      Height = 64
+      Hint = 'It shows an example of how customize editors'
+      Top = 8
+      Width = 416
+      Anchors = [akTop, akLeft, akRight]
+      Caption = ' Custom Editor '
+      ClientHeight = 44
+      ClientWidth = 412
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      object cbColumnDataType: TComboBox
+        Left = 69
+        Height = 23
+        Top = 8
+        Width = 99
+        ItemHeight = 15
+        OnEnter = cbColumnDataTypeEnter
+        ParentFont = False
+        Style = csDropDownList
+        TabOrder = 0
+      end
+      object EdDataType: TLabel
+        Left = 8
+        Height = 15
+        Top = 11
+        Width = 51
+        Caption = 'Data Type'
+        ParentColor = False
+        ParentFont = False
+      end
+      object EditorColorBox: TColorBox
+        Left = 224
+        Height = 26
+        Top = 7
+        Width = 94
+        DefaultColorColor = clDefault
+        NoneColorColor = clDefault
+        Selected = clDefault
+        ItemHeight = 20
+        ParentShowHint = False
+        TabOrder = 1
+      end
+      object Label2: TLabel
+        Left = 184
+        Height = 15
+        Top = 11
+        Width = 29
+        Caption = 'Color'
+        ParentColor = False
       end
     end
   end

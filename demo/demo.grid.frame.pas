@@ -19,6 +19,7 @@ uses
   StdCtrls,
   Dialogs,
   Menus,
+  ColorBox,
   SynEdit,
   VirtualTrees,
   mormot.core.base,
@@ -52,6 +53,11 @@ type
     SaveDialog: TSaveDialog;
     GridTotalLabel: TLabel;
     GridSelectedRowLabel: TLabel;
+    GroupBox3: TGroupBox;
+    cbColumnDataType: TComboBox;
+    EdDataType: TLabel;
+    EditorColorBox: TColorBox;
+    Label2: TLabel;
     procedure AddRowsButtonClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
@@ -66,6 +72,9 @@ type
     procedure SettingsSaveButtonClick(Sender: TObject);
     procedure SettingsLoadButtonClick(Sender: TObject);
     procedure GridSelectedRowLabelClick(Sender: TObject);
+    procedure GridPrepareEditor(sender: TTisGrid;
+      const aDataType: TTisColumnDataType; aControl: TWinControl);
+    procedure cbColumnDataTypeEnter(Sender: TObject);
   end;
 
 implementation
@@ -160,6 +169,22 @@ end;
 procedure TGridFrame.GridSelectedRowLabelClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.SelectedRow.ToJson('', '', jsonHumanReadable));
+end;
+
+procedure TGridFrame.GridPrepareEditor(sender: TTisGrid;
+  const aDataType: TTisColumnDataType; aControl: TWinControl);
+var
+  a: TTisColumnDataTypeAdapter;
+begin
+  if aDataType = a.CaptionToEnum(cbColumnDataType.Text) then
+    aControl.Color := EditorColorBox.Selected;
+end;
+
+procedure TGridFrame.cbColumnDataTypeEnter(Sender: TObject);
+var
+  a: TTisColumnDataTypeAdapter;
+begin
+  a.EnumsToStrings(cbColumnDataType.Items);
 end;
 
 end.
