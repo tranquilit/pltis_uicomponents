@@ -706,7 +706,7 @@ implementation
 
 uses
   IniFiles,
-  Variants, DateUtils,
+  Variants,
   tis.ui.grid.editor;
 
 { TTisColumnDataTypeAdapter }
