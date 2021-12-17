@@ -221,6 +221,11 @@ type
   // - use it for check/change the aData argument, before assign it, and/or abort the process
   TOnGridPaste = procedure(sender: TTisGrid; aRow: PDocVariantData; var aAbort: Boolean) of object;
 
+  /// event that allows the user to change some properties of the edit control
+  // - you can check the data type to know which type of control was returned
+  TOnGridPrepareEditor = procedure(sender: TTisGrid; const aDataType: TTisColumnDataType;
+    aControl: TWinControl) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -256,6 +261,7 @@ type
     fOnBeforeDeleteRows: TOnGridBeforeDeleteRows;
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
+    fOnPrepareEditor: TOnGridPrepareEditor;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
@@ -352,6 +358,7 @@ type
     procedure DoAdvancedCustomizeColumns(Sender: TObject); virtual;
     procedure DoExpandAll(Sender: TObject); virtual;
     procedure DoCollapseAll(Sender: TObject); virtual;
+    procedure DoPrepareEditor(const aDataType: TTisColumnDataType; aControl: TWinControl);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -663,6 +670,8 @@ type
       read fOnCompareByRow write fOnCompareByRow;
     property OnAfterFillPopupMenu: TNotifyEvent
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
+    property OnPrepareEditor: TOnGridPrepareEditor
+      read fOnPrepareEditor write fOnPrepareEditor;
   end;
 
 resourcestring
@@ -892,6 +901,7 @@ begin
   else
     fControl.Internal.Caption := d^.S[c.PropertyName];
   end;
+  fGrid.DoPrepareEditor(c.DataType, fControl.Internal);
 end;
 
 procedure TTisGridEditLink.ProcessMessage(var aMessage: TMessage); stdcall;
@@ -2096,6 +2106,13 @@ end;
 procedure TTisGrid.DoCollapseAll(Sender: TObject);
 begin
   FullCollapse;
+end;
+
+procedure TTisGrid.DoPrepareEditor(const aDataType: TTisColumnDataType;
+  aControl: TWinControl);
+begin
+  if assigned(fOnPrepareEditor) then
+    fOnPrepareEditor(self, aDataType, aControl);
 end;
 
 constructor TTisGrid.Create(AOwner: TComponent);
