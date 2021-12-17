@@ -35,27 +35,36 @@ uses
   tis.ui.searchedit;
 
 type
+  /// generic exception for the unit
   ETisControls = class(Exception);
 
+  /// this class implements the base for an in-place edit control
+  // - use it if you want to implement your own controls
   TTisGridControl = class(TObject)
   protected
     fInternal: TWinControl;
   public
     constructor Create; reintroduce; virtual;
     destructor Destroy; override;
+    /// access to the internal (generic) WinControl instance
     function Internal: TWinControl;
+    /// this set all events that the grid need to control
     procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent); virtual;
+    /// it returns the value edited by user
     function GetValue: Variant; virtual;
+    /// it set the value from grid to the control
     procedure SetValue(const aValue: Variant); virtual;
   end;
 
   TTisGridControlClass = class of TTisGridControl;
 
+  /// control used for all String data type
   TTisGridSearchEditControl = class(TTisGridControl)
   public
     constructor Create; override;
   end;
 
+  /// control used for all Date data type
   TTisGridDateEditControl = class(TTisGridControl)
   protected
     function Internal: TDateEdit;
@@ -66,6 +75,7 @@ type
     procedure SetValue(const aValue: Variant); override;
   end;
 
+  /// control used for all DateTime data type
   TTisGridDateTimeEditControl = class(TTisGridControl)
   protected
     function Internal: TDateTimePicker;
@@ -75,7 +85,8 @@ type
     procedure SetValue(const aValue: Variant); override;
   end;
 
-  TTisGridSpinEditControl = class(TTisGridControl)
+  /// control used for all Integer data type
+  TTisGridIntegerEditControl = class(TTisGridControl)
   protected
     function Internal: TSpinEdit;
   public
@@ -84,7 +95,8 @@ type
     procedure SetValue(const aValue: Variant); override;
   end;
 
-  TTisGridSpinFloatEditControl = class(TTisGridControl)
+  /// control used for all Float data type
+  TTisGridFloatEditControl = class(TTisGridControl)
   protected
     function Internal: TFloatSpinEdit;
   public
@@ -93,6 +105,7 @@ type
     procedure SetValue(const aValue: Variant); override;
   end;
 
+  /// control used for all Boolean data type
   TTisGridBooleanEditControl = class(TTisGridControl)
   protected
     function Internal: TCheckBoxThemed;
@@ -200,48 +213,48 @@ begin
   Internal.DateTime := VarToDateTime(aValue);
 end;
 
-{ TTisGridSpinEditControl }
+{ TTisGridIntegerEditControl }
 
-function TTisGridSpinEditControl.Internal: TSpinEdit;
+function TTisGridIntegerEditControl.Internal: TSpinEdit;
 begin
   result := fInternal as TSpinEdit;
 end;
 
-constructor TTisGridSpinEditControl.Create;
+constructor TTisGridIntegerEditControl.Create;
 begin
   inherited Create;
   fInternal := TSpinEdit.Create(nil);
 end;
 
-function TTisGridSpinEditControl.GetValue: Variant;
+function TTisGridIntegerEditControl.GetValue: Variant;
 begin
   result := Internal.Value;
 end;
 
-procedure TTisGridSpinEditControl.SetValue(const aValue: Variant);
+procedure TTisGridIntegerEditControl.SetValue(const aValue: Variant);
 begin
   Internal.Value := aValue;
 end;
 
-{ TTisGridSpinFloatEditControl }
+{ TTisGridFloatEditControl }
 
-function TTisGridSpinFloatEditControl.Internal: TFloatSpinEdit;
+function TTisGridFloatEditControl.Internal: TFloatSpinEdit;
 begin
   result := fInternal as TFloatSpinEdit;
 end;
 
-constructor TTisGridSpinFloatEditControl.Create;
+constructor TTisGridFloatEditControl.Create;
 begin
   inherited Create;
   fInternal := TFloatSpinEdit.Create(nil);
 end;
 
-function TTisGridSpinFloatEditControl.GetValue: Variant;
+function TTisGridFloatEditControl.GetValue: Variant;
 begin
   result := Internal.Value;
 end;
 
-procedure TTisGridSpinFloatEditControl.SetValue(const aValue: Variant);
+procedure TTisGridFloatEditControl.SetValue(const aValue: Variant);
 begin
   Internal.Value := aValue;
 end;

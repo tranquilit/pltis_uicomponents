@@ -799,8 +799,8 @@ begin
   ControlClasses[cdtString] := TTisGridSearchEditControl;
   ControlClasses[cdtDate] := TTisGridDateEditControl;
   ControlClasses[cdtDateTime] := TTisGridDateTimeEditControl;
-  ControlClasses[cdtInteger] := TTisGridSpinEditControl;
-  ControlClasses[cdtFloat] := TTisGridSpinFloatEditControl;
+  ControlClasses[cdtInteger] := TTisGridIntegerEditControl;
+  ControlClasses[cdtFloat] := TTisGridFloatEditControl;
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
   ControlClasses[cdtMemo] := TTisGridSearchEditControl;
 end;
