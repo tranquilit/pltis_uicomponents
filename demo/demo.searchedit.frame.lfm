@@ -100,6 +100,8 @@ object SearchEditFrame: TSearchEditFrame
     Height = 23
     Top = 48
     Width = 240
+    AutoComplete = True
+    AutoCompleteText = [cbactEnabled, cbactEndOfLineComplete, cbactSearchAscending]
     AutoDropDown = True
     ItemHeight = 15
     TabOrder = 0
