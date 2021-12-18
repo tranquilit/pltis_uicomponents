@@ -42,6 +42,7 @@ uses
   tisstrings,
   tis.core.os,
   tis.core.utils,
+  tis.ui.searchedit,
   tis.ui.grid.controls;
 
 type
@@ -263,6 +264,7 @@ type
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
     fOnPrepareEditor: TOnGridPrepareEditor;
+    fOnEditorSearching: TOnGridEditorSearching;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
@@ -360,6 +362,7 @@ type
     procedure DoExpandAll(Sender: TObject); virtual;
     procedure DoCollapseAll(Sender: TObject); virtual;
     procedure DoPrepareEditor(const aDataType: TTisColumnDataType; aControl: TWinControl);
+    procedure DoEditorSearching(aEdit: TTisSearchEdit; const aText: string);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -673,6 +676,8 @@ type
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
     property OnPrepareEditor: TOnGridPrepareEditor
       read fOnPrepareEditor write fOnPrepareEditor;
+    property OnEditorSearching: TOnGridEditorSearching
+      read fOnEditorSearching write fOnEditorSearching;
   end;
 
 resourcestring
@@ -889,7 +894,7 @@ begin
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   fControl := ControlClasses[c.DataType].Create;
-  fControl.SetEvents(EditKeyDown, EditExit);
+  fControl.SetEvents(EditKeyDown, EditExit, fGrid.OnEditorSearching);
   fControl.Internal.Visible := False;
   fControl.Internal.Parent := fGrid;
   case c.DataType of
@@ -1213,14 +1218,14 @@ begin
   if fData.Equals(aValue) then
     exit;
   aborted := False;
-  if assigned(fOnBeforeDataChange) then
+  if Assigned(fOnBeforeDataChange) then
     fOnBeforeDataChange(self, @aValue, aborted);
   if aborted then
     exit;
   fData := aValue;
   LoadData;
   UpdateSelectedAndTotalLabel;
-  if assigned(fOnAfterDataChange) then
+  if Assigned(fOnAfterDataChange) then
     fOnAfterDataChange(self);
 end;
 
@@ -1429,7 +1434,7 @@ end;
 procedure TTisGrid.SetPopupMenu(aValue: TPopupMenu);
 begin
   inherited PopupMenu := aValue;
-  if assigned(PopupMenu) then
+  if Assigned(PopupMenu) then
   begin
     fPopupOrigEvent := PopupMenu.OnPopup;
     PopupMenu.OnPopup := FillPopupMenu;
@@ -1583,7 +1588,7 @@ end;
 function TTisGrid.DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink;
 begin
   result := nil;
-  if assigned(OnCreateEditor) then
+  if Assigned(OnCreateEditor) then
     OnCreateEditor(Self, aNode, aColumn, result);
   if result = nil then
     result := TTisGridEditLink.Create;
@@ -1609,7 +1614,7 @@ begin
       ACanvas.FillRect(CellRect);
     end
     else
-    if (column = FocusedColumn) and (Node=FocusedNode) and Focused then
+    if (column = FocusedColumn) and (Node = FocusedNode) and Focused then
     begin
       ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
       ACanvas.FillRect(CellRect);
@@ -1727,7 +1732,7 @@ procedure TTisGrid.FillPopupMenu(sender: TObject);
 
 begin
   RemoveAutoItems;
-  if assigned(fPopupOrigEvent) then
+  if Assigned(fPopupOrigEvent) then
     fPopupOrigEvent(self);
   if (PopupMenu.Items.Count > 0) then
     AddItem('-', 0, nil);
@@ -1769,7 +1774,7 @@ begin
     HMCustomize := AddItem(RsCustomizeColumns, 0, DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
     HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, DoAdvancedCustomizeColumns);
-  if assigned(fOnAfterFillPopupMenu) then
+  if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;
 
@@ -1855,7 +1860,7 @@ var
   handled: Boolean;
 begin
   handled := False;
-  if assigned(OnCompareByRow) then
+  if Assigned(OnCompareByRow) then
     result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled)
   else
     result := 0;
@@ -2058,7 +2063,7 @@ begin
   d := SelectedRows;
   if d.IsVoid then
     exit;
-  if assigned(fOnBeforeDeleteRows) then
+  if Assigned(fOnBeforeDeleteRows) then
   begin
     ask := True;
     aborted := False;
@@ -2119,8 +2124,14 @@ end;
 procedure TTisGrid.DoPrepareEditor(const aDataType: TTisColumnDataType;
   aControl: TWinControl);
 begin
-  if assigned(fOnPrepareEditor) then
+  if Assigned(fOnPrepareEditor) then
     fOnPrepareEditor(self, aDataType, aControl);
+end;
+
+procedure TTisGrid.DoEditorSearching(aEdit: TTisSearchEdit; const aText: string);
+begin
+  if Assigned(fOnEditorSearching) then
+    fOnEditorSearching(self, aEdit, aText);
 end;
 
 constructor TTisGrid.Create(AOwner: TComponent);
@@ -2426,7 +2437,7 @@ var
   aborted: Boolean;
 begin
   aborted := False;
-  if assigned(fOnBeforePaste) then
+  if Assigned(fOnBeforePaste) then
     fOnBeforePaste(self, aRows, aborted);
   if not aborted then
     Add(aRows);
