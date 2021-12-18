@@ -1582,9 +1582,10 @@ end;
 
 function TTisGrid.DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink;
 begin
+  result := nil;
   if assigned(OnCreateEditor) then
-    OnCreateEditor(Self, aNode, aColumn, result)
-  else
+    OnCreateEditor(Self, aNode, aColumn, result);
+  if result = nil then
     result := TTisGridEditLink.Create;
 end;
 
