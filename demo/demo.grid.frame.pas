@@ -27,6 +27,7 @@ uses
   mormot.core.unicode,
   mormot.core.variants,
   tis.core.os,
+  tis.ui.searchedit,
   tis.ui.grid.core;
 
 type
@@ -58,6 +59,9 @@ type
     EdDataType: TLabel;
     EditorColorBox: TColorBox;
     Label2: TLabel;
+    SearchItemsMemo: TMemo;
+    AsynchCheckBox: TCheckBox;
+    Label3: TLabel;
     procedure AddRowsButtonClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
@@ -75,6 +79,8 @@ type
     procedure GridPrepareEditor(sender: TTisGrid;
       const aDataType: TTisColumnDataType; aControl: TWinControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
+    procedure GridEditorSearching(sender: TObject; aEdit: TTisSearchEdit;
+      const aText: string);
   end;
 
 implementation
@@ -178,6 +184,11 @@ var
 begin
   if aDataType = a.CaptionToEnum(cbColumnDataType.Text) then
     aControl.Color := EditorColorBox.Selected;
+  if aControl is TTisSearchEdit then
+  begin
+    if not AsynchCheckBox.Checked then
+      (aControl as TTisSearchEdit).Items.Text := SearchItemsMemo.Text;
+  end;
 end;
 
 procedure TGridFrame.cbColumnDataTypeEnter(Sender: TObject);
@@ -185,6 +196,16 @@ var
   a: TTisColumnDataTypeAdapter;
 begin
   a.EnumsToStrings(cbColumnDataType.Items);
+end;
+
+procedure TGridFrame.GridEditorSearching(sender: TObject;
+  aEdit: TTisSearchEdit; const aText: string);
+begin
+  if AsynchCheckBox.Checked then
+  begin
+    aEdit.Items.Text := SearchItemsMemo.Lines.Text; // do not use Items.Assign()
+    aEdit.DroppedDown := True;
+  end;
 end;
 
 end.

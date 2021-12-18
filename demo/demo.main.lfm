@@ -2,10 +2,10 @@ object MainForm: TMainForm
   Left = 376
   Height = 551
   Top = 109
-  Width = 790
+  Width = 894
   Caption = 'UI Demo'
   ClientHeight = 551
-  ClientWidth = 790
+  ClientWidth = 894
   OnCreate = FormCreate
   Position = poScreenCenter
   LCLVersion = '2.0.12.0'
@@ -13,7 +13,7 @@ object MainForm: TMainForm
     Left = 0
     Height = 551
     Top = 0
-    Width = 790
+    Width = 894
     ActivePage = GridTab
     Align = alClient
     ParentFont = False
@@ -22,43 +22,14 @@ object MainForm: TMainForm
     object GridTab: TTabSheet
       Caption = 'Grid'
       ClientHeight = 523
-      ClientWidth = 782
+      ClientWidth = 886
       ParentFont = False
       inline freGrid: TGridFrame
         Height = 523
-        Width = 782
+        Width = 886
         Align = alClient
         ClientHeight = 523
-        ClientWidth = 782
-        inherited Panel4: TPanel
-          Height = 252
-          Width = 782
-          ClientHeight = 252
-          ClientWidth = 782
-          inherited Grid: TTisGrid
-            Height = 164
-            Width = 762
-          end
-          inherited GroupBox3: TGroupBox
-            Width = 455
-            ClientWidth = 451
-          end
-        end
-        inherited Panel1: TPanel
-          Top = 264
-          Width = 782
-          ClientWidth = 782
-          inherited InOutputEdit: TSynEdit
-            Width = 752
-          end
-          inherited GridTotalLabel: TLabel
-            Left = 665
-          end
-        end
-        inherited Splitter: TSplitter
-          Top = 252
-          Width = 782
-        end
+        ClientWidth = 886
       end
     end
     object TagEditorTab: TTabSheet
@@ -72,26 +43,6 @@ object MainForm: TMainForm
         Align = alClient
         ClientHeight = 523
         ClientWidth = 743
-        inherited GroupBox1: TGroupBox
-          inherited ItemsMemo: TMemo
-            Lines.Strings = (
-              'Windows'
-              'Linux'
-              'Mac'
-              'FreeBSD'
-              'DOS'
-              'OS/2'
-              'AIX'
-              'Android'
-              'Haiku'
-              'Nintendo'
-              'AmigaOS'
-              'MorphOS'
-              'AROS'
-              'Atari'
-            )
-          end
-        end
       end
     end
     object SearchEditTab: TTabSheet
