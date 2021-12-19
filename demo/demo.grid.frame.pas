@@ -77,7 +77,7 @@ type
     procedure SettingsLoadButtonClick(Sender: TObject);
     procedure GridSelectedRowLabelClick(Sender: TObject);
     procedure GridPrepareEditor(sender: TTisGrid;
-      const aDataType: TTisColumnDataType; aControl: TWinControl);
+      aColumn: TTisGridColumn; aControl: TWinControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorSearching(sender: TObject; aEdit: TTisSearchEdit;
       const aText: string);
@@ -178,11 +178,11 @@ begin
 end;
 
 procedure TGridFrame.GridPrepareEditor(sender: TTisGrid;
-  const aDataType: TTisColumnDataType; aControl: TWinControl);
+  aColumn: TTisGridColumn; aControl: TWinControl);
 var
   a: TTisColumnDataTypeAdapter;
 begin
-  if aDataType = a.CaptionToEnum(cbColumnDataType.Text) then
+  if aColumn.DataType = a.CaptionToEnum(cbColumnDataType.Text) then
     aControl.Color := EditorColorBox.Selected;
   if aControl is TTisSearchEdit then
   begin
