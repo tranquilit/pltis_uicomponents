@@ -223,9 +223,8 @@ type
   // - use it for check/change the aData argument, before assign it, and/or abort the process
   TOnGridPaste = procedure(sender: TTisGrid; aRow: PDocVariantData; var aAbort: Boolean) of object;
 
-  /// event that allows the user to change some properties of the edit control
-  // - you can check aDataType to know which type of control was returned in aControl
-  TOnGridPrepareEditor = procedure(sender: TTisGrid; const aDataType: TTisColumnDataType;
+  /// event that allows users to change some edit control properties, before it shows up
+  TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
     aControl: TWinControl) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
@@ -361,7 +360,7 @@ type
     procedure DoAdvancedCustomizeColumns(Sender: TObject); virtual;
     procedure DoExpandAll(Sender: TObject); virtual;
     procedure DoCollapseAll(Sender: TObject); virtual;
-    procedure DoPrepareEditor(const aDataType: TTisColumnDataType; aControl: TWinControl);
+    procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl);
     procedure DoEditorSearching(aEdit: TTisSearchEdit; const aText: string);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
@@ -911,7 +910,7 @@ begin
   else
     fControl.Internal.Caption := d^.S[c.PropertyName];
   end;
-  fGrid.DoPrepareEditor(c.DataType, fControl.Internal);
+  fGrid.DoPrepareEditor(c, fControl.Internal);
 end;
 
 procedure TTisGridEditLink.ProcessMessage(var aMessage: TMessage); stdcall;
@@ -2121,11 +2120,11 @@ begin
   FullCollapse;
 end;
 
-procedure TTisGrid.DoPrepareEditor(const aDataType: TTisColumnDataType;
+procedure TTisGrid.DoPrepareEditor(const aColumn: TTisGridColumn;
   aControl: TWinControl);
 begin
   if Assigned(fOnPrepareEditor) then
-    fOnPrepareEditor(self, aDataType, aControl);
+    fOnPrepareEditor(self, aColumn, aControl);
 end;
 
 procedure TTisGrid.DoEditorSearching(aEdit: TTisSearchEdit; const aText: string);
