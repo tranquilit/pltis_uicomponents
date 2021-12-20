@@ -28,6 +28,7 @@ uses
   mormot.core.variants,
   tis.core.os,
   tis.ui.searchedit,
+  tis.ui.grid.controls,
   tis.ui.grid.core;
 
 type
@@ -54,14 +55,21 @@ type
     SaveDialog: TSaveDialog;
     GridTotalLabel: TLabel;
     GridSelectedRowLabel: TLabel;
+    Panel2: TPanel;
     GroupBox3: TGroupBox;
     cbColumnDataType: TComboBox;
     EdDataType: TLabel;
     EditorColorBox: TColorBox;
     Label2: TLabel;
-    SearchItemsMemo: TMemo;
-    AsynchCheckBox: TCheckBox;
+    GroupBox4: TGroupBox;
+    JsonMemo: TMemo;
+    KeyFieldEdit: TEdit;
+    DisplayFieldEdit: TEdit;
     Label3: TLabel;
+    Label4: TLabel;
+    AsynchCheckBox: TCheckBox;
+    EdDataType1: TLabel;
+    ColumnNameEdit: TEdit;
     procedure AddRowsButtonClick(Sender: TObject);
     procedure CustomizeButtonClick(Sender: TObject);
     procedure DeleteRowsButtonClick(Sender: TObject);
@@ -81,6 +89,8 @@ type
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorSearching(sender: TObject; aEdit: TTisSearchEdit;
       const aText: string);
+    procedure GridCustomEditor(sender: TObject; aColumn: TTisGridColumn; out
+      aControl: TTisGridControl);
   end;
 
 implementation
@@ -184,11 +194,6 @@ var
 begin
   if aColumn.DataType = a.CaptionToEnum(cbColumnDataType.Text) then
     aControl.Color := EditorColorBox.Selected;
-  if aControl is TTisSearchEdit then
-  begin
-    if not AsynchCheckBox.Checked then
-      (aControl as TTisSearchEdit).Items.Text := SearchItemsMemo.Text;
-  end;
 end;
 
 procedure TGridFrame.cbColumnDataTypeEnter(Sender: TObject);
@@ -201,10 +206,27 @@ end;
 procedure TGridFrame.GridEditorSearching(sender: TObject;
   aEdit: TTisSearchEdit; const aText: string);
 begin
-  if AsynchCheckBox.Checked then
+  aEdit.Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
+  aEdit.LoadData;
+  aEdit.DroppedDown := True;
+end;
+
+procedure TGridFrame.GridCustomEditor(sender: TObject; aColumn: TTisGridColumn;
+  out aControl: TTisGridControl);
+var
+  ctrl: TTisGridSearchEditControl;
+begin
+  if aColumn.PropertyName = ColumnNameEdit.Text then
   begin
-    aEdit.Items.Text := SearchItemsMemo.Lines.Text; // do not use Items.Assign()
-    aEdit.DroppedDown := True;
+    ctrl := TTisGridSearchEditControl.Create;
+    ctrl.Edit.LookupKeyField := KeyFieldEdit.Text;
+    ctrl.Edit.LookupDisplayField := DisplayFieldEdit.Text;
+    if not AsynchCheckBox.Checked then
+    begin
+      ctrl.Edit.Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
+      ctrl.Edit.LoadData;
+    end;
+    aControl := ctrl;
   end;
 end;
 
