@@ -144,13 +144,12 @@ object GridFrame: TGridFrame
       TabOrder = 3
       object GroupBox3: TGroupBox
         Left = 8
-        Height = 360
+        Height = 72
         Hint = 'It shows an example of how customize editors'
         Top = 8
         Width = 304
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        Caption = ' Custom Editor '
-        ClientHeight = 340
+        Caption = ' OnPrepareEditor '
+        ClientHeight = 52
         ClientWidth = 300
         ParentShowHint = False
         ShowHint = True
@@ -195,90 +194,90 @@ object GridFrame: TGridFrame
           Caption = 'Color'
           ParentColor = False
         end
-        object GroupBox4: TGroupBox
-          Left = 16
-          Height = 272
-          Top = 56
-          Width = 272
+      end
+      object GroupBox4: TGroupBox
+        Left = 8
+        Height = 280
+        Top = 88
+        Width = 304
+        Anchors = [akTop, akLeft, akBottom]
+        Caption = ' OnCustomEditor Event'
+        ClientHeight = 260
+        ClientWidth = 300
+        TabOrder = 1
+        object JsonMemo: TMemo
+          Left = 12
+          Height = 135
+          Top = 88
+          Width = 242
           Anchors = [akTop, akLeft, akBottom]
-          Caption = ' OnCustomEditor Event'
-          ClientHeight = 252
-          ClientWidth = 268
+          Lines.Strings = (
+            '['
+            '  {"id": 1, "text": "Windows"},'
+            '  {"id": 2, "text": "Linux"},'
+            '  {"id": 3, "text": "Mac"}'
+            ']'
+          )
+          ScrollBars = ssAutoVertical
+          TabOrder = 3
+        end
+        object KeyFieldEdit: TEdit
+          Left = 12
+          Height = 23
+          Top = 57
+          Width = 117
+          TabOrder = 1
+          Text = 'id'
+        end
+        object DisplayFieldEdit: TEdit
+          Left = 137
+          Height = 23
+          Top = 57
+          Width = 117
           TabOrder = 2
-          object JsonMemo: TMemo
-            Left = 12
-            Height = 127
-            Top = 88
-            Width = 242
-            Anchors = [akTop, akLeft, akBottom]
-            Lines.Strings = (
-              '['
-              '  {"id": 1, "text": "Windows"},'
-              '  {"id": 2, "text": "Linux"},'
-              '  {"id": 3, "text": "Mac"}'
-              ']'
-            )
-            ScrollBars = ssAutoVertical
-            TabOrder = 3
-          end
-          object KeyFieldEdit: TEdit
-            Left = 12
-            Height = 23
-            Top = 57
-            Width = 117
-            TabOrder = 1
-            Text = 'id'
-          end
-          object DisplayFieldEdit: TEdit
-            Left = 137
-            Height = 23
-            Top = 57
-            Width = 117
-            TabOrder = 2
-            Text = 'text'
-          end
-          object Label3: TLabel
-            Left = 12
-            Height = 15
-            Top = 41
-            Width = 47
-            Caption = 'Key Field'
-            ParentColor = False
-          end
-          object Label4: TLabel
-            Left = 137
-            Height = 15
-            Top = 41
-            Width = 66
-            Caption = 'Display Field'
-            ParentColor = False
-          end
-          object AsynchCheckBox: TCheckBox
-            Left = 12
-            Height = 19
-            Hint = 'Get items asynchronously'
-            Top = 224
-            Width = 94
-            Anchors = [akLeft, akBottom]
-            Caption = 'asynchronous'
-            TabOrder = 4
-          end
-          object EdDataType1: TLabel
-            Left = 12
-            Height = 15
-            Top = 1
-            Width = 43
-            Caption = 'Column'
-            ParentColor = False
-            ParentFont = False
-          end
-          object ColumnNameEdit: TEdit
-            Left = 12
-            Height = 23
-            Top = 17
-            Width = 242
-            TabOrder = 0
-          end
+          Text = 'text'
+        end
+        object Label3: TLabel
+          Left = 12
+          Height = 15
+          Top = 41
+          Width = 47
+          Caption = 'Key Field'
+          ParentColor = False
+        end
+        object Label4: TLabel
+          Left = 137
+          Height = 15
+          Top = 41
+          Width = 66
+          Caption = 'Display Field'
+          ParentColor = False
+        end
+        object AsynchCheckBox: TCheckBox
+          Left = 12
+          Height = 19
+          Hint = 'Get items asynchronously'
+          Top = 232
+          Width = 94
+          Anchors = [akLeft, akBottom]
+          Caption = 'asynchronous'
+          TabOrder = 4
+        end
+        object EdDataType1: TLabel
+          Left = 12
+          Height = 15
+          Top = 1
+          Width = 43
+          Caption = 'Column'
+          ParentColor = False
+          ParentFont = False
+        end
+        object ColumnNameEdit: TEdit
+          Left = 12
+          Height = 23
+          Top = 17
+          Width = 242
+          TabOrder = 0
         end
       end
     end
