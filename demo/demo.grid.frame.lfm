@@ -51,7 +51,6 @@ object GridFrame: TGridFrame
       OnCompareByRow = GridCompareByRow
       OnCustomEditor = GridCustomEditor
       OnPrepareEditor = GridPrepareEditor
-      OnEditorSearching = GridEditorSearching
     end
     object GroupBox1: TGroupBox
       Left = 8

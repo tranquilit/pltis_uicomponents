@@ -87,10 +87,10 @@ type
     procedure GridPrepareEditor(sender: TTisGrid;
       aColumn: TTisGridColumn; aControl: TWinControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
-    procedure GridEditorSearching(sender: TObject; aEdit: TTisSearchEdit;
-      const aText: string);
     procedure GridCustomEditor(sender: TObject; aColumn: TTisGridColumn; out
       aControl: TTisGridControl);
+  private
+    procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
 
 implementation
@@ -203,14 +203,6 @@ begin
   a.EnumsToStrings(cbColumnDataType.Items);
 end;
 
-procedure TGridFrame.GridEditorSearching(sender: TObject;
-  aEdit: TTisSearchEdit; const aText: string);
-begin
-  aEdit.Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
-  aEdit.LoadData;
-  aEdit.DroppedDown := True;
-end;
-
 procedure TGridFrame.GridCustomEditor(sender: TObject; aColumn: TTisGridColumn;
   out aControl: TTisGridControl);
 var
@@ -221,12 +213,24 @@ begin
     ctrl := TTisGridSearchEditControl.Create;
     ctrl.Edit.LookupKeyField := KeyFieldEdit.Text;
     ctrl.Edit.LookupDisplayField := DisplayFieldEdit.Text;
-    if not AsynchCheckBox.Checked then
+    if AsynchCheckBox.Checked then
+      ctrl.Edit.OnSearch := DoAsyncSearch
+    else
     begin
       ctrl.Edit.Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
       ctrl.Edit.LoadData;
     end;
     aControl := ctrl;
+  end;
+end;
+
+procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);
+begin
+  with sender as TTisSearchEdit do
+  begin
+    Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
+    LoadData;
+    DroppedDown := True;
   end;
 end;
 
