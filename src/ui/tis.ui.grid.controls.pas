@@ -71,6 +71,8 @@ type
     procedure DoSearch(Sender: TObject; const aText: string); virtual;
   public
     constructor Create; override;
+    function GetValue: Variant; override;
+    procedure SetValue(const aValue: Variant); override;
   end;
 
   /// control used for all Date data type
@@ -189,6 +191,22 @@ begin
   fInternal := TTisSearchEdit.Create(nil);
   Internal.AutoComplete := True;
   Internal.OnSearch := DoSearch;
+end;
+
+function TTisGridSearchEditControl.GetValue: Variant;
+begin
+  if Internal.LookupKeyField <> '' then
+    result := Internal.KeyValue
+  else
+    result := inherited GetValue;
+end;
+
+procedure TTisGridSearchEditControl.SetValue(const aValue: Variant);
+begin
+  if Internal.LookupKeyField <> '' then
+    Internal.KeyValue := aValue
+  else
+    inherited SetValue(aValue);
 end;
 
 { TTisGridDateEditControl }
