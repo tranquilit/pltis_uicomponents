@@ -20,6 +20,7 @@ uses
   ExtCtrls,
   Buttons,
   mormot.core.variants,
+  mormot.core.unicode,
   tis.ui.parts.buttons;
 
 type
@@ -66,6 +67,7 @@ type
     // ------------------------------- inherited methods ----------------------------------
     procedure Loaded; override;
     procedure SetParent(aNewParent: TWinControl); override;
+    procedure SetSorted(aValue: boolean); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
     /// it triggers OnBeforeSearch event
@@ -95,6 +97,8 @@ type
     /// it will refresh the search
     // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
     procedure RefreshSearch; virtual;
+    /// it will sort Items and Data by LookupDisplayField
+    procedure Sort; virtual;
     // ------------------------------- new properties ----------------------------------
     /// direct access to the low-level internal data
     // - if you change its content directly, you should call LoadData for VirtualTree be aware about it
@@ -208,6 +212,13 @@ begin
   fButtons.Invalidate;
 end;
 
+procedure TTisSearchEdit.SetSorted(aValue: boolean);
+begin
+  inherited SetSorted(aValue);
+  if aValue then
+    Sort;
+end;
+
 procedure TTisSearchEdit.DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer);
 begin
   inherited DoSetBounds(aLeft, aTop, aWidth, aHeight);
@@ -313,6 +324,11 @@ begin
     fTimer.Enabled := True
   else
     Search;
+end;
+
+procedure TTisSearchEdit.Sort;
+begin
+  fData.SortArrayByField(StringToUtf8(fLookupDisplayField));
 end;
 
 end.
