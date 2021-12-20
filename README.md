@@ -96,6 +96,10 @@ Main Features:
 - OnSearch event that has the logic for searching
 - it keeps an automatically MRU history list for searched texts
 - SearchMaxHistory property to setup how many items to keep on the MRU list
+- can work with internal JSON, aka TDocVariantData, as same as TTisGrid
+- like a TDBLookupComboBox, this component have LookupKeyField, LookupDisplayField, and KeyValue properties
+- use Data property and LoadData method to work with JSON
+- changing KeyValue will change ItemIndex, and vice-versa
 
 <img src="./images/tissearchedit.png">
 
