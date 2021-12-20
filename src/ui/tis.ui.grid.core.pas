@@ -868,7 +868,7 @@ begin
     cdtBoolean:
       d^.B[c.PropertyName] := fControl.GetValue;
   else
-    d^.S[c.PropertyName] := fControl.Internal.Caption;
+    d^.S[c.PropertyName] := VarToStr(fControl.GetValue);
   end;
   fGrid.InvalidateNode(fNode);
   fGrid.SetFocusSafe;
@@ -908,7 +908,7 @@ begin
     cdtBoolean:
       fControl.SetValue(d^.B[c.PropertyName]);
   else
-    fControl.Internal.Caption := d^.S[c.PropertyName];
+    fControl.SetValue(d^.S[c.PropertyName]);
   end;
   fGrid.DoPrepareEditor(c, fControl.Internal);
 end;
