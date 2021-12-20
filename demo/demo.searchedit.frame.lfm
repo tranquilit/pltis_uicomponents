@@ -337,10 +337,11 @@ object SearchEditFrame: TSearchEditFrame
     end
   end
   object KeyValueLabel: TLabel
-    Left = 80
+    Left = 229
     Height = 13
-    Top = 16
+    Top = 18
     Width = 75
+    Alignment = taRightJustify
     Caption = 'KeyValueLabel:'
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlue
