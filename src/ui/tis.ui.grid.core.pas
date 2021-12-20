@@ -1301,10 +1301,8 @@ begin
       begin
         if Length(KeyFieldsList) = 1 then
           a := GetNodesBy(StringToUtf8(KeyFieldsList[0]), o^.U[StringToUtf8(KeyFieldsList[0])])
-        else if Length(KeyFieldsList) > 0 then
-          a := GetNodesBy(o, True)
         else
-          a := GetNodesBy(o);
+          a := GetNodesBy(o, Length(KeyFieldsList) > 0);
         for n in a do
         begin
           if (f <> nil) and o^.Equals(f^) then
