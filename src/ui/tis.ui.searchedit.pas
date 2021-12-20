@@ -19,6 +19,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
+  mormot.core.variants,
   tis.ui.parts.buttons;
 
 type
@@ -36,21 +37,28 @@ type
   TTisSearchEdit = class(TComboBox, IButtonProperties)
   private
     fTimer: TTimer;
-    fButtons: TButtonCollection;
     fAutoSearch: Boolean;
+    fButtons: TButtonCollection;
+    fData: TDocVariantData;
+    fLookupKeyField: string;
+    fLookupDisplayField: string;
     fSearchMaxHistory: Integer;
     fOnButtonClick: TOnButtonClick;
     fOnBeforeSearch: TOnBeforeSearch;
     fOnSearch: TOnSearch;
     procedure SetDefault;
     procedure SetUpEdit;
-    // -------- Timer events --------
+    procedure SetData(aValue: TDocVariantData);
+    function GetKeyValue: Variant;
+    procedure SetKeyValue(aValue: Variant);
+    // -------- Timer events begin --------
     function GetSearchInterval: Cardinal;
     procedure SetSearchInterval(aValue: Cardinal);
     function GetOnStartSearch: TNotifyEvent;
     procedure SetOnStartSearch(aValue: TNotifyEvent);
     function GetOnStopSearch: TNotifyEvent;
     procedure SetOnStopSearch(aValue: TNotifyEvent);
+    // -------- Timer events end --------
   protected
     const DefaultSearchMaxHistory = 8;
     const DefaultSearchInterval = 1000;
@@ -73,21 +81,35 @@ type
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
+    /// it will clear Items, Data and everything else related
+    procedure Clear; override;
     /// it triggers RefreshSearch if aKey=#13, even if AutoSearch=TRUE
     procedure KeyPress(var aKey: char); override;
     // ------------------------------- new methods ----------------------------------
     /// it triggers OnSearch event directly, even if AutoSearch=TRUE
     // - you might want to use RefreshSearch instead, for do not bypass AutoSearch flag
     procedure Search; virtual;
+    /// refresh items using Data content
+    // - you should call LoadData, if you change Data content directly
+    procedure LoadData; virtual;
     /// it will refresh the search
     // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
     procedure RefreshSearch; virtual;
+    // ------------------------------- new properties ----------------------------------
+    /// direct access to the low-level internal data
+    // - if you change its content directly, you should call LoadData for VirtualTree be aware about it
+    property Data: TDocVariantData read fData write SetData;
+    /// it will return the key field value from Data
+    // - the ItemIndex will be use as index for Data array
+    property KeyValue: Variant read GetKeyValue write SetKeyValue;
   published
     // ------------------------------- new properties ----------------------------------
     /// if TRUE, it will start the Timer when user start typing
     property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
     /// a collection of buttons
     property Buttons: TButtonCollection read fButtons write fButtons;
+    property LookupKeyField: string read fLookupKeyField write fLookupKeyField;
+    property LookupDisplayField: string read fLookupDisplayField write fLookupDisplayField;
     /// the max history items that it will keep
     property SearchMaxHistory: Integer read fSearchMaxHistory write fSearchMaxHistory default DefaultSearchMaxHistory;
     /// the interval of the internal Timer
@@ -150,6 +172,26 @@ end;
 procedure TTisSearchEdit.SetOnStopSearch(aValue: TNotifyEvent);
 begin
   fTimer.OnStopTimer := aValue;
+end;
+
+function TTisSearchEdit.GetKeyValue: Variant;
+begin
+
+end;
+
+procedure TTisSearchEdit.SetKeyValue(aValue: Variant);
+begin
+
+end;
+
+procedure TTisSearchEdit.SetData(aValue: TDocVariantData);
+var
+  aborted: Boolean;
+begin
+  if fData.Equals(aValue) then
+    exit;
+  fData := aValue;
+  LoadData;
 end;
 
 procedure TTisSearchEdit.Loaded;
@@ -226,6 +268,7 @@ begin
   fSearchMaxHistory := DefaultSearchMaxHistory;
   SetDefault;
   SetUpEdit;
+  Clear;
 end;
 
 destructor TTisSearchEdit.Destroy;
@@ -233,6 +276,13 @@ begin
   fTimer.Free;
   fButtons.Free;
   inherited Destroy;
+end;
+
+procedure TTisSearchEdit.Clear;
+begin
+  inherited Clear;
+  fData.Clear;
+  fData.InitArray([], JSON_FAST_FLOAT);
 end;
 
 procedure TTisSearchEdit.KeyPress(var aKey: char);
@@ -250,6 +300,11 @@ end;
 procedure TTisSearchEdit.Search;
 begin
   DoSearch(self);
+end;
+
+procedure TTisSearchEdit.LoadData;
+begin
+  Clear;
 end;
 
 procedure TTisSearchEdit.RefreshSearch;
