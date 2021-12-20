@@ -19,6 +19,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
+  Variants,
   mormot.core.variants,
   mormot.core.unicode,
   tis.ui.parts.buttons;
@@ -68,6 +69,7 @@ type
     procedure Loaded; override;
     procedure SetParent(aNewParent: TWinControl); override;
     procedure SetSorted(aValue: boolean); override;
+    procedure SetItemIndex(const aValue: integer); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
     /// it will add aText for each new typing, if Data.IsVoid = TRUE
@@ -182,17 +184,19 @@ end;
 
 function TTisSearchEdit.GetKeyValue: Variant;
 begin
-
+  result := NULL;
+  if fData.IsVoid then
+    exit;
+  if ItemIndex in [0..fData.Count-1] then
+    result := _Safe(fData.Values[ItemIndex])^.Value[fLookupKeyField];
 end;
 
 procedure TTisSearchEdit.SetKeyValue(aValue: Variant);
 begin
-
+  ItemIndex := fData.SearchItemByProp(StringToUtf8(fLookupKeyField), VarToStr(aValue), True);
 end;
 
 procedure TTisSearchEdit.SetData(aValue: TDocVariantData);
-var
-  aborted: Boolean;
 begin
   if fData.Equals(aValue) then
     exit;
@@ -219,6 +223,12 @@ begin
   inherited SetSorted(aValue);
   if aValue then
     Sort;
+end;
+
+procedure TTisSearchEdit.SetItemIndex(const aValue: integer);
+begin
+  inherited SetItemIndex(aValue);
+  Change; // refresh to change KeyValue
 end;
 
 procedure TTisSearchEdit.DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer);
