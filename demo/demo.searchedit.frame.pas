@@ -19,6 +19,7 @@ uses
   StdCtrls,
   Spin,
   Dialogs,
+  Variants,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
@@ -40,6 +41,15 @@ type
     SearchButtonCheckBox: TCheckBox;
     ClearButtonCheckBox: TCheckBox;
     CustomClickCheckBox: TCheckBox;
+    GroupBox1: TGroupBox;
+    JsonMemo: TMemo;
+    JsonLoadButton: TSpeedButton;
+    KeyFieldEdit: TEdit;
+    DisplayFieldEdit: TEdit;
+    Label2: TLabel;
+    Label3: TLabel;
+    KeyValueLabel: TLabel;
+    SortedCheckBox: TCheckBox;
     procedure SearchButtonCheckBoxChange(Sender: TObject);
     procedure ClearButtonCheckBoxChange(Sender: TObject);
     procedure AutoSearchCheckBoxChange(Sender: TObject);
@@ -49,6 +59,9 @@ type
     procedure CustomClickCheckBoxChange(Sender: TObject);
     procedure SearchEditButtonClick(Sender: TObject; aButton: TButtonItem);
     procedure SearchEditStopSearch(Sender: TObject);
+    procedure JsonLoadButtonClick(Sender: TObject);
+    procedure SearchEditChange(Sender: TObject);
+    procedure SortedCheckBoxChange(Sender: TObject);
   public
     constructor Create(aOwner: TComponent); override;
   end;
@@ -100,14 +113,39 @@ procedure TSearchEditFrame.SearchEditButtonClick(Sender: TObject;
 begin
   if aButton.Name = 'Custom' then
   begin
-    SearchEdit.Text := InputBox('Search', 'Type a text', '');
-    SearchEdit.Search;
+    if SearchEdit.Data.IsVoid then
+    begin
+      SearchEdit.Text := InputBox('Search', 'Type a text', '');
+      SearchEdit.Search;
+    end
+    else
+      SearchEdit.KeyValue := InputBox('Search', 'Type a Key', '');
   end;
 end;
 
 procedure TSearchEditFrame.SearchEditStopSearch(Sender: TObject);
 begin
   DoneLabel.Visible := True;
+end;
+
+procedure TSearchEditFrame.JsonLoadButtonClick(Sender: TObject);
+begin
+  SearchEdit.LookupKeyField := KeyFieldEdit.Text;
+  SearchEdit.LookupDisplayField := DisplayFieldEdit.Text;
+  SearchEdit.Data.InitJson(StringToUtf8(JsonMemo.Text), JSON_FAST_FLOAT);
+  SearchEdit.LoadData;
+end;
+
+procedure TSearchEditFrame.SearchEditChange(Sender: TObject);
+begin
+  KeyValueLabel.Visible := not SearchEdit.Data.IsVoid;
+  if KeyValueLabel.Visible then
+    KeyValueLabel.Caption := 'KeyValue: ' + VarToStr(SearchEdit.KeyValue);
+end;
+
+procedure TSearchEditFrame.SortedCheckBoxChange(Sender: TObject);
+begin
+  SearchEdit.Sorted := SortedCheckBox.Checked;
 end;
 
 procedure TSearchEditFrame.SearchEditSearch(Sender: TObject);
@@ -125,6 +163,7 @@ begin
   IntervalEdit.Value := SearchEdit.SearchInterval;
   AutoSearchCheckBox.Checked := SearchEdit.AutoSearch;
   CustomClickCheckBox.Checked := Assigned(SearchEdit.OnButtonClick);
+  SortedCheckBox.Checked := SearchEdit.Sorted;
 end;
 
 end.
