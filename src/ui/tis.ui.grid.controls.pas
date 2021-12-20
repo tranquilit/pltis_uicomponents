@@ -38,24 +38,18 @@ type
   /// generic exception for the unit
   ETisControls = class(Exception);
 
-  /// event to setup aEdit asynchronously, created as an in-place editor control
-  // - aText is the text typed in the control
-  TOnGridEditorSearching = procedure(sender: TObject; aEdit: TTisSearchEdit; const aText: string) of object;
-
   /// this class implements the base for an in-place edit control
   // - use it if you want to implement your own controls
   TTisGridControl = class(TObject)
   protected
     fInternal: TWinControl;
-    fOnSearching: TOnGridEditorSearching;
   public
     constructor Create; reintroduce; virtual;
     destructor Destroy; override;
     /// access to the internal (generic) WinControl instance
     function Internal: TWinControl;
     /// this set all events that the grid need to control
-    procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent;
-      aOnSearching: TOnGridEditorSearching); virtual;
+    procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent); virtual;
     /// it returns the value edited by user
     function GetValue: Variant; virtual;
     /// it set the value from grid to the control
@@ -66,8 +60,6 @@ type
 
   /// control used for all String data type
   TTisGridSearchEditControl = class(TTisGridControl)
-  protected
-    procedure DoSearch(Sender: TObject; const aText: string); virtual;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -79,8 +71,7 @@ type
   TTisGridDateEditControl = class(TTisGridControl)
   public
     constructor Create; override;
-    procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent;
-      aOnSearching: TOnGridEditorSearching); override;
+    procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TDateTimePicker;
@@ -150,12 +141,10 @@ begin
   result := fInternal;
 end;
 
-procedure TTisGridControl.SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent;
-  aOnSearching: TOnGridEditorSearching);
+procedure TTisGridControl.SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent);
 begin
   fInternal.OnKeyDown := aOnKeyDown;
   fInternal.OnExit := aOnExit;
-  fOnSearching := aOnSearching;
 end;
 
 function TTisGridControl.GetValue: Variant;
@@ -170,19 +159,11 @@ end;
 
 { TTisGridSearchEditControl }
 
-procedure TTisGridSearchEditControl.DoSearch(Sender: TObject;
-  const aText: string);
-begin
-  if Assigned(fOnSearching) then
-    fOnSearching(self, Edit, aText);
-end;
-
 constructor TTisGridSearchEditControl.Create;
 begin
   inherited Create;
   fInternal := TTisSearchEdit.Create(nil);
   Edit.AutoComplete := True;
-  Edit.OnSearch := DoSearch;
 end;
 
 function TTisGridSearchEditControl.GetValue: Variant;
@@ -221,9 +202,9 @@ begin
 end;
 
 procedure TTisGridDateEditControl.SetEvents(aOnKeyDown: TKeyEvent;
-  aOnExit: TNotifyEvent; aOnSearching: TOnGridEditorSearching);
+  aOnExit: TNotifyEvent);
 begin
-  inherited SetEvents(aOnKeyDown, aOnExit, aOnSearching);
+  inherited SetEvents(aOnKeyDown, aOnExit);
   // replace events to the right inheritance
   Edit.OnKeyDown := aOnKeyDown;
   Edit.OnExit := aOnExit;
