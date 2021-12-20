@@ -381,7 +381,7 @@ type
     // - if aNode is nil, it will use FocusedNode as default
     function GetNodeDataAsDocVariant(aNode: PVirtualNode = nil): PDocVariantData;
     /// refresh the grid using Data content
-    // - you should call LoadData by hand, if you change Data content directly
+    // - you should call LoadData, if you change Data content directly
     procedure LoadData;
     /// get all checked rows
     function CheckedRows: TDocVariantData;
@@ -438,7 +438,7 @@ type
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ----------------------------------
     /// direct access to the low-level internal data
-    // - if you change its content directly, you should call LoadData by hand for VirtualTree be aware about it
+    // - if you change its content directly, you should call LoadData for VirtualTree be aware about it
     property Data: TDocVariantData
       read fData write SetData;
     property ParentProperty: string
