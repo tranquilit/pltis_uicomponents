@@ -67,24 +67,23 @@ type
   /// control used for all String data type
   TTisGridSearchEditControl = class(TTisGridControl)
   protected
-    function Internal: TTisSearchEdit;
     procedure DoSearch(Sender: TObject; const aText: string); virtual;
   public
     constructor Create; override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
+    function Edit: TTisSearchEdit;
   end;
 
   /// control used for all Date data type
   TTisGridDateEditControl = class(TTisGridControl)
-  protected
-    function Internal: TDateTimePicker;
   public
     constructor Create; override;
     procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent;
       aOnSearching: TOnGridEditorSearching); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
+    function Edit: TDateTimePicker;
   end;
 
   /// control used for all Time data type
@@ -105,32 +104,30 @@ type
 
   /// control used for all Integer data type
   TTisGridIntegerEditControl = class(TTisGridControl)
-  protected
-    function Internal: TSpinEdit;
   public
     constructor Create; override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
+    function Edit: TSpinEdit;
   end;
 
   /// control used for all Float data type
   TTisGridFloatEditControl = class(TTisGridControl)
   protected
-    function Internal: TFloatSpinEdit;
   public
     constructor Create; override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
+    function Edit: TFloatSpinEdit;
   end;
 
   /// control used for all Boolean data type
   TTisGridBooleanEditControl = class(TTisGridControl)
-  protected
-    function Internal: TCheckBoxThemed;
   public
     constructor Create; override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
+    function Edit: TCheckBoxThemed;
   end;
 
 implementation
@@ -173,45 +170,45 @@ end;
 
 { TTisGridSearchEditControl }
 
-function TTisGridSearchEditControl.Internal: TTisSearchEdit;
-begin
-  result := fInternal as TTisSearchEdit;
-end;
-
 procedure TTisGridSearchEditControl.DoSearch(Sender: TObject;
   const aText: string);
 begin
   if Assigned(fOnSearching) then
-    fOnSearching(self, Internal, aText);
+    fOnSearching(self, Edit, aText);
 end;
 
 constructor TTisGridSearchEditControl.Create;
 begin
   inherited Create;
   fInternal := TTisSearchEdit.Create(nil);
-  Internal.AutoComplete := True;
-  Internal.OnSearch := DoSearch;
+  Edit.AutoComplete := True;
+  Edit.OnSearch := DoSearch;
 end;
 
 function TTisGridSearchEditControl.GetValue: Variant;
 begin
-  if Internal.LookupKeyField <> '' then
-    result := Internal.KeyValue
+  if Edit.LookupKeyField <> '' then
+    result := Edit.KeyValue
   else
     result := inherited GetValue;
 end;
 
 procedure TTisGridSearchEditControl.SetValue(const aValue: Variant);
 begin
-  if Internal.LookupKeyField <> '' then
-    Internal.KeyValue := aValue
+  if Edit.LookupKeyField <> '' then
+    Edit.KeyValue := aValue
   else
     inherited SetValue(aValue);
 end;
 
+function TTisGridSearchEditControl.Edit: TTisSearchEdit;
+begin
+  result := fInternal as TTisSearchEdit;;
+end;
+
 { TTisGridDateEditControl }
 
-function TTisGridDateEditControl.Internal: TDateTimePicker;
+function TTisGridDateEditControl.Edit: TDateTimePicker;
 begin
   result := fInternal as TDateTimePicker;
 end;
@@ -220,7 +217,7 @@ constructor TTisGridDateEditControl.Create;
 begin
   inherited Create;
   fInternal := TDateTimePicker.Create(nil);
-  Internal.Kind := dtkDate;
+  Edit.Kind := dtkDate;
 end;
 
 procedure TTisGridDateEditControl.SetEvents(aOnKeyDown: TKeyEvent;
@@ -228,18 +225,18 @@ procedure TTisGridDateEditControl.SetEvents(aOnKeyDown: TKeyEvent;
 begin
   inherited SetEvents(aOnKeyDown, aOnExit, aOnSearching);
   // replace events to the right inheritance
-  Internal.OnKeyDown := aOnKeyDown;
-  Internal.OnExit := aOnExit;
+  Edit.OnKeyDown := aOnKeyDown;
+  Edit.OnExit := aOnExit;
 end;
 
 function TTisGridDateEditControl.GetValue: Variant;
 begin
-  result := Internal.Date;
+  result := Edit.Date;
 end;
 
 procedure TTisGridDateEditControl.SetValue(const aValue: Variant);
 begin
-  Internal.Date := VarToDateTime(aValue);
+  Edit.Date := VarToDateTime(aValue);
 end;
 
 { TTisGridTimeEditControl }
@@ -247,17 +244,17 @@ end;
 constructor TTisGridTimeEditControl.Create;
 begin
   inherited Create;
-  Internal.Kind := dtkTime;
+  Edit.Kind := dtkTime;
 end;
 
 function TTisGridTimeEditControl.GetValue: Variant;
 begin
-  result := Internal.Time;
+  result := Edit.Time;
 end;
 
 procedure TTisGridTimeEditControl.SetValue(const aValue: Variant);
 begin
-  Internal.Time := VarToDateTime(aValue);
+  Edit.Time := VarToDateTime(aValue);
 end;
 
 { TTisGridDateTimeEditControl }
@@ -265,22 +262,22 @@ end;
 constructor TTisGridDateTimeEditControl.Create;
 begin
   inherited Create;
-  Internal.Kind := dtkDateTime;
+  Edit.Kind := dtkDateTime;
 end;
 
 function TTisGridDateTimeEditControl.GetValue: Variant;
 begin
-  result := Internal.DateTime;
+  result := Edit.DateTime;
 end;
 
 procedure TTisGridDateTimeEditControl.SetValue(const aValue: Variant);
 begin
-  Internal.DateTime := VarToDateTime(aValue);
+  Edit.DateTime := VarToDateTime(aValue);
 end;
 
 { TTisGridIntegerEditControl }
 
-function TTisGridIntegerEditControl.Internal: TSpinEdit;
+function TTisGridIntegerEditControl.Edit: TSpinEdit;
 begin
   result := fInternal as TSpinEdit;
 end;
@@ -293,17 +290,17 @@ end;
 
 function TTisGridIntegerEditControl.GetValue: Variant;
 begin
-  result := Internal.Value;
+  result := Edit.Value;
 end;
 
 procedure TTisGridIntegerEditControl.SetValue(const aValue: Variant);
 begin
-  Internal.Value := aValue;
+  Edit.Value := aValue;
 end;
 
 { TTisGridFloatEditControl }
 
-function TTisGridFloatEditControl.Internal: TFloatSpinEdit;
+function TTisGridFloatEditControl.Edit: TFloatSpinEdit;
 begin
   result := fInternal as TFloatSpinEdit;
 end;
@@ -316,17 +313,17 @@ end;
 
 function TTisGridFloatEditControl.GetValue: Variant;
 begin
-  result := Internal.Value;
+  result := Edit.Value;
 end;
 
 procedure TTisGridFloatEditControl.SetValue(const aValue: Variant);
 begin
-  Internal.Value := aValue;
+  Edit.Value := aValue;
 end;
 
 { TTisGridBooleanEditControl }
 
-function TTisGridBooleanEditControl.Internal: TCheckBoxThemed;
+function TTisGridBooleanEditControl.Edit: TCheckBoxThemed;
 begin
   result := fInternal as TCheckBoxThemed;
 end;
@@ -335,17 +332,17 @@ constructor TTisGridBooleanEditControl.Create;
 begin
   inherited Create;
   fInternal := TCheckBoxThemed.Create(nil);
-  Internal.Caption := ' ';
+  Edit.Caption := ' ';
 end;
 
 function TTisGridBooleanEditControl.GetValue: Variant;
 begin
-  result := Internal.Checked;
+  result := Edit.Checked;
 end;
 
 procedure TTisGridBooleanEditControl.SetValue(const aValue: Variant);
 begin
-  Internal.Checked := aValue;
+  Edit.Checked := aValue;
 end;
 
 end.
