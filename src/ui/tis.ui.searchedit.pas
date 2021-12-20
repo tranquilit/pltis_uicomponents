@@ -321,8 +321,15 @@ begin
 end;
 
 procedure TTisSearchEdit.LoadData;
+var
+  o: PDocVariantData;
 begin
-  Clear;
+  if not fData.IsVoid then
+    inherited Clear; // clear Items
+  if Sorted then
+    Sort;
+  for o in fData.Objects do
+    Items.Add(o^.S[StringToUtf8(fLookupDisplayField)]);
 end;
 
 procedure TTisSearchEdit.RefreshSearch;
