@@ -274,7 +274,6 @@ type
     fOnAfterFillPopupMenu: TNotifyEvent;
     fOnCustomEditor: TOnGridCustomEditor;
     fOnPrepareEditor: TOnGridPrepareEditor;
-    fOnEditorSearching: TOnGridEditorSearching;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
@@ -373,7 +372,6 @@ type
     procedure DoCollapseAll(Sender: TObject); virtual;
     function DoCustomEditor(const aColumn: TTisGridColumn): TTisGridControl;
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl);
-    procedure DoEditorSearching(aEdit: TTisSearchEdit; const aText: string);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -689,8 +687,6 @@ type
       read fOnCustomEditor write fOnCustomEditor;
     property OnPrepareEditor: TOnGridPrepareEditor
       read fOnPrepareEditor write fOnPrepareEditor;
-    property OnEditorSearching: TOnGridEditorSearching
-      read fOnEditorSearching write fOnEditorSearching;
   end;
 
 resourcestring
@@ -914,7 +910,7 @@ begin
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(c);
-  fControl.SetEvents(EditKeyDown, EditExit, fGrid.OnEditorSearching);
+  fControl.SetEvents(EditKeyDown, EditExit);
   fControl.Internal.Visible := False;
   fControl.Internal.Parent := fGrid;
   case c.DataType of
@@ -2151,12 +2147,6 @@ procedure TTisGrid.DoPrepareEditor(const aColumn: TTisGridColumn;
 begin
   if Assigned(fOnPrepareEditor) then
     fOnPrepareEditor(self, aColumn, aControl);
-end;
-
-procedure TTisGrid.DoEditorSearching(aEdit: TTisSearchEdit; const aText: string);
-begin
-  if Assigned(fOnEditorSearching) then
-    fOnEditorSearching(self, aEdit, aText);
 end;
 
 constructor TTisGrid.Create(AOwner: TComponent);
