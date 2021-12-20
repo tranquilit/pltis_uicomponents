@@ -70,6 +70,8 @@ type
     procedure SetSorted(aValue: boolean); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     // ------------------------------- new methods ----------------------------------
+    /// it will add aText for each new typing, if Data.IsVoid = TRUE
+    procedure AddHistory(const aText: string); virtual;
     /// it triggers OnBeforeSearch event
     function DoBeforeSearch: Boolean; virtual;
     /// it triggers OnSearch event
@@ -226,6 +228,13 @@ begin
     fButtons.Invalidate;
 end;
 
+procedure TTisSearchEdit.AddHistory(const aText: string);
+begin
+  if fData.IsVoid then
+    AddHistoryItem(aText, fSearchMaxHistory, True,
+      cbactSearchCaseSensitive in AutoCompleteText);
+end;
+
 function TTisSearchEdit.DoBeforeSearch: Boolean;
 var
   aborted: Boolean;
@@ -255,8 +264,7 @@ begin
     bkSearch:
     begin
       RefreshSearch;
-      AddHistoryItem(Text, fSearchMaxHistory, True,
-        cbactSearchCaseSensitive in AutoCompleteText);
+      AddHistory(Text);
     end;
     bkClear:
       Clear;
@@ -303,8 +311,7 @@ begin
   if aKey = #13 then
   begin
     RefreshSearch;
-    AddHistoryItem(Text, fSearchMaxHistory, True,
-      cbactSearchCaseSensitive in AutoCompleteText);
+    AddHistory(Text);
   end;
 end;
 
