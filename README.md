@@ -28,7 +28,6 @@ Main Features:
 - user can choose any Data Type for any column, but if the value could not be cast, there will not have error on editing (default values will be use)
 - if user do not like those (default) controls, he/she can change it by implementing a inheritance from TTisGridControl and changing the TTisGridEditLink.ControlClasses for each data type they want to, which will change the edit control for all grids in the project
 - use OnPrepareEditor event to customize any property of an edit control, before it shows up
-- use OnEditorSearching event for fill asynchronously the in-place string editor, after it shows up 
 
 <img src="./images/tisgrid.png">
 
