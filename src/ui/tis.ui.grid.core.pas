@@ -683,8 +683,8 @@ type
       read fOnCompareByRow write fOnCompareByRow;
     property OnAfterFillPopupMenu: TNotifyEvent
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
-    /// event that allows users customizes the control instance, creating a new instance,
-    // according of the aColumn
+    /// event that allows users customize the edit control instance, creating a new one,
+    // for a specific column which does not depending of its data type
     property OnCustomEditor: TOnGridCustomEditor
       read fOnCustomEditor write fOnCustomEditor;
     /// event that allows users to change some edit control properties, before it shows up
