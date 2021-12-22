@@ -874,22 +874,23 @@ begin
   result := True;
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
-  case c.DataType of
-    cdtDate:
-      d^.U[c.PropertyName] := DateToIso8601Text(fControl.GetValue);
-    cdtTime:
-      d^.U[c.PropertyName] := TimeToIso8601(fControl.GetValue, True);
-    cdtDateTime:
-      d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
-    cdtInteger:
-      d^.I[c.PropertyName] := fControl.GetValue;
-    cdtFloat:
-      d^.D[c.PropertyName] := fControl.GetValue;
-    cdtBoolean:
-      d^.B[c.PropertyName] := fControl.GetValue;
+  if VarIsNull(fControl.GetValue) then
+    d^.Value[c.PropertyName] := NULL
   else
-    d^.S[c.PropertyName] := VarToStr(fControl.GetValue);
-  end;
+    case c.DataType of
+      cdtString, cdtMemo:
+        d^.S[c.PropertyName] := VarToStr(fControl.GetValue);
+      cdtDate, cdtTime, cdtDateTime:
+        d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
+      cdtInteger:
+        d^.I[c.PropertyName] := fControl.GetValue;
+      cdtFloat:
+        d^.D[c.PropertyName] := fControl.GetValue;
+      cdtBoolean:
+        d^.B[c.PropertyName] := fControl.GetValue;
+    else
+      d^.S[c.PropertyName] := VarToStr(fControl.GetValue);
+    end;
   fGrid.InvalidateNode(fNode);
   fGrid.SetFocusSafe;
 end;
