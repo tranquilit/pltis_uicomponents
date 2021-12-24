@@ -145,7 +145,7 @@ object GridFrame: TGridFrame
       object GroupBox3: TGroupBox
         Left = 8
         Height = 72
-        Hint = 'It shows an example of how customize editors'
+        Hint = 'It shows an example of how customize editor properties'
         Top = 8
         Width = 304
         Caption = ' OnPrepareEditor Event '
@@ -256,7 +256,7 @@ object GridFrame: TGridFrame
         object AsynchCheckBox: TCheckBox
           Left = 12
           Height = 19
-          Hint = 'Get items asynchronously'
+          Hint = 'Get items asynchronously, using OnSearch event'
           Top = 232
           Width = 94
           Anchors = [akLeft, akBottom]
