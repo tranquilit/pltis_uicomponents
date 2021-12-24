@@ -49,7 +49,7 @@ object GridFrame: TGridFrame
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExportExcel]
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
-      OnCustomEditor = GridCustomEditor
+      OnEditorLookup = GridEditorLookup
       OnPrepareEditor = GridPrepareEditor
     end
     object GroupBox1: TGroupBox
@@ -148,7 +148,7 @@ object GridFrame: TGridFrame
         Hint = 'It shows an example of how customize editors'
         Top = 8
         Width = 304
-        Caption = ' OnPrepareEditor '
+        Caption = ' OnPrepareEditor Event '
         ClientHeight = 52
         ClientWidth = 300
         ParentShowHint = False
@@ -201,7 +201,7 @@ object GridFrame: TGridFrame
         Top = 88
         Width = 304
         Anchors = [akTop, akLeft, akBottom]
-        Caption = ' OnCustomEditor Event'
+        Caption = ' OnEditorLookup Event'
         ClientHeight = 260
         ClientWidth = 300
         TabOrder = 1

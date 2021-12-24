@@ -95,7 +95,7 @@ type
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
-    // - by default, first it will check Grid.OnCustomEditor event to get the instance
+    // - by default, first it will check Grid.OnCustomEditor event to get an instance
     // - if none was provided, it will use ControlClasses array, according to the aColumn.DataType
     function NewControl(aColumn: TTisGridColumn): TTisGridControl; virtual;
   public var
@@ -229,9 +229,13 @@ type
   // - use it for check/change the aData argument, before assign it, and/or abort the process
   TOnGridPaste = procedure(sender: TTisGrid; aRow: PDocVariantData; var aAbort: Boolean) of object;
 
-  /// event that allows users customize the control instance, according of the aColumn
+  /// event that allows users customize the control instance, creating a new one, replacing the default
   TOnGridCustomEditor = procedure(sender: TObject; aColumn: TTisGridColumn;
     out aControl: TTisGridControl) of object;
+
+  /// event that simplifies the use of a TisSearchEdit as Edit Control
+  TOnGridEditorLookup = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
+    aSearchEdit: TTisSearchEdit) of object;
 
   /// event that allows users to change some edit control properties, before it shows up
   TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
@@ -273,6 +277,7 @@ type
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
     fOnCustomEditor: TOnGridCustomEditor;
+    fOnEditorLookup: TOnGridEditorLookup;
     fOnPrepareEditor: TOnGridPrepareEditor;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
@@ -370,7 +375,10 @@ type
     procedure DoAdvancedCustomizeColumns(Sender: TObject); virtual;
     procedure DoExpandAll(Sender: TObject); virtual;
     procedure DoCollapseAll(Sender: TObject); virtual;
-    function DoCustomEditor(const aColumn: TTisGridColumn): TTisGridControl;
+    /// performs OnCustonEditor event, if it was assigned
+    procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
+    procedure DoEditorLookup(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
+    /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
@@ -684,9 +692,14 @@ type
     property OnAfterFillPopupMenu: TNotifyEvent
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
     /// event that allows users customize the edit control instance, creating a new one,
-    // for a specific column which does not depending of its data type
+    // - you should return an instance in aControl
+    // - you can use OnPrepareEditor to customize some properties
     property OnCustomEditor: TOnGridCustomEditor
       read fOnCustomEditor write fOnCustomEditor;
+    /// event that simplifies the use of a TisSearchEdit as Edit Control
+    // - you may want to use this event instead OnCustomEditor for TisSearchEdit
+    property OnEditorLookup: TOnGridEditorLookup
+      read fOnEditorLookup write fOnEditorLookup;
     /// event that allows users to change some edit control properties, before it shows up
     property OnPrepareEditor: TOnGridPrepareEditor
       read fOnPrepareEditor write fOnPrepareEditor;
@@ -836,9 +849,13 @@ end;
 
 function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;
 begin
-  result := fGrid.DoCustomEditor(aColumn);
+  fGrid.DoCustomEditor(aColumn, result);
   if result = nil then
-    result := ControlClasses[aColumn.DataType].Create;
+  begin
+    fGrid.DoEditorLookup(aColumn, result);
+    if result = nil then
+      result := ControlClasses[aColumn.DataType].Create;
+  end;
 end;
 
 constructor TTisGridEditLink.Create;
@@ -2139,11 +2156,22 @@ begin
   FullCollapse;
 end;
 
-function TTisGrid.DoCustomEditor(const aColumn: TTisGridColumn): TTisGridControl;
+procedure TTisGrid.DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
 begin
-  result := nil;
+  aControl := nil;
   if Assigned(fOnCustomEditor) then
-    fOnCustomEditor(self, aColumn, result);
+    fOnCustomEditor(self, aColumn, aControl);
+end;
+
+procedure TTisGrid.DoEditorLookup(const aColumn: TTisGridColumn; out
+  aControl: TTisGridControl);
+begin
+  aControl := nil;
+  if Assigned(fOnEditorLookup) then
+  begin
+    aControl := TTisGridSearchEditControl.Create;
+    fOnEditorLookup(self, aColumn, (aControl as TTisGridSearchEditControl).Edit);
+  end;
 end;
 
 procedure TTisGrid.DoPrepareEditor(const aColumn: TTisGridColumn;
