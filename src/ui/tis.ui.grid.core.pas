@@ -96,7 +96,8 @@ type
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
-    // - if none was provided, it will use ControlClasses array, according to the aColumn.DataType
+    // - if none instance was provided, it will use Grid.OnEditorLookup to get one
+    // - again, if none was provided, it will use ControlClasses array, according to the aColumn.DataType
     function NewControl(aColumn: TTisGridColumn): TTisGridControl; virtual;
   public var
     /// use this array to change the default control for each data type
