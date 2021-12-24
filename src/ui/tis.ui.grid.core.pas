@@ -377,6 +377,7 @@ type
     procedure DoCollapseAll(Sender: TObject); virtual;
     /// performs OnCustonEditor event, if it was assigned
     procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
+    /// performs OnEditorLookup event, if it was assigned
     procedure DoEditorLookup(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
     /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl);
