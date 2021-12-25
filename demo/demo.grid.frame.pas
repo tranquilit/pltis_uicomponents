@@ -88,7 +88,7 @@ type
       aColumn: TTisGridColumn; aControl: TWinControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorLookup(sender: TTisGrid; aColumn: TTisGridColumn;
-      aSearchEdit: TTisSearchEdit);
+      aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -204,10 +204,11 @@ begin
 end;
 
 procedure TGridFrame.GridEditorLookup(sender: TTisGrid;
-  aColumn: TTisGridColumn; aSearchEdit: TTisSearchEdit);
+  aColumn: TTisGridColumn; aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
 begin
   if aColumn.PropertyName = ColumnNameEdit.Text then
   begin
+    aHandled := True;
     aSearchEdit.LookupKeyField := KeyFieldEdit.Text;
     aSearchEdit.LookupDisplayField := DisplayFieldEdit.Text;
     if AsynchCheckBox.Checked then

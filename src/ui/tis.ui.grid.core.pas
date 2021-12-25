@@ -236,7 +236,7 @@ type
 
   /// event that simplifies the use of a TisSearchEdit as Edit Control
   TOnGridEditorLookup = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
-    aSearchEdit: TTisSearchEdit) of object;
+    aSearchEdit: TTisSearchEdit; var aHandled: Boolean) of object;
 
   /// event that allows users to change some edit control properties, before it shows up
   TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
@@ -379,7 +379,8 @@ type
     /// performs OnCustonEditor event, if it was assigned
     procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
     /// performs OnEditorLookup event, if it was assigned
-    procedure DoEditorLookup(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
+    procedure DoEditorLookup(const aColumn: TTisGridColumn; out
+      aControl: TTisGridControl; var aHandled: Boolean);
     /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl);
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
@@ -850,12 +851,15 @@ begin
 end;
 
 function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;
+var
+  handled: Boolean;
 begin
   fGrid.DoCustomEditor(aColumn, result);
   if result = nil then
   begin
-    fGrid.DoEditorLookup(aColumn, result);
-    if result = nil then
+    handled := False;
+    fGrid.DoEditorLookup(aColumn, result, handled);
+    if not handled then
       result := ControlClasses[aColumn.DataType].Create;
   end;
 end;
@@ -2166,13 +2170,16 @@ begin
 end;
 
 procedure TTisGrid.DoEditorLookup(const aColumn: TTisGridColumn; out
-  aControl: TTisGridControl);
+  aControl: TTisGridControl; var aHandled: Boolean);
 begin
   aControl := nil;
+  aHandled := False;
   if Assigned(fOnEditorLookup) then
   begin
     aControl := TTisGridSearchEditControl.Create;
-    fOnEditorLookup(self, aColumn, (aControl as TTisGridSearchEditControl).Edit);
+    fOnEditorLookup(self, aColumn, (aControl as TTisGridSearchEditControl).Edit, aHandled);
+    if not aHandled then
+      FreeAndNilSafe(aControl);
   end;
 end;
 
