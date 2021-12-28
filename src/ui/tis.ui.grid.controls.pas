@@ -149,7 +149,7 @@ end;
 
 function TTisGridControl.GetValue: Variant;
 begin
-  result := fInternal.Caption;
+  result := IfThen<Variant>(fInternal.Caption = '', NULL, fInternal.Caption);
 end;
 
 procedure TTisGridControl.SetValue(const aValue: Variant);

@@ -149,7 +149,7 @@ object TisGridEditor: TTisGridEditor
     object UpdateColumnButton: TButton
       Left = 100
       Height = 27
-      Top = 144
+      Top = 152
       Width = 90
       Action = ActUpdateColumn
       ParentFont = False
@@ -185,7 +185,7 @@ object TisGridEditor: TTisGridEditor
     object DelColumnButton1: TButton
       Left = 198
       Height = 27
-      Top = 144
+      Top = 152
       Width = 88
       Action = ActDelColumn
       Caption = 'Delete'
@@ -199,6 +199,17 @@ object TisGridEditor: TTisGridEditor
       Width = 19
       Caption = 'Pos'
       ParentColor = False
+    end
+    object RequiredCheckBox: TCheckBox
+      Left = 101
+      Height = 19
+      Hint = 'Mark it for users do not be allow to set NULL for this column'
+      Top = 129
+      Width = 67
+      Caption = 'Required'
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 7
     end
   end
   object Grid: TTisGrid

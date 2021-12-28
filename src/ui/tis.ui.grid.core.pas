@@ -118,11 +118,13 @@ type
   private
     fPropertyName: RawUtf8;
     fDataType: TTisColumnDataType;
+    fRequired: Boolean;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
   protected const
     DefaultDataType = cdtString;
+    DefaultRequired = False;
   public
     constructor Create(aCollection: TCollection); override;
     procedure Assign(aSource: TPersistent); override;
@@ -130,6 +132,7 @@ type
     property Text: TCaption read GetTitle write SetTitle;
     property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
+    property Required: Boolean read fRequired write fRequired default DefaultRequired;
   end;
 
   TTisHeaderPopupOption = (
@@ -898,7 +901,10 @@ begin
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   if VarIsNull(fControl.GetValue) then
-    d^.Value[c.PropertyName] := NULL
+  begin
+    if not c.Required then
+      d^.Value[c.PropertyName] := NULL;
+  end
   else
     case c.DataType of
       cdtString, cdtMemo:
@@ -998,6 +1004,7 @@ constructor TTisGridColumn.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
   fDataType := DefaultDataType;
+  fRequired := DefaultRequired;
 end;
 
 procedure TTisGridColumn.Assign(aSource: TPersistent);
@@ -1010,6 +1017,7 @@ begin
     c := TTisGridColumn(aSource);
     PropertyName := c.PropertyName;
     DataType := c.DataType;
+    Required := c.Required;
   end;
 end;
 

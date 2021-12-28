@@ -76,6 +76,7 @@ type
     DelColumnButton1: TButton;
     Label1: TLabel;
     ClearAllButton: TButton;
+    RequiredCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -98,7 +99,8 @@ type
     procedure EdColumnIndexChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
-      aColPosition: string; const aColDataType: TTisColumnDataType);
+      aColPosition: string; const aColDataType: TTisColumnDataType;
+      aColRequired: Boolean);
     procedure ClearPropertiesPanel;
   end;
 
@@ -166,7 +168,7 @@ begin
   begin
     col := TTisGridColumn(Grid.Header.Columns[idx]);
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType);
+      IntToStr(col.Position), col.DataType, col.Required);
   end
   else
     ClearPropertiesPanel;
@@ -231,6 +233,7 @@ begin
     col.Text := EdColumnTitle.Text;
     col.PropertyName := EdColumnProperty.Text;
     col.DataType := a.CaptionToEnum(cbColumnDataType.Text);
+    col.Required := RequiredCheckBox.Checked;
   end;
   Grid.Invalidate;
 end;
@@ -317,7 +320,7 @@ begin
   col := TTisGridColumn(Grid.Header.Columns[HitInfo.Column]);
   if col <> nil then
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType)
+      IntToStr(col.Position), col.DataType, col.Required)
   else
     ClearPropertiesPanel;
 end;
@@ -329,7 +332,8 @@ begin
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
-  aColPosition: string; const aColDataType: TTisColumnDataType);
+  aColPosition: string; const aColDataType: TTisColumnDataType;
+  aColRequired: Boolean);
 var
   a: TTisColumnDataTypeAdapter;
 begin
@@ -338,11 +342,12 @@ begin
   EdColumnProperty.Text := aColProperty;
   cbColumnDataType.ItemIndex := a.EnumToIndex(aColDataType);
   EdPosition.Text := aColPosition;
+  RequiredCheckBox.Checked := aColRequired;
 end;
 
 procedure TTisGridEditor.ClearPropertiesPanel;
 begin
-  SetPropertiesPanel('', '', '', '', low(TTisColumnDataType));
+  SetPropertiesPanel('', '', '', '', low(TTisColumnDataType), False);
 end;
 
 { TTisGridComponentEditor }
