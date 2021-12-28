@@ -132,6 +132,7 @@ type
     property Text: TCaption read GetTitle write SetTitle;
     property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
+    /// if TRUE, it will not allow user to set NULL for this column
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
   end;
 
