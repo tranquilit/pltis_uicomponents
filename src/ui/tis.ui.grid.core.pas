@@ -2320,10 +2320,10 @@ begin
       if Length(fKeyFieldsList) > 0 then
       begin
         StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
-        fData.Reduce(u, True, s);
+        SelectedRows.Reduce(u, True, s);
       end
       else
-        s.InitFast;
+        s := SelectedRows;
       f := FocusedRow;
       t := GetNodeDataAsDocVariant(TopNode);
       SetLength(a, 0);
@@ -2347,7 +2347,7 @@ begin
     finally
       try
         // restore selected nodes
-        if not s.IsVoid then
+        if s <> nil then
           SelectedRows := s;
         // restore focused node
         if f <> nil then
