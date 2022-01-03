@@ -246,13 +246,18 @@ type
   TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
     aControl: TWinControl) of object;
 
-  PPDocVariantData = ^PDocVariantData;
-
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
+  private type
+    TInternalData = object
+      Offset: Cardinal;
+      procedure Init(aGrid: TTisGrid);
+      function Data(aNode: PVirtualNode): Pointer;
+    end;
   private
     // ------------------------------- new fields ----------------------------------
+    fInternalData: TInternalData;
     fKeyFieldsList: array of string;
     fParentProperty: string;
     fSelectedAndTotalLabel: TLabel;
@@ -265,7 +270,6 @@ type
     fStartSearchNode: PVirtualNode;
     fTextToFind: string;
     fData: TDocVariantData;
-    fItemDataOffset: integer;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     // ------------------------------- new events ----------------------------------
@@ -348,8 +352,6 @@ type
     procedure DoChange(Node: PVirtualNode); override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods --------------------------------------
-    // return address of pointer to Node's TDocVariantData (pointer to an item in fData array)
-    function GetItemDataAddress(aNode: PVirtualNode): PPDocVariantData;
     /// standard menu management
     procedure FillPopupMenu(sender: TObject);
     function FindText(const aText: string): PVirtualNode;
@@ -357,7 +359,6 @@ type
     /// add aData into Data property
     // - will test if it is an array or object
     // - returns TRUE if something has been added
-    // - will call LoadData if returns TRUE
     function Add(aData: PDocVariantData): Boolean;
     function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
       aRow2: PDocVariantData): PtrInt; virtual;
@@ -394,6 +395,7 @@ type
     /// destructor
     destructor Destroy; override;
     // ------------------------------- inherited methods ----------------------------------
+    procedure Invalidate; override;
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
     /// it will clear Data and everything else related
@@ -404,8 +406,9 @@ type
     // - if aNode is nil, it will use FocusedNode as default
     function GetNodeDataAsDocVariant(aNode: PVirtualNode = nil): PDocVariantData;
     /// refresh the grid using Data content
-    // - you should call LoadData, if you change Data content directly
-    procedure LoadData(aNewData: PDocVariantData = nil);
+    // - call LoadData, if you change Data content directly
+    // - you may prefer call Invalidate to keep selection rows, for example
+    procedure LoadData;
     /// get all checked rows
     function CheckedRows: TDocVariantData;
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
@@ -461,7 +464,7 @@ type
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ----------------------------------
     /// direct access to the low-level internal data
-    // - if you change its content directly, you should call LoadData for VirtualTree be aware about it
+    // - if you change its content directly, you should call Invalidate or LoadData for VirtualTree be aware about it
     property Data: TDocVariantData
       read fData write SetData;
     property ParentProperty: string
@@ -1122,6 +1125,21 @@ begin
   inherited Popup(x, y);
 end;
 
+{ TTisGrid.TInternalData }
+
+procedure TTisGrid.TInternalData.Init(aGrid: TTisGrid);
+begin
+  Offset := aGrid.AllocateInternalDataArea(SizeOf(Cardinal));
+end;
+
+function TTisGrid.TInternalData.Data(aNode: PVirtualNode): Pointer;
+begin
+  if (aNode = nil) or (Offset <= 0) then
+    result := nil
+  else
+    result := PByte(aNode) + Offset;
+end;
+
 { TTisGrid }
 
 function TTisGrid.FocusedPropertyName: string;
@@ -1257,7 +1275,8 @@ begin
     fOnBeforeDataChange(self, @aValue, aborted);
   if aborted then
     exit;
-  LoadData(@aValue);
+  fData := aValue;
+  LoadData;
   UpdateSelectedAndTotalLabel;
   if Assigned(fOnAfterDataChange) then
     fOnAfterDataChange(self);
@@ -1304,14 +1323,11 @@ var
   d: PDocVariantData;
 begin
   n := GetFirstSelected;
-  result.InitArray([],[dvoValueCopiedByReference]);
+  result.InitArray([]);
   while n <> nil do
   begin
     d := GetNodeDataAsDocVariant(n);
-    if d<>Nil then
-    begin
-      result.AddItem(variant(d^));
-    end;
+    result.AddItem(variant(d^));
     n := GetNextSelected(n, True);
   end;
 end;
@@ -1373,7 +1389,8 @@ procedure TTisGrid.SetSelectedRow(aValue: TDocVariantData);
 var
   a: TDocVariantData;
 begin
-  a.InitArray([Variant(aValue)],[dvoValueCopiedByReference]);
+  a.InitArray([]);
+  a.AddItem(variant(aValue));
   SetSelectedRows(a);
 end;
 
@@ -1587,12 +1604,12 @@ end;
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
 var
-  pdata: PPDocVariantData;
+  data: PCardinal;
 begin
-  if (aNode<>Nil) and (not fData.IsVoid) then
+  data := fInternalData.Data(aNode);
+  if (data <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
   begin
-    pdata := GetItemDataAddress(aNode);
-    pdata^ := @fdata.Values[aNode.Index];
+    data^ := aNode.Index;
     aNode^.CheckType := ctCheckBox;
     //aNode^.States := aNode^.States + [vsMultiline];
   end;
@@ -1729,14 +1746,6 @@ begin
   inherited DoChange(Node);
   if Assigned(fSelectedAndTotalLabel) then
     SetSelectedAndTotalLabel(fSelectedAndTotalLabel);
-end;
-
-function TTisGrid.GetItemDataAddress(aNode: PVirtualNode): PPDocVariantData;
-begin
-  if (aNode = nil) or (fItemDataOffset <= 0) then
-    result := nil
-  else
-    result := Pointer(aNode) + fItemDataOffset;
 end;
 
 procedure TTisGrid.FillPopupMenu(sender: TObject);
@@ -1893,7 +1902,7 @@ begin
       result := False;
   end;
   if result then
-    LoadData;
+    Invalidate;
 end;
 
 function TTisGrid.DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
@@ -2194,9 +2203,7 @@ end;
 constructor TTisGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-
-  fItemDataOffset := AllocateInternalDataArea(SizeOf(PDocVariantData));
-
+  fInternalData.Init(self);
   Clear;
   DefaultText := '';
   fZebraColor := $00EDF0F1;
@@ -2238,6 +2245,13 @@ begin
   inherited Destroy;
 end;
 
+procedure TTisGrid.Invalidate;
+begin
+  if ParentProperty = '' then
+    RootNodeCount := fData.Count;
+  inherited Invalidate;
+end;
+
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);
 begin
   inherited FixDesignFontsPPI(ADesignTimePPI);
@@ -2264,28 +2278,38 @@ begin
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
+var
+  d: PCardinal;
 begin
   result := nil;
+  if aNode = nil then
+    aNode := FocusedNode;
   if aNode <> nil then
-    Result := GetItemDataAddress(aNode)^;
+  begin
+    if aNode.Index < Cardinal(fData.Count) then
+    begin
+      d := fInternalData.Data(aNode);
+      if d <> nil then
+        result := _Safe(fData.Values[d^])
+    end;
+  end;
 end;
 
-procedure TTisGrid.LoadData(aNewData: PDocVariantData);
+procedure TTisGrid.LoadData;
 var
-  PreviousFocusedData, TopData: TDocVariantData;
-  PreviousSelectedRows: TDocVariantData;
-  KeyNames: TRawUtf8DynArray;
-  ANodeArray: TNodeArray;
-  ANode: PVirtualNode;
-  IsReadOnly: Boolean;
+  f, t: PDocVariantData;
+  s: TDocVariantData;
+  u: TRawUtf8DynArray;
+  a: TNodeArray;
+  n: PVirtualNode;
+  r: Boolean;
 begin
-  if Assigned(aNewData) and aNewData^.IsVoid then
+  if fData.IsVoid then
   begin
-    IsReadOnly := toReadOnly in TreeOptions.MiscOptions;
+    r := toReadOnly in TreeOptions.MiscOptions;
     TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
     inherited Clear;
-    fData := aNewData^;
-    if IsReadOnly then
+    if r then
       TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
   end
   else
@@ -2293,27 +2317,20 @@ begin
     // stores previous focused and selected rows
     BeginUpdate;
     try
-      TopData.InitObject([]);
-      PreviousFocusedData.InitObject([]);
-      PreviousSelectedRows.InitFast(dvArray);
-      if not fData.IsVoid then
+      if Length(fKeyFieldsList) > 0 then
       begin
-        if Length(fKeyFieldsList) > 0 then
-        begin
-          StringDynArrayToRawUtf8DynArray(fKeyFieldsList, KeyNames);
-          SelectedRows.Reduce(KeyNames, True, PreviousSelectedRows);
-        end;
-        if Assigned(FocusedRow) then
-          PreviousFocusedData := FocusedRow^;
-        if Assigned(TopNode) then
-          TopData := GetNodeDataAsDocVariant(TopNode)^
-      end;
-      IsReadOnly := toReadOnly in TreeOptions.MiscOptions;
+        StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
+        fData.Reduce(u, True, s);
+      end
+      else
+        s.InitFast;
+      f := FocusedRow;
+      t := GetNodeDataAsDocVariant(TopNode);
+      SetLength(a, 0);
+      r := toReadOnly in TreeOptions.MiscOptions;
       TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
       try
         inherited Clear;
-        if Assigned(aNewData) then
-          fData := aNewData^;
         if ParentProperty = '' then
           RootNodeCount := fData.Count
         else
@@ -2324,30 +2341,30 @@ begin
           // For each root node, set SOChildren recursively
         end;
       finally
-        if IsReadOnly then
+        if r then
           TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
       end;
     finally
       try
         // restore selected nodes
-        if not PreviousSelectedRows.IsVoid then
-          SelectedRows := PreviousSelectedRows;
+        if not s.IsVoid then
+          SelectedRows := s;
         // restore focused node
-        if not PreviousFocusedData.IsVoid then
-          SetFocusedRowNoClearSelection(@PreviousFocusedData);
+        if f <> nil then
+          SetFocusedRowNoClearSelection(f);
         // restore top visible node
-        if not TopData.IsVoid and not (tsScrolling in TreeStates) then
+        if (t <> nil) and not (tsScrolling in TreeStates) then
         begin
           if KeyFieldsNames <> '' then
-            ANodeArray := GetNodesBy(@TopData, True)
+            a := GetNodesBy(t, True)
           else
-            ANodeArray := GetNodesBy(@TopData);
+            a := GetNodesBy(t);
         end;
       finally
         EndUpdate;
-        for ANode in ANodeArray do
+        for n in a do
         begin
-          TopNode := ANode;
+          TopNode := n;
           break;
         end;
         // restore visible focused column
@@ -2432,7 +2449,7 @@ var
   ar: TRawUtf8DynArray;
 begin
   SetLength(result, 0);
-  if not Assigned(aData) or aData^.IsVoid then
+  if aData.IsVoid then
     exit;
   p := GetFirst(True);
   while p <> nil do
@@ -2448,8 +2465,6 @@ begin
         if a.Equals(b) then
           _Add(result, p);
       end
-      else if d = aData then
-        _Add(result, p)
       else if d^.Equals(aData^) then
         _Add(result, p);
     end;
@@ -2520,7 +2535,7 @@ begin
     a := GetNodesBy(aRows);
     for n in a do
       DeleteNode(n, n = a[Length(a)-1]);
-    LoadData;
+    Invalidate;
   end;
 end;
 
