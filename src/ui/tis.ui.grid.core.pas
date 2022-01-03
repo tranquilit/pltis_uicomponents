@@ -2264,8 +2264,6 @@ begin
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
-var
-  d: PDocVariantData;
 begin
   result := nil;
   if aNode <> nil then
@@ -2619,10 +2617,7 @@ begin
           c.Assign(Grid.Header.Columns[i]);
         end;
         if KeepDataCheckBox.Checked then
-        begin
           target.Data := Grid.Data;
-          target.LoadData;
-        end;
       end;
     finally
       Free;
