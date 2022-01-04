@@ -2347,8 +2347,7 @@ begin
     finally
       try
         // restore selected nodes
-        if s <> nil then
-          SelectedRows := s;
+        SelectedRows := s;
         // restore focused node
         if f <> nil then
           SetFocusedRowNoClearSelection(f);
@@ -2622,7 +2621,7 @@ begin
         c.Options := target.Header.Columns[i].Options;
       end;
       Grid.Settings := target.Settings;
-      Grid.LoadData;
+      //Grid.LoadData;
       if ShowModal = mrOK then
       begin
         target.ClearAll;
