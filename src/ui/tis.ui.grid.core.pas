@@ -1276,7 +1276,7 @@ begin
   if aborted then
     exit;
   fData := aValue;
-  LoadData;
+  Invalidate;
   UpdateSelectedAndTotalLabel;
   if Assigned(fOnAfterDataChange) then
     fOnAfterDataChange(self);
@@ -2621,7 +2621,6 @@ begin
         c.Options := target.Header.Columns[i].Options;
       end;
       Grid.Settings := target.Settings;
-      //Grid.LoadData;
       if ShowModal = mrOK then
       begin
         target.ClearAll;
