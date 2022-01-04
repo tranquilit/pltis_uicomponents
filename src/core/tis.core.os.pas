@@ -61,6 +61,8 @@ type
     function AsString: string;
     /// returns the buffer as Utf8
     function AsUtf8: RawUtf8;
+    /// returns the buffer as JSON
+    function AsJson: RawUtf8;
     /// returns the buffer as Unicode String
     function AsUnicode: SynUnicode;
   end;
@@ -151,6 +153,19 @@ end;
 function TClipboardAdapter.AsUtf8: RawUtf8;
 begin
   result := StringToUtf8(Clipboard.AsText);
+end;
+
+function TClipboardAdapter.AsJson: RawUtf8;
+var
+  json: TRawByteStringStream;
+begin
+  json := TRawByteStringStream.Create('');
+  try
+    ToStream(cbkJson, json);
+    result := json.DataString;
+  finally
+    json.Free;
+  end;
 end;
 
 function TClipboardAdapter.AsUnicode: SynUnicode;

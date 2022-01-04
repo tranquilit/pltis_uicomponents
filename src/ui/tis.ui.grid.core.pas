@@ -2137,7 +2137,7 @@ var
 begin
   if c.IsValidFor(cbkText) or c.IsValidFor(cbkJson) then
   begin
-    d := _Safe(_Json(c.AsUtf8));
+    d := _Safe(_Json(c.AsJson));
     PasteRows(d);
   end;
 end;
