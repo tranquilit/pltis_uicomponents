@@ -346,7 +346,7 @@ type
       const aItemRect: TRect; var aColor: TColor;
       var EraseAction: TItemEraseAction); override;
     function DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
     procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
       const AXProportion, AYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
@@ -1397,7 +1397,11 @@ end;
 procedure TTisGrid.SetSelectedAndTotalLabel(aValue: TLabel);
 begin
   fSelectedAndTotalLabel := aValue;
-  UpdateSelectedAndTotalLabel;
+  if fSelectedAndTotalLabel <> nil then
+  begin
+    fSelectedAndTotalLabel.FreeNotification(self);
+    UpdateSelectedAndTotalLabel;
+  end;
 end;
 
 procedure TTisGrid.WMKeyDown(var Message: TLMKeyDown);
@@ -1716,9 +1720,11 @@ begin
   result := inherited DoKeyAction(CharCode, Shift);
 end;
 
-procedure TTisGrid.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TTisGrid.Notification(aComponent: TComponent; aOperation: TOperation);
 begin
-  inherited Notification(AComponent,Operation);
+  inherited Notification(aComponent, aOperation);
+  if (aOperation = opRemove) and (aComponent = fSelectedAndTotalLabel) then
+    fSelectedAndTotalLabel := nil;
 end;
 
 procedure TTisGrid.DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
@@ -1744,8 +1750,7 @@ end;
 procedure TTisGrid.DoChange(Node: PVirtualNode);
 begin
   inherited DoChange(Node);
-  if Assigned(fSelectedAndTotalLabel) then
-    SetSelectedAndTotalLabel(fSelectedAndTotalLabel);
+  UpdateSelectedAndTotalLabel;
 end;
 
 procedure TTisGrid.FillPopupMenu(sender: TObject);
