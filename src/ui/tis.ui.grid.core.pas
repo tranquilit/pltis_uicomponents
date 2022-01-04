@@ -2083,7 +2083,7 @@ begin
       c.Clear;
       SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, r);
       s := VariantToString(GetNodeDataAsDocVariant(FocusedNode).GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
-      c.Add(cbkText, s[1], Length(s) + 1);
+      c.Add(cbkText, s[1], Length(s));
       s := r.ToJson;
       c.Add(cbkJson, s[1], Length(s));
     finally
@@ -2135,7 +2135,7 @@ var
   c: TClipboardAdapter;
   d: PDocVariantData;
 begin
-  if c.IsValidFor(cbkText) or c.IsValidFor(cbkJson) then
+  if c.IsValidFor(cbkJson) then
   begin
     d := _Safe(_Json(c.AsJson));
     PasteRows(d);
