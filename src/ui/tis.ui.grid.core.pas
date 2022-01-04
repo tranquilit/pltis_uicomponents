@@ -395,7 +395,6 @@ type
     /// destructor
     destructor Destroy; override;
     // ------------------------------- inherited methods ----------------------------------
-    procedure Invalidate; override;
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
     /// it will clear Data and everything else related
@@ -407,7 +406,6 @@ type
     function GetNodeDataAsDocVariant(aNode: PVirtualNode = nil): PDocVariantData;
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
-    // - you may prefer call Invalidate to keep selection rows, for example
     procedure LoadData;
     /// get all checked rows
     function CheckedRows: TDocVariantData;
@@ -1276,7 +1274,7 @@ begin
   if aborted then
     exit;
   fData := aValue;
-  Invalidate;
+  LoadData;
   UpdateSelectedAndTotalLabel;
   if Assigned(fOnAfterDataChange) then
     fOnAfterDataChange(self);
@@ -1907,7 +1905,7 @@ begin
       result := False;
   end;
   if result then
-    Invalidate;
+    LoadData;
 end;
 
 function TTisGrid.DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
@@ -2250,13 +2248,6 @@ begin
   inherited Destroy;
 end;
 
-procedure TTisGrid.Invalidate;
-begin
-  if ParentProperty = '' then
-    RootNodeCount := fData.Count;
-  inherited Invalidate;
-end;
-
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);
 begin
   inherited FixDesignFontsPPI(ADesignTimePPI);
@@ -2301,81 +2292,10 @@ begin
 end;
 
 procedure TTisGrid.LoadData;
-var
-  f, t: PDocVariantData;
-  s: TDocVariantData;
-  u: TRawUtf8DynArray;
-  a: TNodeArray;
-  n: PVirtualNode;
-  r: Boolean;
 begin
-  if fData.IsVoid then
-  begin
-    r := toReadOnly in TreeOptions.MiscOptions;
-    TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
-    inherited Clear;
-    if r then
-      TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
-  end
-  else
-  begin
-    // stores previous focused and selected rows
-    BeginUpdate;
-    try
-      if Length(fKeyFieldsList) > 0 then
-      begin
-        StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
-        SelectedRows.Reduce(u, True, s);
-      end
-      else
-        s := SelectedRows;
-      f := FocusedRow;
-      t := GetNodeDataAsDocVariant(TopNode);
-      SetLength(a, 0);
-      r := toReadOnly in TreeOptions.MiscOptions;
-      TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
-      try
-        inherited Clear;
-        if ParentProperty = '' then
-          RootNodeCount := fData.Count
-        else
-        begin
-          // find root nodes (Parent value is nil or not found in current data array)
-          // RootData := GetSORootNodes(Data,ParentRow);
-          // RootNodeCount := RootData.AsArray.Length;
-          // For each root node, set SOChildren recursively
-        end;
-      finally
-        if r then
-          TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
-      end;
-    finally
-      try
-        // restore selected nodes
-        SelectedRows := s;
-        // restore focused node
-        if f <> nil then
-          SetFocusedRowNoClearSelection(f);
-        // restore top visible node
-        if (t <> nil) and not (tsScrolling in TreeStates) then
-        begin
-          if KeyFieldsNames <> '' then
-            a := GetNodesBy(t, True)
-          else
-            a := GetNodesBy(t);
-        end;
-      finally
-        EndUpdate;
-        for n in a do
-        begin
-          TopNode := n;
-          break;
-        end;
-        // restore visible focused column
-        ScrollIntoView(FocusedColumn,False);
-      end;
-    end;
-  end;
+  if ParentProperty = '' then
+    RootNodeCount := fData.Count;
+  Invalidate;
 end;
 
 function TTisGrid.CheckedRows: TDocVariantData;
@@ -2539,7 +2459,7 @@ begin
     a := GetNodesBy(aRows);
     for n in a do
       DeleteNode(n, n = a[Length(a)-1]);
-    Invalidate;
+    LoadData;
   end;
 end;
 
