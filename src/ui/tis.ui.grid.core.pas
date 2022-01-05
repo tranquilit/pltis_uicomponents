@@ -2292,10 +2292,81 @@ begin
 end;
 
 procedure TTisGrid.LoadData;
+var
+  f, t: PDocVariantData;
+  s: TDocVariantData;
+  u: TRawUtf8DynArray;
+  a: TNodeArray;
+  n: PVirtualNode;
+  r: Boolean;
 begin
-  if ParentProperty = '' then
-    RootNodeCount := fData.Count;
-  Invalidate;
+  if fData.IsVoid then
+  begin
+    r := toReadOnly in TreeOptions.MiscOptions;
+    TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
+    inherited Clear;
+    if r then
+      TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
+  end
+  else
+  begin
+    // stores previous focused and selected rows
+    BeginUpdate;
+    try
+      if Length(fKeyFieldsList) > 0 then
+      begin
+        StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
+        SelectedRows.Reduce(u, True, s);
+      end
+      else
+        s := SelectedRows;
+      f := FocusedRow;
+      t := GetNodeDataAsDocVariant(TopNode);
+      SetLength(a, 0);
+      r := toReadOnly in TreeOptions.MiscOptions;
+      TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
+      try
+        inherited Clear;
+        if ParentProperty = '' then
+          RootNodeCount := fData.Count
+        else
+        begin
+          // find root nodes (Parent value is nil or not found in current data array)
+          // RootData := GetSORootNodes(Data,ParentRow);
+          // RootNodeCount := RootData.AsArray.Length;
+          // For each root node, set SOChildren recursively
+        end;
+      finally
+        if r then
+          TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
+      end;
+    finally
+      try
+        // restore selected nodes
+        SelectedRows := s;
+        // restore focused node
+        if f <> nil then
+          SetFocusedRowNoClearSelection(f);
+        // restore top visible node
+        if (t <> nil) and not (tsScrolling in TreeStates) then
+        begin
+          if KeyFieldsNames <> '' then
+            a := GetNodesBy(t, True)
+          else
+            a := GetNodesBy(t);
+        end;
+      finally
+        EndUpdate;
+        for n in a do
+        begin
+          TopNode := n;
+          break;
+        end;
+        // restore visible focused column
+        ScrollIntoView(FocusedColumn,False);
+      end;
+    end;
+  end;
 end;
 
 function TTisGrid.CheckedRows: TDocVariantData;
