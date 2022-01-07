@@ -19,9 +19,9 @@ object GridFrame: TGridFrame
     ParentFont = False
     TabOrder = 0
     object Grid: TTisGrid
-      Left = 8
+      Left = 0
       Height = 299
-      Top = 72
+      Top = 64
       Width = 536
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clWhite
@@ -65,10 +65,10 @@ object GridFrame: TGridFrame
         Cursor = crHandPoint
         Left = 24
         Height = 15
-        Hint = 'Work with Grid Data'
+        Hint = 'Grid properties'
         Top = 8
-        Width = 24
-        Caption = 'Data'
+        Width = 22
+        Caption = 'Grid'
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
         Font.Height = -12
@@ -79,13 +79,13 @@ object GridFrame: TGridFrame
         ParentColor = False
         ParentFont = False
         ParentShowHint = False
-        PopupMenu = GridDataPopupMenu
+        PopupMenu = GridPropsPopupMenu
         ShowHint = True
         OnClick = FunctionDataLabelClick
       end
       object FunctionSettingsLabel: TLabel
         Cursor = crHandPoint
-        Left = 64
+        Left = 160
         Height = 15
         Hint = 'Grid Settings'
         Top = 8
@@ -103,7 +103,29 @@ object GridFrame: TGridFrame
         ParentShowHint = False
         PopupMenu = GridSettingsPopupMenu
         ShowHint = True
-        OnClick = FunctionSettingsLabelClick
+        OnClick = FunctionDataLabelClick
+      end
+      object FunctionDataLabel1: TLabel
+        Cursor = crHandPoint
+        Left = 88
+        Height = 15
+        Hint = 'Work with Grid Data'
+        Top = 8
+        Width = 28
+        Caption = 'Input'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridInputPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
       end
     end
     object Panel2: TPanel
@@ -866,8 +888,8 @@ object GridFrame: TGridFrame
     ResizeAnchor = akBottom
   end
   object UserPopupMenu: TPopupMenu
-    Left = 368
-    Top = 104
+    Left = 376
+    Top = 192
     object MenuItem1: TMenuItem
       Caption = 'Test User Menu Item'
       OnClick = MenuItem1Click
@@ -887,14 +909,9 @@ object GridFrame: TGridFrame
     Left = 224
     Top = 192
   end
-  object GridDataPopupMenu: TPopupMenu
-    Left = 96
+  object GridInputPopupMenu: TPopupMenu
+    Left = 224
     Top = 104
-    object GridDataCustomizeMenuItem: TMenuItem
-      Caption = 'Customize'
-      Hint = 'Open Grid Editor'
-      OnClick = GridDataCustomizeMenuItemClick
-    end
     object GridDataAddRowsMenuItem: TMenuItem
       Caption = 'Add Rows'
       Hint = 'Add rows from Input JSON'
@@ -907,7 +924,7 @@ object GridFrame: TGridFrame
     end
   end
   object GridSettingsPopupMenu: TPopupMenu
-    Left = 224
+    Left = 376
     Top = 104
     object GridSettingsSaveMenuItem: TMenuItem
       Caption = 'Save'
@@ -916,6 +933,15 @@ object GridFrame: TGridFrame
     object GridSettingsLoadMenuItem: TMenuItem
       Caption = 'Load'
       OnClick = GridSettingsLoadMenuItemClick
+    end
+  end
+  object GridPropsPopupMenu: TPopupMenu
+    Left = 96
+    Top = 104
+    object GridDataCustomizeMenuItem1: TMenuItem
+      Caption = 'Customize'
+      Hint = 'Open Grid Editor'
+      OnClick = GridDataCustomizeMenuItem1Click
     end
   end
 end

@@ -64,8 +64,7 @@ type
     AsynchCheckBox: TCheckBox;
     EdDataType1: TLabel;
     ColumnNameEdit: TEdit;
-    GridDataPopupMenu: TPopupMenu;
-    GridDataCustomizeMenuItem: TMenuItem;
+    GridInputPopupMenu: TPopupMenu;
     GridDataAddRowsMenuItem: TMenuItem;
     GridDataDeleteRowsMenuItem: TMenuItem;
     GridSettingsPopupMenu: TPopupMenu;
@@ -73,6 +72,9 @@ type
     GridSettingsLoadMenuItem: TMenuItem;
     FunctionDataLabel: TLabel;
     FunctionSettingsLabel: TLabel;
+    FunctionDataLabel1: TLabel;
+    GridPropsPopupMenu: TPopupMenu;
+    GridDataCustomizeMenuItem1: TMenuItem;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -87,13 +89,12 @@ type
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorLookup(sender: TTisGrid; aColumn: TTisGridColumn;
       aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
-    procedure GridDataCustomizeMenuItemClick(Sender: TObject);
     procedure GridDataAddRowsMenuItemClick(Sender: TObject);
     procedure GridDataDeleteRowsMenuItemClick(Sender: TObject);
     procedure GridSettingsSaveMenuItemClick(Sender: TObject);
     procedure GridSettingsLoadMenuItemClick(Sender: TObject);
     procedure FunctionDataLabelClick(Sender: TObject);
-    procedure FunctionSettingsLabelClick(Sender: TObject);
+    procedure GridDataCustomizeMenuItem1Click(Sender: TObject);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -182,12 +183,6 @@ begin
   end;
 end;
 
-procedure TGridFrame.GridDataCustomizeMenuItemClick(Sender: TObject);
-begin
-  Grid.DefaultNodeHeight := 25;
-  Grid.Customize;
-end;
-
 procedure TGridFrame.GridDataAddRowsMenuItemClick(Sender: TObject);
 var
   d: PDocVariantData;
@@ -228,12 +223,13 @@ end;
 
 procedure TGridFrame.FunctionDataLabelClick(Sender: TObject);
 begin
-  FunctionDataLabel.PopupMenu.PopUp;
+  (Sender as TLabel).PopupMenu.PopUp;
 end;
 
-procedure TGridFrame.FunctionSettingsLabelClick(Sender: TObject);
+procedure TGridFrame.GridDataCustomizeMenuItem1Click(Sender: TObject);
 begin
-  FunctionSettingsLabel.PopupMenu.PopUp;
+  Grid.DefaultNodeHeight := 25;
+  Grid.Customize;
 end;
 
 procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);
