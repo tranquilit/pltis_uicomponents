@@ -314,6 +314,7 @@ type
     function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
+    function GetSelectedObjects: PDocVariantDataDynArray;
     function GetSelectedRow: TDocVariantData;
     procedure SetSelectedRow(aValue: TDocVariantData);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
@@ -467,12 +468,15 @@ type
       read fData write SetData;
     property ParentProperty: string
       read fParentProperty write SetParentProperty;
-    /// copy and returns an object with the main selected row
+    /// returns a copy of the object from the main selected row
     property SelectedRow: TDocVariantData
       read GetSelectedRow write SetSelectedRow;
-    /// copy and returns an array with all selected rows
+    /// returns a copy of objects from selected rows
     property SelectedRows: TDocVariantData
       read GetSelectedRows write SetSelectedRows;
+    /// returns objects from selected rows
+    property SelectedObjects: PDocVariantDataDynArray
+      read GetSelectedObjects;
     property FocusedRow: PDocVariantData
       read GetFocusedRow write SetFocusedRow;
     property FocusedColumnObject: TTisGridColumn
@@ -1371,6 +1375,22 @@ begin
     else if n <> nil then
       FocusedNode := n;
   end;
+end;
+
+function TTisGrid.GetSelectedObjects: PDocVariantDataDynArray;
+var
+  node: PVirtualNode;
+  n: integer;
+begin
+  node := GetFirstSelected;
+  n := 0;
+  result := nil;
+  while node <> nil do
+  begin
+    PtrArrayAdd(result, GetNodeDataAsDocVariant(node), n);
+    node := GetNextSelected(node, True);
+  end;
+  SetLength(result, n);
 end;
 
 function TTisGrid.GetSelectedRow: TDocVariantData;
