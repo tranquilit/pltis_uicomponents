@@ -36,7 +36,7 @@ type
     ClipboardLabel: TLabel;
     ClipboardLabel1: TLabel;
     Grid: TTisGrid;
-    GridDataLabel: TLabel;
+    ClipboardGridDataLabel: TLabel;
     InOutputEdit: TSynEdit;
     Label1: TLabel;
     Panel1: TPanel;
@@ -45,16 +45,10 @@ type
     UserPopupMenu: TPopupMenu;
     MenuItem1: TMenuItem;
     GroupBox1: TGroupBox;
-    CustomizeButton: TSpeedButton;
-    AddRowsButton: TSpeedButton;
-    DeleteRowsButton: TSpeedButton;
-    GroupBox2: TGroupBox;
-    SettingsSaveButton: TSpeedButton;
-    SettingsLoadButton: TSpeedButton;
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     GridTotalLabel: TLabel;
-    GridSelectedRowLabel: TLabel;
+    ClipboardSelectedRowLabel: TLabel;
     Panel2: TPanel;
     GroupBox3: TGroupBox;
     cbColumnDataType: TComboBox;
@@ -70,25 +64,36 @@ type
     AsynchCheckBox: TCheckBox;
     EdDataType1: TLabel;
     ColumnNameEdit: TEdit;
-    procedure AddRowsButtonClick(Sender: TObject);
-    procedure CustomizeButtonClick(Sender: TObject);
-    procedure DeleteRowsButtonClick(Sender: TObject);
+    GridDataPopupMenu: TPopupMenu;
+    GridDataCustomizeMenuItem: TMenuItem;
+    GridDataAddRowsMenuItem: TMenuItem;
+    GridDataDeleteRowsMenuItem: TMenuItem;
+    GridSettingsPopupMenu: TPopupMenu;
+    GridSettingsSaveMenuItem: TMenuItem;
+    GridSettingsLoadMenuItem: TMenuItem;
+    FunctionDataLabel: TLabel;
+    FunctionSettingsLabel: TLabel;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure ClipboardLabel1Click(Sender: TObject);
     procedure ClipboardLabelClick(Sender: TObject);
-    procedure GridDataLabelClick(Sender: TObject);
+    procedure ClipboardGridDataLabelClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
-    procedure SettingsSaveButtonClick(Sender: TObject);
-    procedure SettingsLoadButtonClick(Sender: TObject);
-    procedure GridSelectedRowLabelClick(Sender: TObject);
+    procedure ClipboardSelectedRowLabelClick(Sender: TObject);
     procedure GridPrepareEditor(sender: TTisGrid;
       aColumn: TTisGridColumn; aControl: TWinControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorLookup(sender: TTisGrid; aColumn: TTisGridColumn;
       aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
+    procedure GridDataCustomizeMenuItemClick(Sender: TObject);
+    procedure GridDataAddRowsMenuItemClick(Sender: TObject);
+    procedure GridDataDeleteRowsMenuItemClick(Sender: TObject);
+    procedure GridSettingsSaveMenuItemClick(Sender: TObject);
+    procedure GridSettingsLoadMenuItemClick(Sender: TObject);
+    procedure FunctionDataLabelClick(Sender: TObject);
+    procedure FunctionSettingsLabelClick(Sender: TObject);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -98,38 +103,6 @@ implementation
 {$R *.lfm}
 
 { TGridFrame }
-
-procedure TGridFrame.CustomizeButtonClick(Sender: TObject);
-begin
-  Grid.DefaultNodeHeight := 25;
-  Grid.Customize;
-end;
-
-procedure TGridFrame.AddRowsButtonClick(Sender: TObject);
-var
-  d: PDocVariantData;
-begin
-  if InOutputEdit.Text <> '' then
-  begin
-    d := _Safe(_Json(StringToUtf8(InOutputEdit.Text)));
-    Grid.AddRows(d);
-  end
-  else
-    ShowMessage('Type a JSON into Input/Output memo.');
-end;
-
-procedure TGridFrame.DeleteRowsButtonClick(Sender: TObject);
-var
-  d: PDocVariantData;
-begin
-  if InOutputEdit.Text <> '' then
-  begin
-    d := _Safe(_Json(StringToUtf8(InOutputEdit.Text)));
-    Grid.DeleteRows(d);
-  end
-  else
-    ShowMessage('Type a JSON into Input/Output memo.');
-end;
 
 function TGridFrame.GridCompareByRow(sender: TTisGrid;
   const aPropertyName: RawUtf8; const aRow1, aRow2: TDocVariantData;
@@ -160,7 +133,7 @@ begin
   InOutputEdit.Lines.Text := c.AsString;
 end;
 
-procedure TGridFrame.GridDataLabelClick(Sender: TObject);
+procedure TGridFrame.ClipboardGridDataLabelClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.Data.ToJson('', '', jsonHumanReadable));
 end;
@@ -170,19 +143,7 @@ begin
   ShowMessage('User menu item action');
 end;
 
-procedure TGridFrame.SettingsSaveButtonClick(Sender: TObject);
-begin
-  if SaveDialog.Execute then
-    Grid.SaveSettingsToIni(SaveDialog.FileName);
-end;
-
-procedure TGridFrame.SettingsLoadButtonClick(Sender: TObject);
-begin
-  if OpenDialog.Execute then
-    Grid.LoadSettingsFromIni(OpenDialog.FileName);
-end;
-
-procedure TGridFrame.GridSelectedRowLabelClick(Sender: TObject);
+procedure TGridFrame.ClipboardSelectedRowLabelClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.SelectedRow.ToJson('', '', jsonHumanReadable));
 end;
@@ -219,6 +180,60 @@ begin
       aSearchEdit.LoadData;
     end;
   end;
+end;
+
+procedure TGridFrame.GridDataCustomizeMenuItemClick(Sender: TObject);
+begin
+  Grid.DefaultNodeHeight := 25;
+  Grid.Customize;
+end;
+
+procedure TGridFrame.GridDataAddRowsMenuItemClick(Sender: TObject);
+var
+  d: PDocVariantData;
+begin
+  if InOutputEdit.Text <> '' then
+  begin
+    d := _Safe(_Json(StringToUtf8(InOutputEdit.Text)));
+    Grid.AddRows(d);
+  end
+  else
+    ShowMessage('Type a JSON into Input/Output memo.');
+end;
+
+procedure TGridFrame.GridDataDeleteRowsMenuItemClick(Sender: TObject);
+var
+  d: PDocVariantData;
+begin
+  if InOutputEdit.Text <> '' then
+  begin
+    d := _Safe(_Json(StringToUtf8(InOutputEdit.Text)));
+    Grid.DeleteRows(d);
+  end
+  else
+    ShowMessage('Type a JSON into Input/Output memo.');
+end;
+
+procedure TGridFrame.GridSettingsSaveMenuItemClick(Sender: TObject);
+begin
+  if SaveDialog.Execute then
+    Grid.SaveSettingsToIni(SaveDialog.FileName);
+end;
+
+procedure TGridFrame.GridSettingsLoadMenuItemClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+    Grid.LoadSettingsFromIni(OpenDialog.FileName);
+end;
+
+procedure TGridFrame.FunctionDataLabelClick(Sender: TObject);
+begin
+  FunctionDataLabel.PopupMenu.PopUp;
+end;
+
+procedure TGridFrame.FunctionSettingsLabelClick(Sender: TObject);
+begin
+  FunctionSettingsLabel.PopupMenu.PopUp;
 end;
 
 procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);

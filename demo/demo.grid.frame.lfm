@@ -54,82 +54,56 @@ object GridFrame: TGridFrame
     end
     object GroupBox1: TGroupBox
       Left = 8
-      Height = 55
+      Height = 58
       Top = 8
-      Width = 264
-      Caption = ' Data '
-      ClientHeight = 35
-      ClientWidth = 260
+      Width = 536
+      Caption = ' Functions '
+      ClientHeight = 38
+      ClientWidth = 532
       TabOrder = 1
-      object CustomizeButton: TSpeedButton
-        Left = 8
-        Height = 25
-        Hint = 'Open Grid Editor'
-        Top = 1
-        Width = 74
-        Caption = 'Customize'
-        OnClick = CustomizeButtonClick
-        ShowHint = True
+      object FunctionDataLabel: TLabel
+        Cursor = crHandPoint
+        Left = 24
+        Height = 15
+        Hint = 'Work with Grid Data'
+        Top = 8
+        Width = 24
+        Caption = 'Data'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
         ParentFont = False
         ParentShowHint = False
+        PopupMenu = GridDataPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
       end
-      object AddRowsButton: TSpeedButton
-        Left = 88
-        Height = 25
-        Hint = 'Add rows from Input JSON'
-        Top = 1
-        Width = 72
-        Caption = 'Add Rows'
-        OnClick = AddRowsButtonClick
-        ShowHint = True
+      object FunctionSettingsLabel: TLabel
+        Cursor = crHandPoint
+        Left = 64
+        Height = 15
+        Hint = 'Grid Settings'
+        Top = 8
+        Width = 42
+        Caption = 'Settings'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
         ParentFont = False
         ParentShowHint = False
-      end
-      object DeleteRowsButton: TSpeedButton
-        Left = 168
-        Height = 25
-        Hint = 'Delete rows from Input JSON'
-        Top = 1
-        Width = 80
-        Caption = 'Delete Rows'
-        OnClick = DeleteRowsButtonClick
+        PopupMenu = GridSettingsPopupMenu
         ShowHint = True
-        ParentFont = False
-        ParentShowHint = False
-      end
-    end
-    object GroupBox2: TGroupBox
-      Left = 280
-      Height = 55
-      Top = 8
-      Width = 176
-      Caption = ' Settings '
-      ClientHeight = 35
-      ClientWidth = 172
-      TabOrder = 2
-      object SettingsSaveButton: TSpeedButton
-        Left = 8
-        Height = 25
-        Hint = 'Open Grid Editor'
-        Top = 2
-        Width = 74
-        Caption = 'Save'
-        OnClick = SettingsSaveButtonClick
-        ShowHint = True
-        ParentFont = False
-        ParentShowHint = False
-      end
-      object SettingsLoadButton: TSpeedButton
-        Left = 88
-        Height = 25
-        Hint = 'Open Grid Editor'
-        Top = 2
-        Width = 72
-        Caption = 'Load'
-        OnClick = SettingsLoadButtonClick
-        ShowHint = True
-        ParentFont = False
-        ParentShowHint = False
+        OnClick = FunctionSettingsLabelClick
       end
     end
     object Panel2: TPanel
@@ -141,7 +115,7 @@ object GridFrame: TGridFrame
       BevelOuter = bvNone
       ClientHeight = 378
       ClientWidth = 324
-      TabOrder = 3
+      TabOrder = 2
       object GroupBox3: TGroupBox
         Left = 8
         Height = 72
@@ -817,9 +791,9 @@ object GridFrame: TGridFrame
       ParentFont = False
       OnClick = ClipboardLabelClick
     end
-    object GridDataLabel: TLabel
+    object ClipboardGridDataLabel: TLabel
       Cursor = crHandPoint
-      Left = 248
+      Left = 240
       Height = 15
       Top = 3
       Width = 76
@@ -833,7 +807,7 @@ object GridFrame: TGridFrame
       Font.Style = [fsUnderline]
       ParentColor = False
       ParentFont = False
-      OnClick = GridDataLabelClick
+      OnClick = ClipboardGridDataLabelClick
     end
     object ClipboardLabel1: TLabel
       Cursor = crHandPoint
@@ -863,9 +837,9 @@ object GridFrame: TGridFrame
       ParentColor = False
       ParentFont = False
     end
-    object GridSelectedRowLabel: TLabel
+    object ClipboardSelectedRowLabel: TLabel
       Cursor = crHandPoint
-      Left = 344
+      Left = 336
       Height = 15
       Top = 3
       Width = 95
@@ -879,7 +853,7 @@ object GridFrame: TGridFrame
       Font.Style = [fsUnderline]
       ParentColor = False
       ParentFont = False
-      OnClick = GridSelectedRowLabelClick
+      OnClick = ClipboardSelectedRowLabelClick
     end
   end
   object Splitter: TSplitter
@@ -892,8 +866,8 @@ object GridFrame: TGridFrame
     ResizeAnchor = akBottom
   end
   object UserPopupMenu: TPopupMenu
-    Left = 112
-    Top = 144
+    Left = 368
+    Top = 104
     object MenuItem1: TMenuItem
       Caption = 'Test User Menu Item'
       OnClick = MenuItem1Click
@@ -903,14 +877,45 @@ object GridFrame: TGridFrame
     DefaultExt = '.ini'
     FileName = 'settings.ini'
     Filter = 'Ini Files|*.ini'
-    Left = 216
-    Top = 144
+    Left = 96
+    Top = 192
   end
   object SaveDialog: TSaveDialog
     DefaultExt = '.ini'
     FileName = 'settings.ini'
     Filter = 'Ini Files|*.ini'
-    Left = 312
-    Top = 144
+    Left = 224
+    Top = 192
+  end
+  object GridDataPopupMenu: TPopupMenu
+    Left = 96
+    Top = 104
+    object GridDataCustomizeMenuItem: TMenuItem
+      Caption = 'Customize'
+      Hint = 'Open Grid Editor'
+      OnClick = GridDataCustomizeMenuItemClick
+    end
+    object GridDataAddRowsMenuItem: TMenuItem
+      Caption = 'Add Rows'
+      Hint = 'Add rows from Input JSON'
+      OnClick = GridDataAddRowsMenuItemClick
+    end
+    object GridDataDeleteRowsMenuItem: TMenuItem
+      Caption = 'Delete Rows'
+      Hint = 'Delete rows from Input JSON'
+      OnClick = GridDataDeleteRowsMenuItemClick
+    end
+  end
+  object GridSettingsPopupMenu: TPopupMenu
+    Left = 224
+    Top = 104
+    object GridSettingsSaveMenuItem: TMenuItem
+      Caption = 'Save'
+      OnClick = GridSettingsSaveMenuItemClick
+    end
+    object GridSettingsLoadMenuItem: TMenuItem
+      Caption = 'Load'
+      OnClick = GridSettingsLoadMenuItemClick
+    end
   end
 end
