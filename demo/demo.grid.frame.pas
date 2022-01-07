@@ -66,7 +66,7 @@ type
     ColumnNameEdit: TEdit;
     GridInputPopupMenu: TPopupMenu;
     GridDataAddRowsMenuItem: TMenuItem;
-    GridDataDeleteRowsMenuItem: TMenuItem;
+    GridInputDeleteRowsMenuItem: TMenuItem;
     GridSettingsPopupMenu: TPopupMenu;
     GridSettingsSaveMenuItem: TMenuItem;
     GridSettingsLoadMenuItem: TMenuItem;
@@ -75,6 +75,9 @@ type
     FunctionDataLabel1: TLabel;
     GridPropsPopupMenu: TPopupMenu;
     GridDataCustomizeMenuItem1: TMenuItem;
+    FunctionSelRowsLabel: TLabel;
+    GridSelRowsPopupMenu: TPopupMenu;
+    GridSelRowsMenuItem: TMenuItem;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -90,11 +93,12 @@ type
     procedure GridEditorLookup(sender: TTisGrid; aColumn: TTisGridColumn;
       aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
     procedure GridDataAddRowsMenuItemClick(Sender: TObject);
-    procedure GridDataDeleteRowsMenuItemClick(Sender: TObject);
+    procedure GridInputDeleteRowsMenuItemClick(Sender: TObject);
     procedure GridSettingsSaveMenuItemClick(Sender: TObject);
     procedure GridSettingsLoadMenuItemClick(Sender: TObject);
     procedure FunctionDataLabelClick(Sender: TObject);
     procedure GridDataCustomizeMenuItem1Click(Sender: TObject);
+    procedure GridSelRowsMenuItemClick(Sender: TObject);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -196,7 +200,7 @@ begin
     ShowMessage('Type a JSON into Input/Output memo.');
 end;
 
-procedure TGridFrame.GridDataDeleteRowsMenuItemClick(Sender: TObject);
+procedure TGridFrame.GridInputDeleteRowsMenuItemClick(Sender: TObject);
 var
   d: PDocVariantData;
 begin
@@ -230,6 +234,21 @@ procedure TGridFrame.GridDataCustomizeMenuItem1Click(Sender: TObject);
 begin
   Grid.DefaultNodeHeight := 25;
   Grid.Customize;
+end;
+
+procedure TGridFrame.GridSelRowsMenuItemClick(Sender: TObject);
+var
+  a: array of string;
+  i: Integer;
+begin
+  SetLength(a, 2);
+  if not InputQuery('Update Column', ['Name', 'Value'], a) then
+    exit;
+  for i := 0 to high(Grid.SelectedObjects) do
+  begin
+    Grid.SelectedObjects[i].S[a[0]] := a[1];
+    Grid.LoadData;
+  end;
 end;
 
 procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);
