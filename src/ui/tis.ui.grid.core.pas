@@ -2320,8 +2320,6 @@ end;
 procedure TTisGrid.LoadData;
 var
   f, t: PDocVariantData;
-  //s: TDocVariantData;
-  u: TRawUtf8DynArray;
   a: TNodeArray;
   n: PVirtualNode;
   r: Boolean;
@@ -2339,13 +2337,6 @@ begin
     // stores previous focused and selected rows
     BeginUpdate;
     try
-      //if Length(fKeyFieldsList) > 0 then
-      //begin
-      //  StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
-      //  SelectedRows.Reduce(u, True, s);
-      //end
-      //else
-      //  s := SelectedRows;
       f := FocusedRow;
       t := GetNodeDataAsDocVariant(TopNode);
       SetLength(a, 0);
