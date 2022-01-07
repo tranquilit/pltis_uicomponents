@@ -270,6 +270,7 @@ type
     fStartSearchNode: PVirtualNode;
     fTextToFind: string;
     fData: TDocVariantData;
+    fSelectedData: TDocVariantData;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     // ------------------------------- new events ----------------------------------
@@ -1770,6 +1771,7 @@ end;
 procedure TTisGrid.DoChange(Node: PVirtualNode);
 begin
   inherited DoChange(Node);
+  fSelectedData := SelectedRows;
   UpdateSelectedAndTotalLabel;
 end;
 
@@ -2230,6 +2232,8 @@ begin
   inherited Create(AOwner);
   fInternalData.Init(self);
   Clear;
+  fSelectedData.Clear;
+  fSelectedData.InitArray([], JSON_FAST_FLOAT);
   DefaultText := '';
   fZebraColor := $00EDF0F1;
   SetLength(fKeyFieldsList, 0);
@@ -2316,7 +2320,7 @@ end;
 procedure TTisGrid.LoadData;
 var
   f, t: PDocVariantData;
-  s: TDocVariantData;
+  //s: TDocVariantData;
   u: TRawUtf8DynArray;
   a: TNodeArray;
   n: PVirtualNode;
@@ -2335,13 +2339,13 @@ begin
     // stores previous focused and selected rows
     BeginUpdate;
     try
-      if Length(fKeyFieldsList) > 0 then
-      begin
-        StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
-        SelectedRows.Reduce(u, True, s);
-      end
-      else
-        s := SelectedRows;
+      //if Length(fKeyFieldsList) > 0 then
+      //begin
+      //  StringDynArrayToRawUtf8DynArray(fKeyFieldsList, u);
+      //  SelectedRows.Reduce(u, True, s);
+      //end
+      //else
+      //  s := SelectedRows;
       f := FocusedRow;
       t := GetNodeDataAsDocVariant(TopNode);
       SetLength(a, 0);
@@ -2365,7 +2369,7 @@ begin
     finally
       try
         // restore selected nodes
-        SelectedRows := s;
+        SelectedRows := fSelectedData;
         // restore focused node
         if f <> nil then
           SetFocusedRowNoClearSelection(f);
