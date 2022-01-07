@@ -2459,19 +2459,22 @@ var
   p: PVirtualNode;
   a, b: TDocVariantData;
   ar: TRawUtf8DynArray;
+  usearray: Boolean;
 begin
   SetLength(result, 0);
   if aData.IsVoid then
     exit;
+  usearray := aUseKeyFieldsList and (Length(fKeyFieldsList) > 0);
+  if usearray then
+    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, ar);
   p := GetFirst(True);
   while p <> nil do
   begin
     d := GetNodeDataAsDocVariant(p);
     if d <> nil then
     begin
-      if aUseKeyFieldsList and (Length(fKeyFieldsList) > 0) then
+      if usearray then
       begin
-        StringDynArrayToRawUtf8DynArray(fKeyFieldsList, ar);
         d^.Reduce(ar, False, a);
         aData.Reduce(ar, False, b);
         if a.Equals(b) then
