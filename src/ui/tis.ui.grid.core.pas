@@ -469,9 +469,11 @@ type
     property ParentProperty: string
       read fParentProperty write SetParentProperty;
     /// returns a copy of the object from the main selected row
+    // - do not use this to edit Data values, instead use SelectedObjects
     property SelectedRow: TDocVariantData
       read GetSelectedRow write SetSelectedRow;
     /// returns a copy of objects from selected rows
+    // - do not use this to edit Data values, instead use SelectedObjects
     property SelectedRows: TDocVariantData
       read GetSelectedRows write SetSelectedRows;
     /// returns objects from selected rows
