@@ -28,7 +28,6 @@ uses
   Forms,
   Dialogs,
   Buttons,
-  Messages,
   EditBtn,
   DefaultTranslator,
   VirtualTrees,
@@ -110,7 +109,7 @@ type
     function EndEdit: Boolean; stdcall;
     function GetBounds: TRect; stdcall;
     function PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNode; aColumn: TColumnIndex): Boolean; stdcall;
-    procedure ProcessMessage(var aMessage: TMessage); stdcall;
+    procedure ProcessMessage(var aMessage: TLMessage); stdcall;
     procedure SetBounds(R: TRect); stdcall;
   end;
 
@@ -841,7 +840,7 @@ begin
         if CanAdvance then
         begin
           // Forward the keypress to the tree. It will asynchronously change the focused node.
-          PostMessage(fGrid.Handle, WM_KEYDOWN, Key, 0);
+          PostMessage(fGrid.Handle, LM_KEYDOWN, Key, 0);
           Key := 0;
         end;
       end;
@@ -970,9 +969,9 @@ begin
   fGrid.DoPrepareEditor(c, fControl.Internal);
 end;
 
-procedure TTisGridEditLink.ProcessMessage(var aMessage: TMessage); stdcall;
+procedure TTisGridEditLink.ProcessMessage(var aMessage: TLMessage); stdcall;
 begin
-  fControl.Internal.WindowProc(aMessage);
+  PostMessage(fControl.Internal.Handle, aMessage.Msg, aMessage.wParam, aMessage.lParam);
 end;
 
 procedure TTisGridEditLink.SetBounds(R: TRect); stdcall;
@@ -1465,7 +1464,7 @@ var
   Shift: TShiftState;
   KeyState: TKeyboardState;
   Buffer: array[0..1] of Char;
-  amsg:TLMessage;
+  m: TLMessage;
 begin
   // manage immediate editor
   with Message do
@@ -1473,7 +1472,8 @@ begin
     Shift := KeyDataToShiftState(KeyData);
     KeyState := Default(TKeyboardState);
     GetKeyboardState(KeyState);
-    // Avoid conversion to control characters. We have captured the control key state already in Shift.
+    // avoid conversion to control characters
+    // - we have captured the control key state already in Shift
     KeyState[VK_CONTROL] := 0;
     if (
       (ToASCII(Message.CharCode, (Message.KeyData shr 16) and 7, KeyState, @Buffer, 0) > 0) or
@@ -1481,25 +1481,22 @@ begin
       )
       and (Shift * [ssCtrl, ssAlt] = []) and (CharCode >= 32) then
     begin
-      //case Buffer[0] of
       EditColumn := FocusedColumn;
       if EditColumn = NoColumn then
         exit;
       DoEdit;
-      //send first key which triggered the editor to newly created editor
+      // send first key which triggered the editor to newly created editor
       if CanEdit(FocusedNode, EditColumn) and (Message.CharCode <> VK_F2) then
       begin
-        amsg.msg := WM_CHAR;
-        amsg.wParam := ord(Buffer[0]);
-        amsg.lParam := 0;
-        EditLink.ProcessMessage( amsg);
+        m.msg := LM_CHAR;
+        m.wParam := ord(Buffer[0]);
+        m.lParam := 0;
+        EditLink.ProcessMessage(m);
       end;
     end
     else
       inherited WMKeyDown(Message);
-  end
-  //else
-  //  inherited WMKeyDown(Message);
+  end;
 end;
 
 function TTisGrid.GetPopupMenu: TPopupMenu;
