@@ -90,8 +90,8 @@ type
     fNode: PVirtualNode;
     fColumn: Integer;
   protected
-    procedure EditExit(Sender: TObject);
-    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EditExit(Sender: TObject); virtual;
+    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
@@ -819,7 +819,7 @@ end;
 
 procedure TTisGridEditLink.EditExit(Sender: TObject);
 begin
-  fGrid.CancelEditNode;
+//  fGrid.CancelEditNode; { TODO : test if it is really needed }
 end;
 
 procedure TTisGridEditLink.EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
