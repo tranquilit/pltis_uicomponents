@@ -810,7 +810,7 @@ end;
 
 procedure TTisGridEditLink.EditExit(Sender: TObject);
 begin
-  fGrid.EndEditNode;
+  fGrid.CancelEditNode;
 end;
 
 procedure TTisGridEditLink.EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
