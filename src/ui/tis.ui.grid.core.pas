@@ -1505,13 +1505,14 @@ begin
       if EditColumn = NoColumn then
         exit;
       // send first key which triggered the editor to newly created editor
-      if CanEdit(FocusedNode, EditColumn) and (Message.CharCode <> VK_F2) then
+      if CanEdit(FocusedNode, EditColumn) then
       begin
         DoEdit;
         m.msg := LM_CHAR;
         m.wParam := ord(Buffer[0]);
         m.lParam := 0;
-        EditLink.ProcessMessage(m);
+        if Message.CharCode <> VK_F2 then
+          EditLink.ProcessMessage(m);
       end;
     end
     else
