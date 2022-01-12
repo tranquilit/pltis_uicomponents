@@ -321,6 +321,7 @@ type
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
   protected
     // ------------------------------- inherited methods ----------------------------------
+    procedure Loaded; override;
     function GetPopupMenu: TPopupMenu; override;
     procedure SetPopupMenu(aValue: TPopupMenu); // it should be virtual and protected on TControl class
     procedure WndProc(var Message: TLMessage); override;
@@ -1499,6 +1500,12 @@ begin
   end;
 end;
 
+procedure TTisGrid.Loaded;
+begin
+  inherited Loaded;
+  FillPopupMenu(PopupMenu);
+end;
+
 function TTisGrid.GetPopupMenu: TPopupMenu;
 begin
   result := inherited GetPopupMenu;
@@ -1778,10 +1785,9 @@ procedure TTisGrid.FillPopupMenu(sender: TObject);
   var
     i: Integer;
   begin
-    if PopupMenu <> nil then
-      for i := PopupMenu.Items.Count-1 downto 0 do
-        if PopupMenu.Items[i].Tag = 250 then
-          PopupMenu.Items.Delete(i);
+    for i := PopupMenu.Items.Count-1 downto 0 do
+      if PopupMenu.Items[i].Tag = 250 then
+        PopupMenu.Items.Delete(i);
   end;
 
   function AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent): HMENU;
@@ -1806,6 +1812,8 @@ procedure TTisGrid.FillPopupMenu(sender: TObject);
   end;
 
 begin
+  if PopupMenu = nil then
+    exit;
   RemoveAutoItems;
   if Assigned(fPopupOrigEvent) then
     fPopupOrigEvent(self);
