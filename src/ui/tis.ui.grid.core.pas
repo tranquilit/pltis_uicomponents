@@ -245,6 +245,11 @@ type
   TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
     aControl: TWinControl) of object;
 
+  /// event that allow to validate the new value from user input
+  // - use it for check/change the aNewValue argument, before assign it, and/or abort the process
+  TOnGridEditValidated = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
+    var aNewValue: Variant; var aAbort: Boolean) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -284,6 +289,7 @@ type
     fOnCustomEditor: TOnGridCustomEditor;
     fOnEditorLookup: TOnGridEditorLookup;
     fOnPrepareEditor: TOnGridPrepareEditor;
+    fOnEditValidated: TOnGridEditValidated;
     // ------------------------------- HMENU ----------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
@@ -382,12 +388,13 @@ type
     procedure DoExpandAll(Sender: TObject); virtual;
     procedure DoCollapseAll(Sender: TObject); virtual;
     /// performs OnCustonEditor event, if it was assigned
-    procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
+    procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl); virtual;
     /// performs OnEditorLookup event, if it was assigned
     procedure DoEditorLookup(const aColumn: TTisGridColumn; out
-      aControl: TTisGridControl; var aHandled: Boolean);
+      aControl: TTisGridControl; var aHandled: Boolean); virtual;
     /// performs OnPrepareEditor event, if it was assigned
-    procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl);
+    procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl); virtual;
+    procedure DoEditValidated(const aColumn: TTisGridColumn; var aNewValue: Variant; var aAbort: Boolean); virtual;
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -716,6 +723,8 @@ type
     /// event that allows users to change some edit control properties, before it shows up
     property OnPrepareEditor: TOnGridPrepareEditor
       read fOnPrepareEditor write fOnPrepareEditor;
+    property OnEditValidated: TOnGridEditValidated
+      read fOnEditValidated write fOnEditValidated;
   end;
 
 resourcestring
@@ -903,32 +912,42 @@ function TTisGridEditLink.EndEdit: Boolean; stdcall;
 var
   d: PDocVariantData;
   c: TTisGridColumn;
+  aborted: Boolean;
+  v: Variant;
 begin
   result := True;
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
-  if VarIsNull(fControl.GetValue) then
-  begin
-    if not c.Required then
-      d^.Value[c.PropertyName] := NULL;
-  end
-  else
-    case c.DataType of
-      cdtString, cdtMemo:
-        d^.S[c.PropertyName] := VarToStr(fControl.GetValue);
-      cdtDate, cdtTime, cdtDateTime:
-        d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
-      cdtInteger:
-        d^.I[c.PropertyName] := fControl.GetValue;
-      cdtFloat:
-        d^.D[c.PropertyName] := fControl.GetValue;
-      cdtBoolean:
-        d^.B[c.PropertyName] := fControl.GetValue;
+  aborted := False;
+  v := fControl.GetValue;
+  fGrid.DoEditValidated(c, v, aborted);
+  try
+    if aborted then
+      exit;
+    if VarIsNull(v) then
+    begin
+      if not c.Required then
+        d^.Value[c.PropertyName] := NULL;
+    end
     else
-      d^.S[c.PropertyName] := VarToStr(fControl.GetValue);
-    end;
-  fGrid.InvalidateNode(fNode);
-  fGrid.SetFocusSafe;
+      case c.DataType of
+        cdtString, cdtMemo:
+          d^.S[c.PropertyName] := VarToStr(v);
+        cdtDate, cdtTime, cdtDateTime:
+          d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
+        cdtInteger:
+          d^.I[c.PropertyName] := v;
+        cdtFloat:
+          d^.D[c.PropertyName] := v;
+        cdtBoolean:
+          d^.B[c.PropertyName] := v;
+      else
+        d^.S[c.PropertyName] := VarToStr(v);
+      end;
+  finally
+    fGrid.InvalidateNode(fNode);
+    fGrid.SetFocusSafe;
+  end;
 end;
 
 function TTisGridEditLink.GetBounds: TRect; stdcall;
@@ -2230,6 +2249,13 @@ procedure TTisGrid.DoPrepareEditor(const aColumn: TTisGridColumn;
 begin
   if Assigned(fOnPrepareEditor) then
     fOnPrepareEditor(self, aColumn, aControl);
+end;
+
+procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
+  var aNewValue: Variant; var aAbort: Boolean);
+begin
+  if Assigned(fOnEditValidated) then
+    fOnEditValidated(self, aColumn, aNewValue, aAbort);
 end;
 
 constructor TTisGrid.Create(AOwner: TComponent);
