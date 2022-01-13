@@ -90,7 +90,6 @@ type
     fNode: PVirtualNode;
     fColumn: Integer;
   protected
-    procedure EditExit(Sender: TObject); virtual;
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
@@ -817,11 +816,6 @@ end;
 
 { TTisGridEditLink }
 
-procedure TTisGridEditLink.EditExit(Sender: TObject);
-begin
-//  fGrid.CancelEditNode; { TODO : test if it is really needed }
-end;
-
 procedure TTisGridEditLink.EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 var
   CanAdvance: Boolean;
@@ -969,7 +963,7 @@ begin
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(c);
-  fControl.SetEvents(EditKeyDown, EditExit);
+  fControl.SetEvents(EditKeyDown);
   fControl.Internal.Visible := False;
   fControl.Internal.Parent := fGrid;
   case c.DataType of

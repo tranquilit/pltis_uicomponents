@@ -49,7 +49,7 @@ type
     /// access to the internal (generic) WinControl instance
     function Internal: TWinControl;
     /// this set all events that the grid need to control
-    procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent); virtual;
+    procedure SetEvents(aOnKeyDown: TKeyEvent); virtual;
     /// it returns the value edited by user
     function GetValue: Variant; virtual;
     /// it set the value from grid to the control
@@ -71,7 +71,7 @@ type
   TTisGridDateEditControl = class(TTisGridControl)
   public
     constructor Create; override;
-    procedure SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent); override;
+    procedure SetEvents(aOnKeyDown: TKeyEvent); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TDateTimePicker;
@@ -141,10 +141,9 @@ begin
   result := fInternal;
 end;
 
-procedure TTisGridControl.SetEvents(aOnKeyDown: TKeyEvent; aOnExit: TNotifyEvent);
+procedure TTisGridControl.SetEvents(aOnKeyDown: TKeyEvent);
 begin
   fInternal.OnKeyDown := aOnKeyDown;
-  fInternal.OnExit := aOnExit;
 end;
 
 function TTisGridControl.GetValue: Variant;
@@ -201,13 +200,10 @@ begin
   Edit.Kind := dtkDate;
 end;
 
-procedure TTisGridDateEditControl.SetEvents(aOnKeyDown: TKeyEvent;
-  aOnExit: TNotifyEvent);
+procedure TTisGridDateEditControl.SetEvents(aOnKeyDown: TKeyEvent);
 begin
-  inherited SetEvents(aOnKeyDown, aOnExit);
-  // replace events to the right inheritance
-  Edit.OnKeyDown := aOnKeyDown;
-  Edit.OnExit := aOnExit;
+  inherited SetEvents(aOnKeyDown);
+  Edit.OnKeyDown := aOnKeyDown; // replace event to the right inheritance
 end;
 
 function TTisGridDateEditControl.GetValue: Variant;
