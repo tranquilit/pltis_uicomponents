@@ -825,6 +825,7 @@ begin
     VK_ESCAPE:
       if CanAdvance then
       begin
+        fGrid.SetFocusSafe; // needed if grid.parent is a Frame
         fGrid.CancelEditNode;
         Key := 0;
       end;
