@@ -1699,9 +1699,7 @@ procedure TTisGrid.DoBeforeCellPaint(ACanvas: TCanvas; Node: PVirtualNode;
   Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
   var ContentRect: TRect);
 begin
-  // pour affichage lignes multiselect en gris clair avec cellule focused en bleu
-  if (CellPaintMode = cpmPaint) and (toMultiSelect in TreeOptions.SelectionOptions) and
-    (vsSelected in Node^.States) then
+  if (CellPaintMode = cpmPaint) and (vsSelected in Node^.States) then
   begin
     if not Focused or (column <> FocusedColumn) or (Node <> FocusedNode) then
     begin
@@ -1709,7 +1707,7 @@ begin
       ACanvas.FillRect(CellRect);
     end
     else
-    if (column = FocusedColumn) and (Node = FocusedNode) and Focused then
+    if (Column = FocusedColumn) and (Node = FocusedNode) and Focused then
     begin
       ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
       ACanvas.FillRect(CellRect);
@@ -1719,7 +1717,7 @@ begin
   if (CellPaintMode = cpmPaint) and not (toMultiSelect in TreeOptions.SelectionOptions) and
      (Node = FocusedNode) then
   begin
-    if (column <> FocusedColumn) then
+    if (Column <> FocusedColumn) then
     begin
       ACanvas.Brush.Color := clLtGray;
       ACanvas.FillRect(CellRect);
