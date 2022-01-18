@@ -1956,6 +1956,8 @@ var
   handled: Boolean;
 begin
   handled := False;
+  if not Assigned(aRow1) or not Assigned(aRow2) then
+    exit(0);
   if Assigned(OnCompareByRow) then
     result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled)
   else
