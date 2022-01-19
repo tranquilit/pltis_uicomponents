@@ -1699,32 +1699,25 @@ procedure TTisGrid.DoBeforeCellPaint(ACanvas: TCanvas; Node: PVirtualNode;
   Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
   var ContentRect: TRect);
 begin
-  if (CellPaintMode = cpmPaint) and (vsSelected in Node^.States) then
+  if CellPaintMode = cpmPaint then
   begin
-    if not Focused or (column <> FocusedColumn) or (Node <> FocusedNode) then
+    if vsSelected in Node^.States then
+    begin
+      if not Focused or (column <> FocusedColumn) or (Node <> FocusedNode) then
+      begin
+        ACanvas.Brush.Color := clLtGray;
+        ACanvas.FillRect(CellRect);
+      end
+      else
+      if (Column = FocusedColumn) and (Node = FocusedNode) and Focused then
+      begin
+        ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
+        ACanvas.FillRect(CellRect);
+      end;
+    end
+    else if Node = FocusedNode then
     begin
       ACanvas.Brush.Color := clLtGray;
-      ACanvas.FillRect(CellRect);
-    end
-    else
-    if (Column = FocusedColumn) and (Node = FocusedNode) and Focused then
-    begin
-      ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
-      ACanvas.FillRect(CellRect);
-    end;
-  end
-  else
-  if (CellPaintMode = cpmPaint) and not (toMultiSelect in TreeOptions.SelectionOptions) and
-     (Node = FocusedNode) then
-  begin
-    if (Column <> FocusedColumn) then
-    begin
-      ACanvas.Brush.Color := clLtGray;
-      ACanvas.FillRect(CellRect);
-    end
-    else
-    begin
-      ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
       ACanvas.FillRect(CellRect);
     end;
   end;
