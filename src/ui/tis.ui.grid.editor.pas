@@ -77,6 +77,7 @@ type
     Label1: TLabel;
     ClearAllButton: TButton;
     RequiredCheckBox: TCheckBox;
+    AutoSortCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -97,6 +98,7 @@ type
       var Allowed: Boolean);
     procedure GridHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure EdColumnIndexChange(Sender: TObject);
+    procedure AutoSortCheckBoxChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -329,6 +331,15 @@ procedure TTisGridEditor.EdColumnIndexChange(Sender: TObject);
 begin
   ActUpdateColumn.Enabled := EdColumnIndex.Text <> '';
   ActDelColumn.Enabled := ActUpdateColumn.Enabled;
+end;
+
+procedure TTisGridEditor.AutoSortCheckBoxChange(Sender: TObject);
+begin
+  with Grid.Header do
+    if AutoSortCheckBox.Checked then
+      Options := Options + [hoHeaderClickAutoSort]
+    else
+      Options := Options - [hoHeaderClickAutoSort];
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,

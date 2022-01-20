@@ -1,18 +1,18 @@
 object TisGridEditor: TTisGridEditor
-  Left = 230
+  Left = 280
   Height = 282
-  Top = 226
-  Width = 920
+  Top = 259
+  Width = 723
   Caption = 'Grid Editor'
   ClientHeight = 282
-  ClientWidth = 920
+  ClientWidth = 723
   OnCreate = FormCreate
   LCLVersion = '2.0.12.0'
   object ButtonPanel: TButtonPanel
     Left = 9
     Height = 34
     Top = 239
-    Width = 902
+    Width = 705
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
@@ -29,10 +29,10 @@ object TisGridEditor: TTisGridEditor
     Left = 0
     Height = 48
     Top = 0
-    Width = 920
+    Width = 723
     Align = alTop
     ClientHeight = 48
-    ClientWidth = 920
+    ClientWidth = 723
     ParentFont = False
     TabOrder = 0
     object PasteJsonButton: TButton
@@ -83,9 +83,22 @@ object TisGridEditor: TTisGridEditor
       ParentFont = False
       TabOrder = 3
     end
+    object AutoSortCheckBox: TCheckBox
+      Left = 640
+      Height = 19
+      Hint = 'Check this option to use hoHeaderClickAutoSort in Header.Options'
+      Top = 15
+      Width = 70
+      Caption = 'Auto Sort'
+      OnChange = AutoSortCheckBoxChange
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+    end
   end
   object PropertiesPanel: TPanel
-    Left = 625
+    Left = 428
     Height = 182
     Top = 48
     Width = 295
@@ -216,16 +229,18 @@ object TisGridEditor: TTisGridEditor
     Left = 0
     Height = 182
     Top = 48
-    Width = 625
+    Width = 428
     Align = alClient
     Color = clWhite
     Colors.UnfocusedColor = clMedGray
     EditDelay = 200
     Header.AutoSizeIndex = -1
-    Header.Columns = <>
+    Header.Columns = <    
+      item
+        Position = 0
+      end>
     Header.DefaultHeight = 28
     Header.Height = 43
-    Header.MainColumn = -1
     Header.MaxHeight = 151
     Header.MinHeight = 28
     Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible]
@@ -310,6 +325,52 @@ object TisGridEditor: TTisGridEditor
     end
     object MenuItem8: TMenuItem
       Action = ActClearAll
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = '-'
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Search...'
+      ShortCut = 16454
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Find next'
+      ShortCut = 114
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Copy'
+      ShortCut = 16451
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Copy cell'
+      ShortCut = 24643
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Paste'
+      ShortCut = 16470
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Delete selected rows'
+      ShortCut = 16430
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Export all rows to CSV file...'
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Customize columns...'
+    end
+    object TMenuItem
+      Tag = 250
+      Caption = 'Advanced customize of table...'
     end
   end
 end
