@@ -2657,6 +2657,7 @@ begin
         c.Options := target.Header.Columns[i].Options;
       end;
       Grid.Header.Assign(target.Header);
+      Grid.TreeOptions.Assign(target.TreeOptions);
       Grid.Settings := target.Settings;
       if ShowModal = mrOK then
       begin
@@ -2667,6 +2668,7 @@ begin
           c.Assign(Grid.Header.Columns[i]);
         end;
         target.Header.Assign(Grid.Header);
+        target.TreeOptions.Assign(Grid.TreeOptions);
         if KeepDataCheckBox.Checked then
           target.Data := Grid.Data;
       end;

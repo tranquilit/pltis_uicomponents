@@ -90,6 +90,8 @@ type
     Label1: TLabel;
     RequiredCheckBox: TCheckBox;
     AutoSortCheckBox: TCheckBox;
+    MultiSelectCheckBox: TCheckBox;
+    EditableCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -113,6 +115,8 @@ type
     procedure AutoSortCheckBoxChange(Sender: TObject);
     procedure GridClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure MultiSelectCheckBoxChange(Sender: TObject);
+    procedure EditableCheckBoxChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -368,6 +372,24 @@ begin
   LoadGridCommonProps;
 end;
 
+procedure TTisGridEditor.MultiSelectCheckBoxChange(Sender: TObject);
+begin
+  with Grid.TreeOptions do
+    if MultiSelectCheckBox.Checked then
+      SelectionOptions := SelectionOptions + [toMultiSelect]
+    else
+      SelectionOptions := SelectionOptions - [toMultiSelect];
+end;
+
+procedure TTisGridEditor.EditableCheckBoxChange(Sender: TObject);
+begin
+  with Grid.TreeOptions do
+    if EditableCheckBox.Checked then
+      MiscOptions := MiscOptions + [toEditable]
+    else
+      MiscOptions := MiscOptions - [toEditable];
+end;
+
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
   aColRequired: Boolean);
@@ -390,6 +412,8 @@ end;
 procedure TTisGridEditor.LoadGridCommonProps;
 begin
   AutoSortCheckBox.Checked := hoHeaderClickAutoSort in Grid.Header.Options;
+  MultiSelectCheckBox.Checked := toMultiSelect in Grid.TreeOptions.SelectionOptions;
+  EditableCheckBox.Checked := toEditable in Grid.TreeOptions.MiscOptions;
 end;
 
 { TTisGridComponentEditor }

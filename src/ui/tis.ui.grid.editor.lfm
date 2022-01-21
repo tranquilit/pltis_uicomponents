@@ -265,6 +265,32 @@ object TisGridEditor: TTisGridEditor
         ShowHint = True
         TabOrder = 0
       end
+      object MultiSelectCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to use toMultiSelect in TreeOptions.SelectionOptions'
+        Top = 40
+        Width = 82
+        Caption = 'Multi Select'
+        OnChange = MultiSelectCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 1
+      end
+      object EditableCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to use toEditable in TreeOptions.MiscOptions'
+        Top = 64
+        Width = 62
+        Caption = 'Editable'
+        OnChange = EditableCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 2
+      end
     end
   end
   object ActionList: TActionList
@@ -309,8 +335,8 @@ object TisGridEditor: TTisGridEditor
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 248
-    Top = 143
+    Left = 240
+    Top = 144
     object MenuItem1: TMenuItem
       Action = ActAddColumn
     end
@@ -334,52 +360,6 @@ object TisGridEditor: TTisGridEditor
     end
     object MenuItem8: TMenuItem
       Action = ActClearAll
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = '-'
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Search...'
-      ShortCut = 16454
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Find next'
-      ShortCut = 114
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Copy'
-      ShortCut = 16451
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Copy cell'
-      ShortCut = 24643
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Paste'
-      ShortCut = 16470
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Delete selected rows'
-      ShortCut = 16430
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Export all rows to CSV file...'
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Customize columns...'
-    end
-    object TMenuItem
-      Tag = 250
-      Caption = 'Advanced customize of table...'
     end
   end
 end
