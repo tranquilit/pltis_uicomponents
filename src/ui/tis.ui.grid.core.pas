@@ -2658,7 +2658,6 @@ begin
       end;
       Grid.Header.Assign(target.Header);
       Grid.Settings := target.Settings;
-      AutoSortCheckBox.Checked := hoHeaderClickAutoSort in Grid.Header.Options;
       if ShowModal = mrOK then
       begin
         target.ClearAll;
@@ -2667,8 +2666,7 @@ begin
           c := target.Header.Columns.Add as TTisGridColumn;
           c.Assign(Grid.Header.Columns[i]);
         end;
-        if AutoSortCheckBox.Checked then
-          target.Header.Assign(Grid.Header);
+        target.Header.Assign(Grid.Header);
         if KeepDataCheckBox.Checked then
           target.Data := Grid.Data;
       end;

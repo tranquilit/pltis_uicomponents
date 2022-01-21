@@ -1,17 +1,18 @@
 object TisGridEditor: TTisGridEditor
-  Left = 280
-  Height = 282
-  Top = 259
+  Left = 316
+  Height = 318
+  Top = 250
   Width = 723
   Caption = 'Grid Editor'
-  ClientHeight = 282
+  ClientHeight = 318
   ClientWidth = 723
   OnCreate = FormCreate
+  OnShow = FormShow
   LCLVersion = '2.0.12.0'
   object ButtonPanel: TButtonPanel
     Left = 9
     Height = 34
-    Top = 239
+    Top = 275
     Width = 705
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
@@ -22,7 +23,7 @@ object TisGridEditor: TTisGridEditor
     CloseButton.DefaultCaption = True
     CancelButton.Name = 'CancelButton'
     CancelButton.DefaultCaption = True
-    TabOrder = 2
+    TabOrder = 3
     ShowButtons = [pbOK, pbCancel]
   end
   object Panel1: TPanel
@@ -83,153 +84,12 @@ object TisGridEditor: TTisGridEditor
       ParentFont = False
       TabOrder = 3
     end
-    object AutoSortCheckBox: TCheckBox
-      Left = 640
-      Height = 19
-      Hint = 'Check this option to use hoHeaderClickAutoSort in Header.Options'
-      Top = 15
-      Width = 70
-      Caption = 'Auto Sort'
-      OnChange = AutoSortCheckBoxChange
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 5
-    end
-  end
-  object PropertiesPanel: TPanel
-    Left = 428
-    Height = 182
-    Top = 48
-    Width = 295
-    Align = alRight
-    BevelOuter = bvNone
-    ClientHeight = 182
-    ClientWidth = 295
-    ParentFont = False
-    TabOrder = 3
-    object EdColumnTitle: TLabeledEdit
-      Left = 100
-      Height = 23
-      Top = 40
-      Width = 186
-      EditLabel.Height = 15
-      EditLabel.Width = 66
-      EditLabel.Caption = 'Column title'
-      EditLabel.ParentColor = False
-      EditLabel.ParentFont = False
-      LabelPosition = lpLeft
-      ParentFont = False
-      TabOrder = 2
-      OnExit = EdColumnTitleExit
-      OnKeyPress = EdColumnTitleKeyPress
-    end
-    object EdColumnProperty: TLabeledEdit
-      Left = 100
-      Height = 23
-      Top = 71
-      Width = 186
-      EditLabel.Height = 15
-      EditLabel.Width = 78
-      EditLabel.Caption = 'Property name'
-      EditLabel.ParentColor = False
-      EditLabel.ParentFont = False
-      LabelPosition = lpLeft
-      ParentFont = False
-      TabOrder = 3
-      OnExit = EdColumnPropertyExit
-      OnKeyPress = EdColumnPropertyKeyPress
-    end
-    object cbColumnDataType: TComboBox
-      Left = 100
-      Height = 23
-      Top = 102
-      Width = 186
-      ItemHeight = 15
-      ParentFont = False
-      Style = csDropDownList
-      TabOrder = 4
-    end
-    object EdDataType: TLabel
-      Left = 37
-      Height = 15
-      Top = 108
-      Width = 51
-      Caption = 'Data Type'
-      ParentColor = False
-      ParentFont = False
-    end
-    object UpdateColumnButton: TButton
-      Left = 100
-      Height = 27
-      Top = 152
-      Width = 90
-      Action = ActUpdateColumn
-      ParentFont = False
-      TabOrder = 5
-    end
-    object EdColumnIndex: TLabeledEdit
-      Left = 100
-      Height = 23
-      Top = 10
-      Width = 80
-      EditLabel.Height = 15
-      EditLabel.Width = 75
-      EditLabel.Caption = 'Column index'
-      EditLabel.ParentColor = False
-      EditLabel.ParentFont = False
-      LabelPosition = lpLeft
-      ParentColor = True
-      ParentFont = False
-      ReadOnly = True
-      TabOrder = 0
-      OnChange = EdColumnIndexChange
-    end
-    object EdPosition: TEdit
-      Left = 244
-      Height = 23
-      Top = 10
-      Width = 42
-      Color = clBtnFace
-      ParentFont = False
-      ReadOnly = True
-      TabOrder = 1
-    end
-    object DelColumnButton1: TButton
-      Left = 198
-      Height = 27
-      Top = 152
-      Width = 88
-      Action = ActDelColumn
-      Caption = 'Delete'
-      ParentFont = False
-      TabOrder = 6
-    end
-    object Label1: TLabel
-      Left = 208
-      Height = 15
-      Top = 14
-      Width = 19
-      Caption = 'Pos'
-      ParentColor = False
-    end
-    object RequiredCheckBox: TCheckBox
-      Left = 101
-      Height = 19
-      Hint = 'Mark it for users do not be allow to set NULL for this column'
-      Top = 129
-      Width = 67
-      Caption = 'Required'
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 7
-    end
   end
   object Grid: TTisGrid
     Left = 0
-    Height = 182
+    Height = 218
     Top = 48
-    Width = 428
+    Width = 416
     Align = alClient
     Color = clWhite
     Colors.UnfocusedColor = clMedGray
@@ -255,8 +115,157 @@ object TisGridEditor: TTisGridEditor
     TreeOptions.SelectionOptions = [toExtendedFocus, toSimpleDrawSelection]
     ZebraColor = 15593713
     PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns]
+    OnClick = GridClick
     OnHeaderClick = GridHeaderClick
     OnHeaderDragged = GridHeaderDragged
+  end
+  object PropsPageControl: TPageControl
+    Left = 416
+    Height = 218
+    Top = 48
+    Width = 307
+    ActivePage = ColumnPropsTab
+    Align = alRight
+    TabIndex = 0
+    TabOrder = 2
+    object ColumnPropsTab: TTabSheet
+      Caption = 'Column Properties'
+      ClientHeight = 190
+      ClientWidth = 299
+      object EdColumnTitle: TLabeledEdit
+        Left = 100
+        Height = 23
+        Top = 40
+        Width = 186
+        EditLabel.Height = 15
+        EditLabel.Width = 66
+        EditLabel.Caption = 'Column title'
+        EditLabel.ParentColor = False
+        EditLabel.ParentFont = False
+        LabelPosition = lpLeft
+        ParentFont = False
+        TabOrder = 0
+        OnExit = EdColumnTitleExit
+        OnKeyPress = EdColumnTitleKeyPress
+      end
+      object EdColumnProperty: TLabeledEdit
+        Left = 100
+        Height = 23
+        Top = 71
+        Width = 186
+        EditLabel.Height = 15
+        EditLabel.Width = 78
+        EditLabel.Caption = 'Property name'
+        EditLabel.ParentColor = False
+        EditLabel.ParentFont = False
+        LabelPosition = lpLeft
+        ParentFont = False
+        TabOrder = 1
+        OnExit = EdColumnPropertyExit
+        OnKeyPress = EdColumnPropertyKeyPress
+      end
+      object cbColumnDataType: TComboBox
+        Left = 100
+        Height = 23
+        Top = 102
+        Width = 186
+        ItemHeight = 15
+        ParentFont = False
+        Style = csDropDownList
+        TabOrder = 2
+      end
+      object EdDataType: TLabel
+        Left = 37
+        Height = 15
+        Top = 108
+        Width = 51
+        Caption = 'Data Type'
+        ParentColor = False
+        ParentFont = False
+      end
+      object UpdateColumnButton: TButton
+        Left = 100
+        Height = 27
+        Top = 152
+        Width = 90
+        Action = ActUpdateColumn
+        ParentFont = False
+        TabOrder = 3
+      end
+      object EdColumnIndex: TLabeledEdit
+        Left = 100
+        Height = 23
+        Top = 10
+        Width = 80
+        EditLabel.Height = 15
+        EditLabel.Width = 75
+        EditLabel.Caption = 'Column index'
+        EditLabel.ParentColor = False
+        EditLabel.ParentFont = False
+        LabelPosition = lpLeft
+        ParentColor = True
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 4
+        OnChange = EdColumnIndexChange
+      end
+      object EdPosition: TEdit
+        Left = 244
+        Height = 23
+        Top = 10
+        Width = 42
+        Color = clBtnFace
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 5
+      end
+      object DelColumnButton1: TButton
+        Left = 198
+        Height = 27
+        Top = 152
+        Width = 88
+        Action = ActDelColumn
+        ParentFont = False
+        TabOrder = 6
+      end
+      object Label1: TLabel
+        Left = 208
+        Height = 15
+        Top = 14
+        Width = 19
+        Caption = 'Pos'
+        ParentColor = False
+      end
+      object RequiredCheckBox: TCheckBox
+        Left = 101
+        Height = 19
+        Hint = 'Mark it for users do not be allow to set NULL for this column'
+        Top = 129
+        Width = 67
+        Caption = 'Required'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 7
+      end
+    end
+    object GridPropsTab: TTabSheet
+      Caption = 'Grid Common Properties'
+      ClientHeight = 190
+      ClientWidth = 299
+      object AutoSortCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to use hoHeaderClickAutoSort in Header.Options'
+        Top = 16
+        Width = 70
+        Caption = 'Auto Sort'
+        OnChange = AutoSortCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 0
+      end
+    end
   end
   object ActionList: TActionList
     Left = 122
@@ -300,7 +309,7 @@ object TisGridEditor: TTisGridEditor
     end
   end
   object PopupMenu1: TPopupMenu
-    Left = 252
+    Left = 248
     Top = 143
     object MenuItem1: TMenuItem
       Action = ActAddColumn

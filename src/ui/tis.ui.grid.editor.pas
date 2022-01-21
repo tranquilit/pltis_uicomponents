@@ -27,7 +27,7 @@ uses
   Messages,
   MaskEdit,
   LCLType,
-  EditBtn,
+  EditBtn, ComCtrls,
   ComponentEditors,
   VirtualTrees,
   mormot.core.base,
@@ -55,14 +55,7 @@ type
     PasteJsonButton: TButton;
     AddColumnButton: TButton;
     Grid: TTisGrid;
-    UpdateColumnButton: TButton;
     ButtonPanel: TButtonPanel;
-    cbColumnDataType: TComboBox;
-    EdColumnTitle: TLabeledEdit;
-    EdColumnProperty: TLabeledEdit;
-    EdColumnIndex: TLabeledEdit;
-    EdPosition: TEdit;
-    EdDataType: TLabel;
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
@@ -71,11 +64,30 @@ type
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     Panel1: TPanel;
-    PropertiesPanel: TPanel;
     PopupMenu1: TPopupMenu;
+    ClearAllButton: TButton;
+    PropsPageControl: TPageControl;
+    ColumnPropsTab: TTabSheet;
+    GridPropsTab: TTabSheet;
+    MenuItem9: TMenuItem;
+    MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
+    MenuItem12: TMenuItem;
+    MenuItem13: TMenuItem;
+    MenuItem14: TMenuItem;
+    MenuItem15: TMenuItem;
+    MenuItem16: TMenuItem;
+    MenuItem17: TMenuItem;
+    MenuItem18: TMenuItem;
+    EdColumnTitle: TLabeledEdit;
+    EdColumnProperty: TLabeledEdit;
+    cbColumnDataType: TComboBox;
+    EdDataType: TLabel;
+    UpdateColumnButton: TButton;
+    EdColumnIndex: TLabeledEdit;
+    EdPosition: TEdit;
     DelColumnButton1: TButton;
     Label1: TLabel;
-    ClearAllButton: TButton;
     RequiredCheckBox: TCheckBox;
     AutoSortCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
@@ -99,11 +111,14 @@ type
     procedure GridHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure EdColumnIndexChange(Sender: TObject);
     procedure AutoSortCheckBoxChange(Sender: TObject);
+    procedure GridClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
       aColRequired: Boolean);
     procedure ClearPropertiesPanel;
+    procedure LoadGridCommonProps;
   end;
 
   TTisGridComponentEditor = class(TComponentEditor)
@@ -319,6 +334,7 @@ procedure TTisGridEditor.GridHeaderClick(Sender: TVTHeader;
 var
   col: TTisGridColumn;
 begin
+  PropsPageControl.ActivePage := ColumnPropsTab;
   col := TTisGridColumn(Grid.Header.Columns[HitInfo.Column]);
   if col <> nil then
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
@@ -342,6 +358,16 @@ begin
       Options := Options - [hoHeaderClickAutoSort];
 end;
 
+procedure TTisGridEditor.GridClick(Sender: TObject);
+begin
+  PropsPageControl.ActivePage := GridPropsTab;
+end;
+
+procedure TTisGridEditor.FormShow(Sender: TObject);
+begin
+  LoadGridCommonProps;
+end;
+
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
   aColRequired: Boolean);
@@ -359,6 +385,11 @@ end;
 procedure TTisGridEditor.ClearPropertiesPanel;
 begin
   SetPropertiesPanel('', '', '', '', low(TTisColumnDataType), False);
+end;
+
+procedure TTisGridEditor.LoadGridCommonProps;
+begin
+  AutoSortCheckBox.Checked := hoHeaderClickAutoSort in Grid.Header.Options;
 end;
 
 { TTisGridComponentEditor }
