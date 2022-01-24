@@ -122,6 +122,7 @@ type
   end;
 
   /// control used for String data type as a ComboBox or for Integer data type as a Lookup editor
+  // - it is used by default into Grid.OnEditorLookup event
   TTisGridSearchEditControl = class(TTisGridControl)
   public
     constructor Create; override;
