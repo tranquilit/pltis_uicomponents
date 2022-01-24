@@ -854,14 +854,14 @@ end;
 
 procedure TTisGridEditLink.SetupControlClasses;
 begin
-  ControlClasses[cdtString] := TTisGridSearchEditControl;
+  ControlClasses[cdtString] := TTisGridEditControl;
   ControlClasses[cdtDate] := TTisGridDateEditControl;
   ControlClasses[cdtTime] := TTisGridTimeEditControl;
   ControlClasses[cdtDateTime] := TTisGridDateTimeEditControl;
   ControlClasses[cdtInteger] := TTisGridIntegerEditControl;
   ControlClasses[cdtFloat] := TTisGridFloatEditControl;
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
-  ControlClasses[cdtMemo] := TTisGridSearchEditControl;
+  ControlClasses[cdtMemo] := TTisGridEditControl;
 end;
 
 function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;

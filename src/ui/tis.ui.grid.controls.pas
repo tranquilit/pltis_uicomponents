@@ -59,12 +59,12 @@ type
   TTisGridControlClass = class of TTisGridControl;
 
   /// control used for all String data type
-  TTisGridSearchEditControl = class(TTisGridControl)
+  TTisGridEditControl = class(TTisGridControl)
   public
     constructor Create; override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
-    function Edit: TTisSearchEdit;
+    function Edit: TEdit;
   end;
 
   /// control used for all Date data type
@@ -121,6 +121,15 @@ type
     function Edit: TCheckBoxThemed;
   end;
 
+  /// control used for String data type as a ComboBox or for Integer data type as a Lookup editor
+  TTisGridSearchEditControl = class(TTisGridControl)
+  public
+    constructor Create; override;
+    function GetValue: Variant; override;
+    procedure SetValue(const aValue: Variant); override;
+    function Edit: TTisSearchEdit;
+  end;
+
 implementation
 
 { TTisGridControl }
@@ -156,42 +165,31 @@ begin
   fInternal.Caption := VarToStr(aValue);
 end;
 
-{ TTisGridSearchEditControl }
+{ TTisGridEditControl }
 
-constructor TTisGridSearchEditControl.Create;
+constructor TTisGridEditControl.Create;
 begin
   inherited Create;
-  fInternal := TTisSearchEdit.Create(nil);
-  Edit.AutoComplete := True;
+  fInternal := TEdit.Create(nil);
+  Edit.Clear;
 end;
 
-function TTisGridSearchEditControl.GetValue: Variant;
+function TTisGridEditControl.GetValue: Variant;
 begin
-  if Edit.LookupKeyField <> '' then
-    result := Edit.KeyValue
-  else
-    result := inherited GetValue;
+  result := Edit.Text;
 end;
 
-procedure TTisGridSearchEditControl.SetValue(const aValue: Variant);
+procedure TTisGridEditControl.SetValue(const aValue: Variant);
 begin
-  if Edit.LookupKeyField <> '' then
-    Edit.KeyValue := aValue
-  else
-    inherited SetValue(aValue);
+  Edit.Text := VarToStr(aValue);
 end;
 
-function TTisGridSearchEditControl.Edit: TTisSearchEdit;
+function TTisGridEditControl.Edit: TEdit;
 begin
-  result := fInternal as TTisSearchEdit;;
+  result := fInternal as TEdit;
 end;
 
 { TTisGridDateEditControl }
-
-function TTisGridDateEditControl.Edit: TDateTimePicker;
-begin
-  result := fInternal as TDateTimePicker;
-end;
 
 constructor TTisGridDateEditControl.Create;
 begin
@@ -214,6 +212,11 @@ end;
 procedure TTisGridDateEditControl.SetValue(const aValue: Variant);
 begin
   Edit.Date := VarToDateTime(aValue);
+end;
+
+function TTisGridDateEditControl.Edit: TDateTimePicker;
+begin
+  result := fInternal as TDateTimePicker;
 end;
 
 { TTisGridTimeEditControl }
@@ -320,6 +323,36 @@ end;
 procedure TTisGridBooleanEditControl.SetValue(const aValue: Variant);
 begin
   Edit.Checked := aValue;
+end;
+
+{ TTisGridSearchEditControl }
+
+constructor TTisGridSearchEditControl.Create;
+begin
+  inherited Create;
+  fInternal := TTisSearchEdit.Create(nil);
+  Edit.AutoComplete := True;
+end;
+
+function TTisGridSearchEditControl.GetValue: Variant;
+begin
+  if Edit.LookupKeyField <> '' then
+    result := Edit.KeyValue
+  else
+    result := inherited GetValue;
+end;
+
+procedure TTisGridSearchEditControl.SetValue(const aValue: Variant);
+begin
+  if Edit.LookupKeyField <> '' then
+    Edit.KeyValue := aValue
+  else
+    inherited SetValue(aValue);
+end;
+
+function TTisGridSearchEditControl.Edit: TTisSearchEdit;
+begin
+  result := fInternal as TTisSearchEdit;
 end;
 
 end.
