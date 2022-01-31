@@ -5,7 +5,9 @@
 // ------------------------------------------------------------------
 unit tis.core.utils;
 
-{$i mormot.defines.inc}
+{$mode objfpc}{$H+}
+{$modeswitch ADVANCEDRECORDS}
+{$modeswitch typehelpers}
 
 interface
 

@@ -5,7 +5,9 @@
 // ------------------------------------------------------------------
 unit tis.ui.grid.editor;
 
-{$i mormot.defines.inc}
+{$mode objfpc}{$H+}
+{$modeswitch ADVANCEDRECORDS}
+{$modeswitch typehelpers}
 
 interface
 

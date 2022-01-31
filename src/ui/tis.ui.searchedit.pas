@@ -5,7 +5,9 @@
 // ------------------------------------------------------------------
 unit tis.ui.searchedit;
 
-{$i mormot.defines.inc}
+{$mode objfpc}{$H+}
+{$modeswitch ADVANCEDRECORDS}
+{$modeswitch typehelpers}
 
 interface
 
@@ -283,7 +285,7 @@ end;
 
 procedure TTisSearchEdit.Setup(aButton: TButtonItem);
 begin
-  aButton.Button.OnClick := DoButtonClick;
+  aButton.Button.OnClick := @DoButtonClick;
 end;
 
 constructor TTisSearchEdit.Create(aOwner: TComponent);
@@ -291,7 +293,7 @@ begin
   inherited Create(aOwner);
   fTimer := TTimer.Create(nil);
   fTimer.Enabled := False;
-  fTimer.OnTimer := DoSearch;
+  fTimer.OnTimer := @DoSearch;
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
   fSearchMaxHistory := DefaultSearchMaxHistory;

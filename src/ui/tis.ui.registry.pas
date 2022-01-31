@@ -5,8 +5,9 @@
 // ------------------------------------------------------------------
 unit tis.ui.registry;
 
-{$i mormot.defines.inc}
-
+{$mode objfpc}{$H+}
+{$modeswitch ADVANCEDRECORDS}
+{$modeswitch typehelpers}
 interface
 
 uses
