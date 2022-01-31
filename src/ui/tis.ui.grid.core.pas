@@ -2126,8 +2126,8 @@ begin
     try
       c.Clear;
       SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, r);
-      s := VariantToString(GetNodeDataAsDocVariant(FocusedNode).GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
-      c.Add(cbkText, s[1], Length(s));
+      s := VariantToUtf8(GetNodeDataAsDocVariant(FocusedNode).GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
+      c.Add(cbkText, s[1], Length(s)+1);
       s := r.ToJson;
       c.Add(cbkJson, s[1], Length(s));
     finally
