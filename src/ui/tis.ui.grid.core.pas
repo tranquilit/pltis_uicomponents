@@ -1518,7 +1518,8 @@ end;
 procedure TTisGrid.Loaded;
 begin
   inherited Loaded;
-  FillPopupMenu(PopupMenu);
+  if not (csDesigning in ComponentState) then
+    FillPopupMenu(PopupMenu);
 end;
 
 function TTisGrid.GetPopupMenu: TPopupMenu;
@@ -1531,8 +1532,11 @@ begin
   inherited PopupMenu := aValue;
   if Assigned(PopupMenu) then
   begin
-    fPopupOrigEvent := PopupMenu.OnPopup;
-    PopupMenu.OnPopup := FillPopupMenu;
+    if not (csDesigning in ComponentState) then
+    begin
+      fPopupOrigEvent := PopupMenu.OnPopup;
+      PopupMenu.OnPopup := FillPopupMenu;
+    end;
   end;
 end;
 
