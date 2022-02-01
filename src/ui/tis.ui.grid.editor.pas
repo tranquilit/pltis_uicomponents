@@ -94,6 +94,7 @@ type
     AutoSortCheckBox: TCheckBox;
     MultiSelectCheckBox: TCheckBox;
     EditableCheckBox: TCheckBox;
+    SortColumnClearLabel: TLabel;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -119,6 +120,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure MultiSelectCheckBoxChange(Sender: TObject);
     procedure EditableCheckBoxChange(Sender: TObject);
+    procedure SortColumnClearLabelClick(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -390,6 +392,11 @@ begin
       MiscOptions := MiscOptions + [toEditable]
     else
       MiscOptions := MiscOptions - [toEditable];
+end;
+
+procedure TTisGridEditor.SortColumnClearLabelClick(Sender: TObject);
+begin
+  Grid.Header.SortColumn := -1;
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
