@@ -125,7 +125,7 @@ type
   // - it is used by default into Grid.OnEditorLookup event
   // - if you want to use a simple ComboBox with a simple string list, just do not set LookupKeyField/LookupDisplayField
   // adding strings direcly into Items property
-  // - otherwise, if you want to use a real lookup, you shouldset LookupKeyField/LookupDisplayField into
+  // - otherwise, if you want to use a real lookup, you should set LookupKeyField/LookupDisplayField into
   // OnEditorLookup event
   // - also, you can add strings into Items there (syncronous mode)
   // or using OnSearch event, being asynchronous mode

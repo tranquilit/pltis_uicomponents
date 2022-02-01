@@ -49,6 +49,7 @@ type
 
   TTisGrid = class;
 
+  /// column data type
   TTisColumnDataType = (
     cdtString,
     cdtDate,
@@ -82,7 +83,7 @@ type
 
   TTisGridColumn = class;
 
-  /// it implements a link for edit controls, for each data type
+  /// it implements a edit control link, for each data type
   TTisGridEditLink = class(TInterfacedObject, IVTEditLink)
   private
     fControl: TTisGridControl;
