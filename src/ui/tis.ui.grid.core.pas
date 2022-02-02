@@ -135,6 +135,17 @@ type
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
   end;
 
+  TTisGridColumns = class(TVirtualTreeColumns)
+  protected
+    procedure HandleClick(P: TPoint; aButton: TMouseButton; aForce,
+      aDblClick: Boolean); override;
+  end;
+
+  TTisHeader = class(TVTHeader)
+  protected
+    function GetColumnsClass: TVirtualTreeColumnsClass; override;
+  end;
+
   TTisHeaderPopupOption = (
     /// show menu items in original column order as they were added to the tree
     poOriginalOrder,
@@ -358,6 +369,7 @@ type
     procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
       const AXProportion, AYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
+    function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods --------------------------------------
     /// standard menu management
@@ -1041,6 +1053,32 @@ begin
     DataType := c.DataType;
     Required := c.Required;
   end;
+end;
+
+{ TTisGridColumns }
+
+procedure TTisGridColumns.HandleClick(P: TPoint; aButton: TMouseButton; aForce,
+  aDblClick: Boolean);
+var
+  idx: Integer;
+begin
+  if (csDesigning in Header.Treeview.ComponentState) then
+    exit;
+  idx := ColumnFromPosition(P);
+  if (hoHeaderClickAutoSort in Header.Options) and (aButton = mbLeft) and (idx >= 0) then
+  begin
+    if (idx = Header.SortColumn) and (Header.SortDirection = sdDescending) then
+      Header.SortColumn := -1
+    else
+      inherited HandleClick(P, aButton, aForce, aDblClick);
+  end;
+end;
+
+{ TTisHeader }
+
+function TTisHeader.GetColumnsClass: TVirtualTreeColumnsClass;
+begin
+  result := TTisGridColumns;
 end;
 
 type
@@ -1788,6 +1826,11 @@ begin
   inherited DoChange(Node);
   fSelectedData := SelectedRows;
   UpdateSelectedAndTotalLabel;
+end;
+
+function TTisGrid.GetHeaderClass: TVTHeaderClass;
+begin
+  result := TTisHeader;
 end;
 
 procedure TTisGrid.FillPopupMenu(sender: TObject);
