@@ -279,7 +279,10 @@ begin
       AddHistory(Text);
     end;
     bkClear:
+    begin
       Clear;
+      RefreshSearch;
+    end;
   end;
 end;
 
