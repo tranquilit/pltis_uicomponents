@@ -1757,14 +1757,9 @@ begin
         ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
         ACanvas.FillRect(CellRect);
       end;
-    end
-    else if Node = FocusedNode then
-    begin
-      ACanvas.Brush.Color := clLtGray;
-      ACanvas.FillRect(CellRect);
     end;
   end;
-  inherited;
+  inherited DoBeforeCellPaint(ACanvas, Node, Column, CellPaintMode, CellRect, ContentRect);
 end;
 
 procedure TTisGrid.DoTextDrawing(var PaintInfo: TVTPaintInfo;
