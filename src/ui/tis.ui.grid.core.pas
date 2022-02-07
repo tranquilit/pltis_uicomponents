@@ -135,12 +135,16 @@ type
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
   end;
 
+  /// a custom implementation for Grid Columns
   TTisGridColumns = class(TVirtualTreeColumns)
   protected
+    /// it implements a tri-state sorting click
+    // - sort ascending, then descending, and finally no sort (showing no arrow on header)
     procedure HandleClick(P: TPoint; aButton: TMouseButton; aForce,
       aDblClick: Boolean); override;
   end;
 
+  /// a custom implementation for Grid Header
   TTisHeader = class(TVTHeader)
   protected
     function GetColumnsClass: TVirtualTreeColumnsClass; override;
@@ -352,6 +356,8 @@ type
     function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
     function GetOptionsClass: TTreeOptionsClass; override;
+    /// it will check if OnCreateEditor was implemented first
+    // - if user did not implement this event, a default implementation will be used
     function DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink; override;
     procedure PrepareCell(var PaintInfo: TVTPaintInfo;
       WindowOrgX, MaxWidth: integer); override;
