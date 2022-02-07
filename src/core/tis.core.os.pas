@@ -163,6 +163,8 @@ begin
   json := TRawByteStringStream.Create('');
   try
     ToStream(cbkJson, json);
+    if json.DataString = '' then
+      ToStream(cbkText, json);
     result := json.DataString;
   finally
     json.Free;

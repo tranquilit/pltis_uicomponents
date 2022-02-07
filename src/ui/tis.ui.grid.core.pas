@@ -2145,7 +2145,7 @@ begin
   try
     c.Clear;
     s := ContentToUTF8(tstSelected, ';');
-    c.Add(cbkText, s[1], Length(s));
+    c.Add(cbkText, s[1], Length(s)+1);
     s := SelectedRows.ToJson;
     c.Add(cbkJson, s[1], Length(s));
   finally
@@ -2217,10 +2217,12 @@ procedure TTisGrid.DoPaste(Sender: TObject);
 var
   c: TClipboardAdapter;
   d: PDocVariantData;
+  j: RawUtf8;
 begin
-  if c.IsValidFor(cbkJson) then
+  if c.IsValidFor(cbkJson) or c.IsValidFor(cbkText) then
   begin
-    d := _Safe(_Json(c.AsJson));
+    j := c.AsJson;
+    d := _Safe(_Json(j));
     PasteRows(d);
   end;
 end;
