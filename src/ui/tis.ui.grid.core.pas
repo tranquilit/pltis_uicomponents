@@ -92,6 +92,7 @@ type
     fColumn: Integer;
   protected
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
+    procedure EditExit(Sender: TObject); virtual;
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
@@ -844,6 +845,7 @@ begin
     VK_ESCAPE:
       if CanAdvance then
       begin
+        fControl.Internal.OnExit := nil; // prevents an Access Violation
         fGrid.SetFocusSafe; // needed if grid.parent is a Frame
         fGrid.CancelEditNode;
         Key := 0;
@@ -871,6 +873,17 @@ begin
   end;
 end;
 
+procedure TTisGridEditLink.EditExit(Sender: TObject);
+begin
+  if Assigned(fControl) then
+  begin
+    if (toAutoAcceptEditChange in fGrid.TreeOptions.StringOptions) then
+      fGrid.EndEditNode
+    else
+      fGrid.CancelEditNode;
+  end;
+end;
+
 procedure TTisGridEditLink.SetupControlClasses;
 begin
   ControlClasses[cdtString] := TTisGridEditControl;
@@ -894,6 +907,13 @@ begin
     fGrid.DoEditorLookup(aColumn, result, handled);
     if not handled then
       result := ControlClasses[aColumn.DataType].Create;
+  end;
+  if Assigned(result) then
+  begin
+    result.SetOnKeyDown(EditKeyDown);
+    result.SetOnExit(EditExit);
+    result.Internal.Visible := False;
+    result.Internal.Parent := fGrid;
   end;
 end;
 
@@ -983,9 +1003,6 @@ begin
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(c);
-  fControl.SetEvents(EditKeyDown);
-  fControl.Internal.Visible := False;
-  fControl.Internal.Parent := fGrid;
   case c.DataType of
     cdtString, cdtMemo:
       fControl.SetValue(d^.S[c.PropertyName]);
