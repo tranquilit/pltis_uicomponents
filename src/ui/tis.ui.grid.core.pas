@@ -2217,12 +2217,10 @@ procedure TTisGrid.DoPaste(Sender: TObject);
 var
   c: TClipboardAdapter;
   d: PDocVariantData;
-  j: RawUtf8;
 begin
   if c.IsValidFor(cbkJson) or c.IsValidFor(cbkText) then
   begin
-    j := c.AsJson;
-    d := _Safe(_Json(j));
+    d := _Safe(_Json(c.AsJson));
     PasteRows(d);
   end;
 end;
