@@ -968,7 +968,7 @@ begin
         cdtString, cdtMemo:
           d^.S[c.PropertyName] := VarToStr(v);
         cdtDate, cdtTime, cdtDateTime:
-          d^.U[c.PropertyName] := DateTimeToIso8601Text(fControl.GetValue);
+          d^.U[c.PropertyName] := DateTimeToIso8601Text(v);
         cdtInteger:
           d^.I[c.PropertyName] := v;
         cdtFloat:
