@@ -2621,8 +2621,6 @@ procedure TTisGrid.DeleteRows(aRows: PDocVariantData);
 var
   o: PDocVariantData;
   i: Integer;
-  n: PVirtualNode;
-  a: TNodeArray;
 begin
   if aRows = nil then
     exit;
@@ -2632,11 +2630,10 @@ begin
     for i := fData.Count - 1 downto 0 do
       if _Safe(fData.Values[i]).Equals(o^) then
         fData.Delete(i);
-    // remove from node array
-    a := GetNodesBy(aRows);
-    for n in a do
-      DeleteNode(n, n = a[Length(a)-1]);
     LoadData;
+    // go to the last (new) row, if user has deleted latest ones
+    if FocusedRow = nil then
+      FocusedRow := GetNodeDataAsDocVariant(GetLast);
   end;
 end;
 
