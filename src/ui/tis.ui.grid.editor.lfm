@@ -325,13 +325,13 @@ object TisGridEditor: TTisGridEditor
         ShowHint = True
         TabOrder = 3
       end
-      object MultilineOffsetEdit: TSpinEdit
+      object MultilineHeightEdit: TSpinEdit
         Left = 112
         Height = 23
-        Hint = 'Max lines a node shall have'
+        Hint = 'Multi line height a node shall have'
         Top = 108
         Width = 40
-        OnChange = MultilineOffsetEditChange
+        OnChange = MultilineHeightEditChange
         ParentShowHint = False
         ShowHint = True
         TabOrder = 4

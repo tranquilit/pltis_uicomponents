@@ -222,16 +222,16 @@ type
   TTisNodeOptions = class(TPersistent)
   private
     fMultiLine: Boolean;
-    fMultiLineOffset: Integer;
+    fMultiLineHeight: Integer;
   protected
     const DefaultMultiLine = False;
-    const DefaultMultiLineOffset = 4;
+    const DefaultMultiLineHeight = 4;
   public
     constructor Create;
     procedure AssignTo(aDest: TPersistent); override;
   published
     property MultiLine: Boolean read fMultiLine write fMultiLine default DefaultMultiLine;
-    property MultiLineOffset: Integer read fMultiLineOffset write fMultiLineOffset default DefaultMultiLineOffset;
+    property MultiLineHeight: Integer read fMultiLineHeight write fMultiLineHeight default DefaultMultiLineHeight;
   end;
 
   TOnGridGetText = procedure(sender: TBaseVirtualTree; aNode: PVirtualNode;
@@ -371,6 +371,7 @@ type
       aTextType: TVSTTextType; var aText: string); override;
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
+    procedure DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode; var aNodeHeight: Integer); override;
     function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
     function GetOptionsClass: TTreeOptionsClass; override;
@@ -1231,7 +1232,7 @@ constructor TTisNodeOptions.Create;
 begin
   inherited Create;
   fMultiLine := DefaultMultiLine;
-  fMultiLineOffset := DefaultMultiLineOffset;
+  fMultiLineHeight := DefaultMultiLineHeight;
 end;
 
 procedure TTisNodeOptions.AssignTo(aDest: TPersistent);
@@ -1241,7 +1242,7 @@ begin
     with TTisNodeOptions(aDest) do
     begin
       MultiLine := self.MultiLine;
-      MultiLineOffset := self.MultiLineOffset;
+      MultiLineHeight := self.MultiLineHeight;
     end;
   end
   else
@@ -1763,9 +1764,38 @@ begin
   begin
     data^ := aNode.Index;
     aNode^.CheckType := ctCheckBox;
-    //aNode^.States := aNode^.States + [vsMultiline];
+    if fNodeOptions.MultiLine then
+      aNode^.States := aNode^.States + [vsMultiline];
   end;
   inherited DoInitNode(aParentNode, aNode, aInitStates);
+end;
+
+procedure TTisGrid.DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode;
+  var aNodeHeight: Integer);
+var
+  i, maxheight, cellheight: integer;
+begin
+  if Assigned(OnMeasureItem) then
+    inherited DoMeasureItem(aTargetCanvas, aNode, aNodeHeight)
+  else
+  begin
+    maxheight := DefaultNodeHeight;
+    if MultiLine[aNode] then
+    begin
+      for i := 0 to Header.Columns.Count -1 do
+      begin
+        if (coVisible in Header.Columns[i].Options) then
+        begin
+          cellheight := ComputeNodeHeight(aTargetCanvas, aNode, i);
+          if cellheight > maxheight then
+            maxheight := cellheight;
+        end;
+      end;
+    end;
+    if maxheight > 6 * DefaultNodeHeight then
+      maxheight := 6 * DefaultNodeHeight;
+    aNodeHeight := maxheight + fNodeOptions.MultiLineHeight;
+  end;
 end;
 
 function TTisGrid.DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer;
