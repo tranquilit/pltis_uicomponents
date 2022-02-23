@@ -269,7 +269,7 @@ object TisGridEditor: TTisGridEditor
         Left = 24
         Height = 19
         Hint = 'Check this option to use toMultiSelect in TreeOptions.SelectionOptions'
-        Top = 40
+        Top = 48
         Width = 82
         Caption = 'Multi Select'
         OnChange = MultiSelectCheckBoxChange
@@ -282,7 +282,7 @@ object TisGridEditor: TTisGridEditor
         Left = 24
         Height = 19
         Hint = 'Check this option to use toEditable in TreeOptions.MiscOptions'
-        Top = 64
+        Top = 80
         Width = 62
         Caption = 'Editable'
         OnChange = EditableCheckBoxChange
@@ -293,7 +293,7 @@ object TisGridEditor: TTisGridEditor
       end
       object SortColumnClearLabel: TLabel
         Cursor = crHandPoint
-        Left = 96
+        Left = 112
         Height = 15
         Hint = 'Clear Header Sort Column'#13#10'-> Header.SortColumn := -1'
         Top = 16
@@ -311,6 +311,66 @@ object TisGridEditor: TTisGridEditor
         ParentShowHint = False
         ShowHint = True
         OnClick = SortColumnClearLabelClick
+      end
+      object MultilineCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to used in InitNode to indicate states a node shall initially have'
+        Top = 112
+        Width = 73
+        Caption = 'Multi Line'
+        OnChange = EditableCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
+      end
+      object MultilineEdit: TSpinEdit
+        Left = 112
+        Height = 23
+        Hint = 'Max lines a node shall have'
+        Top = 108
+        Width = 40
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 4
+        Value = 4
+      end
+      object Label2: TLabel
+        Left = 156
+        Height = 13
+        Top = 112
+        Width = 67
+        Caption = 'height offset'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        ParentColor = False
+        ParentFont = False
+      end
+      object Bevel1: TBevel
+        Left = 24
+        Height = 7
+        Top = 40
+        Width = 256
+        Shape = bsTopLine
+      end
+      object Bevel2: TBevel
+        Left = 24
+        Height = 7
+        Top = 72
+        Width = 256
+        Shape = bsTopLine
+      end
+      object Bevel3: TBevel
+        Left = 24
+        Height = 7
+        Top = 104
+        Width = 256
+        Shape = bsTopLine
       end
     end
   end

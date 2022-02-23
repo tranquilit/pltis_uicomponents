@@ -29,7 +29,9 @@ uses
   Messages,
   MaskEdit,
   LCLType,
-  EditBtn, ComCtrls,
+  EditBtn,
+  ComCtrls,
+  Spin,
   ComponentEditors,
   VirtualTrees,
   mormot.core.base,
@@ -95,6 +97,12 @@ type
     MultiSelectCheckBox: TCheckBox;
     EditableCheckBox: TCheckBox;
     SortColumnClearLabel: TLabel;
+    MultilineCheckBox: TCheckBox;
+    MultilineEdit: TSpinEdit;
+    Label2: TLabel;
+    Bevel1: TBevel;
+    Bevel2: TBevel;
+    Bevel3: TBevel;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
