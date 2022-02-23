@@ -2383,7 +2383,6 @@ begin
     TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
   fData.Clear;
   fData.InitArray([], JSON_FAST_FLOAT);
-  LoadData;
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
