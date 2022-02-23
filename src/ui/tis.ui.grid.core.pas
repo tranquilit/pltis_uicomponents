@@ -1773,7 +1773,8 @@ end;
 procedure TTisGrid.DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode;
   var aNodeHeight: Integer);
 var
-  i, maxheight, cellheight: integer;
+  i, cellheight: Integer;
+  maxheight: Cardinal;
 begin
   if Assigned(OnMeasureItem) then
     inherited DoMeasureItem(aTargetCanvas, aNode, aNodeHeight)
