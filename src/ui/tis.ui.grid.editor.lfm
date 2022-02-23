@@ -1,10 +1,10 @@
 object TisGridEditor: TTisGridEditor
-  Left = 316
-  Height = 318
-  Top = 250
+  Left = 333
+  Height = 334
+  Top = 261
   Width = 723
   Caption = 'Grid Editor'
-  ClientHeight = 318
+  ClientHeight = 334
   ClientWidth = 723
   OnCreate = FormCreate
   OnShow = FormShow
@@ -12,7 +12,7 @@ object TisGridEditor: TTisGridEditor
   object ButtonPanel: TButtonPanel
     Left = 9
     Height = 34
-    Top = 275
+    Top = 291
     Width = 705
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
@@ -87,7 +87,7 @@ object TisGridEditor: TTisGridEditor
   end
   object Grid: TTisGrid
     Left = 0
-    Height = 218
+    Height = 234
     Top = 48
     Width = 416
     Align = alClient
@@ -100,7 +100,7 @@ object TisGridEditor: TTisGridEditor
         Position = 0
       end>
     Header.DefaultHeight = 28
-    Header.Height = 43
+    Header.Height = 28
     Header.MaxHeight = 151
     Header.MinHeight = 28
     Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible]
@@ -116,21 +116,21 @@ object TisGridEditor: TTisGridEditor
     ZebraColor = 15593713
     PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns]
     OnClick = GridClick
-    OnHeaderClick = GridHeaderClick
+    OnFocusChanged = GridFocusChanged
     OnHeaderDragged = GridHeaderDragged
   end
   object PropsPageControl: TPageControl
     Left = 416
-    Height = 218
+    Height = 234
     Top = 48
     Width = 307
-    ActivePage = ColumnPropsTab
+    ActivePage = GridPropsTab
     Align = alRight
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     object ColumnPropsTab: TTabSheet
       Caption = 'Column Properties'
-      ClientHeight = 190
+      ClientHeight = 206
       ClientWidth = 299
       object EdColumnTitle: TLabeledEdit
         Left = 100
@@ -250,7 +250,7 @@ object TisGridEditor: TTisGridEditor
     end
     object GridPropsTab: TTabSheet
       Caption = 'Grid Common Properties'
-      ClientHeight = 190
+      ClientHeight = 206
       ClientWidth = 299
       object AutoSortCheckBox: TCheckBox
         Left = 24

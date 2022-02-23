@@ -113,20 +113,22 @@ type
     procedure FormCreate(Sender: TObject);
     procedure GridHeaderDragging(Sender: TVTHeader; Column: TColumnIndex;
       var Allowed: Boolean);
-    procedure GridHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure EdColumnIndexChange(Sender: TObject);
     procedure AutoSortCheckBoxChange(Sender: TObject);
-    procedure GridClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure MultiSelectCheckBoxChange(Sender: TObject);
     procedure EditableCheckBoxChange(Sender: TObject);
     procedure SortColumnClearLabelClick(Sender: TObject);
+    procedure GridFocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex);
+    procedure GridClick(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
       aColRequired: Boolean);
     procedure ClearPropertiesPanel;
     procedure LoadGridCommonProps;
+    procedure AddFakeDataIfNeedIt;
   end;
 
   TTisGridComponentEditor = class(TComponentEditor)
@@ -163,6 +165,7 @@ begin
   col.Text := 'Col ' + IntToStr(col.Index);
   col.PropertyName := 'column' + IntToStr(col.Index);
   Grid.FocusedColumn := col.Index;
+  AddFakeDataIfNeedIt;
 end;
 
 procedure TTisGridEditor.ActAddColumnsExecute(Sender: TObject);
@@ -208,6 +211,7 @@ var
   d: PDocVariantData;
   i, r: PVariant;
 begin
+  Grid.ClearAll;
   try
     if doc.InitJson(cb.AsUtf8, JSON_FAST_FLOAT) then
     begin
@@ -243,7 +247,7 @@ end;
 
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
 begin
-  Grid.Header.Columns.Clear;
+  Grid.ClearAll;
   ClearPropertiesPanel;
 end;
 
@@ -337,20 +341,6 @@ begin
   Grid.ReorderColumns;
 end;
 
-procedure TTisGridEditor.GridHeaderClick(Sender: TVTHeader;
-  HitInfo: TVTHeaderHitInfo);
-var
-  col: TTisGridColumn;
-begin
-  PropsPageControl.ActivePage := ColumnPropsTab;
-  col := TTisGridColumn(Grid.Header.Columns[HitInfo.Column]);
-  if col <> nil then
-    SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType, col.Required)
-  else
-    ClearPropertiesPanel;
-end;
-
 procedure TTisGridEditor.EdColumnIndexChange(Sender: TObject);
 begin
   ActUpdateColumn.Enabled := EdColumnIndex.Text <> '';
@@ -366,14 +356,10 @@ begin
       Options := Options - [hoHeaderClickAutoSort];
 end;
 
-procedure TTisGridEditor.GridClick(Sender: TObject);
-begin
-  PropsPageControl.ActivePage := GridPropsTab;
-end;
-
 procedure TTisGridEditor.FormShow(Sender: TObject);
 begin
   LoadGridCommonProps;
+  AddFakeDataIfNeedIt;
 end;
 
 procedure TTisGridEditor.MultiSelectCheckBoxChange(Sender: TObject);
@@ -397,6 +383,27 @@ end;
 procedure TTisGridEditor.SortColumnClearLabelClick(Sender: TObject);
 begin
   Grid.Header.SortColumn := -1;
+end;
+
+procedure TTisGridEditor.GridFocusChanged(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex);
+var
+  col: TTisGridColumn;
+begin
+  col := Grid.FocusedColumnObject;
+  if col <> nil then
+    SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
+      IntToStr(col.Position), col.DataType, col.Required)
+  else
+    ClearPropertiesPanel;
+end;
+
+procedure TTisGridEditor.GridClick(Sender: TObject);
+begin
+  if Grid.FocusedRow <> nil then
+    PropsPageControl.ActivePage := ColumnPropsTab
+  else
+    PropsPageControl.ActivePage := GridPropsTab;
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
@@ -423,6 +430,15 @@ begin
   AutoSortCheckBox.Checked := hoHeaderClickAutoSort in Grid.Header.Options;
   MultiSelectCheckBox.Checked := toMultiSelect in Grid.TreeOptions.SelectionOptions;
   EditableCheckBox.Checked := toEditable in Grid.TreeOptions.MiscOptions;
+end;
+
+procedure TTisGridEditor.AddFakeDataIfNeedIt;
+begin
+  if Grid.Data.IsVoid then
+  begin
+    Grid.Data.AddItem(_Json('[{"id":0}'));
+    Grid.LoadData;
+  end;
 end;
 
 { TTisGridComponentEditor }
