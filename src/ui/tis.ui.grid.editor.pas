@@ -103,6 +103,8 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
+    VariableNodeHeightCheckBox: TCheckBox;
+    Bevel4: TBevel;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -132,6 +134,7 @@ type
     procedure GridClick(Sender: TObject);
     procedure MultilineCheckBoxChange(Sender: TObject);
     procedure MultilineHeightEditChange(Sender: TObject);
+    procedure VariableNodeHeightCheckBoxChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -419,11 +422,23 @@ end;
 procedure TTisGridEditor.MultilineCheckBoxChange(Sender: TObject);
 begin
   Grid.NodeOptions.MultiLine := MultilineCheckBox.Checked;
+  Grid.LoadData;
 end;
 
 procedure TTisGridEditor.MultilineHeightEditChange(Sender: TObject);
 begin
   Grid.NodeOptions.MultiLineHeight := MultilineHeightEdit.Value;
+  Grid.LoadData;
+end;
+
+procedure TTisGridEditor.VariableNodeHeightCheckBoxChange(Sender: TObject);
+begin
+  with Grid.TreeOptions do
+    if MultiSelectCheckBox.Checked then
+      MiscOptions := MiscOptions + [toVariableNodeHeight]
+    else
+      MiscOptions := MiscOptions - [toVariableNodeHeight];
+  Grid.LoadData;
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
@@ -452,6 +467,7 @@ begin
   EditableCheckBox.Checked := toEditable in Grid.TreeOptions.MiscOptions;
   MultilineCheckBox.Checked := Grid.NodeOptions.MultiLine;
   MultilineHeightEdit.Value := Grid.NodeOptions.MultiLineHeight;
+  VariableNodeHeightCheckBox.Checked := toVariableNodeHeight in Grid.TreeOptions.MiscOptions;
 end;
 
 procedure TTisGridEditor.AddFakeDataIfNeedIt;

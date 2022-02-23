@@ -315,7 +315,7 @@ object TisGridEditor: TTisGridEditor
       object MultilineCheckBox: TCheckBox
         Left = 24
         Height = 19
-        Hint = 'Check this option to used in InitNode to indicate states a node shall initially have'
+        Hint = 'Check this option to used in InitNode to indicate states a node shall initially have.'#13#10'- you better check "Variable Node Height" too'
         Top = 112
         Width = 73
         Caption = 'Multi Line'
@@ -370,6 +370,26 @@ object TisGridEditor: TTisGridEditor
         Left = 24
         Height = 7
         Top = 104
+        Width = 256
+        Shape = bsTopLine
+      end
+      object VariableNodeHeightCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to use toVariableNodeHeight in TreeOptions.MiscOptions'
+        Top = 144
+        Width = 133
+        Caption = 'Variable Node Height'
+        OnChange = VariableNodeHeightCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 5
+      end
+      object Bevel4: TBevel
+        Left = 24
+        Height = 7
+        Top = 136
         Width = 256
         Shape = bsTopLine
       end
