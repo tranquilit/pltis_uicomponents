@@ -1243,8 +1243,9 @@ begin
       MultiLine := self.MultiLine;
       MultiLineOffset := self.MultiLineOffset;
     end;
-  end;
-  inherited AssignTo(aDest);
+  end
+  else
+    inherited AssignTo(aDest);
 end;
 
 { TTisGrid.TInternalData }
