@@ -247,7 +247,7 @@ end;
 
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
 begin
-  Grid.ClearAll;
+  Grid.Header.Columns.Clear;
   ClearPropertiesPanel;
 end;
 
@@ -436,7 +436,7 @@ procedure TTisGridEditor.AddFakeDataIfNeedIt;
 begin
   if Grid.Data.IsVoid then
   begin
-    Grid.Data.AddItem(_Json('[{"id":0}'));
+    Grid.Data.AddItem(_Json('{"id":0}'));
     Grid.LoadData;
   end;
 end;
