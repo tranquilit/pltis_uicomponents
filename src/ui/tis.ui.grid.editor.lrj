@@ -21,7 +21,7 @@
 {"hash":6957954,"name":"ttisgrideditor.sortcolumnclearlabel.caption","sourcebytes":[99,108,101,97,114],"value":"clear"},
 {"hash":15162805,"name":"ttisgrideditor.multilinecheckbox.hint","sourcebytes":[67,104,101,99,107,32,116,104,105,115,32,111,112,116,105,111,110,32,116,111,32,117,115,101,100,32,105,110,32,73,110,105,116,78,111,100,101,32,116,111,32,105,110,100,105,99,97,116,101,32,115,116,97,116,101,115,32,97,32,110,111,100,101,32,115,104,97,108,108,32,105,110,105,116,105,97,108,108,121,32,104,97,118,101],"value":"Check this option to used in InitNode to indicate states a node shall initially have"},
 {"hash":179463285,"name":"ttisgrideditor.multilinecheckbox.caption","sourcebytes":[77,117,108,116,105,32,76,105,110,101],"value":"Multi Line"},
-{"hash":125866677,"name":"ttisgrideditor.multilineedit.hint","sourcebytes":[77,97,120,32,108,105,110,101,115,32,97,32,110,111,100,101,32,115,104,97,108,108,32,104,97,118,101],"value":"Max lines a node shall have"},
+{"hash":125866677,"name":"ttisgrideditor.multilineoffsetedit.hint","sourcebytes":[77,97,120,32,108,105,110,101,115,32,97,32,110,111,100,101,32,115,104,97,108,108,32,104,97,118,101],"value":"Max lines a node shall have"},
 {"hash":165873348,"name":"ttisgrideditor.label2.caption","sourcebytes":[104,101,105,103,104,116,32,111,102,102,115,101,116],"value":"height offset"},
 {"hash":22179873,"name":"ttisgrideditor.actpastejsontemplate.caption","sourcebytes":[80,97,115,116,101,32,74,83,79,78,32,116,101,109,112,108,97,116,101,32,100,97,116,97],"value":"Paste JSON template data"},
 {"hash":111297118,"name":"ttisgrideditor.actaddcolumn.caption","sourcebytes":[65,100,100,32,99,111,108,117,109,110],"value":"Add column"},

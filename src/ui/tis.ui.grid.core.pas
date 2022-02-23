@@ -218,6 +218,22 @@ type
 
   TTisPopupMenuOptions = set of TTisPopupMenuOption;
 
+  /// node options
+  TTisNodeOptions = class(TPersistent)
+  private
+    fMultiLine: Boolean;
+    fMultiLineOffset: Integer;
+  protected
+    const DefaultMultiLine = False;
+    const DefaultMultiLineOffset = 4;
+  public
+    constructor Create;
+    procedure AssignTo(aDest: TPersistent); override;
+  published
+    property MultiLine: Boolean read fMultiLine write fMultiLine default DefaultMultiLine;
+    property MultiLineOffset: Integer read fMultiLineOffset write fMultiLineOffset default DefaultMultiLineOffset;
+  end;
+
   TOnGridGetText = procedure(sender: TBaseVirtualTree; aNode: PVirtualNode;
     const aCell: TDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
     var aText: string) of object;
@@ -291,6 +307,7 @@ type
     fTextToFind: string;
     fData: TDocVariantData;
     fSelectedData: TDocVariantData;
+    fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     // ------------------------------- new events ----------------------------------
@@ -595,6 +612,8 @@ type
       read fZebraColor write fZebraColor;
     property ZebraPaint: Boolean
       read fZebraPaint write fZebraPaint stored True default False;
+    property NodeOptions: TTisNodeOptions
+      read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions
       read fPopupMenuOptions write fPopupMenuOptions;
     // ------------------------------- inherited events ----------------------------------
@@ -1204,6 +1223,28 @@ begin
     end;
   end;
   inherited Popup(x, y);
+end;
+
+{ TTisNodeOptions }
+
+constructor TTisNodeOptions.Create;
+begin
+  inherited Create;
+  fMultiLine := DefaultMultiLine;
+  fMultiLineOffset := DefaultMultiLineOffset;
+end;
+
+procedure TTisNodeOptions.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisNodeOptions then
+  begin
+    with TTisNodeOptions(aDest) do
+    begin
+      MultiLine := self.MultiLine;
+      MultiLineOffset := self.MultiLineOffset;
+    end;
+  end;
+  inherited AssignTo(aDest);
 end;
 
 { TTisGrid.TInternalData }
@@ -2323,6 +2364,7 @@ begin
   DefaultText := '';
   fZebraColor := $00EDF0F1;
   SetLength(fKeyFieldsList, 0);
+  fNodeOptions := TTisNodeOptions.Create;
   fPopupMenuOptions := [pmoShowFind..pmoShowCustomizeColumns];
   WantTabs := True;
   TabStop := True;
@@ -2357,6 +2399,7 @@ begin
   fData.Clear;
   if Assigned(fFindDlg) then
     FreeAndNil(fFindDlg);
+  fNodeOptions.Free;
   inherited Destroy;
 end;
 
@@ -2721,6 +2764,7 @@ begin
       end;
       Grid.Header.Assign(target.Header);
       Grid.TreeOptions.Assign(target.TreeOptions);
+      Grid.NodeOptions.Assign(target.NodeOptions);
       Grid.Settings := target.Settings;
       if ShowModal = mrOK then
       begin
@@ -2732,6 +2776,7 @@ begin
         end;
         target.Header.Assign(Grid.Header);
         target.TreeOptions.Assign(Grid.TreeOptions);
+        target.NodeOptions.Assign(Grid.NodeOptions);
         if KeepDataCheckBox.Checked then
           target.Data := Grid.Data;
       end;

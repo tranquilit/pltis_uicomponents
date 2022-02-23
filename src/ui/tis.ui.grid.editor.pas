@@ -98,7 +98,7 @@ type
     EditableCheckBox: TCheckBox;
     SortColumnClearLabel: TLabel;
     MultilineCheckBox: TCheckBox;
-    MultilineEdit: TSpinEdit;
+    MultilineOffsetEdit: TSpinEdit;
     Label2: TLabel;
     Bevel1: TBevel;
     Bevel2: TBevel;
@@ -130,6 +130,8 @@ type
     procedure GridFocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex);
     procedure GridClick(Sender: TObject);
+    procedure MultilineCheckBoxChange(Sender: TObject);
+    procedure MultilineOffsetEditChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -414,6 +416,16 @@ begin
     PropsPageControl.ActivePage := GridPropsTab;
 end;
 
+procedure TTisGridEditor.MultilineCheckBoxChange(Sender: TObject);
+begin
+  Grid.NodeOptions.MultiLine := MultilineCheckBox.Checked;
+end;
+
+procedure TTisGridEditor.MultilineOffsetEditChange(Sender: TObject);
+begin
+  Grid.NodeOptions.MultiLineOffset := MultilineOffsetEdit.Value;
+end;
+
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
   aColRequired: Boolean);
@@ -438,6 +450,8 @@ begin
   AutoSortCheckBox.Checked := hoHeaderClickAutoSort in Grid.Header.Options;
   MultiSelectCheckBox.Checked := toMultiSelect in Grid.TreeOptions.SelectionOptions;
   EditableCheckBox.Checked := toEditable in Grid.TreeOptions.MiscOptions;
+  MultilineCheckBox.Checked := Grid.NodeOptions.MultiLine;
+  MultilineOffsetEdit.Value := Grid.NodeOptions.MultiLineOffset;
 end;
 
 procedure TTisGridEditor.AddFakeDataIfNeedIt;

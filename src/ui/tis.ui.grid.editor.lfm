@@ -319,18 +319,19 @@ object TisGridEditor: TTisGridEditor
         Top = 112
         Width = 73
         Caption = 'Multi Line'
-        OnChange = EditableCheckBoxChange
+        OnChange = MultilineCheckBoxChange
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 3
       end
-      object MultilineEdit: TSpinEdit
+      object MultilineOffsetEdit: TSpinEdit
         Left = 112
         Height = 23
         Hint = 'Max lines a node shall have'
         Top = 108
         Width = 40
+        OnChange = MultilineOffsetEditChange
         ParentShowHint = False
         ShowHint = True
         TabOrder = 4
