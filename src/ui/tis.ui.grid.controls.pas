@@ -123,6 +123,15 @@ type
     function Edit: TCheckBoxThemed;
   end;
 
+  /// control used for all Memo data type
+  TTisGridMemoControl = class(TTisGridControl)
+  public
+    constructor Create; override;
+    function GetValue: Variant; override;
+    procedure SetValue(const aValue: Variant); override;
+    function Edit: TMemo;
+  end;
+
   /// control used for String data type as a ComboBox or for Integer data type as a Lookup editor
   // - it is used by default into Grid.OnEditorLookup event
   // - if you want to use a simple ComboBox with a simple string list, just do not set LookupKeyField/LookupDisplayField
@@ -317,11 +326,6 @@ end;
 
 { TTisGridBooleanEditControl }
 
-function TTisGridBooleanEditControl.Edit: TCheckBoxThemed;
-begin
-  result := fInternal as TCheckBoxThemed;
-end;
-
 constructor TTisGridBooleanEditControl.Create;
 begin
   inherited Create;
@@ -337,6 +341,35 @@ end;
 procedure TTisGridBooleanEditControl.SetValue(const aValue: Variant);
 begin
   Edit.Checked := aValue;
+end;
+
+function TTisGridBooleanEditControl.Edit: TCheckBoxThemed;
+begin
+  result := fInternal as TCheckBoxThemed;
+end;
+
+{ TTisGridMemoControl }
+
+constructor TTisGridMemoControl.Create;
+begin
+  inherited Create;
+  fInternal := TMemo.Create(nil);
+  Edit.Clear;
+end;
+
+function TTisGridMemoControl.GetValue: Variant;
+begin
+  result := Edit.Text;
+end;
+
+procedure TTisGridMemoControl.SetValue(const aValue: Variant);
+begin
+  Edit.Text := VarToStr(aValue);
+end;
+
+function TTisGridMemoControl.Edit: TMemo;
+begin
+  result := fInternal as TMemo;
 end;
 
 { TTisGridSearchEditControl }

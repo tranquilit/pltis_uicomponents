@@ -874,21 +874,25 @@ begin
         Key := 0;
       end;
     VK_RETURN:
-      if CanAdvance then
+      // consider special cases before finishing edit mode
+      if not (ssShift in Shift) then
       begin
         fGrid.EndEditNode;
         Key := 0;
       end;
     VK_UP,
     VK_DOWN:
-      begin
-        // Consider special cases before finishing edit mode.
+      begin  { TODO -omsantos : should be refactored, as these checks should came from the instance }
+        // consider special cases before finishing edit mode
         CanAdvance := Shift = [];
         if fControl.Internal is TCustomComboBox then
           CanAdvance := CanAdvance and not TCustomComboBox(fControl.Internal).DroppedDown;
+        if fControl.Internal is TCustomMemo then
+          CanAdvance := False;
         if CanAdvance then
         begin
-          // Forward the keypress to the tree. It will asynchronously change the focused node.
+          // forward the keypress to the tree
+          // it will asynchronously change the focused node
           PostMessage(fGrid.Handle, LM_KEYDOWN, Key, 0);
           Key := 0;
         end;
@@ -916,7 +920,7 @@ begin
   ControlClasses[cdtInteger] := TTisGridIntegerEditControl;
   ControlClasses[cdtFloat] := TTisGridFloatEditControl;
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
-  ControlClasses[cdtMemo] := TTisGridEditControl;
+  ControlClasses[cdtMemo] := TTisGridMemoControl;
 end;
 
 function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;
