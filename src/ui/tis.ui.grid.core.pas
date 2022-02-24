@@ -221,17 +221,20 @@ type
   /// node options
   TTisNodeOptions = class(TPersistent)
   private
+    fGrid: TTisGrid;
     fMultiLine: Boolean;
     fMultiLineHeight: Integer;
+    procedure SetMultiLine(aValue: Boolean);
+    procedure SetMultiLineHeight(aValue: Integer);
   protected
     const DefaultMultiLine = False;
     const DefaultMultiLineHeight = 4;
   public
-    constructor Create;
+    constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
   published
-    property MultiLine: Boolean read fMultiLine write fMultiLine default DefaultMultiLine;
-    property MultiLineHeight: Integer read fMultiLineHeight write fMultiLineHeight default DefaultMultiLineHeight;
+    property MultiLine: Boolean read fMultiLine write SetMultiLine default DefaultMultiLine;
+    property MultiLineHeight: Integer read fMultiLineHeight write SetMultiLineHeight default DefaultMultiLineHeight;
   end;
 
   TOnGridGetText = procedure(sender: TBaseVirtualTree; aNode: PVirtualNode;
@@ -1228,9 +1231,26 @@ end;
 
 { TTisNodeOptions }
 
-constructor TTisNodeOptions.Create;
+procedure TTisNodeOptions.SetMultiLine(aValue: Boolean);
+begin
+  if fMultiLine = aValue then
+    exit;
+  fMultiLine := aValue;
+  fGrid.LoadData;
+end;
+
+procedure TTisNodeOptions.SetMultiLineHeight(aValue: Integer);
+begin
+  if fMultiLineHeight = aValue then
+    exit;
+  fMultiLineHeight := aValue;
+  fGrid.LoadData;
+end;
+
+constructor TTisNodeOptions.Create(aGrid: TTisGrid);
 begin
   inherited Create;
+  fGrid := aGrid;
   fMultiLine := DefaultMultiLine;
   fMultiLineHeight := DefaultMultiLineHeight;
 end;
@@ -2396,7 +2416,7 @@ begin
   DefaultText := '';
   fZebraColor := $00EDF0F1;
   SetLength(fKeyFieldsList, 0);
-  fNodeOptions := TTisNodeOptions.Create;
+  fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := [pmoShowFind..pmoShowCustomizeColumns];
   WantTabs := True;
   TabStop := True;

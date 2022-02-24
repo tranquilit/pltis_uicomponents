@@ -422,13 +422,11 @@ end;
 procedure TTisGridEditor.MultilineCheckBoxChange(Sender: TObject);
 begin
   Grid.NodeOptions.MultiLine := MultilineCheckBox.Checked;
-  Grid.LoadData;
 end;
 
 procedure TTisGridEditor.MultilineHeightEditChange(Sender: TObject);
 begin
   Grid.NodeOptions.MultiLineHeight := MultilineHeightEdit.Value;
-  Grid.LoadData;
 end;
 
 procedure TTisGridEditor.VariableNodeHeightCheckBoxChange(Sender: TObject);
