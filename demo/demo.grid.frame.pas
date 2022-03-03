@@ -78,6 +78,7 @@ type
     FunctionSelRowsLabel: TLabel;
     GridSelRowsPopupMenu: TPopupMenu;
     GridSelRowsMenuItem: TMenuItem;
+    ClipboardSelectedRowLabel1: TLabel;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -99,6 +100,7 @@ type
     procedure FunctionDataLabelClick(Sender: TObject);
     procedure GridDataCustomizeMenuItem1Click(Sender: TObject);
     procedure GridSelRowsMenuItemClick(Sender: TObject);
+    procedure ClipboardSelectedRowLabel1Click(Sender: TObject);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -249,6 +251,11 @@ begin
     Grid.SelectedObjects[i].S[a[0]] := a[1];
     Grid.LoadData;
   end;
+end;
+
+procedure TGridFrame.ClipboardSelectedRowLabel1Click(Sender: TObject);
+begin
+  InOutputEdit.Lines.Text := Utf8ToString(Grid.ContentAsCSV(tstSelected, ','));
 end;
 
 procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);

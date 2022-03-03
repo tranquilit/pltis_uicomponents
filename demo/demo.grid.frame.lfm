@@ -899,6 +899,24 @@ object GridFrame: TGridFrame
       ParentFont = False
       OnClick = ClipboardSelectedRowLabelClick
     end
+    object ClipboardSelectedRowLabel1: TLabel
+      Cursor = crHandPoint
+      Left = 448
+      Height = 15
+      Top = 3
+      Width = 138
+      Caption = 'from selected rows as CSV'
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clBlue
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = ClipboardSelectedRowLabel1Click
+    end
   end
   object Splitter: TSplitter
     Cursor = crVSplit
