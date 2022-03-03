@@ -2909,16 +2909,17 @@ begin
     rows := fData
   else
     rows := SelectedRows;
-  cols.InitArray([]);
+  cols.InitArray([], JSON_FAST_FLOAT);
   for c := 0 to Header.Columns.Count-1 do
   begin
     if coVisible in Header.Columns[c].Options then
-      cols.AddItemText('"' + StringToUtf8(TTisGridColumn(Header.Columns[c]).Text) + '"');
+      cols.AddItemText(StringToUtf8('"' + TTisGridColumn(Header.Columns[c]).Text + '"'));
   end;
   result := cols.ToCsv(aSeparator) + LineEnding;
+  tmp.InitArray([], JSON_FAST_FLOAT);
   for o in rows.Objects do
   begin
-    tmp.InitArray([]);
+    tmp.Clear;
     for c := 0 to Header.Columns.Count-1 do
     begin
       if coVisible in Header.Columns[c].Options then
