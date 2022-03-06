@@ -20,6 +20,7 @@ uses
   Dialogs,
   Menus,
   ColorBox,
+  ComCtrls,
   SynEdit,
   VirtualTrees,
   mormot.core.base,
@@ -28,7 +29,6 @@ uses
   mormot.core.variants,
   tis.core.os,
   tis.ui.searchedit,
-  tis.ui.grid.controls,
   tis.ui.grid.core;
 
 type
@@ -49,21 +49,6 @@ type
     SaveDialog: TSaveDialog;
     GridTotalLabel: TLabel;
     ClipboardSelectedRowLabel: TLabel;
-    Panel2: TPanel;
-    GroupBox3: TGroupBox;
-    cbColumnDataType: TComboBox;
-    EdDataType: TLabel;
-    EditorColorBox: TColorBox;
-    Label2: TLabel;
-    GroupBox4: TGroupBox;
-    JsonMemo: TMemo;
-    KeyFieldEdit: TEdit;
-    DisplayFieldEdit: TEdit;
-    Label3: TLabel;
-    Label4: TLabel;
-    AsynchCheckBox: TCheckBox;
-    EdDataType1: TLabel;
-    ColumnNameEdit: TEdit;
     GridInputPopupMenu: TPopupMenu;
     GridDataAddRowsMenuItem: TMenuItem;
     GridInputDeleteRowsMenuItem: TMenuItem;
@@ -79,6 +64,24 @@ type
     GridSelRowsPopupMenu: TPopupMenu;
     GridSelRowsMenuItem: TMenuItem;
     ClipboardSelectedRowLabel1: TLabel;
+    Panel2: TPanel;
+    PageControl1: TPageControl;
+    TabSheet2: TTabSheet;
+    EdDataType1: TLabel;
+    ColumnNameEdit: TEdit;
+    Label3: TLabel;
+    KeyFieldEdit: TEdit;
+    DisplayFieldEdit: TEdit;
+    Label4: TLabel;
+    JsonMemo: TMemo;
+    AsynchCheckBox: TCheckBox;
+    TabSheet1: TTabSheet;
+    EdDataType: TLabel;
+    cbColumnDataType: TComboBox;
+    EditorColorBox: TColorBox;
+    Label2: TLabel;
+    Panel3: TPanel;
+    Splitter1: TSplitter;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,

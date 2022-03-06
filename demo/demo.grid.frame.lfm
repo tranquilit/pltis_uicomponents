@@ -12,17 +12,17 @@ object GridFrame: TGridFrame
     Left = 0
     Height = 380
     Top = 0
-    Width = 877
+    Width = 596
     Align = alClient
     ClientHeight = 380
-    ClientWidth = 877
+    ClientWidth = 596
     ParentFont = False
     TabOrder = 0
     object Grid: TTisGrid
       Left = 8
       Height = 299
       Top = 64
-      Width = 536
+      Width = 575
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clWhite
       Colors.UnfocusedColor = clMedGray
@@ -56,10 +56,11 @@ object GridFrame: TGridFrame
       Left = 8
       Height = 58
       Top = 1
-      Width = 536
+      Width = 575
+      Anchors = [akTop, akLeft, akRight]
       Caption = ' Functions '
       ClientHeight = 38
-      ClientWidth = 532
+      ClientWidth = 571
       TabOrder = 1
       object FunctionDataLabel: TLabel
         Cursor = crHandPoint
@@ -85,11 +86,12 @@ object GridFrame: TGridFrame
       end
       object FunctionSettingsLabel: TLabel
         Cursor = crHandPoint
-        Left = 464
+        Left = 503
         Height = 15
         Hint = 'Grid Settings'
         Top = 8
         Width = 42
+        Anchors = [akTop, akRight]
         Caption = 'Settings'
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
@@ -148,155 +150,6 @@ object GridFrame: TGridFrame
         PopupMenu = GridSelRowsPopupMenu
         ShowHint = True
         OnClick = FunctionDataLabelClick
-      end
-    end
-    object Panel2: TPanel
-      Left = 552
-      Height = 378
-      Top = 1
-      Width = 324
-      Align = alRight
-      BevelOuter = bvNone
-      ClientHeight = 378
-      ClientWidth = 324
-      TabOrder = 2
-      object GroupBox3: TGroupBox
-        Left = 8
-        Height = 72
-        Hint = 'It shows an example of how customize editor properties'
-        Top = 8
-        Width = 304
-        Caption = ' OnPrepareEditor Event '
-        ClientHeight = 52
-        ClientWidth = 300
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 0
-        object cbColumnDataType: TComboBox
-          Left = 16
-          Height = 23
-          Top = 18
-          Width = 99
-          ItemHeight = 15
-          OnEnter = cbColumnDataTypeEnter
-          ParentFont = False
-          Style = csDropDownList
-          TabOrder = 0
-        end
-        object EdDataType: TLabel
-          Left = 16
-          Height = 15
-          Top = 0
-          Width = 51
-          Caption = 'Data Type'
-          ParentColor = False
-          ParentFont = False
-        end
-        object EditorColorBox: TColorBox
-          Left = 128
-          Height = 26
-          Top = 16
-          Width = 99
-          DefaultColorColor = clDefault
-          NoneColorColor = clDefault
-          Selected = clDefault
-          ItemHeight = 20
-          ParentShowHint = False
-          TabOrder = 1
-        end
-        object Label2: TLabel
-          Left = 128
-          Height = 15
-          Top = 0
-          Width = 29
-          Caption = 'Color'
-          ParentColor = False
-        end
-      end
-      object GroupBox4: TGroupBox
-        Left = 8
-        Height = 280
-        Top = 88
-        Width = 304
-        Anchors = [akTop, akLeft, akBottom]
-        Caption = ' OnEditorLookup Event'
-        ClientHeight = 260
-        ClientWidth = 300
-        TabOrder = 1
-        object JsonMemo: TMemo
-          Left = 12
-          Height = 135
-          Top = 88
-          Width = 242
-          Anchors = [akTop, akLeft, akBottom]
-          Lines.Strings = (
-            '['
-            '  {"id": 1, "text": "Windows"},'
-            '  {"id": 2, "text": "Linux"},'
-            '  {"id": 3, "text": "Mac"}'
-            ']'
-          )
-          ScrollBars = ssAutoVertical
-          TabOrder = 3
-        end
-        object KeyFieldEdit: TEdit
-          Left = 12
-          Height = 23
-          Top = 57
-          Width = 117
-          TabOrder = 1
-          Text = 'id'
-        end
-        object DisplayFieldEdit: TEdit
-          Left = 137
-          Height = 23
-          Top = 57
-          Width = 117
-          TabOrder = 2
-          Text = 'text'
-        end
-        object Label3: TLabel
-          Left = 12
-          Height = 15
-          Top = 41
-          Width = 47
-          Caption = 'Key Field'
-          ParentColor = False
-        end
-        object Label4: TLabel
-          Left = 137
-          Height = 15
-          Top = 41
-          Width = 66
-          Caption = 'Display Field'
-          ParentColor = False
-        end
-        object AsynchCheckBox: TCheckBox
-          Left = 12
-          Height = 19
-          Hint = 'Get items asynchronously, using OnSearch event'
-          Top = 232
-          Width = 94
-          Anchors = [akLeft, akBottom]
-          Caption = 'asynchronous'
-          TabOrder = 4
-        end
-        object EdDataType1: TLabel
-          Left = 12
-          Height = 15
-          Top = 1
-          Width = 43
-          Caption = 'Column'
-          ParentColor = False
-          ParentFont = False
-        end
-        object ColumnNameEdit: TEdit
-          Left = 12
-          Height = 23
-          Top = 17
-          Width = 242
-          TabOrder = 0
-        end
       end
     end
   end
@@ -926,6 +779,168 @@ object GridFrame: TGridFrame
     Width = 877
     Align = alBottom
     ResizeAnchor = akBottom
+  end
+  object Panel2: TPanel
+    Left = 608
+    Height = 380
+    Top = 0
+    Width = 269
+    Align = alRight
+    ClientHeight = 380
+    ClientWidth = 269
+    TabOrder = 3
+    object PageControl1: TPageControl
+      Left = 1
+      Height = 328
+      Top = 51
+      Width = 267
+      ActivePage = TabSheet2
+      Align = alClient
+      TabIndex = 0
+      TabOrder = 0
+      object TabSheet2: TTabSheet
+        Caption = 'OnEditorLookup'
+        ClientHeight = 300
+        ClientWidth = 259
+        object EdDataType1: TLabel
+          Left = 12
+          Height = 15
+          Top = 16
+          Width = 43
+          Caption = 'Column'
+          ParentColor = False
+          ParentFont = False
+        end
+        object ColumnNameEdit: TEdit
+          Left = 12
+          Height = 23
+          Top = 32
+          Width = 242
+          TabOrder = 0
+        end
+        object Label3: TLabel
+          Left = 12
+          Height = 15
+          Top = 56
+          Width = 47
+          Caption = 'Key Field'
+          ParentColor = False
+        end
+        object KeyFieldEdit: TEdit
+          Left = 12
+          Height = 23
+          Top = 72
+          Width = 117
+          TabOrder = 1
+          Text = 'id'
+        end
+        object DisplayFieldEdit: TEdit
+          Left = 137
+          Height = 23
+          Top = 72
+          Width = 117
+          TabOrder = 2
+          Text = 'text'
+        end
+        object Label4: TLabel
+          Left = 137
+          Height = 15
+          Top = 56
+          Width = 66
+          Caption = 'Display Field'
+          ParentColor = False
+        end
+        object JsonMemo: TMemo
+          Left = 12
+          Height = 147
+          Top = 103
+          Width = 242
+          Anchors = [akTop, akLeft, akBottom]
+          Lines.Strings = (
+            '['
+            '  {"id": 1, "text": "Windows"},'
+            '  {"id": 2, "text": "Linux"},'
+            '  {"id": 3, "text": "Mac"}'
+            ']'
+          )
+          ScrollBars = ssAutoVertical
+          TabOrder = 3
+        end
+        object AsynchCheckBox: TCheckBox
+          Left = 12
+          Height = 19
+          Hint = 'Get items asynchronously, using OnSearch event'
+          Top = 265
+          Width = 94
+          Anchors = [akLeft, akBottom]
+          Caption = 'asynchronous'
+          TabOrder = 4
+        end
+      end
+      object TabSheet1: TTabSheet
+        Caption = 'OnPrepareEditor'
+        ClientHeight = 291
+        ClientWidth = 325
+        object EdDataType: TLabel
+          Left = 16
+          Height = 15
+          Top = 16
+          Width = 51
+          Caption = 'Data Type'
+          ParentColor = False
+          ParentFont = False
+        end
+        object cbColumnDataType: TComboBox
+          Left = 16
+          Height = 23
+          Top = 34
+          Width = 99
+          ItemHeight = 15
+          OnEnter = cbColumnDataTypeEnter
+          ParentFont = False
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object EditorColorBox: TColorBox
+          Left = 16
+          Height = 26
+          Top = 88
+          Width = 99
+          DefaultColorColor = clDefault
+          NoneColorColor = clDefault
+          Selected = clDefault
+          ItemHeight = 20
+          ParentShowHint = False
+          TabOrder = 1
+        end
+        object Label2: TLabel
+          Left = 16
+          Height = 15
+          Top = 72
+          Width = 29
+          Caption = 'Color'
+          ParentColor = False
+        end
+      end
+    end
+    object Panel3: TPanel
+      Left = 1
+      Height = 50
+      Top = 1
+      Width = 267
+      Align = alTop
+      BevelOuter = bvNone
+      Caption = 'Events'
+      TabOrder = 1
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 596
+    Height = 380
+    Top = 0
+    Width = 12
+    Align = alRight
+    ResizeAnchor = akRight
   end
   object UserPopupMenu: TPopupMenu
     Left = 312
