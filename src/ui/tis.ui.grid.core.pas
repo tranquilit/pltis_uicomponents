@@ -984,7 +984,10 @@ begin
   fGrid.DoEditValidated(c, v, aborted);
   try
     if aborted then
+    begin
+      FreeAndNil(fControl); // for do not perform any event from it
       exit;
+    end;
     if VarIsNull(v) then
     begin
       if not c.Required then
