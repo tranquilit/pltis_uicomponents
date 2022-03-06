@@ -116,7 +116,7 @@ type
     procedure GridSelRowsMenuItemClick(Sender: TObject);
     procedure ClipboardSelectedRowLabel1Click(Sender: TObject);
     procedure GridEditValidated(sender: TTisGrid; aColumn: TTisGridColumn;
-      var aNewValue: Variant; var aAbort: Boolean);
+      const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -275,7 +275,8 @@ begin
 end;
 
 procedure TGridFrame.GridEditValidated(sender: TTisGrid;
-  aColumn: TTisGridColumn; var aNewValue: Variant; var aAbort: Boolean);
+  aColumn: TTisGridColumn; const aCurValue: Variant; var aNewValue: Variant;
+  var aAbort: Boolean);
 begin
   if aColumn.PropertyName = ValidColumnNameEdit.Text then
   begin
