@@ -66,7 +66,7 @@ type
     GridSelRowsMenuItem: TMenuItem;
     ClipboardSelectedRowLabel1: TLabel;
     Panel2: TPanel;
-    PageControl1: TPageControl;
+    EventsPageControl: TPageControl;
     TabSheet2: TTabSheet;
     EdDataType1: TLabel;
     ColumnNameEdit: TEdit;
