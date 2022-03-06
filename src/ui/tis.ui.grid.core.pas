@@ -1474,7 +1474,7 @@ var
   d: PDocVariantData;
 begin
   n := GetFirstSelected;
-  result.InitArray([]);
+  result.InitArray([], JSON_FAST);
   while n <> nil do
   begin
     d := GetNodeDataAsDocVariant(n);
