@@ -22,6 +22,7 @@ uses
   ColorBox,
   ComCtrls,
   SynEdit,
+  Variants,
   VirtualTrees,
   mormot.core.base,
   mormot.core.text,
@@ -82,6 +83,16 @@ type
     Label2: TLabel;
     Panel3: TPanel;
     Splitter1: TSplitter;
+    TabSheet3: TTabSheet;
+    GroupBox2: TGroupBox;
+    Label5: TLabel;
+    ValidColumnNameEdit: TEdit;
+    Label6: TLabel;
+    ValidEditedValueEdit: TEdit;
+    Label7: TLabel;
+    ValidAbortCheckBox: TCheckBox;
+    Label8: TLabel;
+    ValidMsgEdit: TEdit;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -104,6 +115,8 @@ type
     procedure GridDataCustomizeMenuItem1Click(Sender: TObject);
     procedure GridSelRowsMenuItemClick(Sender: TObject);
     procedure ClipboardSelectedRowLabel1Click(Sender: TObject);
+    procedure GridEditValidated(sender: TTisGrid; aColumn: TTisGridColumn;
+      var aNewValue: Variant; var aAbort: Boolean);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -259,6 +272,20 @@ end;
 procedure TGridFrame.ClipboardSelectedRowLabel1Click(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.ContentAsCSV(tstSelected, ','));
+end;
+
+procedure TGridFrame.GridEditValidated(sender: TTisGrid;
+  aColumn: TTisGridColumn; var aNewValue: Variant; var aAbort: Boolean);
+begin
+  if aColumn.PropertyName = ValidColumnNameEdit.Text then
+  begin
+    if VarToStr(aNewValue) = ValidEditedValueEdit.Text then
+    begin
+      aAbort := ValidAbortCheckBox.Checked;
+      if ValidMsgEdit.Text <> '' then
+        ShowMessage(ValidMsgEdit.Text);
+    end;
+  end;
 end;
 
 procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);

@@ -12,17 +12,17 @@ object GridFrame: TGridFrame
     Left = 0
     Height = 380
     Top = 0
-    Width = 596
+    Width = 531
     Align = alClient
     ClientHeight = 380
-    ClientWidth = 596
+    ClientWidth = 531
     ParentFont = False
     TabOrder = 0
     object Grid: TTisGrid
       Left = 8
       Height = 299
       Top = 64
-      Width = 575
+      Width = 510
       Anchors = [akTop, akLeft, akRight, akBottom]
       Color = clWhite
       Colors.UnfocusedColor = clMedGray
@@ -51,16 +51,17 @@ object GridFrame: TGridFrame
       OnCompareByRow = GridCompareByRow
       OnEditorLookup = GridEditorLookup
       OnPrepareEditor = GridPrepareEditor
+      OnEditValidated = GridEditValidated
     end
     object GroupBox1: TGroupBox
       Left = 8
       Height = 58
       Top = 1
-      Width = 575
+      Width = 510
       Anchors = [akTop, akLeft, akRight]
       Caption = ' Functions '
       ClientHeight = 38
-      ClientWidth = 571
+      ClientWidth = 506
       TabOrder = 1
       object FunctionDataLabel: TLabel
         Cursor = crHandPoint
@@ -86,7 +87,7 @@ object GridFrame: TGridFrame
       end
       object FunctionSettingsLabel: TLabel
         Cursor = crHandPoint
-        Left = 503
+        Left = 438
         Height = 15
         Hint = 'Grid Settings'
         Top = 8
@@ -781,27 +782,27 @@ object GridFrame: TGridFrame
     ResizeAnchor = akBottom
   end
   object Panel2: TPanel
-    Left = 608
+    Left = 543
     Height = 380
     Top = 0
-    Width = 269
+    Width = 334
     Align = alRight
     ClientHeight = 380
-    ClientWidth = 269
+    ClientWidth = 334
     TabOrder = 3
     object PageControl1: TPageControl
       Left = 1
       Height = 328
       Top = 51
-      Width = 267
-      ActivePage = TabSheet2
+      Width = 332
+      ActivePage = TabSheet3
       Align = alClient
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 0
       object TabSheet2: TTabSheet
         Caption = 'OnEditorLookup'
         ClientHeight = 300
-        ClientWidth = 259
+        ClientWidth = 324
         object EdDataType1: TLabel
           Left = 12
           Height = 15
@@ -879,8 +880,8 @@ object GridFrame: TGridFrame
       end
       object TabSheet1: TTabSheet
         Caption = 'OnPrepareEditor'
-        ClientHeight = 291
-        ClientWidth = 325
+        ClientHeight = 300
+        ClientWidth = 324
         object EdDataType: TLabel
           Left = 16
           Height = 15
@@ -922,12 +923,91 @@ object GridFrame: TGridFrame
           ParentColor = False
         end
       end
+      object TabSheet3: TTabSheet
+        Caption = 'OnEditValidated'
+        ClientHeight = 300
+        ClientWidth = 324
+        object GroupBox2: TGroupBox
+          Left = 14
+          Height = 207
+          Top = 17
+          Width = 289
+          Caption = 'Simple'
+          ClientHeight = 187
+          ClientWidth = 285
+          TabOrder = 0
+          object Label5: TLabel
+            Left = 16
+            Height = 15
+            Top = 8
+            Width = 182
+            Caption = 'For column name (PropertyName)'
+            ParentColor = False
+          end
+          object ValidColumnNameEdit: TEdit
+            Left = 32
+            Height = 23
+            Top = 24
+            Width = 232
+            TabOrder = 0
+          end
+          object Label6: TLabel
+            Left = 16
+            Height = 15
+            Top = 48
+            Width = 85
+            Caption = 'If edited value is'
+            ParentColor = False
+          end
+          object ValidEditedValueEdit: TEdit
+            Left = 32
+            Height = 23
+            Top = 64
+            Width = 232
+            TabOrder = 1
+          end
+          object Label7: TLabel
+            Left = 16
+            Height = 15
+            Top = 88
+            Width = 26
+            Caption = 'Then'
+            ParentColor = False
+          end
+          object ValidAbortCheckBox: TCheckBox
+            Left = 32
+            Height = 19
+            Top = 107
+            Width = 50
+            Caption = 'Abort'
+            Checked = True
+            State = cbChecked
+            TabOrder = 2
+          end
+          object Label8: TLabel
+            Left = 16
+            Height = 15
+            Top = 128
+            Width = 102
+            Caption = 'And show message'
+            ParentColor = False
+          end
+          object ValidMsgEdit: TEdit
+            Left = 32
+            Height = 23
+            Top = 144
+            Width = 232
+            TabOrder = 3
+            Text = 'Invalid value for this column'
+          end
+        end
+      end
     end
     object Panel3: TPanel
       Left = 1
       Height = 50
       Top = 1
-      Width = 267
+      Width = 332
       Align = alTop
       BevelOuter = bvNone
       Caption = 'Events'
@@ -935,7 +1015,7 @@ object GridFrame: TGridFrame
     end
   end
   object Splitter1: TSplitter
-    Left = 596
+    Left = 531
     Height = 380
     Top = 0
     Width = 12
