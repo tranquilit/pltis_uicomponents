@@ -281,9 +281,10 @@ type
     aControl: TWinControl) of object;
 
   /// event that allow to validate the new value from user input
+  // - aCurValue is the current value for the aColumn
   // - use it for check/change the aNewValue argument, before assign it, and/or abort the process
   TOnGridEditValidated = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
-    var aNewValue: Variant; var aAbort: Boolean) of object;
+    const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -434,7 +435,8 @@ type
       aControl: TTisGridControl; var aHandled: Boolean); virtual;
     /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl); virtual;
-    procedure DoEditValidated(const aColumn: TTisGridColumn; var aNewValue: Variant; var aAbort: Boolean); virtual;
+    procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
+      var aNewValue: Variant; var aAbort: Boolean); virtual;
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -974,21 +976,22 @@ var
   d: PDocVariantData;
   c: TTisGridColumn;
   aborted: Boolean;
-  v: Variant;
+  cur, new: Variant;
 begin
   result := True;
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   aborted := False;
-  v := fControl.GetValue;
-  fGrid.DoEditValidated(c, v, aborted);
+  cur := d^.GetValueOrNull(c.PropertyName);
+  new := fControl.GetValue;
+  fGrid.DoEditValidated(c, cur, new, aborted);
   try
     if aborted then
     begin
       FreeAndNil(fControl); // for do not perform any event from it
       exit;
     end;
-    if VarIsNull(v) then
+    if VarIsNull(new) then
     begin
       if not c.Required then
         d^.Value[c.PropertyName] := NULL;
@@ -996,17 +999,17 @@ begin
     else
       case c.DataType of
         cdtString, cdtMemo:
-          d^.S[c.PropertyName] := VarToStr(v);
+          d^.S[c.PropertyName] := VarToStr(new);
         cdtDate, cdtTime, cdtDateTime:
-          d^.U[c.PropertyName] := DateTimeToIso8601Text(v);
+          d^.U[c.PropertyName] := DateTimeToIso8601Text(new);
         cdtInteger:
-          d^.I[c.PropertyName] := v;
+          d^.I[c.PropertyName] := new;
         cdtFloat:
-          d^.D[c.PropertyName] := v;
+          d^.D[c.PropertyName] := new;
         cdtBoolean:
-          d^.B[c.PropertyName] := v;
+          d^.B[c.PropertyName] := new;
       else
-        d^.S[c.PropertyName] := VarToStr(v);
+        d^.S[c.PropertyName] := VarToStr(new);
       end;
   finally
     fGrid.InvalidateNode(fNode);
@@ -2407,10 +2410,10 @@ begin
 end;
 
 procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
-  var aNewValue: Variant; var aAbort: Boolean);
+  const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
 begin
   if Assigned(fOnEditValidated) then
-    fOnEditValidated(self, aColumn, aNewValue, aAbort);
+    fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
 end;
 
 constructor TTisGrid.Create(AOwner: TComponent);
