@@ -987,10 +987,7 @@ begin
   fGrid.DoEditValidated(c, cur, new, aborted);
   try
     if aborted then
-    begin
-      FreeAndNil(fControl); // for do not perform any event from it
       exit;
-    end;
     if VarIsNull(new) then
     begin
       if not c.Required then
@@ -1012,6 +1009,7 @@ begin
         d^.S[c.PropertyName] := VarToStr(new);
       end;
   finally
+    FreeAndNil(fControl); // for do not perform any event from it
     fGrid.InvalidateNode(fNode);
     fGrid.SetFocusSafe;
   end;
