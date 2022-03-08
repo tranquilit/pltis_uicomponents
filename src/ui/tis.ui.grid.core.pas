@@ -266,7 +266,7 @@ type
 
   /// event to manipulate rows using copy/paste on grid
   // - use it for check/change the aData argument, before assign it, and/or abort the process
-  TOnGridPaste = procedure(sender: TTisGrid; aRow: PDocVariantData; var aAbort: Boolean) of object;
+  TOnGridPaste = procedure(sender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
 
   /// event that allows users customize the control instance, creating a new one, replacing the default
   TOnGridCustomEditor = procedure(sender: TObject; aColumn: TTisGridColumn;
