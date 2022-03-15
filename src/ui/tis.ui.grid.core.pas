@@ -143,6 +143,9 @@ type
     // - sort ascending, then descending, and finally no sort (showing no arrow on header)
     procedure HandleClick(P: TPoint; aButton: TMouseButton; aForce,
       aDblClick: Boolean); override;
+  public
+    // overriding for circumvent original Assign, which freezes Lazarus when having invisible columns
+    procedure Assign(aSource: TPersistent); override;
   end;
 
   /// a custom implementation for Grid Header
@@ -1126,6 +1129,27 @@ begin
     else
       inherited HandleClick(P, aButton, aForce, aDblClick);
   end;
+end;
+
+procedure TTisGridColumns.Assign(aSource: TPersistent);
+var
+  i: Integer;
+  c: TTisGridColumn;
+  src: TTisGridColumns;
+begin
+  if aSource is TTisGridColumns then
+  begin
+    Header.Columns.Clear;
+    src := aSource as TTisGridColumns;
+    for i := 0 to src.Header.Columns.Count-1 do
+    begin
+      c := Header.Columns.Add as TTisGridColumn;
+      c.Assign(src.Header.Columns[i]);
+      c.Options := src.Header.Columns[i].Options;
+    end;
+  end
+  else
+    inherited Assign(aSource);
 end;
 
 { TTisHeader }
