@@ -472,7 +472,7 @@ procedure TTisGridEditor.AddFakeDataIfNeedIt;
 begin
   if Grid.Data.IsVoid then
   begin
-    Grid.Data.AddItem(_Json('{"id":0}'));
+    Grid.Data.AddItem(_Json('{"id":null}'));
     Grid.LoadData;
   end;
 end;

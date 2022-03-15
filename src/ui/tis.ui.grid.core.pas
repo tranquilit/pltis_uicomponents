@@ -2829,8 +2829,6 @@ end;
 
 procedure TTisGrid.Customize;
 var
-  i: Integer;
-  c: TTisGridColumn;
   target: TTisGrid;
 begin
   BeginUpdate;
@@ -2839,13 +2837,6 @@ begin
     try
       target := self;
       Grid.ClearAll;
-      Grid.Header.Height := target.Header.Height;
-      for i := 0 to target.Header.Columns.Count-1 do
-      begin
-        c := Grid.Header.Columns.Add as TTisGridColumn;
-        c.Assign(target.Header.Columns[i]);
-        c.Options := target.Header.Columns[i].Options;
-      end;
       Grid.Header.Assign(target.Header);
       Grid.TreeOptions.Assign(target.TreeOptions);
       Grid.NodeOptions.Assign(target.NodeOptions);
@@ -2853,11 +2844,6 @@ begin
       if ShowModal = mrOK then
       begin
         target.ClearAll;
-        for i := 0 to Grid.Header.Columns.Count-1 do
-        begin
-          c := target.Header.Columns.Add as TTisGridColumn;
-          c.Assign(Grid.Header.Columns[i]);
-        end;
         target.Header.Assign(Grid.Header);
         target.TreeOptions.Assign(Grid.TreeOptions);
         target.NodeOptions.Assign(Grid.NodeOptions);
