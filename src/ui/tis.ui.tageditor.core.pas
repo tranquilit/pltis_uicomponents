@@ -327,6 +327,7 @@ type
     const clBorderColorDisabled = clSilver;
   public
     constructor Create(aOwner: TComponent); override;
+    procedure Assign(aSource: TPersistent); override;
     destructor Destroy; override;
     /// it will clear all tags
     // - it will not perform any event, such as OnTagBeforeAdd, OnTagBeforeDelete
@@ -742,6 +743,17 @@ begin
   fScrollInfo.cbSize := sizeof(fScrollInfo);
   fScrollBarVisible := False;
   TabStop := True;
+end;
+
+procedure TTisTagEditor.Assign(aSource: TPersistent);
+begin
+  if aSource is TTisTagEditor then
+  begin
+    with TTisTagEditor(aSource) do
+      self.Tags.Assign(Tags);
+  end
+  else
+    inherited Assign(aSource);
 end;
 
 destructor TTisTagEditor.Destroy;
