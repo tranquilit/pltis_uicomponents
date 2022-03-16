@@ -25,7 +25,8 @@ uses
   StrUtils,
   LMessages,
   LCLIntf,
-  LCLType;
+  LCLType,
+  TisStrings;
 
 type
   ETagEditor = class(Exception);
@@ -63,6 +64,8 @@ type
     procedure SetCollection(aValue: TCollection); override;
   public
     constructor Create(aCollection: TCollection); override;
+    procedure Assign(aSource: TPersistent); override; overload;
+    procedure Assign(aSource: TTagContext); overload;
   published
     property CanDelete: Boolean read fCanDelete write SetCanDelete;
     property BgColor: TColor read fBgColor write SetBgColor;
@@ -84,9 +87,10 @@ type
     function GetOwner: TPersistent; override;
   public
     constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
+    procedure Assign(aSource: TPersistent); override;
     function IndexOf(const aText: string): Integer;
     function DelimitedText: string;
-    function Add(aItemConfig: TTagContext; const aText: string = ''): TTagItem; overload;
+    function Add(aContext: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
     property Items[Index: Integer]: TTagItem read GetTagItem
@@ -544,6 +548,33 @@ begin
   fTextColor := GetTagEditor.fTagTextColor;
 end;
 
+procedure TTagItem.Assign(aSource: TPersistent);
+begin
+  if aSource is TTagItem then
+  begin
+    with TTagItem(aSource) do
+    begin
+      self.CanDelete := CanDelete;
+      self.BgColor := BgColor;
+      self.BorderColor := BorderColor;
+      self.Value := Value;
+      self.Text := Text;
+      self.TextColor := TextColor;
+    end;
+  end
+  else
+    inherited Assign(aSource);
+end;
+
+procedure TTagItem.Assign(aSource: TTagContext);
+begin
+  CanDelete := aSource.CanDelete;
+  BgColor := aSource.BgColor;
+  BorderColor := aSource.BorderColor;
+  Value := aSource.Value;
+  TextColor := aSource.TextColor;
+end;
+
 { TTags }
 
 function TTags.GetTagItem(Index: Integer): TTagItem;
@@ -566,6 +597,23 @@ constructor TTags.Create(aTagEditor: TTisTagEditor;
 begin
   inherited Create(aTagsItemClass);
   fTagEditor := aTagEditor;
+end;
+
+procedure TTags.Assign(aSource: TPersistent);
+var
+  i: Integer;
+begin
+  if aSource is TTags then
+  begin
+    Clear;
+    with TTags(aSource) do
+      for i := 0 to Count-1 do
+        self.Add.Assign(Items[i])
+  end
+  else if aSource is TStrings then
+    fTagEditor.AsArray := ArrayOf(TStrings(aSource))
+  else
+    inherited Assign(aSource);
 end;
 
 function TTags.IndexOf(const aText: string): Integer;
@@ -594,24 +642,21 @@ begin
   end;
 end;
 
-function TTags.Add(aItemConfig: TTagContext; const aText: string): TTagItem;
+function TTags.Add(aContext: TTagContext; const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
-  result.fText := aText;
-  result.fCanDelete := aItemConfig.CanDelete;
-  result.fBgColor := aItemConfig.BgColor;
-  result.fBorderColor := aItemConfig.BorderColor;
-  result.fTextColor := aItemConfig.TextColor;
+  result.Assign(aContext);
+  result.Text := aText;
 end;
 
 function TTags.Add(const aText: string): TTagItem;
 begin
   result := TTagItem(inherited Add);
-  result.fText := aText;
-  result.fCanDelete := ioShowDeleteButton in fTagEditor.TagInput.Options;
-  result.fBgColor := fTagEditor.fTagBgColor;
-  result.fBorderColor := fTagEditor.fTagBorderColor;
-  result.fTextColor := fTagEditor.fTagTextColor;
+  result.Text := aText;
+  result.CanDelete := ioShowDeleteButton in fTagEditor.TagInput.Options;
+  result.BgColor := fTagEditor.fTagBgColor;
+  result.BorderColor := fTagEditor.fTagBorderColor;
+  result.TextColor := fTagEditor.fTagTextColor;
 end;
 
 procedure TTags.DeleteAll;
