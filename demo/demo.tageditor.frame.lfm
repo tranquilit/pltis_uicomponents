@@ -120,11 +120,11 @@ object TagEditorFrame: TTagEditorFrame
       TabOrder = 6
     end
     object Label4: TLabel
-      Left = 352
+      Left = 360
       Height = 15
       Top = 0
-      Width = 29
-      Caption = 'Items'
+      Width = 72
+      Caption = 'Combo Items'
       ParentColor = False
     end
     object ItemsUpdateButton: TBitBtn
