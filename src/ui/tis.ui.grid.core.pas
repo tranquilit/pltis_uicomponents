@@ -2060,7 +2060,7 @@ begin
   HMCollAll := AddItem(RsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
     @DoCollapseAll);}
   AddItem('-', 0, nil);
-  if pmoShowCustomizeColumns in fPopupMenuOptions then
+  if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
     HMCustomize := AddItem(RsCustomizeColumns, 0, DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
     HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, DoAdvancedCustomizeColumns);
