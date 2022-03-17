@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="pltis_uicomponents_rtti"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Tranquil IT Systems"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <IncludeFiles Value="..\src\ui"/>
+        <OtherUnitFiles Value="..\src\ui;..\src\core"/>
+        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)"/>
+      </SearchPaths>
+      <CodeGeneration>
+        <SmartLinkUnit Value="True"/>
+        <Optimizations>
+          <OptimizationLevel Value="3"/>
+        </Optimizations>
+      </CodeGeneration>
+      <Linking>
+        <Debugging>
+          <DebugInfoType Value="dsDwarf3"/>
+        </Debugging>
+      </Linking>
+    </CompilerOptions>
+    <Description Value="Tranquil IT Components"/>
+    <Version Major="1"/>
+    <Files Count="3">
+      <Item1>
+        <Filename Value="..\src\ui\tis.ui.registry.rtti.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="tis.ui.registry.rtti"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\src\ui\tis.ui.tageditor.rtti.pas"/>
+        <UnitName Value="tis.ui.tageditor.rtti"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\src\ui\tis.ui.registry.rtti.lrs"/>
+        <Type Value="LRS"/>
+      </Item3>
+    </Files>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="..\languages"/>
+      <EnableI18NForLFM Value="True"/>
+    </i18n>
+    <RequiredPkgs Count="5">
+      <Item1>
+        <PackageName Value="RunTimeTypeInfoControls"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="pltis_uicomponents"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="pltis_utils"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="mormot2"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="IDEIntf"/>
+      </Item5>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
