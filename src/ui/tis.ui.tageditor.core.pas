@@ -81,6 +81,8 @@ type
   TTags = class(TCollection)
   private
     fTagEditor: TTisTagEditor;
+    function GetDelimitedText: string;
+    procedure SetDelimitedText(const aValue: string);
     function GetTagItem(Index: Integer): TTagItem;
     procedure SetTagItem(Index: Integer; const Value: TTagItem);
   protected
@@ -89,12 +91,11 @@ type
     constructor Create(aTagEditor: TTisTagEditor; aTagsItemClass: TTagItemCLass);
     procedure Assign(aSource: TPersistent); override;
     function IndexOf(const aText: string): Integer;
-    function DelimitedText: string;
     function Add(aContext: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
-    property Items[Index: Integer]: TTagItem read GetTagItem
-      write SetTagItem; default;
+    property DelimitedText: string read GetDelimitedText write SetDelimitedText;
+    property Items[Index: Integer]: TTagItem read GetTagItem write SetTagItem; default;
     property TagEditor: TTisTagEditor read fTagEditor;
   end;
 
@@ -269,7 +270,6 @@ type
     procedure SetBorderColorDisabled(aValue: TColor);
     procedure SetMaxHeight(const Value: Integer);
     procedure SetMultiLine(const Value: Boolean);
-    procedure SetTagsFromDelimitedText(const aText: string);
     procedure SetTags(const Value: TTags);
     procedure SetReadOnly(const Value: Boolean);
     procedure SetSpacing(const Value: Integer);
@@ -578,6 +578,28 @@ end;
 
 { TTags }
 
+function TTags.GetDelimitedText: string;
+var
+  i: Integer;
+begin
+  result := '';
+  for i := 0 to Self.Count - 1 do
+    result := result + IfThen(result <> '', TagEditor.TagInput.DefaultDelimiter) + Self.Items[i].Text;
+end;
+
+procedure TTags.SetDelimitedText(const aValue: string);
+var
+  i: Integer;
+  a: TStringArray;
+begin
+  if aValue = '' then
+    exit;
+  a := aValue.Split(TagEditor.TagInput.DefaultDelimiterChars.ToCharArray);
+  for i := low(a) to high(a) do
+    TagEditor.AddTag(a[i]);
+  TagEditor.DoChange;
+end;
+
 function TTags.GetTagItem(Index: Integer): TTagItem;
 begin
   result := TTagItem(inherited Items[Index]);
@@ -629,17 +651,6 @@ begin
       result := i;
       break;
     end;
-  end;
-end;
-
-function TTags.DelimitedText: string;
-var
-  i: Integer;
-begin
-  result := '';
-  for i := 0 to Self.Count - 1 do
-  begin
-    result := result + IfThen(result <> '', TagEditor.TagInput.DefaultDelimiter) + Self.Items[i].Text;
   end;
 end;
 
@@ -863,7 +874,7 @@ begin
     WM_PASTE:
       begin
         if Clipboard.HasFormat(CF_TEXT) then
-          SetTagsFromDelimitedText(Clipboard.AsText);
+          fTags.DelimitedText := Clipboard.AsText;
       end;
     WM_SIZE:
       begin
@@ -1545,19 +1556,6 @@ begin
     fMultiLine := Value;
     Invalidate;
   end;
-end;
-
-procedure TTisTagEditor.SetTagsFromDelimitedText(const aText: string);
-var
-  i: Integer;
-  a: TStringArray;
-begin
-  if aText = '' then
-    exit;
-  a := aText.Split(TagInput.DefaultDelimiterChars.ToCharArray);
-  for i := low(a) to high(a) do
-    AddTag(a[i]);
-  DoChange;
 end;
 
 procedure TTisTagEditor.SetTags(const Value: TTags);
