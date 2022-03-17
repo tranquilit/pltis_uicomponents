@@ -191,13 +191,19 @@ type
 
   /// a custom implementation for Grid Header
   TTisGridHeader = class(TVTHeader)
+  private
+    function GetPopupMenu: TPopupMenu;
+    procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     function GetColumnsClass: TVirtualTreeColumnsClass; override;
+    /// creates a default popup menu to inherited PopupMenu
+    procedure NewDefaultPopupMenu;
   public
     constructor Create(aOwner: TBaseVirtualTree); override;
     // overriding the original Assign for do not assign PopupMenu from another grid header
     // - a Popup in design mode will not work when using Editor
     procedure Assign(aSource: TPersistent); override;
+    property PopupMenu: TPopupMenu read GetPopupMenu write SetPopupMenu;
   end;
 
   TTisDataEvent = (
@@ -1271,16 +1277,34 @@ end;
 
 { TTisGridHeader }
 
+function TTisGridHeader.GetPopupMenu: TPopupMenu;
+begin
+  result := inherited PopupMenu;
+end;
+
+procedure TTisGridHeader.SetPopupMenu(aValue: TPopupMenu);
+begin
+  if Assigned(aValue) then
+    inherited PopupMenu := aValue
+  else
+    NewDefaultPopupMenu;
+end;
+
 function TTisGridHeader.GetColumnsClass: TVirtualTreeColumnsClass;
 begin
   result := TTisGridColumns;
 end;
 
+procedure TTisGridHeader.NewDefaultPopupMenu;
+begin
+  inherited PopupMenu := TTisGridHeaderPopupMenu.Create(Treeview);
+  inherited PopupMenu.PopupComponent := Treeview;
+end;
+
 constructor TTisGridHeader.Create(aOwner: TBaseVirtualTree);
 begin
   inherited Create(aOwner);
-  PopupMenu := TTisGridHeaderPopupMenu.Create(Treeview); // default popup
-  PopupMenu.PopupComponent := Treeview;
+  NewDefaultPopupMenu;
 end;
 
 procedure TTisGridHeader.Assign(aSource: TPersistent);
