@@ -114,6 +114,7 @@ type
     procedure SetBounds(R: TRect); stdcall;
   end;
 
+  /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
     fPropertyName: RawUtf8;
@@ -132,7 +133,7 @@ type
     property Text: TCaption read GetTitle write SetTitle;
     property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
-    /// if TRUE, it will not allow user to set NULL for this column
+    /// if TRUE, it will not allow user to set NULL for this column using Editor
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
   end;
 
@@ -149,48 +150,48 @@ type
   end;
 
   /// a custom implementation for Grid Header
-  TTisHeader = class(TVTHeader)
+  TTisGridHeader = class(TVTHeader)
   protected
     function GetColumnsClass: TVirtualTreeColumnsClass; override;
   end;
 
-  TTisHeaderPopupOption = (
+  TTisGridHeaderPopupOption = (
     /// show menu items in original column order as they were added to the tree
     poOriginalOrder,
     /// allows to hide all columns, including the last one
     poAllowHideAll
   );
 
-  TTisHeaderPopupOptions = set of TTisHeaderPopupOption;
+  TTisGridHeaderPopupOptions = set of TTisGridHeaderPopupOption;
 
-  TTisAddPopupItemType = (
+  TTisGridHeaderPopupItem = (
     apNormal,
     apDisabled,
     apHidden
   );
 
-  TOnAddHeaderPopupItem = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex;
-    var aCmd: TTisAddPopupItemType) of object;
+  TOnGridHeaderAddPopupItem = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex;
+    var aItem: TTisGridHeaderPopupItem) of object;
 
-  TOnColumnChange = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex; aVisible: Boolean) of object;
+  TOnGridHeaderColumnChange = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex; aVisible: Boolean) of object;
 
-  TTisMenuItem = TMenuItem;
+  TTisGridHeaderMenuItem = class(TMenuItem);
 
-  TTisHeaderPopupMenu = class(TPopupMenu)
+  TTisGridHeaderPopupMenu = class(TPopupMenu)
   private
-    fOptions: TTisHeaderPopupOptions;
-    fOnAddHeaderPopupItem: TOnAddHeaderPopupItem;
-    fOnColumnChange: TOnColumnChange;
+    fOptions: TTisGridHeaderPopupOptions;
+    fOnAddPopupItem: TOnGridHeaderAddPopupItem;
+    fOnColumnChange: TOnGridHeaderColumnChange;
   protected
-    procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aCmd: TTisAddPopupItemType); virtual;
+    procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
     procedure OnMenuItemClick(sender: TObject);
   public
     procedure Popup(x, y: Integer); override;
   published
-    property Options: TTisHeaderPopupOptions read fOptions write fOptions default [];
-    property OnAddHeaderPopupItem: TOnAddHeaderPopupItem read fOnAddHeaderPopupItem write fOnAddHeaderPopupItem;
-    property OnColumnChange: TOnColumnChange read fOnColumnChange write fOnColumnChange;
+    property Options: TTisGridHeaderPopupOptions read fOptions write fOptions default [];
+    property OnAddPopupItem: TOnGridHeaderAddPopupItem read fOnAddPopupItem write fOnAddPopupItem;
+    property OnColumnChange: TOnGridHeaderColumnChange read fOnColumnChange write fOnColumnChange;
   end;
 
   TTisDataEvent = (
@@ -1152,9 +1153,9 @@ begin
     inherited Assign(aSource);
 end;
 
-{ TTisHeader }
+{ TTisGridHeader }
 
-function TTisHeader.GetColumnsClass: TVirtualTreeColumnsClass;
+function TTisGridHeader.GetColumnsClass: TVirtualTreeColumnsClass;
 begin
   result := TTisGridColumns;
 end;
@@ -1162,56 +1163,65 @@ end;
 type
   TVirtualTreeCast = class(TBaseVirtualTree); // necessary to make the header accessible
 
-{ TTisHeaderPopupMenu }
+{ TTisGridHeaderPopupMenu }
 
-procedure TTisHeaderPopupMenu.DoAddHeaderPopupItem(const aColumn: TColumnIndex;
-  out aCmd: TTisAddPopupItemType);
+procedure TTisGridHeaderPopupMenu.DoAddHeaderPopupItem(const aColumn: TColumnIndex;
+  out aItem: TTisGridHeaderPopupItem);
 begin
-  aCmd := apNormal;
-  if Assigned(fOnAddHeaderPopupItem) then
-    fOnAddHeaderPopupItem(TVirtualTreeCast(PopupComponent), aColumn, aCmd);
+  aItem := apNormal;
+  if Assigned(fOnAddPopupItem) then
+    fOnAddPopupItem(TVirtualTreeCast(PopupComponent), aColumn, aItem);
 end;
 
-procedure TTisHeaderPopupMenu.DoColumnChange(aColumn: TColumnIndex;
+procedure TTisGridHeaderPopupMenu.DoColumnChange(aColumn: TColumnIndex;
   aVisible: Boolean);
 begin
   if Assigned(fOnColumnChange) then
     fOnColumnChange(TVirtualTreeCast(PopupComponent), aColumn, aVisible);
 end;
 
-procedure TTisHeaderPopupMenu.OnMenuItemClick(sender: TObject);
+procedure TTisGridHeaderPopupMenu.OnMenuItemClick(sender: TObject);
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
-    with TTisMenuItem(Sender),
-      TVirtualTreeCast(PopupComponent).Header.Columns.Items[Tag] do
+  begin
+    with TMenuItem(Sender), TVirtualTreeCast(PopupComponent).Header.Columns.Items[Tag] do
     begin
       if Checked then
         Options := Options - [coVisible]
       else
         Options := Options + [coVisible];
-       DoColumnChange(TTisMenuItem(Sender).Tag, not Checked);
+       DoColumnChange(TMenuItem(Sender).Tag, not Checked);
     end;
+  end;
 end;
 
-procedure TTisHeaderPopupMenu.Popup(x, y: Integer);
-var
-  i: Integer;
-  ColPos: TColumnPosition;
-  ColIdx: TColumnIndex;
-  NewMenuItem: TTisMenuItem;
-  Cmd: TTisAddPopupItemType;
-  VisibleCounter: Cardinal;
-  VisibleItem: TTisMenuItem;
-begin
-  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+procedure TTisGridHeaderPopupMenu.Popup(x, y: Integer);
+
+  procedure _RemoveAutoItems;
+  var
+    i: Integer;
   begin
-    // delete existing menu items
     i := Items.Count;
     while i > 0 do
     begin
       Dec(i);
-      Items[i].Free;
+      if Items[i] is TTisGridHeaderMenuItem then
+        Items[i].Free;
     end;
+  end;
+
+var
+  ColPos: TColumnPosition;
+  ColIdx: TColumnIndex;
+  NewMenuItem: TMenuItem;
+  hpi: TTisGridHeaderPopupItem;
+  VisibleCounter: Cardinal;
+  VisibleItem: TMenuItem;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    // delete existing menu items
+    _RemoveAutoItems;
     // add column menu items
     with TVirtualTreeCast(PopupComponent).Header do
     begin
@@ -1234,17 +1244,17 @@ begin
         begin
           if coVisible in Options then
             Inc(VisibleCounter);
-          DoAddHeaderPopupItem(ColIdx, Cmd);
-          if Cmd <> apHidden then
+          DoAddHeaderPopupItem(ColIdx, hpi);
+          if hpi <> apHidden then
           begin
-            NewMenuItem := TTisMenuItem.Create(self);
+            NewMenuItem := TTisGridHeaderMenuItem.Create(self);
             NewMenuItem.Tag := ColIdx;
             NewMenuItem.Caption := Text + ' (' + Utf8ToString(PropertyName) + ')';
             NewMenuItem.Hint := Hint;
             NewMenuItem.ImageIndex := ImageIndex;
             NewMenuItem.Checked := coVisible in Options;
             NewMenuItem.OnClick := OnMenuItemClick;
-            if Cmd = apDisabled then
+            if hpi = apDisabled then
               NewMenuItem.Enabled := False
             else
               if coVisible in Options then
@@ -1973,7 +1983,7 @@ end;
 
 function TTisGrid.GetHeaderClass: TVTHeaderClass;
 begin
-  result := TTisHeader;
+  result := TTisGridHeader;
 end;
 
 procedure TTisGrid.FillPopupMenu(sender: TObject);
