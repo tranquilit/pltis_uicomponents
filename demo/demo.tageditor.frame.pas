@@ -181,9 +181,9 @@ procedure TTagEditorFrame.InputTagsAsArrayLabelClick(Sender: TObject);
 var
   input: string;
 begin
-  input := InputBox('Delimited Text', 'Type tags using "," among then', '');
+  input := InputBox('Delimited Text', 'Type tags separating them, using one of the TagInput.DelimiterChars property', '');
   if input <> '' then
-    TagEditor.AsArray := input.Split(',');
+    TagEditor.Tags.DelimitedText := input;
 end;
 
 procedure TTagEditorFrame.TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);
