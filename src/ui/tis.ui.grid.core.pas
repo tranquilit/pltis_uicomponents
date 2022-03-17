@@ -149,12 +149,6 @@ type
     procedure Assign(aSource: TPersistent); override;
   end;
 
-  /// a custom implementation for Grid Header
-  TTisGridHeader = class(TVTHeader)
-  protected
-    function GetColumnsClass: TVirtualTreeColumnsClass; override;
-  end;
-
   TTisGridHeaderPopupOption = (
     /// show menu items in original column order as they were added to the tree
     poOriginalOrder,
@@ -183,6 +177,7 @@ type
     fOnAddPopupItem: TOnGridHeaderAddPopupItem;
     fOnColumnChange: TOnGridHeaderColumnChange;
   protected
+    procedure RemoveAutoItems; virtual;
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
     procedure OnMenuItemClick(sender: TObject);
@@ -192,6 +187,17 @@ type
     property Options: TTisGridHeaderPopupOptions read fOptions write fOptions default [];
     property OnAddPopupItem: TOnGridHeaderAddPopupItem read fOnAddPopupItem write fOnAddPopupItem;
     property OnColumnChange: TOnGridHeaderColumnChange read fOnColumnChange write fOnColumnChange;
+  end;
+
+  /// a custom implementation for Grid Header
+  TTisGridHeader = class(TVTHeader)
+  protected
+    function GetColumnsClass: TVirtualTreeColumnsClass; override;
+  public
+    constructor Create(aOwner: TBaseVirtualTree); override;
+    // overriding the original Assign for do not assign PopupMenu from another grid header
+    // - a Popup in design mode will not work when using Editor
+    procedure Assign(aSource: TPersistent); override;
   end;
 
   TTisDataEvent = (
@@ -1153,17 +1159,23 @@ begin
     inherited Assign(aSource);
 end;
 
-{ TTisGridHeader }
-
-function TTisGridHeader.GetColumnsClass: TVirtualTreeColumnsClass;
-begin
-  result := TTisGridColumns;
-end;
-
 type
   TVirtualTreeCast = class(TBaseVirtualTree); // necessary to make the header accessible
 
 { TTisGridHeaderPopupMenu }
+
+procedure TTisGridHeaderPopupMenu.RemoveAutoItems;
+var
+  i: Integer;
+begin
+  i := Items.Count;
+  while i > 0 do
+  begin
+    Dec(i);
+    if Items[i] is TTisGridHeaderMenuItem then
+      Items[i].Free;
+  end;
+end;
 
 procedure TTisGridHeaderPopupMenu.DoAddHeaderPopupItem(const aColumn: TColumnIndex;
   out aItem: TTisGridHeaderPopupItem);
@@ -1196,20 +1208,6 @@ begin
 end;
 
 procedure TTisGridHeaderPopupMenu.Popup(x, y: Integer);
-
-  procedure _RemoveAutoItems;
-  var
-    i: Integer;
-  begin
-    i := Items.Count;
-    while i > 0 do
-    begin
-      Dec(i);
-      if Items[i] is TTisGridHeaderMenuItem then
-        Items[i].Free;
-    end;
-  end;
-
 var
   ColPos: TColumnPosition;
   ColIdx: TColumnIndex;
@@ -1221,7 +1219,7 @@ begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
     // delete existing menu items
-    _RemoveAutoItems;
+    RemoveAutoItems;
     // add column menu items
     with TVirtualTreeCast(PopupComponent).Header do
     begin
@@ -1269,6 +1267,44 @@ begin
     end;
   end;
   inherited Popup(x, y);
+end;
+
+{ TTisGridHeader }
+
+function TTisGridHeader.GetColumnsClass: TVirtualTreeColumnsClass;
+begin
+  result := TTisGridColumns;
+end;
+
+constructor TTisGridHeader.Create(aOwner: TBaseVirtualTree);
+begin
+  inherited Create(aOwner);
+  PopupMenu := TTisGridHeaderPopupMenu.Create(Treeview); // default popup
+  PopupMenu.PopupComponent := Treeview;
+end;
+
+procedure TTisGridHeader.Assign(aSource: TPersistent);
+begin
+  if aSource is TTisGridHeader then
+    with TTisGridHeader(aSource) do
+    begin
+      self.AutoSizeIndex := AutoSizeIndex;
+      self.Background := Background;
+      self.Columns := Columns;
+      self.Font := Font;
+      self.FixedAreaConstraints.Assign(FixedAreaConstraints);
+      self.Height := Height;
+      self.Images := Images;
+      self.MainColumn := MainColumn;
+      self.Options := Options;
+      self.ParentFont := ParentFont;
+      self.SortColumn := SortColumn;
+      self.SortDirection := SortDirection;
+      self.Style := Style;
+      self.RescaleHeader;
+    end
+  else
+    inherited Assign(aSource);
 end;
 
 { TTisNodeOptions }
@@ -1835,8 +1871,7 @@ end;
 procedure TTisGrid.DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode;
   var aNodeHeight: Integer);
 var
-  i, cellheight: Integer;
-  maxheight: Cardinal;
+  i, cellheight, maxheight: Integer;
 begin
   if Assigned(OnMeasureItem) then
     inherited DoMeasureItem(aTargetCanvas, aNode, aNodeHeight)
@@ -2483,8 +2518,6 @@ begin
   fFindDlg := TFindDialog.Create(self);
   fFindDlg.OnFind := FindDlgFind;
   fFindDlg.Options := fFindDlg.Options + [frHideMatchCase, frHideEntireScope, frEntireScope, frHideUpDown];
-  Header.PopupMenu := TTisHeaderPopupMenu.Create(self);
-  Header.PopupMenu.PopupComponent := self;
   PopupMenu := TPopupMenu.Create(self);
 end;
 
