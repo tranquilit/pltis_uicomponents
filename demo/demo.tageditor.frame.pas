@@ -11,15 +11,18 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
-  ExtCtrls, Buttons, Graphics,
+  ExtCtrls, Buttons, Graphics, ComCtrls,
   mormot.core.base,
   mormot.core.data,
   mormot.core.text,
   mormot.core.unicode,
-  tis.ui.tageditor.core;
+  tis.ui.tageditor.core, tis.ui.tageditor.rtti;
 
 type
   TTagEditorFrame = class(TFrame)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
     GroupBox1: TGroupBox;
     AutoHeightCheckBox: TCheckBox;
     AllowDuplicatesCheckBox: TCheckBox;
@@ -30,6 +33,15 @@ type
     TextColorBox: TColorBox;
     Label3: TLabel;
     BgColorBox: TColorBox;
+    ItemsMemo: TMemo;
+    Label4: TLabel;
+    ItemsUpdateButton: TBitBtn;
+    DropDownCheckBox: TCheckBox;
+    AutoCompleteCheckBox: TCheckBox;
+    EnabledCheckBox: TCheckBox;
+    Label9: TLabel;
+    TagBgColorDisabledBox: TColorBox;
+    SpeedButton1: TSpeedButton;
     TagEditor: TTisTagEditor;
     GroupBox2: TGroupBox;
     TagClickCheckBox: TCheckBox;
@@ -43,23 +55,20 @@ type
     Bevel1: TBevel;
     Bevel2: TBevel;
     Bevel3: TBevel;
-    TagClearAllLabel: TLabel;
-    ShowTagsAsArrayLabel: TLabel;
-    InputTagsAsArrayLabel: TLabel;
     Bevel4: TBevel;
     TagAfterAddCheckBox: TCheckBox;
     TagAfterAddEdit: TEdit;
     Label8: TLabel;
-    ItemsMemo: TMemo;
-    Label4: TLabel;
-    ItemsUpdateButton: TBitBtn;
+    TagClearAllLabel: TLabel;
+    ShowTagsAsArrayLabel: TLabel;
+    InputTagsAsArrayLabel: TLabel;
     Label5: TLabel;
-    DropDownCheckBox: TCheckBox;
-    AutoCompleteCheckBox: TCheckBox;
-    EnabledCheckBox: TCheckBox;
-    Label9: TLabel;
-    TagBgColorDisabledBox: TColorBox;
-    SpeedButton1: TSpeedButton;
+    TagEditorRtti: TTisTagEditorRtti;
+    Label10: TLabel;
+    RttiItemsMemo: TMemo;
+    RttiLinkToMemoRadioButton: TRadioButton;
+    RttiLinkToEditRadioButton: TRadioButton;
+    RttiItemsEdit: TEdit;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -83,6 +92,8 @@ type
     procedure EnabledCheckBoxClick(Sender: TObject);
     procedure TagBgColorDisabledBoxChange(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure RttiLinkToMemoRadioButtonChange(Sender: TObject);
+    procedure RttiLinkToEditRadioButtonChange(Sender: TObject);
   end;
 
 implementation
@@ -228,6 +239,24 @@ end;
 procedure TTagEditorFrame.SpeedButton1Click(Sender: TObject);
 begin
   TagBgColorDisabledBox.Selected := clDefault;
+end;
+
+procedure TTagEditorFrame.RttiLinkToMemoRadioButtonChange(Sender: TObject);
+begin
+  with TagEditorRtti.Link do
+  begin
+    TIObject := RttiItemsMemo;
+    TIPropertyName := 'Lines';
+  end;
+end;
+
+procedure TTagEditorFrame.RttiLinkToEditRadioButtonChange(Sender: TObject);
+begin
+  with TagEditorRtti.Link do
+  begin
+    TIObject := RttiItemsEdit;
+    TIPropertyName := 'Text';
+  end;
 end;
 
 end.

@@ -1,10 +1,10 @@
 object MainForm: TMainForm
   Left = 376
-  Height = 551
-  Top = 109
+  Height = 583
+  Top = 77
   Width = 894
   Caption = 'UI Demo'
-  ClientHeight = 551
+  ClientHeight = 583
   ClientWidth = 894
   OnCreate = FormCreate
   Position = poScreenCenter
