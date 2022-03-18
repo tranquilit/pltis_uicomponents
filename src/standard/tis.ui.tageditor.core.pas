@@ -258,10 +258,6 @@ type
     procedure CreateCaret;
     procedure DestroyCaret;
     procedure DrawFocusRect;
-    procedure ComboBoxEnter(Sender: TObject);
-    procedure ComboBoxExit(Sender: TObject);
-    procedure ComboBoxKeyPress(Sender: TObject; var Key: Char);
-    procedure ComboBoxEditingDone(Sender: TObject);
     procedure DoPopupMenuDeleteItem(Sender: TObject);
     procedure SetAutoHeight(const Value: Boolean);
     procedure SetBgColor(const Value: TColor);
@@ -305,6 +301,10 @@ type
     procedure Paint; override;
     procedure WndProc(var Message: TMessage); override;
     // ----------------------------------- new methods --------------------------------------
+    procedure ComboBoxEnter(Sender: TObject); virtual;
+    procedure ComboBoxExit(Sender: TObject); virtual;
+    procedure ComboBoxKeyPress(Sender: TObject; var Key: Char); virtual;
+    procedure ComboBoxEditingDone(Sender: TObject); virtual;
     function NewTags(aTagEditor: TTisTagEditor): TTags; virtual;
     function NewComboBox: TComboBox; virtual;
     function NewPopupMenu: TPopupMenu; virtual;
@@ -785,59 +785,6 @@ begin
   DoChange;
 end;
 
-procedure TTisTagEditor.ComboBoxEnter(Sender: TObject);
-begin
-  if fEditPos.Y + fComboBox.Height > fScrollInfo.nPos + ClientHeight then
-    fScrollInfo.nPos := fEditPos.Y + ClientHeight - fComboBox.Height;
-  FixPosAndScrollWindow;
-end;
-
-procedure TTisTagEditor.ComboBoxExit(Sender: TObject);
-begin
-  if fComboBox.Text <> '' then
-    AddTag(fComboBox.Text);
-  HideComboBox;
-end;
-
-procedure TTisTagEditor.ComboBoxKeyPress(Sender: TObject; var Key: Char);
-begin
-  if ((Key = chr(VK_SPACE)) and (fComboBox.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options)) or
-    (Pos(Key, fTagInput.ForbiddenChars) > 0) then
-  begin
-    Key := #0;
-    exit;
-  end;
-  if Pos(Key, fTagInput.DelimiterChars) > 0  then
-  begin
-    Key := #0;
-    ComboBoxEditingDone(fComboBox);
-    exit;
-  end;
-  case ord(Key) of
-    VK_BACK:
-      begin
-        if (fComboBox.Text = '') and (fTags.Count > 0) then
-          DeleteTag(fTags.Count-1);
-      end;
-    VK_ESCAPE:
-      begin
-        HideComboBox;
-        self.SetFocus;
-      end;
-  end;
-end;
-
-procedure TTisTagEditor.ComboBoxEditingDone(Sender: TObject);
-begin
-  if not fComboBox.Visible then
-    exit; // it could be invisible, if user has typed VK_ESCAPE
-  if fComboBox.Text <> '' then
-  begin
-    AddTag(fComboBox.Text);
-    ShowComboBox;
-  end;
-end;
-
 procedure TTisTagEditor.DoPopupMenuDeleteItem(Sender: TObject);
 begin
   if Sender is TMenuItem then
@@ -907,6 +854,59 @@ begin
       end;
   end;
   inherited WndProc(Message);
+end;
+
+procedure TTisTagEditor.ComboBoxEnter(Sender: TObject);
+begin
+  if fEditPos.Y + fComboBox.Height > fScrollInfo.nPos + ClientHeight then
+    fScrollInfo.nPos := fEditPos.Y + ClientHeight - fComboBox.Height;
+  FixPosAndScrollWindow;
+end;
+
+procedure TTisTagEditor.ComboBoxExit(Sender: TObject);
+begin
+  if fComboBox.Text <> '' then
+    AddTag(fComboBox.Text);
+  HideComboBox;
+end;
+
+procedure TTisTagEditor.ComboBoxKeyPress(Sender: TObject; var Key: Char);
+begin
+  if ((Key = chr(VK_SPACE)) and (fComboBox.Text = '') and not (ioAllowLeadingSpace in fTagInput.Options)) or
+    (Pos(Key, fTagInput.ForbiddenChars) > 0) then
+  begin
+    Key := #0;
+    exit;
+  end;
+  if Pos(Key, fTagInput.DelimiterChars) > 0  then
+  begin
+    Key := #0;
+    ComboBoxEditingDone(fComboBox);
+    exit;
+  end;
+  case ord(Key) of
+    VK_BACK:
+      begin
+        if (fComboBox.Text = '') and (fTags.Count > 0) then
+          DeleteTag(fTags.Count-1);
+      end;
+    VK_ESCAPE:
+      begin
+        HideComboBox;
+        self.SetFocus;
+      end;
+  end;
+end;
+
+procedure TTisTagEditor.ComboBoxEditingDone(Sender: TObject);
+begin
+  if not fComboBox.Visible then
+    exit; // it could be invisible, if user has typed VK_ESCAPE
+  if fComboBox.Text <> '' then
+  begin
+    AddTag(fComboBox.Text);
+    ShowComboBox;
+  end;
 end;
 
 function TTisTagEditor.NewTags(aTagEditor: TTisTagEditor): TTags;
