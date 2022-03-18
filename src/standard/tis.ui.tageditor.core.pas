@@ -185,6 +185,8 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    /// the first char in DelimiterChars property
+    // - it will be used to return tags as strings in Tags.DelimitedText
     function DefaultDelimiter: Char; virtual;
   published
     property DeleteIcon: TIcon read fDeleteIcon write SetDeleteIcon;
