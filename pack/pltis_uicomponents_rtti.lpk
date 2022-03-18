@@ -9,8 +9,8 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="..\src\ui"/>
-        <OtherUnitFiles Value="..\src\ui;..\src\core"/>
+        <IncludeFiles Value="..\src\rtti"/>
+        <OtherUnitFiles Value="..\src\rtti"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)"/>
       </SearchPaths>
       <CodeGeneration>
@@ -29,17 +29,17 @@
     <Version Major="1"/>
     <Files Count="3">
       <Item1>
-        <Filename Value="..\src\ui\tis.ui.registry.rtti.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="tis.ui.registry.rtti"/>
+        <Filename Value="..\src\rtti\tis.ui.registry.rtti.lrs"/>
+        <Type Value="LRS"/>
       </Item1>
       <Item2>
-        <Filename Value="..\src\ui\tis.ui.tageditor.rtti.pas"/>
-        <UnitName Value="tis.ui.tageditor.rtti"/>
+        <Filename Value="..\src\rtti\tis.ui.registry.rtti.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="tis.ui.registry.rtti"/>
       </Item2>
       <Item3>
-        <Filename Value="..\src\ui\tis.ui.registry.rtti.lrs"/>
-        <Type Value="LRS"/>
+        <Filename Value="..\src\rtti\tis.ui.tageditor.rtti.pas"/>
+        <UnitName Value="tis.ui.tageditor.rtti"/>
       </Item3>
     </Files>
     <i18n>

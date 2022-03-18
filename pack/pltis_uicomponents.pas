@@ -8,10 +8,10 @@ unit pltis_uicomponents;
 interface
 
 uses
-  tis.ui.registry, tis.ui.grid.core, tis.ui.grid.editor, tis.core.os, 
-  tis.core.utils, tis.ui.searchedit, tis.ui.tageditor.core, 
-  tis.ui.togglebutton, tis.ui.syncontroledit, tis.ui.lvlgraphcontrol, 
-  tis.ui.parts.buttons, tis.ui.grid.controls, LazarusPackageIntf;
+  tis.core.os, tis.core.utils, tis.ui.grid.controls, tis.ui.grid.core, 
+  tis.ui.grid.editor, tis.ui.lvlgraphcontrol, tis.ui.parts.buttons, 
+  tis.ui.registry, tis.ui.searchedit, tis.ui.syncontroledit, 
+  tis.ui.tageditor.core, tis.ui.togglebutton, LazarusPackageIntf;
 
 implementation
 

@@ -9,8 +9,8 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="..\src\ui"/>
-        <OtherUnitFiles Value="..\src\ui;..\src\core"/>
+        <IncludeFiles Value="..\src;..\src\standard"/>
+        <OtherUnitFiles Value="..\src\core;..\src\standard"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)"/>
       </SearchPaths>
       <CodeGeneration>
@@ -27,72 +27,80 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="16">
+    <Files Count="18">
       <Item1>
-        <Filename Value="..\src\ui\tis.ui.registry.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="tis.ui.registry"/>
-      </Item1>
-      <Item2>
-        <Filename Value="..\src\ui\tis.ui.registry.lrs"/>
-        <Type Value="LRS"/>
-      </Item2>
-      <Item3>
-        <Filename Value="..\src\ui\tis.ui.grid.core.pas"/>
-        <UnitName Value="tis.ui.grid.core"/>
-      </Item3>
-      <Item4>
-        <Filename Value="..\src\ui\tis.ui.grid.editor.lfm"/>
-        <Type Value="LFM"/>
-      </Item4>
-      <Item5>
-        <Filename Value="..\src\ui\tis.ui.grid.editor.pas"/>
-        <UnitName Value="tis.ui.grid.editor"/>
-      </Item5>
-      <Item6>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
-      </Item6>
-      <Item7>
+      </Item1>
+      <Item2>
         <Filename Value="..\src\core\tis.core.utils.pas"/>
         <UnitName Value="tis.core.utils"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\src\standard\icons.rc"/>
+        <Type Value="Text"/>
+      </Item3>
+      <Item4>
+        <Filename Value="..\src\standard\tis.ui.grid.controls.pas"/>
+        <UnitName Value="tis.ui.grid.controls"/>
+      </Item4>
+      <Item5>
+        <Filename Value="..\src\standard\tis.ui.grid.core.pas"/>
+        <UnitName Value="tis.ui.grid.core"/>
+      </Item5>
+      <Item6>
+        <Filename Value="..\src\standard\tis.ui.grid.editor.lfm"/>
+        <Type Value="LFM"/>
+      </Item6>
+      <Item7>
+        <Filename Value="..\src\standard\tis.ui.grid.editor.lrj"/>
+        <Type Value="Text"/>
       </Item7>
       <Item8>
-        <Filename Value="..\src\ui\tis.ui.searchedit.pas"/>
-        <UnitName Value="tis.ui.searchedit"/>
+        <Filename Value="..\src\standard\tis.ui.grid.editor.pas"/>
+        <UnitName Value="tis.ui.grid.editor"/>
       </Item8>
       <Item9>
-        <Filename Value="..\src\ui\tis.ui.searchedit.lrs"/>
-        <Type Value="LRS"/>
+        <Filename Value="..\src\standard\tis.ui.lvlgraphcontrol.pas"/>
+        <UnitName Value="tis.ui.lvlgraphcontrol"/>
       </Item9>
       <Item10>
-        <Filename Value="..\src\ui\tis.ui.tageditor.core.pas"/>
-        <UnitName Value="tis.ui.tageditor.core"/>
+        <Filename Value="..\src\standard\tis.ui.parts.buttons.pas"/>
+        <UnitName Value="tis.ui.parts.buttons"/>
       </Item10>
       <Item11>
-        <Filename Value="..\src\ui\tis.ui.togglebutton.lrs"/>
+        <Filename Value="..\src\standard\tis.ui.registry.lrs"/>
         <Type Value="LRS"/>
       </Item11>
       <Item12>
-        <Filename Value="..\src\ui\tis.ui.togglebutton.pas"/>
-        <UnitName Value="tis.ui.togglebutton"/>
+        <Filename Value="..\src\standard\tis.ui.registry.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="tis.ui.registry"/>
       </Item12>
       <Item13>
-        <Filename Value="..\src\ui\tis.ui.syncontroledit.pas"/>
-        <UnitName Value="tis.ui.syncontroledit"/>
+        <Filename Value="..\src\standard\tis.ui.searchedit.lrs"/>
+        <Type Value="LRS"/>
       </Item13>
       <Item14>
-        <Filename Value="..\src\ui\tis.ui.lvlgraphcontrol.pas"/>
-        <UnitName Value="tis.ui.lvlgraphcontrol"/>
+        <Filename Value="..\src\standard\tis.ui.searchedit.pas"/>
+        <UnitName Value="tis.ui.searchedit"/>
       </Item14>
       <Item15>
-        <Filename Value="..\src\ui\tis.ui.parts.buttons.pas"/>
-        <UnitName Value="tis.ui.parts.buttons"/>
+        <Filename Value="..\src\standard\tis.ui.syncontroledit.pas"/>
+        <UnitName Value="tis.ui.syncontroledit"/>
       </Item15>
       <Item16>
-        <Filename Value="..\src\ui\tis.ui.grid.controls.pas"/>
-        <UnitName Value="tis.ui.grid.controls"/>
+        <Filename Value="..\src\standard\tis.ui.tageditor.core.pas"/>
+        <UnitName Value="tis.ui.tageditor.core"/>
       </Item16>
+      <Item17>
+        <Filename Value="..\src\standard\tis.ui.togglebutton.lrs"/>
+        <Type Value="LRS"/>
+      </Item17>
+      <Item18>
+        <Filename Value="..\src\standard\tis.ui.togglebutton.pas"/>
+        <UnitName Value="tis.ui.togglebutton"/>
+      </Item18>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>
