@@ -28,8 +28,7 @@ type
     fLink: TPropertyLink;
     procedure SetLink(const aValue: TPropertyLink);
   protected
-    function AddTag(const aText: string): Boolean; override;
-    procedure DeleteTag(aTagIndex: Integer); override;
+    procedure ComboBoxEditingDone(Sender: TObject); override;
     procedure LinkLoadFromProperty(Sender: TObject); virtual;
     procedure LinkSaveToProperty(Sender: TObject); virtual;
     function LinkTestEditor(const aTestEditor: TPropertyEditor): Boolean; virtual;
@@ -37,7 +36,6 @@ type
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     procedure Loaded; override;
-    procedure EditingDone; override;
   published
     property Link: TPropertyLink read fLink write SetLink;
   end;
@@ -53,16 +51,10 @@ begin
   fLink.Assign(aValue);
 end;
 
-function TTisTagEditorRtti.AddTag(const aText: string): Boolean;
+procedure TTisTagEditorRtti.ComboBoxEditingDone(Sender: TObject);
 begin
-  result := inherited AddTag(aText);
-  LinkSaveToProperty(self);
-end;
-
-procedure TTisTagEditorRtti.DeleteTag(aTagIndex: Integer);
-begin
-  inherited DeleteTag(aTagIndex);
-  LinkSaveToProperty(self);
+  inherited ComboBoxEditingDone(Sender);
+  fLink.EditingDone;
 end;
 
 procedure TTisTagEditorRtti.LinkLoadFromProperty(Sender: TObject);
@@ -74,7 +66,6 @@ begin
   if fLink.Editor = nil then
     exit;
   PropKind := fLink.Editor.GetPropType^.Kind;
-  Tags.Clear;
   if PropKind = tkClass then
   begin
     CurObject := fLink.Editor.GetObjectValue;
@@ -136,12 +127,6 @@ procedure TTisTagEditorRtti.Loaded;
 begin
   inherited Loaded;
   fLink.LoadFromProperty;
-end;
-
-procedure TTisTagEditorRtti.EditingDone;
-begin
-  inherited EditingDone;
-  fLink.EditingDone;
 end;
 
 end.
