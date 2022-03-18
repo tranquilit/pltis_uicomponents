@@ -34,6 +34,8 @@ Main Features:
 ### TTisTagEditor Component
 
 Based on Andreas Rejbrand's work, this is our modified, improved, and Lazarus converted version.
+You can also use TTisTagEditorRtti component, inherited from TTisTagEditor, which can be linked to other widgets or any object inherited from TPersistent.
+It uses the same approach as components in RTTI Palette (RunTimeTypeInfoControls package dependency).
 
 Main Features:
 
