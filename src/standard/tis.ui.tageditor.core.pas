@@ -626,16 +626,20 @@ end;
 procedure TTags.Assign(aSource: TPersistent);
 var
   i: Integer;
+  s: string;
 begin
+  Clear;
   if aSource is TTags then
   begin
-    Clear;
     with TTags(aSource) do
       for i := 0 to Count-1 do
         self.Add.Assign(Items[i])
   end
   else if aSource is TStrings then
-    fTagEditor.AsArray := ArrayOf(TStrings(aSource))
+  begin
+    for s in TStrings(aSource) do
+      self.Add(s)
+  end
   else
     inherited Assign(aSource);
 end;

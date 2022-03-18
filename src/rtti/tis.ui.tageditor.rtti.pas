@@ -29,6 +29,7 @@ type
     procedure SetLink(const aValue: TPropertyLink);
   protected
     procedure ComboBoxEditingDone(Sender: TObject); override;
+    procedure DeleteTag(aTagIndex: Integer); override;
     procedure LinkLoadFromProperty(Sender: TObject); virtual;
     procedure LinkSaveToProperty(Sender: TObject); virtual;
     function LinkTestEditor(const aTestEditor: TPropertyEditor): Boolean; virtual;
@@ -54,6 +55,12 @@ end;
 procedure TTisTagEditorRtti.ComboBoxEditingDone(Sender: TObject);
 begin
   inherited ComboBoxEditingDone(Sender);
+  fLink.EditingDone;
+end;
+
+procedure TTisTagEditorRtti.DeleteTag(aTagIndex: Integer);
+begin
+  inherited DeleteTag(aTagIndex);
   fLink.EditingDone;
 end;
 
@@ -84,12 +91,18 @@ begin
   if Sender = nil then ;
   if fLink.Editor = nil then
     exit;
-  PropKind := FLink.Editor.GetPropType^.Kind;
+  PropKind := fLink.Editor.GetPropType^.Kind;
   if PropKind = tkClass then
   begin
-    CurObject := FLink.Editor.GetObjectValue;
+    CurObject := fLink.Editor.GetObjectValue;
     if CurObject is TStrings then
-      TStrings(CurObject).DelimitedText := Tags.DelimitedText;
+    begin
+      with TStrings(CurObject) do
+      begin
+        Delimiter := TagInput.DefaultDelimiter;
+        DelimitedText := Tags.DelimitedText;
+      end;
+    end;
   end
   else if PropKind in [tkSString,tkLString,tkAString,tkWString] then
   begin
