@@ -594,6 +594,7 @@ var
 begin
   if aValue = '' then
     exit;
+  Clear;
   a := aValue.Split(TagEditor.TagInput.DefaultDelimiterChars.ToCharArray);
   for i := low(a) to high(a) do
     TagEditor.AddTag(a[i]);
