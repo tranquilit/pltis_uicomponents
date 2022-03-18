@@ -14,9 +14,9 @@ object TagEditorFrame: TTagEditorFrame
     Height = 553
     Top = 0
     Width = 565
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Standard'
@@ -502,28 +502,7 @@ object TagEditorFrame: TTagEditorFrame
         AutoHeight = False
         TagInput.DelimiterChars = ',;'
         TagInput.ForbiddenChars = '= !@|():&%$/\[]<>*+?`¨'''
-        Tags = <        
-          item
-            CanDelete = True
-            BgColor = clSkyBlue
-            BorderColor = clNavy
-            Text = 'Windows'
-            TextColor = clWhite
-          end        
-          item
-            CanDelete = True
-            BgColor = clSkyBlue
-            BorderColor = clNavy
-            Text = 'Linux'
-            TextColor = clWhite
-          end        
-          item
-            CanDelete = True
-            BgColor = clSkyBlue
-            BorderColor = clNavy
-            Text = 'Mac'
-            TextColor = clWhite
-          end>
+        Tags = <>
       end
       object Label10: TLabel
         Left = 16
