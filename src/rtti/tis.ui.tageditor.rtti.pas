@@ -91,7 +91,7 @@ var
   CurObject: TObject;
 begin
   if Sender = nil then ;
-  if FLink.Editor = nil then
+  if fLink.Editor = nil then
     exit;
   PropKind := FLink.Editor.GetPropType^.Kind;
   if PropKind = tkClass then
@@ -108,7 +108,7 @@ end;
 
 function TTisTagEditorRtti.LinkTestEditor(const aTestEditor: TPropertyEditor): Boolean;
 begin
-  Result := (ATestEditor is TStringPropertyEditor) or (ATestEditor is TStringsPropertyEditor);
+  result := (aTestEditor is TStringPropertyEditor) or (aTestEditor is TStringsPropertyEditor);
 end;
 
 constructor TTisTagEditorRtti.Create(aOwner: TComponent);
