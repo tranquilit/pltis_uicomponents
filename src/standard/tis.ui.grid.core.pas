@@ -5,7 +5,9 @@
 // ------------------------------------------------------------------
 unit tis.ui.grid.core;
 
-{$i mormot.defines.inc}
+{.$i mormot.defines.inc}
+{$mode objfpc}{$H+}
+
 
 interface
 
@@ -955,8 +957,8 @@ begin
   end;
   if Assigned(result) then
   begin
-    result.SetOnKeyDown(EditKeyDown);
-    result.SetOnExit(EditExit);
+    result.SetOnKeyDown(@EditKeyDown);
+    result.SetOnExit(@EditExit);
     result.Internal.Visible := False;
     result.Internal.Parent := fGrid;
   end;
@@ -1257,7 +1259,7 @@ begin
             NewMenuItem.Hint := Hint;
             NewMenuItem.ImageIndex := ImageIndex;
             NewMenuItem.Checked := coVisible in Options;
-            NewMenuItem.OnClick := OnMenuItemClick;
+            NewMenuItem.OnClick := @OnMenuItemClick;
             if hpi = apDisabled then
               NewMenuItem.Enabled := False
             else
@@ -1460,7 +1462,7 @@ begin
   v := _Safe(aValue);
   if not v^.IsVoid then
   begin
-    for c in v^.A_['columns'].Objects do
+    for c in v^.A_['columns']^.Objects do
     begin
       n := c^.U['propertyname'];
       gc := FindColumnByPropertyName(n);
@@ -1762,7 +1764,7 @@ begin
     if not (csDesigning in ComponentState) then
     begin
       fPopupOrigEvent := PopupMenu.OnPopup;
-      PopupMenu.OnPopup := FillPopupMenu;
+      PopupMenu.OnPopup := @FillPopupMenu;
     end;
   end;
 end;
@@ -1824,28 +1826,28 @@ end;
 procedure TTisGrid.DoNewText(aNode: PVirtualNode; aColumn: TColumnIndex;
   const aText: string);
 var
-  r: PDocVariantData;
-  n: RawUtf8;
+  RowData: PDocVariantData;
+  PropertyName: RawUtf8;
 begin
   if aNode = nil then
     exit;
-  r := GetNodeDataAsDocVariant(aNode);
-  if r <> nil then
+  RowData := GetNodeDataAsDocVariant(aNode);
+  if RowData <> nil then
   begin
     if aColumn >= 0 then
-      n := TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName
+      PropertyName := TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName
     else
-      n := StringToUtf8(DefaultText);
+      PropertyName := StringToUtf8(DefaultText);
     { TODO -omsantos : we should test for more cases }
-    case VarType(r.Value[n]) of
+    case VarType(RowData^.Value[PropertyName]) of
       varDouble, varCurrency:
-        r.D[n] := StrToFloatDef(aText, 0);
+        RowData^.D[PropertyName] := StrToFloatDef(aText, 0);
       varInteger:
-        r.I[n] := StrToIntDef(aText, 0);
+        RowData^.I[PropertyName] := StrToIntDef(aText, 0);
       else
-        r.S[n] := aText;
+        RowData^.S[PropertyName] := aText;
     end;
-    inherited DoNewText(aNode, aColumn, r.S[n]);
+    inherited DoNewText(aNode, aColumn, RowData^.S[PropertyName]);
   end;
 end;
 
@@ -1862,6 +1864,7 @@ begin
     begin
       if (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
         aText := r^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
+        //aText := VariantToString(r^.GetValueByPath(TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName))
       else if DefaultText <> '' then
         aText := r^.S[DefaultText];
       if aText = '' then
@@ -1879,12 +1882,12 @@ end;
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
 var
-  data: PCardinal;
+  AData: PCardinal;
 begin
-  data := fInternalData.Data(aNode);
-  if (data <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
+  AData := fInternalData.Data(aNode);
+  if (AData <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
   begin
-    data^ := aNode.Index;
+    AData^ := aNode^.Index;
     aNode^.CheckType := ctCheckBox;
     if fNodeOptions.MultiLine then
       aNode^.States := aNode^.States + [vsMultiline];
@@ -2086,31 +2089,31 @@ begin
   if (PopupMenu.Items.Count > 0) then
     AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
-    HMFind := AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), DoFindText);
+    HMFind := AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText);
   if pmoShowFindNext in fPopupMenuOptions then
-    HMFindNext := AddItem(RsFindNext, VK_F3, DoFindNext);
+    HMFindNext := AddItem(RsFindNext, VK_F3, @DoFindNext);
   {HMFindReplace := AddItem(RsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
     @DoFindReplace);}
   AddItem('-', 0, nil);
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipBoard) then
-    HMCut := AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), DoCutToClipBoard);
+    HMCut := AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipBoard);
   if pmoShowCopy in fPopupMenuOptions then
-    HMCopy := AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), DoCopyToClipBoard);
+    HMCopy := AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipBoard);
   if pmoShowCopyCell in fPopupMenuOptions then
-    HMCopyCell := AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), DoCopyCellToClipBoard);
+    HMCopyCell := AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipBoard);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
-    HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), DoPaste);
+    HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste);
   AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) then
-    HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), DoDeleteRows);
+    HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), DoSelectAllRows);
+    HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows);
   AddItem('-', 0, nil);
   if (pmoShowExportExcel in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMExcel := AddItem(RsExportSelectedExcel, 0, DoExportExcel)
+    HMExcel := AddItem(RsExportSelectedExcel, 0, @DoExportExcel)
   else
-    HMExcel := AddItem(RsExportAllExcel, 0, DoExportExcel);
+    HMExcel := AddItem(RsExportAllExcel, 0, @DoExportExcel);
   {if (HMPrint = 0) then
     HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
   AddItem('-', 0, nil);
@@ -2120,9 +2123,9 @@ begin
     @DoCollapseAll);}
   AddItem('-', 0, nil);
   if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
-    HMCustomize := AddItem(RsCustomizeColumns, 0, DoCustomizeColumns);
+    HMCustomize := AddItem(RsCustomizeColumns, 0, @DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
-    HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, DoAdvancedCustomizeColumns);
+    HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;
@@ -2382,7 +2385,7 @@ begin
     try
       c.Clear;
       SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, r);
-      s := VariantToUtf8(GetNodeDataAsDocVariant(FocusedNode).GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
+      s := VariantToUtf8(GetNodeDataAsDocVariant(FocusedNode)^.GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
       c.Add(cbkText, s[1], Length(s)+1);
       s := r.ToJson;
       c.Add(cbkJson, s[1], Length(s));
@@ -2540,7 +2543,7 @@ begin
   DefaultNodeHeight := 18;
   // initialisation de la boite de dialogue de recherche
   fFindDlg := TFindDialog.Create(self);
-  fFindDlg.OnFind := FindDlgFind;
+  fFindDlg.OnFind := @FindDlgFind;
   fFindDlg.Options := fFindDlg.Options + [frHideMatchCase, frHideEntireScope, frEntireScope, frHideUpDown];
   PopupMenu := TPopupMenu.Create(self);
 end;
@@ -2588,7 +2591,7 @@ begin
     aNode := FocusedNode;
   if aNode <> nil then
   begin
-    if aNode.Index < Cardinal(fData.Count) then
+    if aNode^.Index < Cardinal(fData.Count) then
     begin
       d := fInternalData.Data(aNode);
       if d <> nil then
@@ -2683,7 +2686,7 @@ procedure TTisGrid.SetFocusedRowNoClearSelection(aValue: PDocVariantData);
 var
   a: TNodeArray;
 begin
-  if aValue = nil then
+  if (aValue = nil) or (aValue^.IsVoid) then
     FocusedNode := nil
   else
   begin
@@ -2742,7 +2745,7 @@ var
   usearray: Boolean;
 begin
   SetLength(result, 0);
-  if aData.IsVoid then
+  if not assigned(aData) or aData^.IsVoid then
     exit;
   usearray := aUseKeyFieldsList and (Length(fKeyFieldsList) > 0);
   if usearray then
@@ -2756,7 +2759,7 @@ begin
       if usearray then
       begin
         d^.Reduce(ar, False, a);
-        aData.Reduce(ar, False, b);
+        aData^.Reduce(ar, False, b);
         if a.Equals(b) then
           _Add(result, p);
       end
@@ -2822,7 +2825,7 @@ begin
   begin
     // remove from Data
     for i := fData.Count - 1 downto 0 do
-      if _Safe(fData.Values[i]).Equals(o^) then
+      if _Safe(fData.Values[i])^.Equals(o^) then
         fData.Delete(i);
     LoadData;
     // go to the last (new) row, if user has deleted latest ones
