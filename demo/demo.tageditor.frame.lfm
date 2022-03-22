@@ -14,9 +14,9 @@ object TagEditorFrame: TTagEditorFrame
     Height = 553
     Top = 0
     Width = 565
-    ActivePage = TabSheet1
+    ActivePage = TabSheet2
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = 'Standard'
@@ -514,7 +514,7 @@ object TagEditorFrame: TTagEditorFrame
       end
       object RttiItemsMemo: TMemo
         Left = 16
-        Height = 110
+        Height = 200
         Top = 120
         Width = 150
         Lines.Strings = (
@@ -551,6 +551,54 @@ object TagEditorFrame: TTagEditorFrame
         TabOrder = 2
         Text = 'Android, Haiku, Nintendo'
       end
+      object RttiLinkToTPersistentRadioButton: TRadioButton
+        Left = 198
+        Height = 19
+        Top = 160
+        Width = 163
+        Caption = 'Link to TPersistent instance'
+        OnChange = RttiLinkToTPersistentRadioButtonChange
+        TabOrder = 5
+      end
+      object RttiPersistentEdit: TEdit
+        Left = 198
+        Height = 23
+        Top = 208
+        Width = 266
+        TabOrder = 6
+      end
+      object RttiPersistentAddButton: TBitBtn
+        Left = 469
+        Height = 23
+        Top = 208
+        Width = 75
+        Caption = 'add'
+        OnClick = RttiPersistentAddButtonClick
+        TabOrder = 7
+      end
+      object RttiPersistentLabel: TLabel
+        Left = 232
+        Height = 15
+        Top = 184
+        Width = 24
+        Caption = '        '
+        ParentColor = False
+      end
+      object Label11: TLabel
+        Left = 199
+        Height = 15
+        Top = 184
+        Width = 29
+        Caption = 'Tags: '
+        ParentColor = False
+      end
     end
+  end
+  object PersistentTimer: TTimer
+    Enabled = False
+    Interval = 300
+    OnTimer = PersistentTimerTimer
+    Left = 248
+    Top = 264
   end
 end

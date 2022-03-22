@@ -19,6 +19,13 @@ uses
   tis.ui.tageditor.core, tis.ui.tageditor.rtti;
 
 type
+  TTagsPersistent = class(TPersistent)
+  private
+    fTags: string;
+  published
+    property Tags: string read fTags write fTags;
+  end;
+
   TTagEditorFrame = class(TFrame)
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
@@ -69,6 +76,12 @@ type
     RttiLinkToMemoRadioButton: TRadioButton;
     RttiLinkToEditRadioButton: TRadioButton;
     RttiItemsEdit: TEdit;
+    RttiLinkToTPersistentRadioButton: TRadioButton;
+    RttiPersistentEdit: TEdit;
+    RttiPersistentAddButton: TBitBtn;
+    PersistentTimer: TTimer;
+    RttiPersistentLabel: TLabel;
+    Label11: TLabel;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
     procedure AllowDuplicatesCheckBoxChange(Sender: TObject);
     procedure MultiLinesCheckBoxChange(Sender: TObject);
@@ -94,6 +107,14 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure RttiLinkToMemoRadioButtonChange(Sender: TObject);
     procedure RttiLinkToEditRadioButtonChange(Sender: TObject);
+    procedure RttiLinkToTPersistentRadioButtonChange(Sender: TObject);
+    procedure RttiPersistentAddButtonClick(Sender: TObject);
+    procedure PersistentTimerTimer(Sender: TObject);
+  private
+    fTags: TTagsPersistent;
+  public
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -257,6 +278,35 @@ begin
     TIObject := RttiItemsEdit;
     TIPropertyName := 'Text';
   end;
+end;
+
+procedure TTagEditorFrame.RttiLinkToTPersistentRadioButtonChange(Sender: TObject);
+begin
+  PersistentTimer.Enabled := True;
+  TagEditorRtti.Link.SetObjectAndProperty(fTags, 'Tags');
+end;
+
+procedure TTagEditorFrame.RttiPersistentAddButtonClick(Sender: TObject);
+begin
+  fTags.Tags := fTags.Tags + ',' + RttiPersistentEdit.Text;
+end;
+
+procedure TTagEditorFrame.PersistentTimerTimer(Sender: TObject);
+begin
+  RttiPersistentLabel.Caption := fTags.Tags;
+end;
+
+constructor TTagEditorFrame.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  fTags := TTagsPersistent.Create;
+  fTags.Tags := 'AmigaOS, MorphOS, AROS, Atari TOS';
+end;
+
+destructor TTagEditorFrame.Destroy;
+begin
+  fTags.Free;
+  inherited Destroy;
 end;
 
 end.
