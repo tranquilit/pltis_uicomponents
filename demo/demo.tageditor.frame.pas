@@ -289,6 +289,8 @@ end;
 procedure TTagEditorFrame.RttiPersistentAddButtonClick(Sender: TObject);
 begin
   fTags.Tags := fTags.Tags + ',' + RttiPersistentEdit.Text;
+  RttiPersistentEdit.Clear;
+  RttiPersistentEdit.SetFocus;
 end;
 
 procedure TTagEditorFrame.PersistentTimerTimer(Sender: TObject);
