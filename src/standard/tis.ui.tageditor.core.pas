@@ -593,13 +593,10 @@ var
   i: Integer;
   a: TStringArray;
 begin
-  if aValue = '' then
-    exit;
   Clear;
-  a := aValue.Split(TagEditor.TagInput.DefaultDelimiterChars.ToCharArray);
+  a := aValue.Split(fTagEditor.TagInput.DefaultDelimiterChars.ToCharArray);
   for i := low(a) to high(a) do
-    TagEditor.AddTag(a[i]);
-  TagEditor.DoChange;
+    Add(a[i]);
 end;
 
 function TTags.GetTagItem(Index: Integer): TTagItem;
