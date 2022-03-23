@@ -319,9 +319,9 @@ type
     function DoTagBeforeAdd(const aTag: string): Boolean; virtual;
     /// event implementation for OnTagAfterAdd
     procedure DoTagAfterAdd(aTag: TTagItem); virtual;
-    /// event implementation for DoChange
+    /// event implementation for OnChange
     procedure DoChange; virtual;
-    /// event implementation for AfterDrag
+    /// event implementation for OnTagAfterDrag
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
   public
     const clBgColorDisabled = $00F0F0F0;
