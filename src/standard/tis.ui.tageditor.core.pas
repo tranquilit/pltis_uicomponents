@@ -281,7 +281,6 @@ type
     procedure SetAsArray(aValue: TStringArray);
     procedure HideComboBox;
     procedure ShowComboBox;
-    procedure TagChange(Sender: TObject);
     procedure FixPosAndScrollWindow;
     procedure UpdateMetrics;
     procedure UpdateScrollBars;
@@ -585,8 +584,8 @@ var
   i: Integer;
 begin
   result := '';
-  for i := 0 to Self.Count - 1 do
-    result := result + IfThen(result <> '', TagEditor.TagInput.DefaultDelimiter) + Self.Items[i].Text;
+  for i := 0 to Count - 1 do
+    result := result + IfThen(result <> '', TagEditor.TagInput.DefaultDelimiter) + Items[i].Text;
 end;
 
 procedure TTags.SetDelimitedText(const aValue: string);
@@ -1679,13 +1678,6 @@ begin
     CreateRectRgn(2, 2, fComboBox.Width-2, fComboBox.Height-3),
     True
   );
-end;
-
-procedure TTisTagEditor.TagChange(Sender: TObject);
-begin
-  Invalidate;
-  if Assigned(fOnChange) then
-    fOnChange(Self);
 end;
 
 procedure TTisTagEditor.SetSpacing(const Value: Integer);
