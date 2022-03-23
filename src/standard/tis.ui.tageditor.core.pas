@@ -210,6 +210,7 @@ type
   TTisTagEditor = class(TCustomControl)
   private
     fActualTagHeight: Integer;
+    fAdding: Boolean;
     fAutoHeight: Boolean;
     fBgColor: TColor;
     fBgColorDisabled: TColor;
@@ -966,25 +967,34 @@ var
   s: string;
 begin
   result := False;
-  if (fTags.Count = fTagInput.MaxTags) and (fTagInput.MaxTags > 0) then
+  // do not continue, if it is in adding mode already
+  // - the event combo.OnExit could be trigger, if it loses its focus
+  if fAdding then
     exit;
-  s := aText;
-  if ioTrimText in fTagInput.Options then
-    s := Trim(aText);
-  if (s = '') or ((not (ioAllowDuplicates in fTagInput.Options)) and (fTags.IndexOf(s) <> -1)) then
-  begin
-    beep;
-    exit;
-  end;
-  if DoTagBeforeAdd(s) then
-  begin
-    ctx.CanDelete := ioShowDeleteButton in fTagInput.Options;
-    ctx.BgColor := fTagBgColor;
-    ctx.BorderColor := fTagBorderColor;
-    ctx.TextColor := fTagTextColor;
-    DoTagAfterAdd(fTags.Add(ctx, s));
-    result := True;
-    DoChange;
+  fAdding := True;
+  try
+    if (fTags.Count = fTagInput.MaxTags) and (fTagInput.MaxTags > 0) then
+      exit;
+    s := aText;
+    if ioTrimText in fTagInput.Options then
+      s := Trim(aText);
+    if (s = '') or ((not (ioAllowDuplicates in fTagInput.Options)) and (fTags.IndexOf(s) <> -1)) then
+    begin
+      beep;
+      exit;
+    end;
+    if DoTagBeforeAdd(s) then
+    begin
+      ctx.CanDelete := ioShowDeleteButton in fTagInput.Options;
+      ctx.BgColor := fTagBgColor;
+      ctx.BorderColor := fTagBorderColor;
+      ctx.TextColor := fTagTextColor;
+      DoTagAfterAdd(fTags.Add(ctx, s));
+      result := True;
+      DoChange;
+    end;
+  finally
+    fAdding := False;
   end;
 end;
 
@@ -1012,8 +1022,7 @@ begin
   begin
     aborted := False;
     fOnTagBeforeAdd(self, aTag, aborted);
-    if aborted then
-      result := False;
+    result := not aborted;
   end;
 end;
 
