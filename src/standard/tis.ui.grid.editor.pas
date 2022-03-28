@@ -219,7 +219,7 @@ procedure TTisGridEditor.ActPasteJsonTemplateExecute(Sender: TObject);
 var
   cb: TClipboardAdapter;
 begin
-  Grid.TryLoadAllFrom(cb.AsUtf8);
+  Grid.TryLoadAllFrom(cb.AsString);
 end;
 
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
