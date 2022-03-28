@@ -476,6 +476,9 @@ type
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
     procedure LoadData;
+    /// it will try load aJson into Data and create Columns from it
+    // - return TRUE if success, otherwise FALSE, with a Dialog error if aShowError is TRUE
+    function TryLoadAllFrom(const aJson: string; aShowError: Boolean = True): Boolean;
     /// get all checked rows
     function CheckedRows: TDocVariantData;
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
@@ -2666,6 +2669,55 @@ begin
         ScrollIntoView(FocusedColumn,False);
       end;
     end;
+  end;
+end;
+
+function TTisGrid.TryLoadAllFrom(const aJson: string; aShowError: Boolean): Boolean;
+
+  procedure _ShowError;
+  begin
+    if aShowError then
+      Dialogs.MessageDlg('Invalid JSON array of records', mtError, [mbOK], 0);
+  end;
+
+var
+  doc: TDocVariantData;
+  d: PDocVariantData;
+  i, r: PVariant;
+begin
+  result := False;
+  try
+    if doc.InitJson(aJson, JSON_FAST_FLOAT) then
+    begin
+      ClearAll;
+      if doc.Kind = dvArray then
+      begin
+        for i in doc.Items do // using .Items to get all kind of data, eg: [1,2,3]
+        begin
+          d := PDocVariantData(i);
+          case d^.Kind of
+            dvArray:
+              for r in d^.Items do
+                Data.AddItem(r^);
+            dvObject:
+              Data.AddItem(i^);
+          else
+            Data.AddItem(_Json('{"unknown":"' + VariantToUtf8(i^) + '"}'));
+          end;
+        end;
+      end
+      else if doc.Kind = dvObject then
+      begin
+        Data.AddItem(variant(doc));
+      end;
+      LoadData;
+      CreateColumnsFromData(True, False);
+      result := True;
+    end
+    else
+      _ShowError;
+  except
+    _ShowError;
   end;
 end;
 

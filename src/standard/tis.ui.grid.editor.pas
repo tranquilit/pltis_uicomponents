@@ -216,46 +216,10 @@ begin
 end;
 
 procedure TTisGridEditor.ActPasteJsonTemplateExecute(Sender: TObject);
-const
-  ERROR_MSG = 'Clipboard content is not a valid JSON Array of records';
 var
   cb: TClipboardAdapter;
-  doc: TDocVariantData;
-  d: PDocVariantData;
-  i, r: PVariant;
 begin
-  Grid.ClearAll;
-  try
-    if doc.InitJson(cb.AsUtf8, JSON_FAST_FLOAT) then
-    begin
-      if doc.Kind = dvArray then
-      begin
-        for i in doc.Items do // using .Items to get all kind of data, eg: [1,2,3]
-        begin
-          d := PDocVariantData(i);
-          case d^.Kind of
-            dvArray:
-              for r in d^.Items do
-                Grid.Data.AddItem(r^);
-            dvObject:
-              Grid.Data.AddItem(i^);
-          else
-            Grid.Data.AddItem(_Json('{"unknown":"' + VariantToUtf8(i^) + '"}'));
-          end;
-        end;
-      end
-      else if doc.Kind = dvObject then
-      begin
-        Grid.Data.AddItem(variant(doc));
-      end;
-      Grid.LoadData;
-      Grid.CreateColumnsFromData(True, False);
-    end
-    else
-      ShowMessage(ERROR_MSG);
-  except
-    ShowMessage(ERROR_MSG);
-  end;
+  Grid.TryLoadAllFrom(cb.AsUtf8);
 end;
 
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
