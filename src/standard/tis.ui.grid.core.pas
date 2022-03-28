@@ -2687,7 +2687,7 @@ var
 begin
   result := False;
   try
-    if doc.InitJson(aJson, JSON_FAST_FLOAT) then
+    if doc.InitJson(StringToUtf8(aJson), JSON_FAST_FLOAT) then
     begin
       ClearAll;
       if doc.Kind = dvArray then
