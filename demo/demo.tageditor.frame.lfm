@@ -594,11 +594,11 @@ object TagEditorFrame: TTagEditorFrame
       end
     end
   end
-  object PersistentTimer: TTimer
+  object RttiPersistentTimer: TTimer
     Enabled = False
     Interval = 300
-    OnTimer = PersistentTimerTimer
-    Left = 248
-    Top = 264
+    OnTimer = RttiPersistentTimerTimer
+    Left = 424
+    Top = 56
   end
 end

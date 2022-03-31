@@ -79,7 +79,7 @@ type
     RttiLinkToTPersistentRadioButton: TRadioButton;
     RttiPersistentEdit: TEdit;
     RttiPersistentAddButton: TBitBtn;
-    PersistentTimer: TTimer;
+    RttiPersistentTimer: TTimer;
     RttiPersistentLabel: TLabel;
     Label11: TLabel;
     procedure AutoHeightCheckBoxClick(Sender: TObject);
@@ -109,7 +109,7 @@ type
     procedure RttiLinkToEditRadioButtonChange(Sender: TObject);
     procedure RttiLinkToTPersistentRadioButtonChange(Sender: TObject);
     procedure RttiPersistentAddButtonClick(Sender: TObject);
-    procedure PersistentTimerTimer(Sender: TObject);
+    procedure RttiPersistentTimerTimer(Sender: TObject);
   private
     fTags: TTagsPersistent;
   public
@@ -282,7 +282,7 @@ end;
 
 procedure TTagEditorFrame.RttiLinkToTPersistentRadioButtonChange(Sender: TObject);
 begin
-  PersistentTimer.Enabled := True;
+  RttiPersistentTimer.Enabled := True;
   TagEditorRtti.Link.SetObjectAndProperty(fTags, 'Tags');
 end;
 
@@ -293,7 +293,7 @@ begin
   RttiPersistentEdit.SetFocus;
 end;
 
-procedure TTagEditorFrame.PersistentTimerTimer(Sender: TObject);
+procedure TTagEditorFrame.RttiPersistentTimerTimer(Sender: TObject);
 begin
   RttiPersistentLabel.Caption := fTags.Tags;
 end;
