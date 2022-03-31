@@ -27,11 +27,17 @@ type
   TTisPropertyLink = class(TPropertyLink)
   private
     fTimer: TTimer;
+    function GetTimerInterval: Cardinal;
+    procedure SetTimerInterval(aValue: Cardinal);
+  protected
+    const DefaultOnIdleInterval = 50;
   protected
     procedure TimerCallback(Sender: TObject); virtual;
     procedure OnApplicationIdle(Sender: TObject; var Done: Boolean); override;
   public
     constructor Create(aOwner: TComponent); reintroduce;
+  published
+    property OnIdleInterval: Cardinal read GetTimerInterval write SetTimerInterval default DefaultOnIdleInterval;
   end;
 
   TTisTagEditorRtti = class(TTisTagEditor)
@@ -57,12 +63,22 @@ implementation
 
 { TTisPropertyLink }
 
+function TTisPropertyLink.GetTimerInterval: Cardinal;
+begin
+  result := fTimer.Interval;
+end;
+
+procedure TTisPropertyLink.SetTimerInterval(aValue: Cardinal);
+begin
+  fTimer.Interval := aValue;
+end;
+
 constructor TTisPropertyLink.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   fTimer := TTimer.Create(aOwner);
   fTimer.Enabled := False;
-  fTimer.Interval := 500;
+  fTimer.Interval := DefaultOnIdleInterval;
   fTimer.OnTimer := TimerCallback;
 end;
 
