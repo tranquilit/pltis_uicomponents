@@ -10,13 +10,24 @@ unit demo.tageditor.frame;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, StdCtrls, Spin, ColorBox, Dialogs,
-  ExtCtrls, Buttons, Graphics, ComCtrls,
+  Classes,
+  SysUtils,
+  Forms,
+  Controls,
+  StdCtrls,
+  Spin,
+  ColorBox,
+  Dialogs,
+  ExtCtrls,
+  Buttons,
+  Graphics,
+  ComCtrls,
   mormot.core.base,
   mormot.core.data,
   mormot.core.text,
   mormot.core.unicode,
-  tis.ui.tageditor.core, tis.ui.tageditor.rtti;
+  tis.ui.tageditor.core,
+  tis.ui.tageditor.rtti;
 
 type
   TTagsPersistent = class(TPersistent)
