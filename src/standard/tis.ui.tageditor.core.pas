@@ -222,7 +222,6 @@ type
     fCloseBtnWidth: Integer;
     fDesiredHeight: Integer;
     fDragging: Boolean;
-    fComboBox: TComboBox;
     fEditorColor: TColor;
     fEditPos: TPoint;
     fTagComboBox: TTagComboBoxOptions;
@@ -290,6 +289,7 @@ type
     const DefaultMaxHeight = 512;
     const DefaultTagHeight = 32;
   protected
+    fComboBox: TComboBox;
     // ------------------------------- inherited methods ----------------------------------
     procedure Loaded; override;
     procedure CreateParams(var Params: TCreateParams); override;

@@ -33,6 +33,7 @@ type
     procedure LinkLoadFromProperty(Sender: TObject); virtual;
     procedure LinkSaveToProperty(Sender: TObject); virtual;
     function LinkTestEditor(const aTestEditor: TPropertyEditor): Boolean; virtual;
+    function LinkTestEditing(Sender: TObject): boolean;
   public
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
@@ -115,6 +116,12 @@ begin
   result := (aTestEditor is TStringPropertyEditor) or (aTestEditor is TStringsPropertyEditor);
 end;
 
+function TTisTagEditorRtti.LinkTestEditing(Sender: TObject): boolean;
+begin
+  if Sender = nil then ;
+  result := Focused or (fComboBox.Visible and fComboBox.Focused);
+end;
+
 constructor TTisTagEditorRtti.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
@@ -128,6 +135,7 @@ begin
   fLink.OnLoadFromProperty := LinkLoadFromProperty;
   fLink.OnSaveToProperty := LinkSaveToProperty;
   fLink.OnTestEditor := LinkTestEditor;
+  fLink.OnTestEditing := LinkTestEditing;
 end;
 
 destructor TTisTagEditorRtti.Destroy;
