@@ -16,6 +16,7 @@ uses
   SysUtils,
   Classes,
   Controls,
+  ExtCtrls,
   LCLProc,
   StdCtrls,
   PropEdits,
@@ -23,10 +24,20 @@ uses
   tis.ui.tageditor.core;
 
 type
+  TTisPropertyLink = class(TPropertyLink)
+  private
+    fTimer: TTimer;
+  protected
+    procedure TimerCallback(Sender: TObject); virtual;
+    procedure OnApplicationIdle(Sender: TObject; var Done: Boolean); override;
+  public
+    constructor Create(aOwner: TComponent); reintroduce;
+  end;
+
   TTisTagEditorRtti = class(TTisTagEditor)
   private
-    fLink: TPropertyLink;
-    procedure SetLink(const aValue: TPropertyLink);
+    fLink: TTisPropertyLink;
+    procedure SetLink(const aValue: TTisPropertyLink);
   protected
     procedure ComboBoxEditingDone(Sender: TObject); override;
     procedure DeleteTag(aTagIndex: Integer); override;
@@ -39,14 +50,43 @@ type
     destructor Destroy; override;
     procedure Loaded; override;
   published
-    property Link: TPropertyLink read fLink write SetLink;
+    property Link: TTisPropertyLink read fLink write SetLink;
   end;
 
 implementation
 
+{ TTisPropertyLink }
+
+constructor TTisPropertyLink.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  fTimer := TTimer.Create(aOwner);
+  fTimer.Enabled := False;
+  fTimer.Interval := 500;
+  fTimer.OnTimer := TimerCallback;
+end;
+
+procedure TTisPropertyLink.TimerCallback(Sender: TObject);
+var
+  dummy: Boolean;
+begin
+  inherited OnApplicationIdle(Sender, dummy);
+end;
+
+procedure TTisPropertyLink.OnApplicationIdle(Sender: TObject;
+  var Done: Boolean);
+begin
+  fTimer.Enabled := ploReadOnIdle in Options;
+  if not fTimer.Enabled then
+  begin
+    Done := False;
+    inherited OnApplicationIdle(Sender, Done);
+  end;
+end;
+
 { TTisTagEditorRtti }
 
-procedure TTisTagEditorRtti.SetLink(const aValue: TPropertyLink);
+procedure TTisTagEditorRtti.SetLink(const aValue: TTisPropertyLink);
 begin
   if fLink = aValue then
     exit;
@@ -125,7 +165,7 @@ end;
 constructor TTisTagEditorRtti.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fLink := TPropertyLink.Create(Self);
+  fLink := TTisPropertyLink.Create(Self);
   fLink.Filter := [
     {tkUnknown,tkInteger,tkChar,tkEnumeration,}
     {tkFloat,tkSet,tkMethod,}tkSString,tkLString,tkAString,
