@@ -733,6 +733,7 @@ begin
   Height := 47;
   Top := 48;
   Width := 221;
+  fMouseDownClickInfo := NOWHERE;
   fTagComboBox := TTagComboBoxOptions.Create;
   fTagInput := TTagInput.Create;
   fComboBox := NewComboBox;
