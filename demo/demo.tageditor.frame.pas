@@ -264,20 +264,14 @@ end;
 
 procedure TTagEditorFrame.RttiLinkToMemoRadioButtonChange(Sender: TObject);
 begin
-  with TagEditorRtti.Link do
-  begin
-    TIObject := RttiItemsMemo;
-    TIPropertyName := 'Lines';
-  end;
+  RttiPersistentTimer.Enabled := False;
+  TagEditorRtti.Link.SetObjectAndProperty(RttiItemsMemo, 'Lines');
 end;
 
 procedure TTagEditorFrame.RttiLinkToEditRadioButtonChange(Sender: TObject);
 begin
-  with TagEditorRtti.Link do
-  begin
-    TIObject := RttiItemsEdit;
-    TIPropertyName := 'Text';
-  end;
+  RttiPersistentTimer.Enabled := False;
+  TagEditorRtti.Link.SetObjectAndProperty(RttiItemsEdit, 'Text');
 end;
 
 procedure TTagEditorFrame.RttiLinkToTPersistentRadioButtonChange(Sender: TObject);
