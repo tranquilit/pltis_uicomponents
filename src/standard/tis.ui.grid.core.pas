@@ -477,6 +477,7 @@ type
     // - call LoadData, if you change Data content directly
     procedure LoadData;
     /// it will try load aJson into Data and create Columns from it
+    // - it will not clean previous columns, if they exists
     // - return TRUE if success, otherwise FALSE, with a Dialog error if aShowError is TRUE
     function TryLoadAllFrom(const aJson: string; aShowError: Boolean = True): Boolean;
     /// get all checked rows
@@ -2683,7 +2684,6 @@ begin
   try
     if doc.InitJson(StringToUtf8(aJson), JSON_FAST_FLOAT) then
     begin
-      ClearAll;
       if doc.Kind = dvArray then
       begin
         for i in doc.Items do // using .Items to get all kind of data, eg: [1,2,3]
