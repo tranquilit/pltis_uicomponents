@@ -1437,8 +1437,6 @@ begin
   r := @result;
   r^.I['sortcolumn'] := Header.SortColumn;
   r^.I['sortdirection'] := ord(Header.SortDirection);
-  r^.I['headerheight'] := Header.Height;
-  r^.I['defaultnodeheight'] := DefaultNodeHeight;
   cols := r^.A_['columns'];
   for i := 0 to Header.Columns.Count-1 do
   begin
@@ -1490,10 +1488,6 @@ begin
       Header.SortColumn := int;
     if v^.GetAsInteger('sortdirection', int) then
       Header.SortDirection := TSortDirection(int);
-    if v^.GetAsInteger('headerheight', int) then
-      Header.Height := int;
-    if v^.GetAsInteger('defaultnodeheight', int) then
-      DefaultNodeHeight := int;
   end;
 end;
 
