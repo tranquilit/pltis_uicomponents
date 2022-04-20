@@ -72,7 +72,6 @@ type
     ColumnPropsTab: TTabSheet;
     GridPropsTab: TTabSheet;
     MenuItem11: TMenuItem;
-    MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
@@ -107,6 +106,7 @@ type
     MenuItem9: TMenuItem;
     MenuItem10: TMenuItem;
     ActClearSelRows: TAction;
+    MenuItem2: TMenuItem;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);

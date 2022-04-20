@@ -479,11 +479,11 @@ object TisGridEditor: TTisGridEditor
     object MenuItem10: TMenuItem
       Action = ActClearSelRows
     end
-    object MenuItem12: TMenuItem
-      Caption = '-'
-    end
     object MenuItem8: TMenuItem
       Action = ActClearAll
+    end
+    object MenuItem2: TMenuItem
+      Caption = '-'
     end
   end
 end
