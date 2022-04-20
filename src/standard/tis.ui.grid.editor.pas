@@ -53,7 +53,6 @@ type
     ActUpdateColumn: TAction;
     ActPasteJsonTemplate: TAction;
     ActionList: TActionList;
-    KeepDataCheckBox: TCheckBox;
     DelColumnsButton: TButton;
     MenuItem8: TMenuItem;
     PasteJsonButton: TButton;
@@ -61,7 +60,6 @@ type
     Grid: TTisGrid;
     ButtonPanel: TButtonPanel;
     MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
@@ -73,8 +71,6 @@ type
     PropsPageControl: TPageControl;
     ColumnPropsTab: TTabSheet;
     GridPropsTab: TTabSheet;
-    MenuItem9: TMenuItem;
-    MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
@@ -105,6 +101,12 @@ type
     Bevel3: TBevel;
     VariableNodeHeightCheckBox: TCheckBox;
     Bevel4: TBevel;
+    TabSheet1: TTabSheet;
+    KeepDataCheckBox: TCheckBox;
+    ActClearRows: TAction;
+    MenuItem9: TMenuItem;
+    MenuItem10: TMenuItem;
+    ActClearSelRows: TAction;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -135,6 +137,8 @@ type
     procedure MultilineCheckBoxChange(Sender: TObject);
     procedure MultilineHeightEditChange(Sender: TObject);
     procedure VariableNodeHeightCheckBoxChange(Sender: TObject);
+    procedure ActClearRowsExecute(Sender: TObject);
+    procedure ActClearSelRowsExecute(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -198,8 +202,8 @@ var
   idx: Integer;
 begin
   col := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
-  Grid.Header.Columns.Delete(col.Index);
   idx := col.Index-1;
+  Grid.Header.Columns.Delete(col.Index);
   if not Grid.Header.Columns.IsValidColumn(idx) then
   begin
     if Grid.Header.Columns.GetLastVisibleColumn >= 0 then
@@ -336,7 +340,6 @@ end;
 procedure TTisGridEditor.FormShow(Sender: TObject);
 begin
   LoadGridCommonProps;
-  AddFakeDataIfNeedIt;
 end;
 
 procedure TTisGridEditor.MultiSelectCheckBoxChange(Sender: TObject);
@@ -403,6 +406,18 @@ begin
   Grid.LoadData;
 end;
 
+procedure TTisGridEditor.ActClearRowsExecute(Sender: TObject);
+begin
+  Grid.Clear;
+  AddFakeDataIfNeedIt;
+end;
+
+procedure TTisGridEditor.ActClearSelRowsExecute(Sender: TObject);
+begin
+  Grid.DeleteSelectedRows;
+  AddFakeDataIfNeedIt;
+end;
+
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
   aColRequired: Boolean);
@@ -435,10 +450,8 @@ end;
 procedure TTisGridEditor.AddFakeDataIfNeedIt;
 begin
   if Grid.Data.IsVoid then
-  begin
     Grid.Data.AddItem(_Json('{"id":null}'));
-    Grid.LoadData;
-  end;
+  Grid.LoadData;
 end;
 
 { TTisGridComponentEditor }
