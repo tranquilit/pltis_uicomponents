@@ -3049,7 +3049,7 @@ begin
   tmp.InitArray([], JSON_FAST_FLOAT);
   for o in rows.Objects do
   begin
-    tmp.Clear;
+    tmp.Reset;
     for c := 0 to Header.Columns.Count-1 do
     begin
       if coVisible in Header.Columns[c].Options then
