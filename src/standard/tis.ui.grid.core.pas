@@ -1113,6 +1113,7 @@ end;
 constructor TTisGridColumn.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
+  Options := Options + [coWrapCaption];
   fDataType := DefaultDataType;
   fRequired := DefaultRequired;
 end;

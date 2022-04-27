@@ -149,9 +149,12 @@ type
   end;
 
   TTisGridComponentEditor = class(TComponentEditor)
+  private
+    fPreviousFilename: String;
   protected
     procedure DoShowColumnsEditor;
     procedure DoShowEditor;
+    procedure DoLoadSettingsFromIni;
   public
     procedure ExecuteVerb(Index: Integer); override;
     function GetVerb(Index: Integer): string; override;
@@ -466,12 +469,35 @@ begin
   (Component as TTisGrid).Customize;
 end;
 
+procedure TTisGridComponentEditor.DoLoadSettingsFromIni;
+var
+  od: TOpenDialog;
+  target: TTisGrid;
+begin
+  od := TOpenDialog.Create(Application);
+  try
+    if fPreviousFilename <> '' then
+      od.FileName := fPreviousFilename;
+    od.Filter := 'Ini file|*.ini|All files|*.*';
+    od.DefaultExt := '.ini';
+    if od.Execute then
+    begin
+      target := (Component as TTisGrid);
+      target.LoadSettingsFromIni(od.FileName);
+      fPreviousFilename := od.FileName;
+    end;
+  finally
+    od.Free;
+  end;
+end;
+
 procedure TTisGridComponentEditor.ExecuteVerb(Index: Integer);
 begin
   case Index of
     0: DoShowEditor;
     1: DoShowColumnsEditor;
     2: (Component as TTisGrid).CreateColumnsFromData(False, False);
+    3: DoLoadSettingsFromIni;
   end;
 end;
 
@@ -481,6 +507,7 @@ begin
     0: result := 'Edit grid...';
     1: result := 'Edit columns...';
     2: result := 'Create missing columns from sample data';
+    3: result := 'Load grid settings from inifile...';
   else
     result := 'Unknow';
   end;
@@ -488,7 +515,7 @@ end;
 
 function TTisGridComponentEditor.GetVerbCount: Integer;
 begin
-  result := 3;
+  result := 4;
 end;
 
 end.
