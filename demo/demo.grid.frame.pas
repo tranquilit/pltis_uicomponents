@@ -30,7 +30,8 @@ uses
   mormot.core.variants,
   tis.core.os,
   tis.ui.searchedit,
-  tis.ui.grid.core;
+  tis.ui.grid.core,
+  tis.ui.grid.controls;
 
 type
   TGridFrame = class(TFrame)
@@ -103,7 +104,7 @@ type
     procedure MenuItem1Click(Sender: TObject);
     procedure ClipboardSelectedRowLabelClick(Sender: TObject);
     procedure GridPrepareEditor(sender: TTisGrid;
-      aColumn: TTisGridColumn; aControl: TWinControl);
+      aColumn: TTisGridColumn; aControl: TTisGridControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorLookup(sender: TTisGrid; aColumn: TTisGridColumn;
       aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
@@ -172,12 +173,12 @@ begin
 end;
 
 procedure TGridFrame.GridPrepareEditor(sender: TTisGrid;
-  aColumn: TTisGridColumn; aControl: TWinControl);
+  aColumn: TTisGridColumn; aControl: TTisGridControl);
 var
   a: TTisColumnDataTypeAdapter;
 begin
   if aColumn.DataType = a.CaptionToEnum(cbColumnDataType.Text) then
-    aControl.Color := EditorColorBox.Selected;
+    aControl.Internal.Color := EditorColorBox.Selected;
 end;
 
 procedure TGridFrame.cbColumnDataTypeEnter(Sender: TObject);

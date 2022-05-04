@@ -299,7 +299,7 @@ type
 
   /// event that allows users to change some edit control properties, before it shows up
   TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
-    aControl: TWinControl) of object;
+    aControl: TTisGridControl) of object;
 
   /// event that allow to validate the new value from user input
   // - aCurValue is the current value for the aColumn
@@ -455,7 +455,7 @@ type
     procedure DoEditorLookup(const aColumn: TTisGridColumn; out
       aControl: TTisGridControl; var aHandled: Boolean); virtual;
     /// performs OnPrepareEditor event, if it was assigned
-    procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TWinControl); virtual;
+    procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
       var aNewValue: Variant; var aAbort: Boolean); virtual;
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
@@ -1074,7 +1074,7 @@ begin
   else
     fControl.SetValue(d^.S[c.PropertyName]);
   end;
-  fGrid.DoPrepareEditor(c, fControl.Internal);
+  fGrid.DoPrepareEditor(c, fControl);
 end;
 
 procedure TTisGridEditLink.ProcessMessage(var aMessage: TLMessage); stdcall;
@@ -2502,7 +2502,7 @@ begin
 end;
 
 procedure TTisGrid.DoPrepareEditor(const aColumn: TTisGridColumn;
-  aControl: TWinControl);
+  aControl: TTisGridControl);
 begin
   if Assigned(fOnPrepareEditor) then
     fOnPrepareEditor(self, aColumn, aControl);
