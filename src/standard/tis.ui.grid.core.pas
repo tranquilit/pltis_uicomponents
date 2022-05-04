@@ -122,12 +122,14 @@ type
     fPropertyName: RawUtf8;
     fDataType: TTisColumnDataType;
     fRequired: Boolean;
+    fReadOnly: Boolean;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
   protected const
     DefaultDataType = cdtString;
     DefaultRequired = False;
+    DefaultReadOnly = False;
   public
     constructor Create(aCollection: TCollection); override;
     procedure Assign(aSource: TPersistent); override;
@@ -137,6 +139,7 @@ type
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
     /// if TRUE, it will not allow user to set NULL for this column using Editor
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
+    property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
   end;
 
   /// a custom implementation for Grid Columns
@@ -1056,6 +1059,7 @@ begin
   d := fGrid.GetNodeDataAsDocVariant(fNode);
   c := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(c);
+  fControl.ReadOnly := c.ReadOnly;
   case c.DataType of
     cdtString, cdtMemo:
       fControl.SetValue(d^.S[c.PropertyName]);
@@ -1116,6 +1120,7 @@ begin
   Options := Options + [coWrapCaption];
   fDataType := DefaultDataType;
   fRequired := DefaultRequired;
+  fReadOnly := DefaultReadOnly;
 end;
 
 procedure TTisGridColumn.Assign(aSource: TPersistent);
@@ -1129,6 +1134,7 @@ begin
     PropertyName := c.PropertyName;
     DataType := c.DataType;
     Required := c.Required;
+    ReadOnly := c.ReadOnly;
   end;
 end;
 

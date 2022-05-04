@@ -107,6 +107,7 @@ type
     MenuItem10: TMenuItem;
     ActClearSelRows: TAction;
     MenuItem2: TMenuItem;
+    ReadOnlyCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -142,7 +143,7 @@ type
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
-      aColRequired: Boolean);
+      aColRequired, aColReadOnly: Boolean);
     procedure ClearPropertiesPanel;
     procedure LoadGridCommonProps;
     procedure AddFakeDataIfNeedIt;
@@ -216,7 +217,7 @@ begin
   begin
     col := TTisGridColumn(Grid.Header.Columns[idx]);
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType, col.Required);
+      IntToStr(col.Position), col.DataType, col.Required, col.ReadOnly);
   end
   else
     ClearPropertiesPanel;
@@ -247,6 +248,7 @@ begin
     col.PropertyName := EdColumnProperty.Text;
     col.DataType := a.CaptionToEnum(cbColumnDataType.Text);
     col.Required := RequiredCheckBox.Checked;
+    col.ReadOnly := ReadOnlyCheckBox.Checked;
   end;
   Grid.Invalidate;
 end;
@@ -376,7 +378,7 @@ begin
   col := Grid.FocusedColumnObject;
   if col <> nil then
     SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType, col.Required)
+      IntToStr(col.Position), col.DataType, col.Required, col.ReadOnly)
   else
     ClearPropertiesPanel;
 end;
@@ -423,7 +425,7 @@ end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
-  aColRequired: Boolean);
+  aColRequired, aColReadOnly: Boolean);
 var
   a: TTisColumnDataTypeAdapter;
 begin
@@ -433,11 +435,12 @@ begin
   cbColumnDataType.ItemIndex := a.EnumToIndex(aColDataType);
   EdPosition.Text := aColPosition;
   RequiredCheckBox.Checked := aColRequired;
+  ReadOnlyCheckBox.Checked := aColReadOnly;
 end;
 
 procedure TTisGridEditor.ClearPropertiesPanel;
 begin
-  SetPropertiesPanel('', '', '', '', low(TTisColumnDataType), False);
+  SetPropertiesPanel('', '', '', '', low(TTisColumnDataType), False, False);
 end;
 
 procedure TTisGridEditor.LoadGridCommonProps;

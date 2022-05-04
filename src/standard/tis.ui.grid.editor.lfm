@@ -85,6 +85,7 @@ object TisGridEditor: TTisGridEditor
     Header.AutoSizeIndex = -1
     Header.Columns = <    
       item
+        Options = [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAllowFocus, coWrapCaption, coEditable]
         Position = 0
       end>
     Header.DefaultHeight = 28
@@ -234,6 +235,17 @@ object TisGridEditor: TTisGridEditor
         ParentShowHint = False
         ShowHint = True
         TabOrder = 7
+      end
+      object ReadOnlyCheckBox: TCheckBox
+        Left = 198
+        Height = 19
+        Hint = 'Mark it for users do not be allow to set any value for this column'
+        Top = 129
+        Width = 74
+        Caption = 'Read Only'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 8
       end
     end
     object GridPropsTab: TTabSheet

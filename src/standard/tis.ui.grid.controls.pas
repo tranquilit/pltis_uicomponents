@@ -41,8 +41,11 @@ type
   /// this class implements the base for an in-place edit control
   // - use it if you want to implement your own controls
   TTisGridControl = class(TObject)
+  private
+    fReadOnly: Boolean;
   protected
     fInternal: TWinControl;
+    procedure SetReadOnly(aValue: Boolean); virtual;
   public
     constructor Create; reintroduce; virtual;
     destructor Destroy; override;
@@ -56,12 +59,15 @@ type
     function GetValue: Variant; virtual;
     /// it set the value from grid to the control
     procedure SetValue(const aValue: Variant); virtual;
+    property ReadOnly: Boolean read fReadOnly write SetReadOnly;
   end;
 
   TTisGridControlClass = class of TTisGridControl;
 
   /// control used for all String data type
   TTisGridEditControl = class(TTisGridControl)
+  protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -71,6 +77,8 @@ type
 
   /// control used for all Date data type
   TTisGridDateEditControl = class(TTisGridControl)
+  protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     procedure SetOnKeyDown(aEvent: TKeyEvent); override;
@@ -97,6 +105,8 @@ type
 
   /// control used for all Integer data type
   TTisGridIntegerEditControl = class(TTisGridControl)
+  protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -107,6 +117,7 @@ type
   /// control used for all Float data type
   TTisGridFloatEditControl = class(TTisGridControl)
   protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -116,6 +127,8 @@ type
 
   /// control used for all Boolean data type
   TTisGridBooleanEditControl = class(TTisGridControl)
+  protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -125,6 +138,8 @@ type
 
   /// control used for all Memo data type
   TTisGridMemoControl = class(TTisGridControl)
+  protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -141,6 +156,8 @@ type
   // - also, you can add strings into Items there (syncronous mode)
   // or using OnSearch event, being asynchronous mode
   TTisGridSearchEditControl = class(TTisGridControl)
+  protected
+    procedure SetReadOnly(aValue: Boolean); override;
   public
     constructor Create; override;
     function GetValue: Variant; override;
@@ -151,6 +168,13 @@ type
 implementation
 
 { TTisGridControl }
+
+procedure TTisGridControl.SetReadOnly(aValue: Boolean);
+begin
+  if fReadOnly = aValue then
+    exit;
+  fReadOnly := aValue;
+end;
 
 constructor TTisGridControl.Create;
 begin
@@ -190,6 +214,12 @@ end;
 
 { TTisGridEditControl }
 
+procedure TTisGridEditControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.ReadOnly := aValue;
+end;
+
 constructor TTisGridEditControl.Create;
 begin
   inherited Create;
@@ -213,6 +243,12 @@ begin
 end;
 
 { TTisGridDateEditControl }
+
+procedure TTisGridDateEditControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.ReadOnly := aValue;
+end;
 
 constructor TTisGridDateEditControl.Create;
 begin
@@ -285,6 +321,12 @@ begin
   result := fInternal as TSpinEdit;
 end;
 
+procedure TTisGridIntegerEditControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.ReadOnly := aValue;
+end;
+
 constructor TTisGridIntegerEditControl.Create;
 begin
   inherited Create;
@@ -308,6 +350,12 @@ begin
   result := fInternal as TFloatSpinEdit;
 end;
 
+procedure TTisGridFloatEditControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.ReadOnly := aValue;
+end;
+
 constructor TTisGridFloatEditControl.Create;
 begin
   inherited Create;
@@ -325,6 +373,12 @@ begin
 end;
 
 { TTisGridBooleanEditControl }
+
+procedure TTisGridBooleanEditControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.Enabled := not aValue;
+end;
 
 constructor TTisGridBooleanEditControl.Create;
 begin
@@ -350,6 +404,12 @@ end;
 
 { TTisGridMemoControl }
 
+procedure TTisGridMemoControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.ReadOnly := aValue;
+end;
+
 constructor TTisGridMemoControl.Create;
 begin
   inherited Create;
@@ -373,6 +433,12 @@ begin
 end;
 
 { TTisGridSearchEditControl }
+
+procedure TTisGridSearchEditControl.SetReadOnly(aValue: Boolean);
+begin
+  inherited SetReadOnly(aValue);
+  Edit.ReadOnly := aValue;
+end;
 
 constructor TTisGridSearchEditControl.Create;
 begin
