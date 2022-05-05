@@ -94,6 +94,9 @@ type
     ValidAbortCheckBox: TCheckBox;
     Label8: TLabel;
     ValidMsgEdit: TEdit;
+    PrepareReadOnlyCheckBox: TCheckBox;
+    PrepareColumnNameEdid: TEdit;
+    EdDataType2: TLabel;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -177,8 +180,12 @@ procedure TGridFrame.GridPrepareEditor(sender: TTisGrid;
 var
   a: TTisColumnDataTypeAdapter;
 begin
-  if aColumn.DataType = a.CaptionToEnum(cbColumnDataType.Text) then
-    aControl.Internal.Color := EditorColorBox.Selected;
+  if aColumn.PropertyName = PrepareColumnNameEdid.Text then
+  begin
+    aControl.ReadOnly := PrepareReadOnlyCheckBox.Checked;
+    if aColumn.DataType = a.CaptionToEnum(cbColumnDataType.Text) then
+      aControl.Internal.Color := EditorColorBox.Selected;
+  end;
 end;
 
 procedure TGridFrame.cbColumnDataTypeEnter(Sender: TObject);
