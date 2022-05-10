@@ -147,14 +147,14 @@ type
     function Edit: TMemo;
   end;
 
-  /// control used for String data type as a ComboBox or for Integer data type as a Lookup editor
+  /// control used for Integer data type as a Lookup editor
   // - it is used by default into Grid.OnEditorLookup event
-  // - if you want to use a simple ComboBox with a simple string list, just do not set LookupKeyField/LookupDisplayField
-  // adding strings direcly into Items property
-  // - otherwise, if you want to use a real lookup, you should set LookupKeyField/LookupDisplayField into
-  // OnEditorLookup event
-  // - also, you can add strings into Items there (syncronous mode)
-  // or using OnSearch event, being asynchronous mode
+  // - if you want to use a simple ComboBox with a simple string list, 
+  // just do not set LookupKeyField/LookupDisplayField, adding strings directly 
+  // into Items property, on OnEditorLookup event (syncronous mode)
+  // - otherwise, if you want to use a real lookup, you should set LookupKeyField/LookupDisplayField,
+  // on the same event
+  // - also, you can add dynamic strings into Items using OnSearch event (asynchronous mode)
   TTisGridSearchEditControl = class(TTisGridControl)
   protected
     procedure SetReadOnly(aValue: Boolean); override;
