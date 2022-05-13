@@ -11,26 +11,25 @@ uses
 type
   TToolBarFrame = class(TFrame)
     ActionList1: TActionList;
-    Action1: TAction;
-    Action2: TAction;
+    GetSessionValuesAction: TAction;
+    SetSessionValuesAction: TAction;
     Action3: TAction;
     Action4: TAction;
-    ReadOnlyActionList: TActionList;
+    ActionList2: TActionList;
     ShowEditorAction: TAction;
-    SpeedButton1: TSpeedButton;
     Action5: TAction;
     Memo1: TMemo;
-    SpeedButton2: TSpeedButton;
     TisToolBar1: TTisToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    Label1: TLabel;
     procedure ShowEditorActionExecute(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure SpeedButton2Click(Sender: TObject);
-    procedure Action1Execute(Sender: TObject);
+    procedure GetSessionValuesActionExecute(Sender: TObject);
+    procedure SetSessionValuesActionExecute(Sender: TObject);
   private
 
   public
@@ -48,19 +47,17 @@ begin
   TisToolBar1.ShowEditor;
 end;
 
-procedure TToolBarFrame.SpeedButton1Click(Sender: TObject);
+procedure TToolBarFrame.GetSessionValuesActionExecute(Sender: TObject);
 begin
-  Memo1.Text := TisToolBar1.SessionValues;
+  Memo1.Text := TisToolBar1.SessionValues
 end;
 
-procedure TToolBarFrame.SpeedButton2Click(Sender: TObject);
+procedure TToolBarFrame.SetSessionValuesActionExecute(Sender: TObject);
 begin
-  TisToolBar1.SessionValues := Memo1.Text;
-end;
-
-procedure TToolBarFrame.Action1Execute(Sender: TObject);
-begin
-  ShowMessage((Sender as TAction).Caption);
+  if Memo1.Text = '' then
+    ShowMessage('There is no values to update')
+  else
+    TisToolBar1.SessionValues := Memo1.Text;
 end;
 
 end.

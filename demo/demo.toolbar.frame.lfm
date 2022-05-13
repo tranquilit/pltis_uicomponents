@@ -8,26 +8,15 @@ object ToolBarFrame: TToolBarFrame
   TabOrder = 0
   DesignLeft = 436
   DesignTop = 127
-  object SpeedButton1: TSpeedButton
-    Left = 24
-    Height = 22
-    Top = 40
-    Width = 23
-    OnClick = SpeedButton1Click
-  end
   object Memo1: TMemo
-    Left = 62
-    Height = 208
-    Top = 40
-    Width = 354
+    AnchorSideLeft.Control = Label1
+    AnchorSideTop.Control = Label1
+    AnchorSideTop.Side = asrBottom
+    Left = 16
+    Height = 203
+    Top = 53
+    Width = 402
     TabOrder = 0
-  end
-  object SpeedButton2: TSpeedButton
-    Left = 24
-    Height = 22
-    Top = 68
-    Width = 23
-    OnClick = SpeedButton2Click
   end
   object TisToolBar1: TTisToolBar
     Left = 0
@@ -36,70 +25,89 @@ object ToolBarFrame: TToolBarFrame
     Width = 441
     Caption = 'TisToolBar1'
     Flat = False
+    ShowCaptions = True
     TabOrder = 1
     Actions = <    
       item
         List = ActionList1
       end    
       item
-        List = ReadOnlyActionList
+        List = ActionList2
       end>
     object ToolButton1: TToolButton
       Left = 1
       Top = 2
-      Action = Action1
+      Action = GetSessionValuesAction
     end
     object ToolButton2: TToolButton
-      Left = 24
+      Left = 106
       Top = 2
-      Action = Action2
+      Action = SetSessionValuesAction
     end
     object ToolButton3: TToolButton
-      Left = 47
+      Left = 214
       Top = 2
       Action = Action3
     end
     object ToolButton4: TToolButton
-      Left = 70
+      Left = 263
       Height = 22
       Top = 2
       Caption = 'ToolButton4'
       Style = tbsDivider
     end
     object ToolButton5: TToolButton
-      Left = 75
+      Left = 268
       Top = 2
       Action = ShowEditorAction
     end
+    object ToolButton6: TToolButton
+      Left = 209
+      Height = 22
+      Top = 2
+      Caption = 'ToolButton6'
+      Style = tbsDivider
+    end
+  end
+  object Label1: TLabel
+    Left = 16
+    Height = 15
+    Top = 38
+    Width = 75
+    Caption = 'Session Values'
+    ParentColor = False
   end
   object ActionList1: TActionList
-    Left = 48
+    Left = 104
     Top = 72
-    object Action1: TAction
+    object GetSessionValuesAction: TAction
       Category = 'Category A'
-      Caption = 'Action1'
-      OnExecute = Action1Execute
+      Caption = 'Get Session Values'
+      OnExecute = GetSessionValuesActionExecute
     end
-    object Action2: TAction
+    object SetSessionValuesAction: TAction
       Category = 'Category A'
-      Caption = 'Action2'
+      Caption = 'Set Session Values'
+      OnExecute = SetSessionValuesActionExecute
     end
     object Action3: TAction
       Category = 'Category B'
       Caption = 'Action3'
+      OnExecute = GetSessionValuesActionExecute
     end
     object Action4: TAction
       Category = 'Category C'
       Caption = 'Action4'
+      OnExecute = GetSessionValuesActionExecute
     end
     object Action5: TAction
       Category = 'Category C'
       Caption = 'Action5'
     end
   end
-  object ReadOnlyActionList: TActionList
-    Left = 48
-    Top = 128
+  object ActionList2: TActionList
+    Left = 192
+    Top = 72
     object ShowEditorAction: TAction
       Category = 'Editor'
       Caption = 'Show Editor'
