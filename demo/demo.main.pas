@@ -20,7 +20,8 @@ uses
   Menus,
   demo.grid.frame,
   demo.tageditor.frame,
-  demo.searchedit.frame;
+  demo.searchedit.frame,
+  demo.toolbar.frame;
 
 type
   TMainForm = class(TForm)
@@ -31,6 +32,8 @@ type
     freTagEditor: TTagEditorFrame;
     SearchEditTab: TTabSheet;
     freSearchEdit: TSearchEditFrame;
+    ToolBarTab: TTabSheet;
+    freToolBar: TToolBarFrame;
     procedure FormCreate(Sender: TObject);
   end;
 

@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="18">
+    <Files Count="20">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -101,6 +101,14 @@
         <Filename Value="..\src\standard\tis.ui.togglebutton.pas"/>
         <UnitName Value="tis.ui.togglebutton"/>
       </Item18>
+      <Item19>
+        <Filename Value="..\src\standard\tis.ui.toolbar.core.pas"/>
+        <UnitName Value="tis.ui.toolbar.core"/>
+      </Item19>
+      <Item20>
+        <Filename Value="..\src\standard\tis.ui.toolbar.editor.pas"/>
+        <UnitName Value="tis.ui.toolbar.editor"/>
+      </Item20>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>

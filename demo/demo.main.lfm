@@ -52,9 +52,16 @@ object MainForm: TMainForm
       inline freSearchEdit: TSearchEditFrame
         Height = 523
         Width = 743
+	  end
+	end
+    object ToolBarTab: TTabSheet
+      Caption = 'ToolBar'
+      ClientHeight = 555
+      ClientWidth = 886
+      inline freToolBar: TToolBarFrame
+        Height = 555
+        Width = 886
         Align = alClient
-        ClientHeight = 523
-        ClientWidth = 743
       end
     end
   end

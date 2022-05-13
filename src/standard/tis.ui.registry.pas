@@ -23,6 +23,8 @@ uses
   tis.ui.grid.editor,
   tis.ui.tageditor.core,
   tis.ui.searchedit,
+  tis.ui.toolbar.core,
+  tis.ui.toolbar.editor,
   tis.ui.togglebutton,
   tis.ui.syncontroledit,
   tis.ui.lvlgraphcontrol;
@@ -35,9 +37,10 @@ procedure Register;
 begin
   RegisterComponents('Tranquil IT', [
     TTisGrid, TTisGridHeaderPopupMenu, TTisTagEditor,
-    TTisSearchEdit, TTisToggleButton,
+    TTisSearchEdit, TTisToolBar, TTisToggleButton,
     TTisControlSynEditor, TTisLvlGraphControl]);
   RegisterComponentEditor(TTisGrid, TTisGridComponentEditor);
+  RegisterComponentEditor(TTisToolBar, TTisToolBarComponentEditor);
 end;
 
 initialization
