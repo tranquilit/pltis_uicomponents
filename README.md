@@ -106,11 +106,10 @@ Main Features:
 
 ### TTisToolBar Component
 
-Based on simple TToolBar component, this component can be used to do searching asynchronously for do not freeze the UI.
+Based on simple TToolBar component, this component allow users redefine which buttons/actions they want to keep in tool bars among the system.
 
 Main Features:
 
-- allow users redefine which buttons/actions they want to keep in tool bars among the system
 - the property `Actions` is a collection of `ActionList` instances, which should be defined (by developers) which actions users can work on the Editor in runtime
 - the Editor shows all actions from `Actions`, separated by `Action.Category` in the left TreeView
 - users cannot add new `ActionList` on the left side, but they can add/delete/reorganize buttons (that will fire the action selected on the left site) from these `Actions` on the right side
