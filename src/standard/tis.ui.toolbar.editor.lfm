@@ -376,4 +376,13 @@ object TisToolBarEditor: TTisToolBarEditor
     ShowButtons = [pbOK, pbCancel]
     ShowGlyphs = [pbOK, pbCancel, pbHelp]
   end
+  object ToolBarRestoreButton: TSpeedButton
+    AnchorSideLeft.Control = lvToolbar
+    Left = 413
+    Height = 22
+    Top = 29
+    Width = 67
+    Caption = 'Restore'
+    OnClick = ToolBarRestoreButtonClick
+  end
 end

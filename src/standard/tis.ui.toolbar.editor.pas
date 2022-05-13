@@ -45,6 +45,7 @@ type
     pnlButtons: TButtonPanel;
     Splitter1: TSplitter;
     TV: TTreeView;
+    ToolBarRestoreButton: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure lvToolbarDblClick(Sender: TObject);
     procedure lvToolbarEnterExit(Sender: TObject);
@@ -59,6 +60,7 @@ type
       {%H-}Selected: Boolean);
     procedure TVSelectionChanged(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var {%H-}CanClose: boolean);
+    procedure ToolBarRestoreButtonClick(Sender: TObject);
   private
     fTarget: TTisToolBar;
     procedure SetTarget(aValue: TTisToolBar);
@@ -92,6 +94,7 @@ resourcestring
   rsToolBarConfiguration = 'Toolbar Configuration';
   rsToolBarAvailableCommands = 'Available commands';
   rsToolBarCommands = 'Toolbar commands';
+  rsToolBarRestore = 'Restore';
 
 implementation
 
@@ -154,7 +157,8 @@ var
   li: TListItem;
   i: Integer;
 begin
-  if ModalResult = mrOK then
+  CanClose := lvToolbar.Items.Count > 0;
+  if CanClose and (ModalResult = mrOK) then
   begin
     fTarget.RemoveButtons;
     for i := 0 to lvToolbar.Items.Count -1 do
@@ -167,6 +171,11 @@ begin
       fTarget.AddButton(style, TAction(li.Data));
     end;
   end;
+end;
+
+procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
+begin
+  LoadButtons;
 end;
 
 procedure TTisToolBarEditor.InsertItem(Item: TListItem);
@@ -240,9 +249,9 @@ begin
   // Show the command as available again in TreeView.
   if Assigned(a) then
   begin
-    n:= TV.Items.FindNodeWithData(a);
-    if n<>nil then
-      n.Visible:= True;
+    n := TV.Items.FindNodeWithData(a);
+    if n <> nil then
+      n.Visible := True;
   end;
   UpdateButtonsState;
 end;
@@ -310,6 +319,7 @@ begin
   Caption := rsToolBarConfiguration;
   lblMenuTree.Caption := rsToolBarAvailableCommands;
   lblToolbar.Caption := rsToolBarCommands;
+  ToolBarRestoreButton.Caption := rsToolBarRestore;
 end;
 
 procedure TTisToolBarEditor.LoadCategories;
@@ -364,6 +374,12 @@ var
   i: Integer;
   b: TToolButton;
 begin
+  if lvToolbar.Items.Count > 0 then
+  begin
+    lvToolbar.ItemIndex := 0; // point to the first for remove all items
+    for i := 0 to lvToolbar.Items.Count -1 do
+      RemoveCommand;
+  end;
   for i := 0 to fTarget.ButtonCount -1 do
   begin
     b := fTarget.Buttons[i];

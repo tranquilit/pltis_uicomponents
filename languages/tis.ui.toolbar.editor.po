@@ -16,3 +16,7 @@ msgctxt "tis.ui.toolbar.editor.rstoolbarconfiguration"
 msgid "Toolbar Configuration"
 msgstr ""
 
+#: tis.ui.toolbar.editor.rstoolbarrestore
+msgid "Restore"
+msgstr ""
+
