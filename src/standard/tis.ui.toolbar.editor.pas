@@ -58,7 +58,7 @@ type
     procedure lvToolbarSelectItem(Sender: TObject; {%H-}Item: TListItem;
       {%H-}Selected: Boolean);
     procedure TVSelectionChanged(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure FormCloseQuery(Sender: TObject; var {%H-}CanClose: boolean);
   private
     fTarget: TTisToolBar;
     procedure SetTarget(aValue: TTisToolBar);
@@ -360,8 +360,18 @@ begin
 end;
 
 procedure TTisToolBarEditor.LoadButtons;
+var
+  i: Integer;
+  b: TToolButton;
 begin
-
+  for i := 0 to fTarget.ButtonCount -1 do
+  begin
+    b := fTarget.Buttons[i];
+    if b.Style = tbsDivider then
+      AddDivider
+    else
+      AddToolBarItem(b.Action as TAction);
+  end;
 end;
 
 procedure TTisToolBarEditor.AddMenuItem(aParentNode: TTreeNode; aAction: TAction);
