@@ -116,7 +116,7 @@ Main Features:
 - users cannot add new `ActionList` on the left side, but they can add/delete/reorganize buttons (that will fire the action selected on the left site) from these `Actions` on the right side
 - use `SessionValues` property to storage user's configuration in runtime 
 
-<img src="./images/tistollbar.png">
+<img src="./images/tistoolbar.png">
 
 
 ## Dependencies
