@@ -157,8 +157,7 @@ var
   li: TListItem;
   i: Integer;
 begin
-  CanClose := lvToolbar.Items.Count > 0;
-  if CanClose and (ModalResult = mrOK) then
+  if ModalResult = mrOK then
   begin
     fTarget.RemoveButtons;
     for i := 0 to lvToolbar.Items.Count -1 do
@@ -175,6 +174,7 @@ end;
 
 procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
+  fTarget.ResetSession;
   LoadButtons;
 end;
 

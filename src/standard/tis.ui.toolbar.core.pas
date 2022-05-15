@@ -54,7 +54,7 @@ type
     function GetOwner: TPersistent; override;
   public
     constructor Create(aControl: TWinControl); reintroduce;
-    function LocateAction(const aListName, aActionName: string): TAction;
+    function LocateAction(const aListOwnerName, aListName, aActionName: string): TAction;
     /// items of the collection
     property Items[aIndex: Integer]: TActionsItem read GetItems write SetItems; default;
   end;
@@ -62,19 +62,30 @@ type
   TTisToolBar = class(TToolBar)
   private
     fActions: TActionsCollection;
+    fDefaultSessionValues: string;
   protected
+    // ------------------------------- inherited methods ----------------------------------
+    procedure Loaded; override;
+    // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
     procedure SetSessionValues(const aValue: string); virtual;
+    /// default implementation for OnDblClick event
+    // - it will call ShowEditor
+    procedure ShowEditorOnDblClick({%H-}sender: TObject); virtual;
   public
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
     // ------------------------------- new methods ----------------------------------
+    /// add a new button related to an action
     procedure AddButton(aStyle: TToolButtonStyle; aAction: TAction); overload;
+    /// remove all buttons
     procedure RemoveButtons;
     /// it shows the Editor to manage buttons vs. actions
     procedure ShowEditor;
+    /// it resets SessionValues to the original design
+    procedure ResetSession;
   published
     // ------------------------------- new properties ----------------------------------
     property Actions: TActionsCollection read fActions write fActions;
@@ -127,7 +138,8 @@ begin
   fControl := aControl;
 end;
 
-function TActionsCollection.LocateAction(const aListName, aActionName: string): TAction;
+function TActionsCollection.LocateAction(const aListOwnerName, aListName,
+  aActionName: string): TAction;
 var
   i: Integer;
   l: TActionList;
@@ -136,12 +148,21 @@ begin
   for i := 0 to Count -1 do
   begin
     l := Items[i].List;
-    if l.Name = aListName then
+    if (l.Owner.Name = aListOwnerName) and (l.Name = aListName) then
+    begin
       result := l.ActionByName(aActionName) as TAction;
+      exit;
+    end;
   end;
 end;
 
 { TTisToolBar }
+
+procedure TTisToolBar.Loaded;
+begin
+  inherited Loaded;
+  fDefaultSessionValues := SessionValues; // save default values
+end;
 
 function TTisToolBar.GetSessionValues: string;
 var
@@ -152,44 +173,55 @@ var
   o: Variant;
 begin
   d.InitArray([], JSON_FAST_FLOAT);
-  try
-    for i := 0 to ButtonCount -1 do
+  for i := 0 to ButtonCount -1 do
+  begin
+    b := Buttons[i];
+    o := _ObjFast([
+      'left', b.Left,
+      'style', b.Style
+    ]);
+    a := b.Action as TAction;
+    if a <> nil then
     begin
-      b := Buttons[i];
-      o := _ObjFast([
-        'left', b.Left,
-        'style', b.Style
+      o.action := _ObjFast([
+        'owner', a.ActionList.Owner.Name,
+        'list', a.ActionList.Name,
+        'name', a.Name
       ]);
-      a := b.Action as TAction;
-      if a <> nil then
-      begin
-        o.action := a.Name;
-        o.list := a.ActionList.Name;
-      end;
-      d.AddItem(o);
     end;
-    d.SortArrayByField('left'); // by default, the original list order is by instance added, not by design
-    result := Utf8ToString(d.ToJson);
-  except
-    result := '';
+    d.AddItem(o);
   end;
+  // by default, the original list order is by instance added, not by design order
+  // - session needs to save the buttons design order
+  d.SortArrayByField('left');
+  result := Utf8ToString(d.ToJson);
 end;
 
 procedure TTisToolBar.SetSessionValues(const aValue: string);
 var
   d: TDocVariantData;
-  o: PDocVariantData;
+  o, a: PDocVariantData;
 begin
   if (csDesigning in ComponentState) or
    (GetSessionValues = aValue) or
    (Actions.Count = 0) then
     exit;
   RemoveButtons;
-  if aValue = '' then
-    exit;
-  d.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT);
+  if not d.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
+    d.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT); // use default values, if it is invalid
   for o in d.Objects do
-    AddButton(TToolButtonStyle(o^.I['style']), Actions.LocateAction(o^.S['list'], o^.S['action']));
+  begin
+    a := o^.O_['action'];
+    AddButton(
+      TToolButtonStyle(o^.I['style']),
+      Actions.LocateAction(a^.S['owner'], a^.S['list'], a^.S['name'])
+    );
+  end;
+end;
+
+procedure TTisToolBar.ShowEditorOnDblClick(sender: TObject);
+begin
+  ShowEditor;
 end;
 
 procedure TTisToolBar.AddButton(aStyle: TToolButtonStyle;
@@ -218,6 +250,7 @@ constructor TTisToolBar.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   fActions := TActionsCollection.Create(self);
+  OnDblClick := @ShowEditorOnDblClick;
 end;
 
 destructor TTisToolBar.Destroy;
@@ -247,6 +280,11 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TTisToolBar.ResetSession;
+begin
+  SessionValues := fDefaultSessionValues;
 end;
 
 end.
