@@ -16,7 +16,10 @@ object ToolBarFrame: TToolBarFrame
     Height = 203
     Top = 53
     Width = 402
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ScrollBars = ssAutoBoth
     TabOrder = 0
+    WordWrap = False
   end
   object TisToolBar1: TTisToolBar
     Left = 0
@@ -29,10 +32,10 @@ object ToolBarFrame: TToolBarFrame
     TabOrder = 1
     Actions = <    
       item
-        List = ActionList1
+        List = ActionList
       end    
       item
-        List = ActionList2
+        List = EditorList
       end>
     object ToolButton1: TToolButton
       Left = 1
@@ -77,7 +80,7 @@ object ToolBarFrame: TToolBarFrame
     Caption = 'Session Values'
     ParentColor = False
   end
-  object ActionList1: TActionList
+  object ActionList: TActionList
     Left = 104
     Top = 72
     object GetSessionValuesAction: TAction
@@ -93,19 +96,17 @@ object ToolBarFrame: TToolBarFrame
     object Action3: TAction
       Category = 'Category B'
       Caption = 'Action3'
-      OnExecute = GetSessionValuesActionExecute
     end
     object Action4: TAction
       Category = 'Category C'
       Caption = 'Action4'
-      OnExecute = GetSessionValuesActionExecute
     end
     object Action5: TAction
       Category = 'Category C'
       Caption = 'Action5'
     end
   end
-  object ActionList2: TActionList
+  object EditorList: TActionList
     Left = 192
     Top = 72
     object ShowEditorAction: TAction

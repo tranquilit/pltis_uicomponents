@@ -6,16 +6,20 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ActnList, ComCtrls, Buttons, Dialogs,
-  StdCtrls, tis.ui.toolbar.core;
+  StdCtrls,
+  mormot.core.variants,
+  mormot.core.unicode,
+  mormot.core.text,
+  tis.ui.toolbar.core;
 
 type
   TToolBarFrame = class(TFrame)
-    ActionList1: TActionList;
+    ActionList: TActionList;
     GetSessionValuesAction: TAction;
     SetSessionValuesAction: TAction;
     Action3: TAction;
     Action4: TAction;
-    ActionList2: TActionList;
+    EditorList: TActionList;
     ShowEditorAction: TAction;
     Action5: TAction;
     Memo1: TMemo;
@@ -40,6 +44,14 @@ implementation
 
 {$R *.lfm}
 
+function HumanReadableJson(const aJson: string): string;
+var
+  d: TDocVariantData;
+begin
+  d.InitJson(StringToUtf8(aJson), JSON_FAST_FLOAT);
+  result := Utf8ToString(d.ToJson('', '', jsonHumanReadable));
+end;
+
 { TToolBarFrame }
 
 procedure TToolBarFrame.ShowEditorActionExecute(Sender: TObject);
@@ -49,7 +61,7 @@ end;
 
 procedure TToolBarFrame.GetSessionValuesActionExecute(Sender: TObject);
 begin
-  Memo1.Text := TisToolBar1.SessionValues
+  Memo1.Text := HumanReadableJson(TisToolBar1.SessionValues)
 end;
 
 procedure TToolBarFrame.SetSessionValuesActionExecute(Sender: TObject);
