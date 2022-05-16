@@ -186,6 +186,8 @@ type
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
     procedure OnMenuItemClick(sender: TObject);
+    procedure OnMenuShowAllClick(sender: TObject);
+    procedure OnMenuHideAllClick(sender: TObject);
   public
     procedure Popup(x, y: Integer); override;
   published
@@ -797,31 +799,33 @@ type
   end;
 
 resourcestring
-  RsNoRecordFind = 'No more record found for "%s"';
-  RsPrintOn = 'Printed on';
-  RsPage = 'Page';
-  RsConfirmation = 'Confirm';
-  RsUndoLastUpdate = 'Undo last change';
-  RsRevertRecord = 'Revert to initial record';
-  RsFind = 'Search...';
-  RsFindNext = 'Find next';
-  RsFindReplace = 'Find and replace...';
-  RsCopy = 'Copy';
-  RsCopyCell = 'Copy cell';
-  RsCut = 'Cut';
-  RsPaste = 'Paste';
-  RsInsert = 'Insert';
-  RsDelete = 'Delete';
-  RsDeleteRows = 'Delete selected rows';
-  RsConfDeleteRow = 'Confirm the deletion of the %d selected rows ?';
-  RsSelectAll = 'Select all rows';
-  RsExportSelectedExcel = 'Export selected rows to CSV file...';
-  RsExportAllExcel = 'Export all rows to CSV file...';
-  RsPrint = 'Print...';
-  RsExpandAll = 'Expand all';
-  RsCollapseAll = 'Collapse all';
-  RsCustomizeColumns = 'Customize columns...';
-  RsAdvancedCustomizeColumns = 'Advanced customize of table...';
+  rsNoRecordFind = 'No more record found for "%s"';
+  rsPrintOn = 'Printed on';
+  rsPage = 'Page';
+  rsConfirmation = 'Confirm';
+  rsUndoLastUpdate = 'Undo last change';
+  rsRevertRecord = 'Revert to initial record';
+  rsFind = 'Search...';
+  rsFindNext = 'Find next';
+  rsFindReplace = 'Find and replace...';
+  rsCopy = 'Copy';
+  rsCopyCell = 'Copy cell';
+  rsCut = 'Cut';
+  rsPaste = 'Paste';
+  rsInsert = 'Insert';
+  rsDelete = 'Delete';
+  rsDeleteRows = 'Delete selected rows';
+  rsConfDeleteRow = 'Confirm the deletion of the %d selected rows ?';
+  rsSelectAll = 'Select all rows';
+  rsExportSelectedExcel = 'Export selected rows to CSV file...';
+  rsExportAllExcel = 'Export all rows to CSV file...';
+  rsPrint = 'Print...';
+  rsExpandAll = 'Expand all';
+  rsCollapseAll = 'Collapse all';
+  rsCustomizeColumns = 'Customize columns...';
+  rsAdvancedCustomizeColumns = 'Advanced customize of table...';
+  rsShowAllColumns = 'Show all columns';
+  rsHideAllColumns = 'Hide all columns';
 
 implementation
 
@@ -1226,6 +1230,42 @@ begin
   end;
 end;
 
+procedure TTisGridHeaderPopupMenu.OnMenuShowAllClick(sender: TObject);
+var
+  i: Integer;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    with TVirtualTreeCast(PopupComponent).Header.Columns do
+    begin
+      for i := 0 to Count-1 do
+      if not (coVisible in Items[i].Options) then
+      begin
+        Items[i].Options := Items[i].Options + [coVisible];
+        DoColumnChange(i, True);
+      end;
+    end;
+  end;
+end;
+
+procedure TTisGridHeaderPopupMenu.OnMenuHideAllClick(sender: TObject);
+var
+  i: Integer;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    with TVirtualTreeCast(PopupComponent).Header.Columns do
+    begin
+      for i := 0 to Count-1 do
+      if coVisible in Items[i].Options then
+      begin
+        Items[i].Options := Items[i].Options - [coVisible];
+        DoColumnChange(i, False);
+      end;
+    end;
+  end;
+end;
+
 procedure TTisGridHeaderPopupMenu.Popup(x, y: Integer);
 var
   ColPos: TColumnPosition;
@@ -1280,6 +1320,21 @@ begin
           end;
         end;
       end;
+      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      NewMenuItem.Caption := '-';
+      Items.Add(NewMenuItem);
+      // show all columns
+      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      NewMenuItem.Tag := -1;
+      NewMenuItem.Caption := rsShowAllColumns;
+      NewMenuItem.OnClick := @OnMenuShowAllClick;
+      Items.Add(NewMenuItem);
+      // hide all columns
+      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      NewMenuItem.Tag := -2;
+      NewMenuItem.Caption := rsHideAllColumns;
+      NewMenuItem.OnClick := @OnMenuHideAllClick;
+      Items.Add(NewMenuItem);
       // conditionally disable menu item of last enabled column
       if (VisibleCounter = 1) and (VisibleItem <> nil) and not (poAllowHideAll in fOptions) then
         VisibleItem.Enabled := False;

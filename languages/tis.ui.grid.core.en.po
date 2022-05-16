@@ -65,6 +65,10 @@ msgstr ""
 msgid "Find and replace..."
 msgstr ""
 
+#: tis.ui.grid.core.rshideallcolumns
+msgid "Hide all columns"
+msgstr ""
+
 #: tis.ui.grid.core.rsinsert
 msgid "Insert"
 msgstr ""
@@ -95,6 +99,10 @@ msgstr ""
 
 #: tis.ui.grid.core.rsselectall
 msgid "Select all rows"
+msgstr ""
+
+#: tis.ui.grid.core.rsshowallcolumns
+msgid "Show all columns"
 msgstr ""
 
 #: tis.ui.grid.core.rsundolastupdate
