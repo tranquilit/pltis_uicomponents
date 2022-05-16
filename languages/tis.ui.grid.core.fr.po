@@ -94,6 +94,10 @@ msgstr "Imprimer..."
 msgid "Printed on"
 msgstr "Imprimé le"
 
+#: tis.ui.grid.core.rsrestoredefaultcolumns
+msgid "Restore default columns"
+msgstr "Restaurer les colonnes par défaut"
+
 #: tis.ui.grid.core.rsrevertrecord
 msgid "Revert to initial record"
 msgstr "Revenir à la version initiale"

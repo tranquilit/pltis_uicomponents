@@ -93,6 +93,10 @@ msgstr ""
 msgid "Printed on"
 msgstr ""
 
+#: tis.ui.grid.core.rsrestoredefaultcolumns
+msgid "Restore default columns"
+msgstr ""
+
 #: tis.ui.grid.core.rsrevertrecord
 msgid "Revert to initial record"
 msgstr ""

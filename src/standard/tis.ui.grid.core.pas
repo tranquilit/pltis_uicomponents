@@ -188,6 +188,7 @@ type
     procedure OnMenuItemClick(sender: TObject);
     procedure OnMenuShowAllClick(sender: TObject);
     procedure OnMenuHideAllClick(sender: TObject);
+    procedure OnMenuRestoreClick(sender: TObject);
   public
     procedure Popup(x, y: Integer); override;
   published
@@ -337,6 +338,7 @@ type
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
+    fDefaultSettings: Variant; // all default settings after load component
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
@@ -460,6 +462,9 @@ type
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
       var aNewValue: Variant; var aAbort: Boolean); virtual;
+    /// it restore original settings from original design
+    procedure RestoreSettings;
+    // ------------------------------- new properties ----------------------------------
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -826,6 +831,7 @@ resourcestring
   rsAdvancedCustomizeColumns = 'Advanced customize of table...';
   rsShowAllColumns = 'Show all columns';
   rsHideAllColumns = 'Hide all columns';
+  rsRestoreDefaultColumns = 'Restore default columns';
 
 implementation
 
@@ -1266,6 +1272,11 @@ begin
   end;
 end;
 
+procedure TTisGridHeaderPopupMenu.OnMenuRestoreClick(sender: TObject);
+begin
+   TTisGrid(PopupComponent).RestoreSettings;
+end;
+
 procedure TTisGridHeaderPopupMenu.Popup(x, y: Integer);
 var
   ColPos: TColumnPosition;
@@ -1334,6 +1345,12 @@ begin
       NewMenuItem.Tag := -2;
       NewMenuItem.Caption := rsHideAllColumns;
       NewMenuItem.OnClick := @OnMenuHideAllClick;
+      Items.Add(NewMenuItem);
+      // restore default columns
+      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      NewMenuItem.Tag := -3;
+      NewMenuItem.Caption := rsRestoreDefaultColumns;
+      NewMenuItem.OnClick := @OnMenuRestoreClick;
       Items.Add(NewMenuItem);
       // conditionally disable menu item of last enabled column
       if (VisibleCounter = 1) and (VisibleItem <> nil) and not (poAllowHideAll in fOptions) then
@@ -1809,6 +1826,7 @@ begin
   inherited Loaded;
   if not (csDesigning in ComponentState) then
     FillPopupMenu(PopupMenu);
+  fDefaultSettings := GetSettings;
 end;
 
 function TTisGrid.GetPopupMenu: TPopupMenu;
@@ -2568,6 +2586,11 @@ procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
 begin
   if Assigned(fOnEditValidated) then
     fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
+end;
+
+procedure TTisGrid.RestoreSettings;
+begin
+  Settings := fDefaultSettings;
 end;
 
 constructor TTisGrid.Create(AOwner: TComponent);
