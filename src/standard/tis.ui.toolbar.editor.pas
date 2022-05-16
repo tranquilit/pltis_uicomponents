@@ -174,7 +174,7 @@ end;
 
 procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
-  fTarget.ResetSession;
+  fTarget.RestoreSession;
   LoadButtons;
 end;
 

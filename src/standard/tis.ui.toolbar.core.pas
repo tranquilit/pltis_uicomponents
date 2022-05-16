@@ -85,7 +85,7 @@ type
     /// it shows the Editor to manage buttons vs. actions
     procedure ShowEditor;
     /// it resets SessionValues to the original design
-    procedure ResetSession;
+    procedure RestoreSession;
   published
     // ------------------------------- new properties ----------------------------------
     property Actions: TActionsCollection read fActions write fActions;
@@ -282,7 +282,7 @@ begin
   end;
 end;
 
-procedure TTisToolBar.ResetSession;
+procedure TTisToolBar.RestoreSession;
 begin
   SessionValues := fDefaultSessionValues;
 end;
