@@ -181,7 +181,8 @@ begin
       'style', b.Style
     ]);
     a := b.Action as TAction;
-    if a <> nil then
+    // checking all before use it as a valid action
+    if (a <> nil) and (a.ActionList <> nil) and (a.ActionList.Owner <> nil) then
     begin
       o.action := _ObjFast([
         'owner', a.ActionList.Owner.Name,
@@ -207,15 +208,23 @@ begin
    (Actions.Count = 0) then
     exit;
   RemoveButtons;
-  if not d.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
-    d.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT); // use default values, if it is invalid
-  for o in d.Objects do
-  begin
-    a := o^.O_['action'];
-    AddButton(
-      TToolButtonStyle(o^.I['style']),
-      Actions.LocateAction(a^.S['owner'], a^.S['list'], a^.S['name'])
-    );
+  try
+    if not d.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
+      d.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT); // use default values, if aValue is invalid
+    for o in d.Objects do
+    begin
+      a := o^.O_['action'];
+      AddButton(
+        TToolButtonStyle(o^.I['style']),
+        Actions.LocateAction(a^.S['owner'], a^.S['list'], a^.S['name'])
+      );
+    end;
+  except
+    // shows exception only in designtime
+    if csDesigning in ComponentState then
+      Application.HandleException(self)
+    else
+      // do nothing
   end;
 end;
 
