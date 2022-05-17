@@ -84,7 +84,7 @@ type
     fEditorOptions: TEditorOptions;
     fDefaultSessionValues: string;
   protected
-    const DefaultEditorOptions = [eoShowOnDblClick, eoShowOnPopupMenu];
+    const DefaultEditorOptions = [eoShowOnPopupMenu];
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
@@ -118,6 +118,9 @@ implementation
 
 uses
   tis.ui.toolbar.editor;
+
+resourcestring
+  rsCustomizeToolbar='Customize the toolbar';
 
 { TActionsItem }
 
@@ -285,7 +288,7 @@ begin
     end;
     mi := TMenuItem.Create(self);
     mi.Tag := -1;
-    mi.Caption := 'Show Editor';
+    mi.Caption := rsCustomizeToolbar;
     mi.OnClick := @ShowEditorCallback;
     PopupMenu.Items.Add(mi);
   end;
