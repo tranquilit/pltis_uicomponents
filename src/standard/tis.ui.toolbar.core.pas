@@ -45,7 +45,7 @@ type
     procedure Assign(aSource: TPersistent); override;
   published
     property List: TActionList read fList write fList;
-    /// use this list to hide categories by name, which you do not want users to see on Editor
+    /// use this list to hide categories on Editor by name
     property HiddenCategories: TStrings read fHiddenCategories write SetHiddenCategories;
   end;
 
@@ -65,10 +65,24 @@ type
     property Items[aIndex: Integer]: TActionsItem read GetItems write SetItems; default;
   end;
 
+  TEditorOption = (
+    /// user can double-click on toolbar to show editor
+    // - only if OnDblClick event was not assigned
+    eoShowOnDblClick,
+    /// user can right-click to show a popup menu to access editor
+    // - only if PopupMenu was not assigned
+    eoShowOnPopupMenu
+  );
+
+  TEditorOptions = set of TEditorOption;
+
   TTisToolBar = class(TToolBar)
   private
     fActions: TActionsCollection;
+    fEditorOptions: TEditorOptions;
     fDefaultSessionValues: string;
+  protected
+    const DefaultEditorOptions = [eoShowOnDblClick, eoShowOnPopupMenu];
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
@@ -95,6 +109,7 @@ type
   published
     // ------------------------------- new properties -------------------------------
     property Actions: TActionsCollection read fActions write fActions;
+    property EditorOptions: TEditorOptions read fEditorOptions write fEditorOptions default DefaultEditorOptions;
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
   end;
 
@@ -181,6 +196,11 @@ procedure TTisToolBar.Loaded;
 begin
   inherited Loaded;
   fDefaultSessionValues := SessionValues; // save default values
+  if not (csDesigning in ComponentState) then
+  begin
+    if (not Assigned(OnDblClick)) and (eoShowOnDblClick in fEditorOptions) then
+      OnDblClick := @ShowEditorOnDblClick;
+  end;
 end;
 
 function TTisToolBar.GetSessionValues: string;
@@ -278,7 +298,7 @@ constructor TTisToolBar.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   fActions := TActionsCollection.Create(self);
-  OnDblClick := @ShowEditorOnDblClick;
+  fEditorOptions := DefaultEditorOptions;
 end;
 
 destructor TTisToolBar.Destroy;

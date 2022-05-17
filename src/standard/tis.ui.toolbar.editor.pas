@@ -17,8 +17,6 @@ uses
   ComponentEditors,
   // LazControls
   TreeFilterEdit,
-  // IdeIntf
-  ToolBarIntf,
   // TIS
   tis.ui.toolbar.core;
 
