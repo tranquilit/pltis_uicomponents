@@ -25,6 +25,7 @@ uses
   ComCtrls,
   ActnList,
   TextStrings,
+  Menus,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
@@ -70,7 +71,8 @@ type
     // - only if OnDblClick event was not assigned
     eoShowOnDblClick,
     /// user can right-click to show a popup menu to access editor
-    // - only if PopupMenu was not assigned
+    // - it will add a new item at the end of PopupMenu.Items
+    // - if PopupMenu was not assigned, it will create it
     eoShowOnPopupMenu
   );
 
@@ -89,9 +91,8 @@ type
     // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
     procedure SetSessionValues(const aValue: string); virtual;
-    /// default implementation for OnDblClick event
-    // - it will call ShowEditor
-    procedure ShowEditorOnDblClick({%H-}sender: TObject); virtual;
+    procedure SetupPopupMenu; virtual;
+    procedure ShowEditorCallback({%H-}sender: TObject); virtual;
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -199,7 +200,8 @@ begin
   if not (csDesigning in ComponentState) then
   begin
     if (not Assigned(OnDblClick)) and (eoShowOnDblClick in fEditorOptions) then
-      OnDblClick := @ShowEditorOnDblClick;
+      OnDblClick := @ShowEditorCallback;
+    SetupPopupMenu;
   end;
 end;
 
@@ -267,7 +269,29 @@ begin
   end;
 end;
 
-procedure TTisToolBar.ShowEditorOnDblClick(sender: TObject);
+procedure TTisToolBar.SetupPopupMenu;
+var
+  mi: TMenuItem;
+begin
+  if not Assigned(PopupMenu) then
+    PopupMenu := TPopupMenu.Create(self);
+  if eoShowOnPopupMenu in fEditorOptions then
+  begin
+    if PopupMenu.Items.Count > 0 then
+    begin
+      mi := TMenuItem.Create(self);
+      mi.Caption := '-';
+      PopupMenu.Items.Add(mi);
+    end;
+    mi := TMenuItem.Create(self);
+    mi.Tag := -1;
+    mi.Caption := 'Show Editor';
+    mi.OnClick := @ShowEditorCallback;
+    PopupMenu.Items.Add(mi);
+  end;
+end;
+
+procedure TTisToolBar.ShowEditorCallback(sender: TObject);
 begin
   ShowEditor;
 end;

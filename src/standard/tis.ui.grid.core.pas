@@ -204,7 +204,7 @@ type
     procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     function GetColumnsClass: TVirtualTreeColumnsClass; override;
-    /// creates a default popup menu to inherited PopupMenu
+    /// creates a default popup menu
     procedure NewDefaultPopupMenu;
   public
     constructor Create(aOwner: TBaseVirtualTree); override;

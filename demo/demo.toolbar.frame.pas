@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ActnList, ComCtrls, Buttons, Dialogs,
-  StdCtrls,
+  StdCtrls, Menus,
   mormot.core.variants,
   mormot.core.unicode,
   mormot.core.text,
@@ -32,6 +32,8 @@ type
     ToolButton6: TToolButton;
     Label1: TLabel;
     Action6: TAction;
+    PopupMenu1: TPopupMenu;
+    MenuItem1: TMenuItem;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);
