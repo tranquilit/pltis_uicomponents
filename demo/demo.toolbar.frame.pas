@@ -31,6 +31,7 @@ type
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     Label1: TLabel;
+    Action6: TAction;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);

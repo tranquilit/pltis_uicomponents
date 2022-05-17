@@ -24,6 +24,7 @@ uses
   Variants,
   ComCtrls,
   ActnList,
+  TextStrings,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
@@ -34,13 +35,18 @@ type
   TActionsItem = class(TCollectionItem)
   private
     fList: TActionList;
+    fHiddenCategories: TStrings;
+    procedure SetHiddenCategories(aValue: TStrings);
   protected
     const DefaultReadOnly = False;
   public
     constructor Create(aCollection: TCollection); override;
+    destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
     property List: TActionList read fList write fList;
+    /// use this list to hide categories by name, which you do not want users to see on Editor
+    property HiddenCategories: TStrings read fHiddenCategories write SetHiddenCategories;
   end;
 
   /// actions collection
@@ -50,7 +56,7 @@ type
     function GetItems(aIndex: Integer): TActionsItem;
     procedure SetItems(aIndex: Integer; aValue: TActionsItem);
   protected
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ----------------------------
     function GetOwner: TPersistent; override;
   public
     constructor Create(aControl: TWinControl); reintroduce;
@@ -64,7 +70,7 @@ type
     fActions: TActionsCollection;
     fDefaultSessionValues: string;
   protected
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
@@ -73,7 +79,7 @@ type
     // - it will call ShowEditor
     procedure ShowEditorOnDblClick({%H-}sender: TObject); virtual;
   public
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
@@ -87,7 +93,7 @@ type
     /// it resets SessionValues to the original design
     procedure RestoreSession;
   published
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties -------------------------------
     property Actions: TActionsCollection read fActions write fActions;
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
   end;
@@ -99,9 +105,22 @@ uses
 
 { TActionsItem }
 
+procedure TActionsItem.SetHiddenCategories(aValue: TStrings);
+begin
+  if (aValue <> nil) then
+    fHiddenCategories.Assign(aValue);
+end;
+
 constructor TActionsItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
+  fHiddenCategories := TTextStrings.Create;
+end;
+
+destructor TActionsItem.Destroy;
+begin
+  fHiddenCategories.Free;
+  inherited Destroy;
 end;
 
 procedure TActionsItem.Assign(aSource: TPersistent);
@@ -224,7 +243,7 @@ begin
     if csDesigning in ComponentState then
       Application.HandleException(self)
     else
-      // do nothing
+      // it should not happen... but if did, do not show exception for users
   end;
 end;
 

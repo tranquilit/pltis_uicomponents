@@ -111,11 +111,6 @@ begin
   pnlButtons.Color := clBtnFace;
   lblSelect.Caption := '';
   btnAddDivider.Caption := '---';
-  ////btnAdd.Hint       := lisCoolBarAddSelected;
-  ////btnRemove.Hint    := lisCoolBarRemoveSelected;
-  ////btnMoveUp.Hint    := lisCoolBarMoveSelectedUp;
-  ////btnMoveDown.Hint  := lisCoolBarMoveSelectedDown;
-  ////btnAddDivider.Hint:= lisCoolBarAddDivider;
 end;
 
 procedure TTisToolBarEditor.lvToolbarDblClick(Sender: TObject);
@@ -330,7 +325,10 @@ var
   tmp: record
     list: TActionList;
     action: TAction;
-    category: string;
+    category: record
+      name: string;
+      hiddens: TStrings;
+    end;
   end;
 begin
   TV.Items.BeginUpdate;
@@ -339,26 +337,28 @@ begin
     for i := 0 to Target.Actions.Count -1 do
     begin
       tmp.list := Target.Actions.Items[i].List;
+      tmp.category.hiddens := Target.Actions.Items[i].HiddenCategories;
       for x := 0 to tmp.list.ActionCount -1 do
       begin
         tmp.action := tmp.list.Actions[x] as TAction;
-        if categories.IndexOf(tmp.action.Category) = -1 then
+        if (categories.IndexOf(tmp.action.Category) = -1) and
+          (tmp.category.hiddens.IndexOf(tmp.action.Category) = -1) then
           categories.Append(tmp.action.Category);
       end;
     end;
     TV.Items.Clear;
     for x := 0 to categories.Count-1 do
     begin
-      tmp.category := categories[x];
-      DeleteAmpersands(tmp.category);
-      n := TV.Items.AddChild(nil, tmp.category);
+      tmp.category.name := categories[x];
+      DeleteAmpersands(tmp.category.name);
+      n := TV.Items.AddChild(nil, tmp.category.name);
       for i := 0 to Target.Actions.Count -1 do
       begin
         tmp.list := Target.Actions.Items[i].List;
         for y := 0 to tmp.list.ActionCount -1 do
         begin
           tmp.action := tmp.list.Actions[y] as TAction;
-          if tmp.action.Category = tmp.category then
+          if tmp.action.Category = tmp.category.name then
             AddMenuItem(n, tmp.action);
         end;
       end;
