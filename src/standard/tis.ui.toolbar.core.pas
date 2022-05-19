@@ -32,20 +32,26 @@ uses
   mormot.core.rtti;
 
 type
+  // forward class declarations
+  TTisToolBar = class;
+  TActionsCollection = class;
+
   /// define a item for the collection
   TActionsItem = class(TCollectionItem)
   private
     fList: TActionList;
     fHiddenCategories: TStrings;
     procedure SetHiddenCategories(aValue: TStrings);
+    procedure SetList(aValue: TActionList);
   protected
     const DefaultReadOnly = False;
+    function GetActions: TActionsCollection;
   public
     constructor Create(aCollection: TCollection); override;
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
-    property List: TActionList read fList write fList;
+    property List: TActionList read fList write SetList;
     /// use this list to hide categories on Editor by name
     property HiddenCategories: TStrings read fHiddenCategories write SetHiddenCategories;
   end;
@@ -61,7 +67,9 @@ type
     function GetOwner: TPersistent; override;
   public
     constructor Create(aControl: TWinControl); reintroduce;
+    // ------------------------------- new methods ----------------------------------
     function LocateAction(const aListOwnerName, aListName, aActionName: string): TAction;
+    function GetToolBar: TTisToolBar;
     /// items of the collection
     property Items[aIndex: Integer]: TActionsItem read GetItems write SetItems; default;
   end;
@@ -88,6 +96,7 @@ type
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
+    procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
     // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
     procedure SetSessionValues(const aValue: string); virtual;
@@ -132,6 +141,20 @@ begin
     fHiddenCategories.Assign(aValue);
 end;
 
+procedure TActionsItem.SetList(aValue: TActionList);
+begin
+  if fList = aValue then
+    exit;
+  fList := aValue;
+  if fList <> nil then
+    fList.FreeNotification(GetActions.GetToolBar);
+end;
+
+function TActionsItem.GetActions: TActionsCollection;
+begin
+  result := GetOwner as TActionsCollection;
+end;
+
 constructor TActionsItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
@@ -172,6 +195,11 @@ begin
   result := fControl;
 end;
 
+function TActionsCollection.GetToolBar: TTisToolBar;
+begin
+  result := fControl as TTisToolBar;
+end;
+
 constructor TActionsCollection.Create(aControl: TWinControl);
 begin
   inherited Create(TActionsItem);
@@ -188,6 +216,8 @@ begin
   for i := 0 to Count -1 do
   begin
     l := Items[i].List;
+    if l = nil then
+      continue;
     if (l.Owner.Name = aListOwnerName) and (l.Name = aListName) then
     begin
       result := l.ActionByName(aActionName) as TAction;
@@ -207,6 +237,24 @@ begin
     if (not Assigned(OnDblClick)) and (eoShowOnDblClick in fEditorOptions) then
       OnDblClick := @ShowEditorCallback;
     SetupPopupMenu;
+  end;
+end;
+
+procedure TTisToolBar.Notification(aComponent: TComponent;
+  aOperation: TOperation);
+var
+  i: Integer;
+  ai: TActionsItem;
+begin
+  inherited Notification(aComponent, aOperation);
+  if aOperation = opRemove then
+  begin
+    for i := 0 to Actions.Count -1 do
+    begin
+      ai := Actions.Items[i];
+      if ai.List = aComponent then
+        ai.List := nil;
+    end;
   end;
 end;
 
