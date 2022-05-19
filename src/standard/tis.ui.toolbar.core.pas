@@ -103,7 +103,9 @@ type
     procedure AddButton(aStyle: TToolButtonStyle; aAction: TAction); overload;
     /// remove all buttons
     procedure RemoveButtons;
-    /// it shows the Editor to manage buttons vs. actions
+    /// it shows the Editor to manage buttons/actions
+    // - if there is no items in Actions collection, it will show nothing,
+    // because there is no reason opening the Editor, if user cannot manage buttons/actions
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
@@ -348,6 +350,8 @@ end;
 
 procedure TTisToolBar.ShowEditor;
 begin
+  if Actions.Count = 0 then
+    exit;
   with TTisToolBarEditor.Create(Application) do
   try
     Target := self;

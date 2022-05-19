@@ -32,7 +32,7 @@ type
     ToolButton6: TToolButton;
     Label1: TLabel;
     Action6: TAction;
-    PopupMenu1: TPopupMenu;
+    ToolBarPopup: TPopupMenu;
     MenuItem1: TMenuItem;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
