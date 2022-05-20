@@ -61,6 +61,7 @@ type
     procedure ToolBarRestoreButtonClick(Sender: TObject);
   private
     fTarget: TTisToolBar;
+    fDesigner: TComponentEditorDesigner;
     procedure SetTarget(aValue: TTisToolBar);
     procedure AddCommand;
     procedure AddDivider;
@@ -73,6 +74,8 @@ type
     procedure LoadCategories;
     procedure LoadButtons;
     procedure AddMenuItem(aParentNode: TTreeNode; aAction: TAction);
+  protected
+    property Designer: TComponentEditorDesigner read fDesigner write fDesigner;
   public
     constructor Create(aOwner: TComponent); override;
     property Target: TTisToolBar read fTarget write SetTarget;
@@ -145,22 +148,61 @@ end;
 
 procedure TTisToolBarEditor.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
+
+  function _HasDesigner: Boolean;
+  begin
+    result := Assigned(fDesigner) and Assigned(fDesigner.PropertyEditorHook);
+  end;
+
 var
-  style: TToolButtonStyle;
+  button: record
+    style: TToolButtonStyle;
+    sibling: TToolButton;
+    self: TToolButton;
+  end;
   li: TListItem;
   i: Integer;
 begin
   if ModalResult = mrOK then
   begin
-    fTarget.RemoveButtons;
+    if _HasDesigner then
+    begin
+      for i := fTarget.ButtonCount-1 downto 0 do
+      begin
+        button.self := fTarget.Buttons[i];
+        fDesigner.PropertyEditorHook.DeletePersistent(TPersistent(button.self));
+        fDesigner.Modified;
+      end;
+    end
+    else
+      fTarget.RemoveButtons;
     for i := 0 to lvToolbar.Items.Count -1 do
     begin
       li := lvToolbar.Items[i];
       if li.Caption = DIVIDER_CAPTION then
-        style := tbsDivider
+        button.style := tbsDivider
       else
-        style := tbsButton;
-      fTarget.AddButton(style, TAction(li.Data));
+        button.style := tbsButton;
+      if _HasDesigner then
+      begin
+        button.self := TToolButton.Create(fTarget.Owner);
+        button.self.Caption := fDesigner.CreateUniqueComponentName(button.self.ClassName);
+        button.self.Name := button.self.Caption;
+        button.self.Style := button.style;
+        // position the button next to the last button
+        if fTarget.ButtonCount > 0 then
+        begin
+          button.sibling := fTarget.Buttons[fTarget.ButtonCount - 1];
+          button.self.SetBounds(button.sibling.Left + button.sibling.Width,
+            button.sibling.Top, button.self.Width, button.self.Height);
+        end;
+        button.self.Parent := fTarget;
+        button.self.Action := TAction(li.Data);
+        fDesigner.PropertyEditorHook.PersistentAdded(button.self, True);
+        fDesigner.Modified;
+      end
+      else
+        fTarget.AddButton(button.style, TAction(li.Data));
     end;
   end;
 end;
@@ -446,7 +488,14 @@ end;
 
 procedure TTisToolBarComponentEditor.DoShowEditor;
 begin
-  (Component as TTisToolBar).ShowEditor;
+  with TTisToolBarEditor.Create(Application) do
+  try
+    Target := (Component as TTisToolBar);
+    Designer := GetDesigner;
+    ShowModal;
+  finally
+    Free;
+  end;
 end;
 
 procedure TTisToolBarComponentEditor.ExecuteVerb(Index: Integer);
