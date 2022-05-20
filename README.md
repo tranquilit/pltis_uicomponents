@@ -110,10 +110,12 @@ Based on simple TToolBar component, this component allow users redefine which bu
 
 Main Features:
 
-- the property `Actions` is a collection of `ActionList` instances, which should be defined (by developers) which actions users can work on the Editor in runtime
+- the `Actions` property is a collection of `ActionList` instances, which should be defined (by developers) which actions users can work on the Editor in runtime
 - the Editor shows all actions from `Actions`, separated by `Action.Category` in the left TreeView
 - users cannot add new `ActionList` on the left side, but they can add/delete/reorganize buttons (that will fire the action selected on the left site) from these `Actions` on the right side
 - use `SessionValues` property to storage user's configuration in runtime 
+- the `Actions.Item[].HiddenCategories` will allow the developer do not show some categories (Action.Category), which is very useful for share a same ActionList among multiples ToolBar, but each one will work with just a few actions.
+- you can setup how the Editor will show up using `EditorOptions` property
 
 <img src="./images/tistoolbar.png">
 
