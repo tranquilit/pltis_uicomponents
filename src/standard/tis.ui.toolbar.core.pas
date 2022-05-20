@@ -100,6 +100,7 @@ type
     // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
     procedure SetSessionValues(const aValue: string); virtual;
+    procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
     procedure ShowEditorCallback({%H-}sender: TObject); virtual;
   public
@@ -113,8 +114,6 @@ type
     /// remove all buttons
     procedure RemoveButtons;
     /// it shows the Editor to manage buttons/actions
-    // - if there is no items in Actions collection, it will show nothing,
-    // because there is no reason opening the Editor, if user cannot manage buttons/actions
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
@@ -232,10 +231,11 @@ procedure TTisToolBar.Loaded;
 begin
   inherited Loaded;
   fDefaultSessionValues := SessionValues; // save default values
-  if not (csDesigning in ComponentState) then
+{ Setup options for showing Editor only if there are items in Actions collection.
+  There is no reason opening the Editor, if user cannot manage buttons/actions }
+  if not (csDesigning in ComponentState) and (Actions.Count > 0) then
   begin
-    if (not Assigned(OnDblClick)) and (eoShowOnDblClick in fEditorOptions) then
-      OnDblClick := @ShowEditorCallback;
+    SetupDblClick;
     SetupPopupMenu;
   end;
 end;
@@ -322,6 +322,12 @@ begin
   end;
 end;
 
+procedure TTisToolBar.SetupDblClick;
+begin
+  if (not Assigned(OnDblClick)) and (eoShowOnDblClick in fEditorOptions) then
+    OnDblClick := @ShowEditorCallback;
+end;
+
 procedure TTisToolBar.SetupPopupMenu;
 var
   mi: TMenuItem;
@@ -398,8 +404,6 @@ end;
 
 procedure TTisToolBar.ShowEditor;
 begin
-  if Actions.Count = 0 then
-    exit;
   with TTisToolBarEditor.Create(Application) do
   try
     Target := self;

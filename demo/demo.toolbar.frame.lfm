@@ -34,13 +34,11 @@ object ToolBarFrame: TToolBarFrame
     Actions = <    
       item
         List = ActionList
-        HiddenCategories.Strings = (
-          'HiddenExample'
-        )
       end    
       item
         List = EditorList
       end>
+    EditorOptions = [eoShowOnDblClick, eoShowOnPopupMenu]
     object ToolButton1: TToolButton
       Left = 1
       Top = 2
