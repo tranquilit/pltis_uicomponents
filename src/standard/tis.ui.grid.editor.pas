@@ -345,6 +345,7 @@ end;
 procedure TTisGridEditor.FormShow(Sender: TObject);
 begin
   LoadGridCommonProps;
+  AddFakeDataIfNeedIt;
 end;
 
 procedure TTisGridEditor.MultiSelectCheckBoxChange(Sender: TObject);
