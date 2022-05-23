@@ -352,7 +352,7 @@ type
     fOnEditorLookup: TOnGridEditorLookup;
     fOnPrepareEditor: TOnGridPrepareEditor;
     fOnEditValidated: TOnGridEditValidated;
-    // ------------------------------- HMENU ----------------------------------
+    // ------------------------------- HMENU ---------------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
     HMCut, HMCopy, HMCopyCell, HMPaste, HMFindReplace: HMENU;
@@ -361,7 +361,7 @@ type
     HMCollAll, HMExpAll: HMENU;
     HMCustomize: HMENU;
     HMAdvancedCustomize: HMENU;
-    // ------------------------------- new methods ----------------------------------
+    // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
     function GetFocusedRow: PDocVariantData;
@@ -388,7 +388,9 @@ type
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
   protected
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- new constants -------------------------------
+    const DefaultPopupMenuOptions = [pmoShowFind..pmoShowCustomizeColumns];
+    // ------------------------------- inherited methods ---------------------------
     procedure Loaded; override;
     function GetPopupMenu: TPopupMenu; override;
     procedure SetPopupMenu(aValue: TPopupMenu); // it should be virtual and protected on TControl class
@@ -425,7 +427,7 @@ type
     procedure DoChange(Node: PVirtualNode); override;
     function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
-    // ----------------------------------- new methods --------------------------------------
+    // ----------------------------------- new methods -----------------------------
     /// standard menu management
     procedure FillPopupMenu(sender: TObject);
     function FindText(const aText: string): PVirtualNode;
@@ -464,7 +466,7 @@ type
       var aNewValue: Variant; var aAbort: Boolean); virtual;
     /// it restore original settings from original design
     procedure RestoreSettings;
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties ------------------------------
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
@@ -473,12 +475,12 @@ type
     constructor Create(AOwner: TComponent); override;
     /// destructor
     destructor Destroy; override;
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ---------------------------
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
     /// it will clear Data and everything else related
     procedure Clear; override;
-    // ----------------------------------- new methods --------------------------------------
+    // ----------------------------------- new methods -----------------------------
     /// cast aNode in PDocVariantData
     // - will get the same aNode.Index in Data
     // - if aNode is nil, it will use FocusedNode as default
@@ -541,9 +543,9 @@ type
     procedure SaveSettingsToIni(const aFileName: TFileName);
     /// load Settings from an IniFile
     procedure LoadSettingsFromIni(const aFileName: TFileName);
-    // ------------------------------- inherited events ----------------------------------
+    // ------------------------------- inherited events ----------------------------
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties ------------------------------
     /// direct access to the low-level internal data
     // - if you change its content directly, you should call Invalidate or LoadData for VirtualTree be aware about it
     property Data: TDocVariantData
@@ -568,7 +570,7 @@ type
     /// saving and restoring user customizations
     property Settings: Variant read GetSettings write SetSettings;
   published
-    // ------------------------------- inherited properties ----------------------------------
+    // ------------------------------- inherited properties ------------------------
     property Action;
     property Align;
     property Alignment;
@@ -635,7 +637,7 @@ type
     property TextMargin;
     property Visible;
     property WantTabs;
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties ------------------------------
     property SelectedAndTotalLabel: TLabel
       read fSelectedAndTotalLabel write SetSelectedAndTotalLabel;
     property TreeOptions: TStringTreeOptions
@@ -653,8 +655,8 @@ type
     property NodeOptions: TTisNodeOptions
       read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions
-      read fPopupMenuOptions write fPopupMenuOptions;
-    // ------------------------------- inherited events ----------------------------------
+      read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
+    // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumns;
     property OnAfterCellPaint;
@@ -2604,7 +2606,7 @@ begin
   fZebraColor := $00EDF0F1;
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
-  fPopupMenuOptions := [pmoShowFind..pmoShowCustomizeColumns];
+  fPopupMenuOptions := DefaultPopupMenuOptions;
   WantTabs := True;
   TabStop := True;
   with TreeOptions do
