@@ -1696,9 +1696,9 @@ end;
 
 procedure TTisGrid.SetSelectedRows(const aValue: TDocVariantData);
 var
-  a: TNodeArray;
-  n, m: PVirtualNode;
-  o, f: PDocVariantData;
+  NodesToSelect: TNodeArray;
+  ANode, NodeToFocus: PVirtualNode;
+  ARow, PreviousFocusedRow: PDocVariantData;
 begin
   if aValue.IsVoid then
   begin
@@ -1707,33 +1707,33 @@ begin
   end
   else
   begin
-    f := FocusedRow;
+    PreviousFocusedRow := FocusedRow;
     ClearSelection;
-    n := nil;
-    m := nil;
+    ANode := nil;
+    NodeToFocus := nil;
     BeginUpdate;
     try
-      for o in aValue.Objects do
+      for ARow in aValue.Objects do
       begin
         if Length(KeyFieldsList) = 1 then
-          a := GetNodesBy(StringToUtf8(KeyFieldsList[0]), o^.U[StringToUtf8(KeyFieldsList[0])])
+          NodesToSelect := GetNodesBy(StringToUtf8(KeyFieldsList[0]), ARow^.U[StringToUtf8(KeyFieldsList[0])])
         else
-          a := GetNodesBy(o, Length(KeyFieldsList) > 0);
-        for n in a do
+          NodesToSelect := GetNodesBy(ARow, Length(KeyFieldsList) > 0);
+        for ANode in NodesToSelect do
         begin
-          if (f <> nil) and o^.Equals(f^) then
-            m := n;
-          Selected[n] := True;
+          if (PreviousFocusedRow <> nil) and ARow^.Equals(PreviousFocusedRow^) then
+            NodeToFocus := ANode;
+          Selected[ANode] := True;
         end;
       end;
     finally
       EndUpdate;
     end;
     // focused the last selected node
-    if m <> nil then
-      FocusedNode := m
-    else if n <> nil then
-      FocusedNode := n;
+    if NodeToFocus <> nil then
+      FocusedNode := NodeToFocus
+    else if ANode <> nil then
+      SetFocusedRowNoClearSelection(PreviousFocusedRow);
   end;
 end;
 
@@ -2858,7 +2858,7 @@ begin
     FocusedNode := nil
   else
   begin
-    a := GetNodesBy(aValue{, True});
+    a := GetNodesBy(aValue, True);
     if Length(a) > 0 then
     begin
       FocusedNode := a[0];
