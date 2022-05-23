@@ -390,6 +390,7 @@ type
   protected
     // ------------------------------- new constants -------------------------------
     const DefaultPopupMenuOptions = [pmoShowFind..pmoShowCustomizeColumns];
+    const DefaultWantTabs = True;
     // ------------------------------- inherited methods ---------------------------
     procedure Loaded; override;
     function GetPopupMenu: TPopupMenu; override;
@@ -636,7 +637,7 @@ type
     property TabStop default True;
     property TextMargin;
     property Visible;
-    property WantTabs;
+    property WantTabs default DefaultWantTabs;
     // ------------------------------- new properties ------------------------------
     property SelectedAndTotalLabel: TLabel
       read fSelectedAndTotalLabel write SetSelectedAndTotalLabel;
@@ -2607,7 +2608,7 @@ begin
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
-  WantTabs := True;
+  WantTabs := DefaultWantTabs;
   TabStop := True;
   with TreeOptions do
   begin
