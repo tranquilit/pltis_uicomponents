@@ -214,6 +214,29 @@ type
     property PopupMenu: TPopupMenu read GetPopupMenu write SetPopupMenu;
   end;
 
+  /// a custom implementation for String Tree Options
+  TTisStringTreeOptions = class(TCustomStringTreeOptions)
+  protected
+    const DefaultPaintOptions = VirtualTrees.DefaultPaintOptions -
+      [toShowRoot] + [toAlwaysHideSelection, toShowHorzGridLines, toShowVertGridLines, toHideFocusRect];
+    const DefaultSelectionOptions = VirtualTrees.DefaultSelectionOptions +
+      [toExtendedFocus, toSimpleDrawSelection, toRightClickSelect];
+    const DefaultMiscOptions = VirtualTrees.DefaultMiscOptions +
+      [toGridExtensions, toFullRowDrag] - [toWheelPanning,toEditOnClick,toEditOnDblClick];
+    const DefaultAutoOptions = VirtualTrees.DefaultAutoOptions +
+      [toAutoSort, toAutoChangeScale];
+  public
+    constructor Create(aOwner: TBaseVirtualTree); override;
+  published
+    property AnimationOptions;
+    property AutoOptions default DefaultAutoOptions;
+    property ExportMode;
+    property MiscOptions default DefaultMiscOptions;
+    property PaintOptions default DefaultPaintOptions;
+    property SelectionOptions default DefaultSelectionOptions;
+    property StringOptions;
+  end;
+
   TTisDataEvent = (
     deDataSetChange,
     deAddrecord,
@@ -858,6 +881,17 @@ var
     (Caption: 'Boolean'),
     (Caption: 'Memo')
   );
+
+{ TTisStringTreeOptions }
+
+constructor TTisStringTreeOptions.Create(aOwner: TBaseVirtualTree);
+begin
+  inherited Create(aOwner);
+  AutoOptions := DefaultAutoOptions;
+  MiscOptions := DefaultMiscOptions;
+  PaintOptions := DefaultPaintOptions;
+  SelectionOptions := DefaultSelectionOptions;
+end;
 
 function TTisColumnDataTypeAdapter.EnumToCaption(const aValue: TTisColumnDataType): string;
 begin
@@ -2021,7 +2055,7 @@ end;
 
 function TTisGrid.GetOptionsClass: TTreeOptionsClass;
 begin
-  result := TStringTreeOptions;
+  result := TTisStringTreeOptions;
 end;
 
 function TTisGrid.DoCreateEditor(aNode: PVirtualNode; aColumn: TColumnIndex): IVTEditLink;
