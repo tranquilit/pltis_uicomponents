@@ -91,7 +91,7 @@ object TisGridEditor: TTisGridEditor
       ParentFont = False
       TabOrder = 3
     end
-    object CopyMetaDataButton: TButton
+    object MetaDataButton: TButton
       AnchorSideLeft.Control = DelColumnsButton
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = PasteJsonButton
@@ -99,9 +99,11 @@ object TisGridEditor: TTisGridEditor
       Height = 27
       Top = 11
       Width = 105
-      Action = ActMetaDataCopy
       BorderSpacing.Left = 4
+      Caption = 'MetaData'
+      OnClick = MetaDataButtonClick
       ParentFont = False
+      PopupMenu = MetaDataPopupMenu
       TabOrder = 4
     end
   end
@@ -491,8 +493,12 @@ object TisGridEditor: TTisGridEditor
       OnExecute = ActClearSelRowsExecute
     end
     object ActMetaDataCopy: TAction
-      Caption = 'Copy MetaData'
+      Caption = 'Copy to Clipboard'
       OnExecute = ActMetaDataCopyExecute
+    end
+    object ActMetaDataPaste: TAction
+      Caption = 'Paste from Clipboard'
+      OnExecute = ActMetaDataPasteExecute
     end
   end
   object PopupMenu1: TPopupMenu
@@ -530,6 +536,16 @@ object TisGridEditor: TTisGridEditor
     end
     object MenuItem2: TMenuItem
       Caption = '-'
+    end
+  end
+  object MetaDataPopupMenu: TPopupMenu
+    Left = 248
+    Top = 152
+    object GridMetaDataGetMenuItem: TMenuItem
+      Action = ActMetaDataCopy
+    end
+    object GridMetaDataSetMenuItem: TMenuItem
+      Action = ActMetaDataPaste
     end
   end
 end

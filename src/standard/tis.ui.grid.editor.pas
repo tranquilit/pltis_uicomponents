@@ -109,7 +109,11 @@ type
     MenuItem2: TMenuItem;
     ReadOnlyCheckBox: TCheckBox;
     ActMetaDataCopy: TAction;
-    CopyMetaDataButton: TButton;
+    MetaDataButton: TButton;
+    MetaDataPopupMenu: TPopupMenu;
+    GridMetaDataGetMenuItem: TMenuItem;
+    GridMetaDataSetMenuItem: TMenuItem;
+    ActMetaDataPaste: TAction;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -143,6 +147,8 @@ type
     procedure ActClearRowsExecute(Sender: TObject);
     procedure ActClearSelRowsExecute(Sender: TObject);
     procedure ActMetaDataCopyExecute(Sender: TObject);
+    procedure MetaDataButtonClick(Sender: TObject);
+    procedure ActMetaDataPasteExecute(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -440,6 +446,23 @@ begin
     c.Add(cbkJson, s[1], Length(s));
   finally
     c.Close;
+  end;
+end;
+
+procedure TTisGridEditor.MetaDataButtonClick(Sender: TObject);
+begin
+  (Sender as TButton).PopupMenu.PopUp;
+end;
+
+procedure TTisGridEditor.ActMetaDataPasteExecute(Sender: TObject);
+var
+  c: TClipboardAdapter;
+  d: PDocVariantData;
+begin
+  if c.IsValidFor(cbkJson) or c.IsValidFor(cbkText) then
+  begin
+    d := _Safe(_Json(c.AsJson));
+    Grid.MetaData := d^.ToJson;
   end;
 end;
 

@@ -1,5 +1,6 @@
 {"version":1,"strings":[
 {"hash":83199490,"name":"ttisgrideditor.caption","sourcebytes":[71,114,105,100,32,69,100,105,116,111,114],"value":"Grid Editor"},
+{"hash":212184465,"name":"ttisgrideditor.metadatabutton.caption","sourcebytes":[77,101,116,97,68,97,116,97],"value":"MetaData"},
 {"hash":42382179,"name":"ttisgrideditor.columnpropstab.caption","sourcebytes":[67,111,108,117,109,110,32,80,114,111,112,101,114,116,105,101,115],"value":"Column Properties"},
 {"hash":81606501,"name":"ttisgrideditor.edcolumntitle.editlabel.caption","sourcebytes":[67,111,108,117,109,110,32,116,105,116,108,101],"value":"Column title"},
 {"hash":203500789,"name":"ttisgrideditor.edcolumnproperty.editlabel.caption","sourcebytes":[80,114,111,112,101,114,116,121,32,110,97,109,101],"value":"Property name"},
@@ -39,5 +40,6 @@
 {"hash":193203724,"name":"ttisgrideditor.actclearall.caption","sourcebytes":[67,108,101,97,114,32,65,108,108],"value":"Clear All"},
 {"hash":138622035,"name":"ttisgrideditor.actclearrows.caption","sourcebytes":[67,108,101,97,114,32,114,111,119,115],"value":"Clear rows"},
 {"hash":147769459,"name":"ttisgrideditor.actclearselrows.caption","sourcebytes":[67,108,101,97,114,32,115,101,108,101,99,116,101,100,32,114,111,119,115],"value":"Clear selected rows"},
-{"hash":113384913,"name":"ttisgrideditor.actmetadatacopy.caption","sourcebytes":[67,111,112,121,32,77,101,116,97,68,97,116,97],"value":"Copy MetaData"}
+{"hash":127170340,"name":"ttisgrideditor.actmetadatacopy.caption","sourcebytes":[67,111,112,121,32,116,111,32,67,108,105,112,98,111,97,114,100],"value":"Copy to Clipboard"},
+{"hash":27157284,"name":"ttisgrideditor.actmetadatapaste.caption","sourcebytes":[80,97,115,116,101,32,102,114,111,109,32,67,108,105,112,98,111,97,114,100],"value":"Paste from Clipboard"}
 ]}
