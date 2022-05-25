@@ -69,11 +69,16 @@ type
   TTisColumnDataTypeAdapter = object
     /// convert enum to caption
     function EnumToCaption(const aValue: TTisColumnDataType): string;
+    /// convert enum to RawUtf8
+    function EnumToRawUtf8(const aValue: TTisColumnDataType): RawUtf8;
     /// convert enum to index
     function EnumToIndex(const aValue: TTisColumnDataType): Integer;
     /// convert caption to enum
     // - if aValue not found, it will return the first element
     function CaptionToEnum(const aValue: string): TTisColumnDataType;
+    /// convert RawUtf8 to enum
+    // - if aValue not found, it will return the first element
+    function RawUtf8ToEnum(const aValue: RawUtf8): TTisColumnDataType;
     /// convert caption to index
     // - if aValue not found, it will return the first element
     function CaptionToIndex(const aValue: string): Integer;
@@ -396,6 +401,8 @@ type
     procedure SetGridSettings(const aValue: string);
     procedure SetColumnToFind(aValue: integer);
     procedure SetData(const aValue: TDocVariantData);
+    function GetMetaData: RawUtf8;
+    procedure SetMetaData(const aValue: RawUtf8);
     procedure SetFocusedColumnObject(aValue: TTisGridColumn);
     procedure SetFocusedRow(aValue: PDocVariantData);
     procedure SetOnCutToClipBoard(aValue: TNotifyEvent);
@@ -574,6 +581,7 @@ type
     // - if you change its content directly, you should call Invalidate or LoadData for VirtualTree be aware about it
     property Data: TDocVariantData
       read fData write SetData;
+    property MetaData: RawUtf8 read GetMetaData write SetMetaData;
     property ParentProperty: string
       read fParentProperty write SetParentProperty;
     /// returns a copy of the object from the main selected row
@@ -898,6 +906,12 @@ begin
   result := COLUMNDATATYPES[aValue].Caption;
 end;
 
+function TTisColumnDataTypeAdapter.EnumToRawUtf8(
+  const aValue: TTisColumnDataType): RawUtf8;
+begin
+  result := StringToUtf8(EnumToCaption(aValue));
+end;
+
 function TTisColumnDataTypeAdapter.EnumToIndex(const aValue: TTisColumnDataType): Integer;
 begin
   result := ord(aValue);
@@ -914,6 +928,11 @@ begin
       result := i;
       exit;
     end;
+end;
+
+function TTisColumnDataTypeAdapter.RawUtf8ToEnum(const aValue: RawUtf8): TTisColumnDataType;
+begin
+  result := CaptionToEnum(Utf8ToString(aValue));
 end;
 
 function TTisColumnDataTypeAdapter.CaptionToIndex(const aValue: string): Integer;
@@ -1560,7 +1579,7 @@ begin
     col := Header.Columns[i] as TTisGridColumn;
     cols^.AddItem(
       _ObjFast([
-        'propertyname', StringToUtf8(col.PropertyName),
+        'propertyname', col.PropertyName,
         'text', StringToUtf8(col.Text),
         'position', col.Position,
         'width', col.Width,
@@ -1642,6 +1661,57 @@ begin
   UpdateSelectedAndTotalLabel;
   if Assigned(fOnAfterDataChange) then
     fOnAfterDataChange(self);
+end;
+
+function TTisGrid.GetMetaData: RawUtf8;
+var
+  i: Integer;
+  d: TDocVariantData;
+  col: record
+    cur: TTisGridColumn;
+    items: PDocVariantData;
+    adapt: TTisColumnDataTypeAdapter;
+  end;
+begin
+  d.InitFast;
+  col.items := d.A_['columns'];
+  for i := 0 to Header.Columns.Count -1 do
+  begin
+    col.cur := Header.Columns[i] as TTisGridColumn;
+    col.items^.AddItem(
+      _ObjFast([
+        'propertyname', col.cur.PropertyName,
+        'datatype', col.adapt.EnumToRawUtf8(col.cur.DataType),
+        'required', col.cur.Required,
+        'readonly', col.cur.ReadOnly
+      ])
+    );
+  end;
+  result := d.ToJson;
+end;
+
+procedure TTisGrid.SetMetaData(const aValue: RawUtf8);
+var
+  d: TDocVariantData;
+  col: record
+    cur: PDocVariantData;
+    adapt: TTisColumnDataTypeAdapter;
+    gc: TTisGridColumn;
+  end;
+begin
+  d.InitJson(aValue, JSON_FAST_FLOAT);
+  if d.IsVoid then
+    exit;
+  for col.cur in d.A_['columns']^.Objects do
+  begin
+    col.gc := FindColumnByPropertyName(col.cur^.U['propertyname']);
+    if col.gc <> nil then
+    begin
+      col.gc.DataType := col.adapt.RawUtf8ToEnum(col.cur^.U['datatype']);
+      col.gc.Required := col.cur^.B['required'];
+      col.gc.ReadOnly := col.cur^.B['readonly'];
+    end
+  end;
 end;
 
 procedure TTisGrid.SetFocusedColumnObject(aValue: TTisGridColumn);

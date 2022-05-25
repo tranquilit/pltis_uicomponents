@@ -39,11 +39,9 @@ object GridFrame: TGridFrame
       Header.Style = hsFlatButtons
       PopupMenu = UserPopupMenu
       TabOrder = 0
-      WantTabs = True
       SelectedAndTotalLabel = GridTotalLabel
       TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
       TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
-      TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toAlwaysHideSelection]
       TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
       ZebraColor = 15593713
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExportExcel]
@@ -149,6 +147,28 @@ object GridFrame: TGridFrame
         ParentFont = False
         ParentShowHint = False
         PopupMenu = GridSelRowsPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
+      end
+      object FunctionSelRowsLabel1: TLabel
+        Cursor = crHandPoint
+        Left = 224
+        Height = 15
+        Hint = 'MetaData'
+        Top = 8
+        Width = 51
+        Caption = 'MetaData'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridMetaDataPopupMenu
         ShowHint = True
         OnClick = FunctionDataLabelClick
       end
@@ -1070,7 +1090,7 @@ object GridFrame: TGridFrame
   end
   object GridInputPopupMenu: TPopupMenu
     Left = 80
-    Top = 152
+    Top = 136
     object GridDataAddRowsMenuItem: TMenuItem
       Caption = 'Add Rows'
       Hint = 'Add rows from Input JSON'
@@ -1084,7 +1104,7 @@ object GridFrame: TGridFrame
   end
   object GridSettingsPopupMenu: TPopupMenu
     Left = 80
-    Top = 304
+    Top = 248
     object GridSettingsSaveMenuItem: TMenuItem
       Caption = 'Save'
       OnClick = GridSettingsSaveMenuItemClick
@@ -1096,7 +1116,7 @@ object GridFrame: TGridFrame
   end
   object GridPropsPopupMenu: TPopupMenu
     Left = 80
-    Top = 96
+    Top = 80
     object GridDataCustomizeMenuItem1: TMenuItem
       Caption = 'Customize'
       Hint = 'Open Grid Editor'
@@ -1105,10 +1125,22 @@ object GridFrame: TGridFrame
   end
   object GridSelRowsPopupMenu: TPopupMenu
     Left = 80
-    Top = 208
+    Top = 192
     object GridSelRowsMenuItem: TMenuItem
       Caption = 'Update Columns'
       OnClick = GridSelRowsMenuItemClick
+    end
+  end
+  object GridMetaDataPopupMenu: TPopupMenu
+    Left = 80
+    Top = 304
+    object GridMetaDataGetMenuItem: TMenuItem
+      Caption = 'Get'
+      OnClick = GridMetaDataGetMenuItemClick
+    end
+    object GridMetaDataSetMenuItem: TMenuItem
+      Caption = 'Set'
+      OnClick = GridMetaDataSetMenuItemClick
     end
   end
 end
