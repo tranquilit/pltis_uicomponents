@@ -65,7 +65,7 @@ type
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
-    Panel1: TPanel;
+    ButtonsPanel: TPanel;
     PopupMenu1: TPopupMenu;
     ClearAllButton: TButton;
     PropsPageControl: TPageControl;
@@ -108,6 +108,8 @@ type
     ActClearSelRows: TAction;
     MenuItem2: TMenuItem;
     ReadOnlyCheckBox: TCheckBox;
+    ActMetaDataCopy: TAction;
+    CopyMetaDataButton: TButton;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -140,6 +142,7 @@ type
     procedure VariableNodeHeightCheckBoxChange(Sender: TObject);
     procedure ActClearRowsExecute(Sender: TObject);
     procedure ActClearSelRowsExecute(Sender: TObject);
+    procedure ActMetaDataCopyExecute(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -422,6 +425,22 @@ procedure TTisGridEditor.ActClearSelRowsExecute(Sender: TObject);
 begin
   Grid.DeleteSelectedRows;
   AddFakeDataIfNeedIt;
+end;
+
+procedure TTisGridEditor.ActMetaDataCopyExecute(Sender: TObject);
+var
+  s: RawByteString;
+  c: TClipboardAdapter;
+begin
+  c.Open;
+  try
+    c.Clear;
+    s := Grid.MetaData;
+    c.Add(cbkText, s[1], Length(s)+1);
+    c.Add(cbkJson, s[1], Length(s));
+  finally
+    c.Close;
+  end;
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,

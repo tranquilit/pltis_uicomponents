@@ -1,7 +1,7 @@
 object TisGridEditor: TTisGridEditor
-  Left = 333
+  Left = 441
   Height = 334
-  Top = 261
+  Top = 231
   Width = 711
   Caption = 'Grid Editor'
   ClientHeight = 334
@@ -26,7 +26,7 @@ object TisGridEditor: TTisGridEditor
     TabOrder = 3
     ShowButtons = [pbOK, pbCancel]
   end
-  object Panel1: TPanel
+  object ButtonsPanel: TPanel
     Left = 0
     Height = 48
     Top = 0
@@ -37,40 +37,72 @@ object TisGridEditor: TTisGridEditor
     ParentFont = False
     TabOrder = 0
     object PasteJsonButton: TButton
-      Left = 12
+      AnchorSideLeft.Control = ButtonsPanel
+      AnchorSideTop.Control = ButtonsPanel
+      AnchorSideTop.Side = asrCenter
+      Left = 5
       Height = 27
-      Top = 10
+      Top = 11
       Width = 158
       Action = ActPasteJsonTemplate
+      BorderSpacing.Left = 4
       ParentFont = False
       TabOrder = 0
     end
     object AddColumnButton: TButton
-      Left = 178
+      AnchorSideLeft.Control = PasteJsonButton
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = PasteJsonButton
+      AnchorSideTop.Side = asrCenter
+      Left = 167
       Height = 27
-      Top = 10
+      Top = 11
       Width = 112
       Action = ActAddColumn
+      BorderSpacing.Left = 4
       ParentFont = False
       TabOrder = 1
     end
     object DelColumnsButton: TButton
-      Left = 298
+      AnchorSideLeft.Control = AddColumnButton
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = PasteJsonButton
+      Left = 283
       Height = 27
-      Top = 10
+      Top = 11
       Width = 136
       Action = ActRemoveAllColumns
+      BorderSpacing.Left = 4
       ParentFont = False
       TabOrder = 2
     end
     object ClearAllButton: TButton
-      Left = 595
+      AnchorSideTop.Control = ButtonsPanel
+      AnchorSideTop.Side = asrCenter
+      AnchorSideRight.Control = ButtonsPanel
+      AnchorSideRight.Side = asrBottom
+      Left = 591
       Height = 27
-      Top = 10
-      Width = 96
+      Top = 11
+      Width = 115
       Action = ActClearAll
+      Anchors = [akTop, akRight]
+      BorderSpacing.Right = 4
       ParentFont = False
       TabOrder = 3
+    end
+    object CopyMetaDataButton: TButton
+      AnchorSideLeft.Control = DelColumnsButton
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = PasteJsonButton
+      Left = 423
+      Height = 27
+      Top = 11
+      Width = 105
+      Action = ActMetaDataCopy
+      BorderSpacing.Left = 4
+      ParentFont = False
+      TabOrder = 4
     end
   end
   object Grid: TTisGrid
@@ -97,13 +129,11 @@ object TisGridEditor: TTisGridEditor
     ParentFont = False
     PopupMenu = PopupMenu1
     TabOrder = 1
-    WantTabs = True
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
     TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toExtendedFocus, toSimpleDrawSelection]
     ZebraColor = 15593713
-    PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns]
     OnClick = GridClick
     OnFocusChanged = GridFocusChanged
     OnHeaderDragged = GridHeaderDragged
@@ -413,8 +443,8 @@ object TisGridEditor: TTisGridEditor
     end
   end
   object ActionList: TActionList
-    Left = 122
-    Top = 143
+    Left = 72
+    Top = 96
     object ActPasteJsonTemplate: TAction
       Caption = 'Paste JSON template data'
       OnExecute = ActPasteJsonTemplateExecute
@@ -460,10 +490,14 @@ object TisGridEditor: TTisGridEditor
       Caption = 'Clear selected rows'
       OnExecute = ActClearSelRowsExecute
     end
+    object ActMetaDataCopy: TAction
+      Caption = 'Copy MetaData'
+      OnExecute = ActMetaDataCopyExecute
+    end
   end
   object PopupMenu1: TPopupMenu
-    Left = 240
-    Top = 144
+    Left = 248
+    Top = 96
     object MenuItem1: TMenuItem
       Action = ActAddColumn
     end

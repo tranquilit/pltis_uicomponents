@@ -38,5 +38,6 @@
 {"hash":214953203,"name":"ttisgrideditor.actremoveallcolumns.caption","sourcebytes":[82,101,109,111,118,101,32,97,108,108,32,99,111,108,117,109,110,115],"value":"Remove all columns"},
 {"hash":193203724,"name":"ttisgrideditor.actclearall.caption","sourcebytes":[67,108,101,97,114,32,65,108,108],"value":"Clear All"},
 {"hash":138622035,"name":"ttisgrideditor.actclearrows.caption","sourcebytes":[67,108,101,97,114,32,114,111,119,115],"value":"Clear rows"},
-{"hash":147769459,"name":"ttisgrideditor.actclearselrows.caption","sourcebytes":[67,108,101,97,114,32,115,101,108,101,99,116,101,100,32,114,111,119,115],"value":"Clear selected rows"}
+{"hash":147769459,"name":"ttisgrideditor.actclearselrows.caption","sourcebytes":[67,108,101,97,114,32,115,101,108,101,99,116,101,100,32,114,111,119,115],"value":"Clear selected rows"},
+{"hash":113384913,"name":"ttisgrideditor.actmetadatacopy.caption","sourcebytes":[67,111,112,121,32,77,101,116,97,68,97,116,97],"value":"Copy MetaData"}
 ]}
