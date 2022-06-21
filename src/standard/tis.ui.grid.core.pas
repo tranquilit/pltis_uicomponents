@@ -1683,7 +1683,8 @@ begin
         'propertyname', col.cur.PropertyName,
         'datatype', col.adapt.EnumToRawUtf8(col.cur.DataType),
         'required', col.cur.Required,
-        'readonly', col.cur.ReadOnly
+        'readonly', col.cur.ReadOnly,
+        'width',col.cur.Width
       ])
     );
   end;
@@ -1710,6 +1711,8 @@ begin
       col.gc.DataType := col.adapt.RawUtf8ToEnum(col.cur^.U['datatype']);
       col.gc.Required := col.cur^.B['required'];
       col.gc.ReadOnly := col.cur^.B['readonly'];
+      if col.cur^.GetValueIndex('width')>=0 then
+        col.gc.Width := col.cur^.I['width'];
     end
   end;
 end;
