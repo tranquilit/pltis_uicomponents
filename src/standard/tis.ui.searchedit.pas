@@ -322,6 +322,7 @@ end;
 procedure TTisSearchEdit.KeyPress(var aKey: char);
 begin
   inherited KeyPress(aKey);
+  fTimer.Enabled := False;
   fTimer.Enabled := fAutoSearch;
   if aKey = #13 then
   begin
@@ -349,9 +350,6 @@ end;
 
 procedure TTisSearchEdit.RefreshSearch;
 begin
-  if fAutoSearch then
-    fTimer.Enabled := True
-  else
     Search;
 end;
 
