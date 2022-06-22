@@ -323,12 +323,14 @@ procedure TTisSearchEdit.KeyPress(var aKey: char);
 begin
   inherited KeyPress(aKey);
   fTimer.Enabled := False;
-  fTimer.Enabled := fAutoSearch;
   if aKey = #13 then
   begin
     RefreshSearch;
     AddHistory(Text);
-  end;
+  end
+  else
+  if aKey <> #0 then
+    fTimer.Enabled := fAutoSearch;
 end;
 
 procedure TTisSearchEdit.Search;
@@ -350,6 +352,10 @@ end;
 
 procedure TTisSearchEdit.RefreshSearch;
 begin
+  fTimer.Enabled := False;
+  if fAutoSearch then
+    fTimer.Enabled := True
+  else
     Search;
 end;
 
