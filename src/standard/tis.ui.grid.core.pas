@@ -350,7 +350,7 @@ type
   private
     // ------------------------------- new fields ----------------------------------
     fInternalData: TInternalData;
-    fKeyFieldsList: array of string;
+    fKeyFieldsList, fParentKeyFieldsList: array of string;
     fSelectedAndTotalLabel: TLabel;
     fTextFound: boolean;
     fFindDlg: TFindDialog;
@@ -394,6 +394,8 @@ type
     function GetFocusedRow: PDocVariantData;
     function GetKeyFieldsNames: string;
     procedure SetKeyFieldsNames(const aValue: string);
+    function GetParentKeyFieldsNames: string;
+    procedure SetParentKeyFieldsNames(const aValue: string);
     function GetSettings: Variant;
     procedure SetSettings(const aValue: Variant);
     function GetGridSettings: string;
@@ -532,10 +534,17 @@ type
     // - return the supplied default if aColName is not found
     function GetCellDataAsString(aNode: PVirtualNode; const aColName: RawUtf8;
       const aDefault: string = ''): string;
-    /// returns a list of nodes matching exactly this record
-    // - if fKeyFieldsList is not empty, only fields from fKeyFieldsList are taken in account
-    function GetNodesBy(aData: PDocVariantData; aUseKeyFieldsList: boolean = False): TNodeArray; overload;
-    /// returns a list of nodes that matching with key and value
+    /// returns a list of nodes which is matching exactly to aData
+    // - use aUseKeyFieldsList for search only into fields from KeyFieldsList
+    // but if KeyFieldsList is empty, it will be the same as passing FALSE
+    function GetNodesBy(aData: PDocVariantData; aUseKeyFieldsList: Boolean = False): TNodeArray; overload;
+    /// returns the first node which is matching to aData
+    // - use aUseKeyFieldsList for search only into fields from KeyFieldsList
+    // but if KeyFieldsList is empty, it will be the same as passing FALSE
+    // - use aRowPosition to get a specific row, in case of returning more than one
+    function GetNodeBy(aData: PDocVariantData; aUseKeyFieldsList: Boolean = False;
+      aRowPosition: PtrInt = 0): PVirtualNode; overload;
+    /// returns a list of nodes which is matching to key and value
     function GetNodesBy(const aKey, aValue: RawUtf8): TNodeArray; overload;
     function FindColumnByPropertyName(const aPropertyName: RawUtf8): TTisGridColumn;
     function FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
@@ -676,6 +685,8 @@ type
       read fKeyFieldsList;
     property KeyFieldsNames: string
       read GetKeyFieldsNames write SetKeyFieldsNames;
+    property ParentKeyFieldsNames: string
+      read GetParentKeyFieldsNames write SetParentKeyFieldsNames;
     property GridSettings: string
       read GetGridSettings write SetGridSettings stored False;
     property ZebraColor: TColor
@@ -1562,6 +1573,26 @@ end;
 procedure TTisGrid.SetKeyFieldsNames(const aValue: string);
 begin
   fKeyFieldsList := StrSplit(aValue, ';', True);
+end;
+
+function TTisGrid.GetParentKeyFieldsNames: string;
+begin
+  result := StrJoin(';', fParentKeyFieldsList);
+end;
+
+procedure TTisGrid.SetParentKeyFieldsNames(const aValue: string);
+var
+  keys: TRawUtf8DynArray;
+  parents: TRawUtf8DynArray;
+begin
+  if aValue <> '' then
+  begin
+    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, keys);
+    StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, parents);
+    if high(parents) > high(keys) then
+      raise ETisGrid.Create('ParentKeyFieldsList should not have more fields than KeyFieldsList.');
+  end;
+  fParentKeyFieldsList := StrSplit(aValue, ';', True);
 end;
 
 function TTisGrid.GetSettings: Variant;
@@ -2787,6 +2818,43 @@ begin
 end;
 
 procedure TTisGrid.LoadData;
+
+  procedure _ViewInTreeMode;
+  var
+    d, o: PDocVariantData;
+    p: PVirtualNode;
+    i: PtrInt;
+    keys: TRawUtf8DynArray;
+    parents: TRawUtf8DynArray;
+    equal: Boolean;
+  begin
+    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, keys);
+    StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, parents);
+    p := GetFirst(True);
+    while p <> nil do
+    begin
+      d := GetNodeDataAsDocVariant(p);
+      if d <> nil then
+      begin
+        for o in fData.Objects do
+        begin
+          equal := True;
+          for i := low(parents) to high(parents) do
+          begin
+            if d^.U[parents[i]] <> o^.U[keys[i]] then
+            begin
+              equal := False;
+              break;
+            end;
+          end;
+          if equal then
+            MoveTo(p, GetNodeBy(o, True), amAddChildLast, False);
+        end;
+      end;
+      p := GetNext(p, True);
+    end;
+  end;
+
 var
   f, t: PDocVariantData;
   a: TNodeArray;
@@ -2813,15 +2881,9 @@ begin
       TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
       try
         inherited Clear;
-        if ParentProperty = '' then
-          RootNodeCount := fData.Count
-        else
-        begin
-          // find root nodes (Parent value is nil or not found in current data array)
-          // RootData := GetSORootNodes(Data,ParentRow);
-          // RootNodeCount := RootData.AsArray.Length;
-          // For each root node, set SOChildren recursively
-        end;
+        RootNodeCount := fData.Count;
+        if IsTreeMode and (KeyFieldsNames <> '') and (ParentKeyFieldsNames <> '') then
+          _ViewInTreeMode;
       finally
         if r then
           TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
@@ -2958,7 +3020,8 @@ begin
     result := d^.S[aColName];
 end;
 
-function TTisGrid.GetNodesBy(aData: PDocVariantData; aUseKeyFieldsList: boolean): TNodeArray;
+function TTisGrid.GetNodesBy(aData: PDocVariantData;
+  aUseKeyFieldsList: Boolean): TNodeArray;
 
   procedure _Add(var aArray: TNodeArray; aNode: PVirtualNode);
   begin
@@ -2987,7 +3050,9 @@ begin
     begin
       if usearray then
       begin
+        a.Clear;
         d^.Reduce(ar, False, a);
+        b.Clear;
         aData^.Reduce(ar, False, b);
         if a.Equals(b) then
           _Add(result, p);
@@ -2997,6 +3062,18 @@ begin
     end;
     p := GetNext(p, True);
   end;
+end;
+
+function TTisGrid.GetNodeBy(aData: PDocVariantData; aUseKeyFieldsList: Boolean;
+  aRowPosition: PtrInt): PVirtualNode;
+var
+  a: TNodeArray;
+begin
+  a := GetNodesBy(aData, aUseKeyFieldsList);
+  if a = nil then
+    result := nil
+  else
+    result := a[aRowPosition];
 end;
 
 function TTisGrid.GetNodesBy(const aKey, aValue: RawUtf8): TNodeArray;
@@ -3140,12 +3217,16 @@ begin
       Grid.TreeOptions.Assign(target.TreeOptions);
       Grid.NodeOptions.Assign(target.NodeOptions);
       Grid.Settings := target.Settings;
+      Grid.KeyFieldsNames := target.KeyFieldsNames;
+      Grid.ParentKeyFieldsNames := target.ParentKeyFieldsNames;
       if ShowModal = mrOK then
       begin
         target.ClearAll;
         target.Header.Assign(Grid.Header);
         target.TreeOptions.Assign(Grid.TreeOptions);
         target.NodeOptions.Assign(Grid.NodeOptions);
+        target.KeyFieldsNames := KeyNamesEdit.Text;
+        target.ParentKeyFieldsNames := ParentNamesEdit.Text;
         if KeepDataCheckBox.Checked then
           target.Data := Grid.Data;
       end;

@@ -28,9 +28,11 @@
 {"hash":188209508,"name":"ttisgrideditor.variablenodeheightcheckbox.caption","sourcebytes":[86,97,114,105,97,98,108,101,32,78,111,100,101,32,72,101,105,103,104,116],"value":"Variable Node Height"},
 {"hash":27762019,"name":"ttisgrideditor.treemodecheckbox.hint","sourcebytes":[67,104,101,99,107,32,116,104,105,115,32,111,112,116,105,111,110,32,116,111,32,117,115,101,32,116,111,83,104,111,119,82,111,111,116,44,32,116,111,83,104,111,119,66,117,116,116,111,110,115,44,32,97,110,100,32,116,111,83,104,111,119,84,114,101,101,76,105,110,101,115,32,105,110,32,84,114,101,101,79,112,116,105,111,110,115,46,80,97,105,110,116,79,112,116,105,111,110,115],"value":"Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions"},
 {"hash":192249381,"name":"ttisgrideditor.treemodecheckbox.caption","sourcebytes":[84,114,101,101,32,77,111,100,101],"value":"Tree Mode"},
-{"hash":108725763,"name":"ttisgrideditor.tabsheet1.caption","sourcebytes":[79,112,116,105,111,110,115],"value":"Options"},
+{"hash":305313,"name":"ttisgrideditor.tabsheet1.caption","sourcebytes":[68,97,116,97],"value":"Data"},
 {"hash":194596660,"name":"ttisgrideditor.keepdatacheckbox.hint","sourcebytes":[67,104,101,99,107,32,116,104,105,115,32,111,112,116,105,111,110,32,116,111,32,117,115,101,32,99,117,114,114,101,110,116,32,100,97,116,97,32,105,110,32,116,104,101,32,116,97,114,103,101,116,32,103,114,105,100],"value":"Check this option to use current data in the target grid"},
 {"hash":203880721,"name":"ttisgrideditor.keepdatacheckbox.caption","sourcebytes":[75,101,101,112,32,100,97,116,97],"value":"Keep data"},
+{"hash":190067203,"name":"ttisgrideditor.keynameslabel.caption","sourcebytes":[75,101,121,32,78,97,109,101,115],"value":"Key Names"},
+{"hash":54333331,"name":"ttisgrideditor.parentnameslabel.caption","sourcebytes":[80,97,114,101,110,116,32,78,97,109,101,115],"value":"Parent Names"},
 {"hash":22179873,"name":"ttisgrideditor.actpastejsontemplate.caption","sourcebytes":[80,97,115,116,101,32,74,83,79,78,32,116,101,109,112,108,97,116,101,32,100,97,116,97],"value":"Paste JSON template data"},
 {"hash":111297118,"name":"ttisgrideditor.actaddcolumn.caption","sourcebytes":[65,100,100,32,99,111,108,117,109,110],"value":"Add column"},
 {"hash":96905381,"name":"ttisgrideditor.actupdatecolumn.caption","sourcebytes":[85,112,100,97,116,101],"value":"Update"},
@@ -43,5 +45,7 @@
 {"hash":138622035,"name":"ttisgrideditor.actclearrows.caption","sourcebytes":[67,108,101,97,114,32,114,111,119,115],"value":"Clear rows"},
 {"hash":147769459,"name":"ttisgrideditor.actclearselrows.caption","sourcebytes":[67,108,101,97,114,32,115,101,108,101,99,116,101,100,32,114,111,119,115],"value":"Clear selected rows"},
 {"hash":127170340,"name":"ttisgrideditor.actmetadatacopy.caption","sourcebytes":[67,111,112,121,32,116,111,32,67,108,105,112,98,111,97,114,100],"value":"Copy to Clipboard"},
-{"hash":27157284,"name":"ttisgrideditor.actmetadatapaste.caption","sourcebytes":[80,97,115,116,101,32,102,114,111,109,32,67,108,105,112,98,111,97,114,100],"value":"Paste from Clipboard"}
+{"hash":27157284,"name":"ttisgrideditor.actmetadatapaste.caption","sourcebytes":[80,97,115,116,101,32,102,114,111,109,32,67,108,105,112,98,111,97,114,100],"value":"Paste from Clipboard"},
+{"hash":124058609,"name":"ttisgrideditor.actloaddata.caption","sourcebytes":[76,111,97,100,32,68,97,116,97],"value":"Load Data"},
+{"hash":259925777,"name":"ttisgrideditor.actloaddata.hint","sourcebytes":[76,111,97,100,47,114,101,102,114,101,115,104,32,100,97,116,97],"value":"Load/refresh data"}
 ]}

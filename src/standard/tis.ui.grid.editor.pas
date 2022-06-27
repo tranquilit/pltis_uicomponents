@@ -116,6 +116,12 @@ type
     ActMetaDataPaste: TAction;
     Bevel5: TBevel;
     TreeModeCheckBox: TCheckBox;
+    KeyNamesEdit: TEdit;
+    KeyNamesLabel: TLabel;
+    ParentNamesLabel: TLabel;
+    ParentNamesEdit: TEdit;
+    LoadDataButton: TButton;
+    ActLoadData: TAction;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -152,6 +158,7 @@ type
     procedure MetaDataButtonClick(Sender: TObject);
     procedure ActMetaDataPasteExecute(Sender: TObject);
     procedure TreeModeCheckBoxChange(Sender: TObject);
+    procedure ActLoadDataExecute(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -479,6 +486,13 @@ begin
   Grid.LoadData;
 end;
 
+procedure TTisGridEditor.ActLoadDataExecute(Sender: TObject);
+begin
+  Grid.KeyFieldsNames := KeyNamesEdit.Text;
+  Grid.ParentKeyFieldsNames := ParentNamesEdit.Text;
+  Grid.LoadData;
+end;
+
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
   aColRequired, aColReadOnly: Boolean);
@@ -508,6 +522,8 @@ begin
   MultilineHeightEdit.Value := Grid.NodeOptions.MultiLineHeight;
   VariableNodeHeightCheckBox.Checked := toVariableNodeHeight in Grid.TreeOptions.MiscOptions;
   TreeModeCheckBox.Checked := Grid.IsTreeMode;
+  KeyNamesEdit.Text := Grid.KeyFieldsNames;
+  ParentNamesEdit.Text := Grid.ParentKeyFieldsNames;
 end;
 
 procedure TTisGridEditor.AddFakeDataIfNeedIt;
