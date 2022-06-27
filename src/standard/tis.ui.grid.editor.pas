@@ -114,6 +114,8 @@ type
     GridMetaDataGetMenuItem: TMenuItem;
     GridMetaDataSetMenuItem: TMenuItem;
     ActMetaDataPaste: TAction;
+    Bevel5: TBevel;
+    TreeModeCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -149,6 +151,7 @@ type
     procedure ActMetaDataCopyExecute(Sender: TObject);
     procedure MetaDataButtonClick(Sender: TObject);
     procedure ActMetaDataPasteExecute(Sender: TObject);
+    procedure TreeModeCheckBoxChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -466,6 +469,16 @@ begin
   end;
 end;
 
+procedure TTisGridEditor.TreeModeCheckBoxChange(Sender: TObject);
+begin
+  with Grid.TreeOptions do
+    if TreeModeCheckBox.Checked then
+      PaintOptions := PaintOptions + TREEMODE_OPTIONS
+    else
+      PaintOptions := PaintOptions - TREEMODE_OPTIONS;
+  Grid.LoadData;
+end;
+
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
   aColPosition: string; const aColDataType: TTisColumnDataType;
   aColRequired, aColReadOnly: Boolean);
@@ -494,6 +507,7 @@ begin
   MultilineCheckBox.Checked := Grid.NodeOptions.MultiLine;
   MultilineHeightEdit.Value := Grid.NodeOptions.MultiLineHeight;
   VariableNodeHeightCheckBox.Checked := toVariableNodeHeight in Grid.TreeOptions.MiscOptions;
+  TreeModeCheckBox.Checked := Grid.IsTreeMode;
 end;
 
 procedure TTisGridEditor.AddFakeDataIfNeedIt;

@@ -351,7 +351,6 @@ type
     // ------------------------------- new fields ----------------------------------
     fInternalData: TInternalData;
     fKeyFieldsList: array of string;
-    fParentProperty: string;
     fSelectedAndTotalLabel: TLabel;
     fTextFound: boolean;
     fFindDlg: TFindDialog;
@@ -408,7 +407,6 @@ type
     procedure SetOnCutToClipBoard(aValue: TNotifyEvent);
     function GetOptions: TStringTreeOptions;
     procedure SetOptions(const aValue: TStringTreeOptions);
-    procedure SetParentProperty(const aValue: string);
     function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
@@ -574,6 +572,8 @@ type
     procedure SaveSettingsToIni(const aFileName: TFileName);
     /// load Settings from an IniFile
     procedure LoadSettingsFromIni(const aFileName: TFileName);
+    /// it returns TRUE if tree mode options were settled
+    function IsTreeMode: Boolean;
     // ------------------------------- inherited events ----------------------------
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ------------------------------
@@ -582,8 +582,6 @@ type
     property Data: TDocVariantData
       read fData write SetData;
     property MetaData: RawUtf8 read GetMetaData write SetMetaData;
-    property ParentProperty: string
-      read fParentProperty write SetParentProperty;
     /// returns a copy of the object from the main selected row
     // - do not use this to edit Data values, instead use SelectedObjects
     property SelectedRow: TDocVariantData
@@ -836,6 +834,9 @@ type
     property OnEditValidated: TOnGridEditValidated
       read fOnEditValidated write fOnEditValidated;
   end;
+
+const
+  TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
 
 resourcestring
   rsNoRecordFind = 'No more record found for "%s"';
@@ -1742,14 +1743,6 @@ end;
 procedure TTisGrid.SetOptions(const aValue: TStringTreeOptions);
 begin
   TreeOptions.Assign(aValue);
-end;
-
-procedure TTisGrid.SetParentProperty(const aValue: string);
-begin
-  if fParentProperty = aValue then
-    exit;
-  fParentProperty := aValue;
-  LoadData;
 end;
 
 function TTisGrid.GetSelectedRows: TDocVariantData;
@@ -2788,7 +2781,7 @@ begin
     begin
       d := fInternalData.Data(aNode);
       if d <> nil then
-        result := _Safe(fData.Values[d^])
+        result := _Safe(fData.Values[d^]);
     end;
   end;
 end;
@@ -2842,12 +2835,7 @@ begin
           SetFocusedRowNoClearSelection(f);
         // restore top visible node
         if (t <> nil) and not (tsScrolling in TreeStates) then
-        begin
-          if KeyFieldsNames <> '' then
-            a := GetNodesBy(t, True)
-          else
-            a := GetNodesBy(t);
-        end;
+          a := GetNodesBy(t, KeyFieldsNames <> '');
       finally
         EndUpdate;
         for n in a do
@@ -3021,7 +3009,7 @@ begin
   while p <> nil do
   begin
     d := GetNodeDataAsDocVariant(p);
-    if (d <> nil) and (not d^.IsVoid) and (d^.U[aKey] = aValue ) then
+    if (d <> nil) and (not d^.IsVoid) and (d^.U[aKey] = aValue) then
     begin
       SetLength(result, Length(result) + 1);
       result[Length(result)-1] := p;
@@ -3352,6 +3340,11 @@ begin
   finally
     FreeAndNil(ini);
   end;
+end;
+
+function TTisGrid.IsTreeMode: Boolean;
+begin
+  result := TREEMODE_OPTIONS <= TreeOptions.PaintOptions;
 end;
 
 end.

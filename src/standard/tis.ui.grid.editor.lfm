@@ -425,6 +425,26 @@ object TisGridEditor: TTisGridEditor
         Width = 256
         Shape = bsTopLine
       end
+      object Bevel5: TBevel
+        Left = 24
+        Height = 7
+        Top = 168
+        Width = 256
+        Shape = bsTopLine
+      end
+      object TreeModeCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions'
+        Top = 176
+        Width = 76
+        Caption = 'Tree Mode'
+        OnChange = TreeModeCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 6
+      end
     end
     object TabSheet1: TTabSheet
       Caption = 'Options'
