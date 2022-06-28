@@ -1,10 +1,10 @@
 object TisGridEditor: TTisGridEditor
-  Left = 441
-  Height = 334
-  Top = 231
+  Left = 278
+  Height = 384
+  Top = 240
   Width = 711
   Caption = 'Grid Editor'
-  ClientHeight = 334
+  ClientHeight = 384
   ClientWidth = 711
   OnCreate = FormCreate
   OnShow = FormShow
@@ -12,7 +12,7 @@ object TisGridEditor: TTisGridEditor
   object ButtonPanel: TButtonPanel
     Left = 9
     Height = 34
-    Top = 291
+    Top = 341
     Width = 693
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
@@ -109,7 +109,7 @@ object TisGridEditor: TTisGridEditor
   end
   object Grid: TTisGrid
     Left = 0
-    Height = 234
+    Height = 284
     Top = 48
     Width = 399
     Align = alClient
@@ -142,7 +142,7 @@ object TisGridEditor: TTisGridEditor
   end
   object PropsPageControl: TPageControl
     Left = 399
-    Height = 234
+    Height = 284
     Top = 48
     Width = 312
     ActivePage = GridPropsTab
@@ -151,7 +151,7 @@ object TisGridEditor: TTisGridEditor
     TabOrder = 2
     object ColumnPropsTab: TTabSheet
       Caption = 'Column Properties'
-      ClientHeight = 206
+      ClientHeight = 256
       ClientWidth = 304
       object EdColumnTitle: TLabeledEdit
         Left = 100
@@ -282,7 +282,7 @@ object TisGridEditor: TTisGridEditor
     end
     object GridPropsTab: TTabSheet
       Caption = 'Common Properties'
-      ClientHeight = 206
+      ClientHeight = 256
       ClientWidth = 304
       object AutoSortCheckBox: TCheckBox
         Left = 24
@@ -425,10 +425,30 @@ object TisGridEditor: TTisGridEditor
         Width = 256
         Shape = bsTopLine
       end
+      object Bevel5: TBevel
+        Left = 24
+        Height = 7
+        Top = 168
+        Width = 256
+        Shape = bsTopLine
+      end
+      object TreeModeCheckBox: TCheckBox
+        Left = 24
+        Height = 19
+        Hint = 'Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions'
+        Top = 176
+        Width = 76
+        Caption = 'Tree Mode'
+        OnChange = TreeModeCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 6
+      end
     end
     object TabSheet1: TTabSheet
-      Caption = 'Options'
-      ClientHeight = 206
+      Caption = 'Data'
+      ClientHeight = 256
       ClientWidth = 304
       object KeepDataCheckBox: TCheckBox
         Left = 24
@@ -441,6 +461,56 @@ object TisGridEditor: TTisGridEditor
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
+      end
+      object KeyNamesEdit: TEdit
+        AnchorSideLeft.Control = KeyNamesLabel
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = KeyNamesLabel
+        AnchorSideTop.Side = asrCenter
+        Left = 103
+        Height = 23
+        Top = 48
+        Width = 160
+        BorderSpacing.Left = 20
+        TabOrder = 1
+      end
+      object KeyNamesLabel: TLabel
+        Left = 24
+        Height = 15
+        Top = 52
+        Width = 59
+        Caption = 'Key Names'
+        ParentColor = False
+      end
+      object ParentNamesLabel: TLabel
+        Left = 25
+        Height = 15
+        Top = 80
+        Width = 74
+        Caption = 'Parent Names'
+        ParentColor = False
+      end
+      object ParentNamesEdit: TEdit
+        AnchorSideLeft.Control = ParentNamesLabel
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = ParentNamesLabel
+        AnchorSideTop.Side = asrCenter
+        Left = 103
+        Height = 23
+        Top = 76
+        Width = 160
+        BorderSpacing.Left = 4
+        TabOrder = 2
+      end
+      object LoadDataButton: TButton
+        Left = 24
+        Height = 25
+        Top = 224
+        Width = 75
+        Action = ActLoadData
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 3
       end
     end
   end
@@ -499,6 +569,11 @@ object TisGridEditor: TTisGridEditor
     object ActMetaDataPaste: TAction
       Caption = 'Paste from Clipboard'
       OnExecute = ActMetaDataPasteExecute
+    end
+    object ActLoadData: TAction
+      Caption = 'Load Data'
+      Hint = 'Load/refresh data'
+      OnExecute = ActLoadDataExecute
     end
   end
   object PopupMenu1: TPopupMenu
