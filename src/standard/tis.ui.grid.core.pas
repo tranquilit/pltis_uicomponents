@@ -60,7 +60,8 @@ type
     cdtInteger,
     cdtFloat,
     cdtBoolean,
-    cdtMemo
+    cdtMemo,
+    cdtPassword
   );
 
   TTisColumnDataTypes = set of TTisColumnDataType;
@@ -900,7 +901,8 @@ var
     (Caption: 'Integer'),
     (Caption: 'Float'),
     (Caption: 'Boolean'),
-    (Caption: 'Memo')
+    (Caption: 'Memo'),
+    (Caption: 'Password')
   );
 
 { TTisStringTreeOptions }
@@ -1027,6 +1029,7 @@ begin
   ControlClasses[cdtFloat] := TTisGridFloatEditControl;
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
   ControlClasses[cdtMemo] := TTisGridMemoControl;
+  ControlClasses[cdtPassword] := TTisGridPasswordEditControl;
 end;
 
 function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;
@@ -2068,6 +2071,7 @@ procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
   aTextType: TVSTTextType; var aText: string);
 var
   r: PDocVariantData;
+  c: TTisGridColumn;
 begin
   r := nil;
   if aNode <> nil then
@@ -2077,7 +2081,6 @@ begin
     begin
       if (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
         aText := r^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
-        //aText := VariantToString(r^.GetValueByPath(TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName))
       else if DefaultText <> '' then
         aText := r^.S[DefaultText];
       if aText = '' then
@@ -2090,6 +2093,12 @@ begin
     aText := '';
   if Assigned(fOnGetText) and (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
     fOnGetText(self, aNode, r^, aColumn, aTextType, aText);
+  c := FindColumnByIndex(aColumn);
+  if c <> nil then
+  begin
+    if c.DataType = cdtPassword then
+      aText := StrRepeatChar('*', Length(aText));
+  end;
 end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
@@ -2372,7 +2381,10 @@ end;
 
 function TTisGrid.FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
 begin
-  result := TTisGridColumn(Header.Columns[aIndex]);
+  if aIndex = NoColumn then
+    result := nil
+  else
+    result := TTisGridColumn(Header.Columns[aIndex]);
 end;
 
 procedure TTisGrid.FindDlgFind(Sender: TObject);

@@ -75,6 +75,11 @@ type
     function Edit: TEdit;
   end;
 
+  TTisGridPasswordEditControl = class(TTisGridEditControl)
+  public
+    constructor Create; override;
+  end;
+
   /// control used for all Date data type
   TTisGridDateEditControl = class(TTisGridControl)
   protected
@@ -243,6 +248,14 @@ end;
 function TTisGridEditControl.Edit: TEdit;
 begin
   result := fInternal as TEdit;
+end;
+
+{ TTisGridPasswordEditControl }
+
+constructor TTisGridPasswordEditControl.Create;
+begin
+  inherited Create;
+  Edit.PasswordChar := '*';
 end;
 
 { TTisGridDateEditControl }
