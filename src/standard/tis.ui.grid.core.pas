@@ -142,7 +142,8 @@ type
     property Text: TCaption read GetTitle write SetTitle;
     property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
-    /// if TRUE, it will not allow user to set NULL for this column using Editor
+    /// if TRUE, it will not allow user to set NULL/blank for this column using Editor
+    // - if editor focus is lost, it will return the previous value before edition
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
     property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
   end;

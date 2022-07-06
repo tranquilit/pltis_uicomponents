@@ -229,7 +229,10 @@ end;
 
 function TTisGridEditControl.GetValue: Variant;
 begin
-  result := Edit.Text;
+  if Edit.Text = '' then
+    result := NULL
+  else
+    result := Edit.Text;
 end;
 
 procedure TTisGridEditControl.SetValue(const aValue: Variant);
@@ -265,7 +268,10 @@ end;
 
 function TTisGridDateEditControl.GetValue: Variant;
 begin
-  result := Edit.Date;
+  if Edit.DateIsNull then
+    result := NULL
+  else
+    result := Edit.Date;
 end;
 
 procedure TTisGridDateEditControl.SetValue(const aValue: Variant);
@@ -288,7 +294,10 @@ end;
 
 function TTisGridTimeEditControl.GetValue: Variant;
 begin
-  result := Edit.Time;
+  if Edit.DateIsNull then
+    result := NULL
+  else
+    result := Edit.Time;
 end;
 
 procedure TTisGridTimeEditControl.SetValue(const aValue: Variant);
@@ -306,7 +315,10 @@ end;
 
 function TTisGridDateTimeEditControl.GetValue: Variant;
 begin
-  result := Edit.DateTime;
+  if Edit.DateIsNull then
+    result := NULL
+  else
+    result := Edit.DateTime;
 end;
 
 procedure TTisGridDateTimeEditControl.SetValue(const aValue: Variant);
@@ -335,7 +347,10 @@ end;
 
 function TTisGridIntegerEditControl.GetValue: Variant;
 begin
-  result := Edit.Value;
+  if Edit.Text = '' then
+    result := NULL
+  else
+    result := Edit.Value;
 end;
 
 procedure TTisGridIntegerEditControl.SetValue(const aValue: Variant);
@@ -364,7 +379,10 @@ end;
 
 function TTisGridFloatEditControl.GetValue: Variant;
 begin
-  result := Edit.Value;
+  if Edit.Text = '' then
+    result := NULL
+  else
+    result := Edit.Value;
 end;
 
 procedure TTisGridFloatEditControl.SetValue(const aValue: Variant);
@@ -419,7 +437,10 @@ end;
 
 function TTisGridMemoControl.GetValue: Variant;
 begin
-  result := Edit.Text;
+  if Edit.Text = '' then
+    result := NULL
+  else
+    result := Edit.Text;
 end;
 
 procedure TTisGridMemoControl.SetValue(const aValue: Variant);
