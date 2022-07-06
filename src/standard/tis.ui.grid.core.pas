@@ -585,6 +585,9 @@ type
     procedure LoadSettingsFromIni(const aFileName: TFileName);
     /// it returns TRUE if tree mode options were settled
     function IsTreeMode: Boolean;
+    /// it will search aText in all columns
+    // - focus will go to the grid
+    function Search(const aText: string): Boolean;
     // ------------------------------- inherited events ----------------------------
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ------------------------------
@@ -2460,18 +2463,26 @@ var
   col: integer;
   p: PVirtualNode;
 
-  function match(node: PVirtualNode; Txt: string): integer;
+  procedure _Focus(aColumnIndex: TColumnIndex; aNode: PVirtualNode);
+  begin
+    SelectNodes(aNode,aNode,False);
+    FocusedNode := aNode;
+    FocusedColumn := aColumnIndex;
+    SetFocusSafe;
+  end;
+
+  function _Match(aNode: PVirtualNode; aTxt: string): integer;
   var
     i: integer;
     cellTxt: string;
   begin
-    txt := LowerCase(txt);
+    aTxt := LowerCase(aTxt);
     result := -1;
     if fColumnToFind >= 0 then
     begin
-      DoGetText(node, fColumnToFind, ttNormal, cellTxt);
-      if (not (frWholeWord in fFindDlg.Options) and (pos(txt, LowerCase(cellTxt)) > 0)) or
-        (txt = LowerCase(cellTxt)) then
+      DoGetText(aNode, fColumnToFind, ttNormal, cellTxt);
+      if (not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(cellTxt)) > 0)) or
+        (aTxt = LowerCase(cellTxt)) then
       begin
         result := fColumnToFind;
         TextFound := True;
@@ -2481,9 +2492,9 @@ var
     else
       for i := 0 to Header.Columns.Count - 1 do
       begin
-        DoGetText(node, i, ttNormal, cellTxt);
-        if not (frWholeWord in fFindDlg.Options) and (pos(txt, LowerCase(cellTxt)) > 0) or
-          (txt = LowerCase(cellTxt)) then
+        DoGetText(aNode, i, ttNormal, cellTxt);
+        if not (frWholeWord in fFindDlg.Options) and (pos(aTxt, LowerCase(cellTxt)) > 0) or
+          (aTxt = LowerCase(cellTxt)) then
         begin
           TextFound := True;
           result := i;
@@ -2497,55 +2508,51 @@ begin
   if (TextToFind = '') then
     fFindDlg.Execute
   else
-  try
-   p := FocusedNode;
-   TextFound := False;
-   if p <> nil then
-   begin
-     // depart de recherche. teste la ligne en cours
-     if (fStartSearchNode = nil) then
-     begin
-       fStartSearchNode := P;
-       col := match(p, fTextToFind);
-       if col >= 0 then
-       begin
-         FocusedColumn := col;
-         exit;
-       end;
-     end;
-     //on teste a partir du suivant
-     if (fFindDlg <> nil) and not (frDown in fFindDlg.Options) then
-       P := GetPrevious(P)
-     else
-       P := GetNext(P);
-     while (p <> nil) and (p <> fStartSearchNode) do
-     begin
-       col := match(p, fTextToFind);
-       if col >= 0 then
-       begin
-         SelectNodes(p,p,False);
-         FocusedNode := p;
-         FocusedColumn := col;
-         SetFocusSafe;
-         exit;
-       end;
-       // on teste a partir du suivant
-       if (fFindDlg <> nil) and not (frDown in fFindDlg.Options) then
-         P := GetPrevious(P)
-       else
-         P := GetNext(P);
-       // on reboucle sur le debut
-       if p = nil then
-         if (fFindDlg <> nil) and not (frDown in fFindDlg.Options) then
-           P := GetLast(nil)
-         else
-           P := GetFirst(False);
-     end;
-   end;
-   fStartSearchNode := nil;
-   ShowMessageFmt(RsNoRecordFind,[TextToFind]);
-   SetFocusSafe;
-  finally
+  begin
+    p := FocusedNode;
+    TextFound := False;
+    if p <> nil then
+    begin
+      // depart de recherche. teste la ligne en cours
+      if (fStartSearchNode = nil) then
+      begin
+        fStartSearchNode := p;
+        col := _Match(p, fTextToFind);
+        if col >= 0 then
+        begin
+          _Focus(col, p);
+          exit;
+        end;
+      end;
+      //on teste a partir du suivant
+      if (fFindDlg <> nil) and not (frDown in fFindDlg.Options) then
+        p := GetPrevious(P)
+      else
+        p := GetNext(P);
+      while (p <> nil) and (p <> fStartSearchNode) do
+      begin
+        col := _Match(p, fTextToFind);
+        if col >= 0 then
+        begin
+          _Focus(col, p);
+          exit;
+        end;
+        // on teste a partir du suivant
+        if (fFindDlg <> nil) and not (frDown in fFindDlg.Options) then
+          p := GetPrevious(p)
+        else
+          p := GetNext(p);
+        // on reboucle sur le debut
+        if p = nil then
+          if (fFindDlg <> nil) and not (frDown in fFindDlg.Options) then
+            p := GetLast(nil)
+          else
+            p := GetFirst(False);
+      end;
+    end;
+    fStartSearchNode := nil;
+    ShowMessageFmt(RsNoRecordFind, [TextToFind]);
+    SetFocusSafe;
   end;
 end;
 
@@ -3439,6 +3446,20 @@ end;
 function TTisGrid.IsTreeMode: Boolean;
 begin
   result := TREEMODE_OPTIONS <= TreeOptions.PaintOptions;
+end;
+
+function TTisGrid.Search(const aText: string): Boolean;
+begin
+  result := False;
+  if (Trim(aText) = '') or fData.IsVoid then
+    exit;
+  FocusedNode := GetFirstVisible;
+  fStartSearchNode := nil;
+  ColumnToFind := NoColumn;
+  TextFound := False;
+  TextToFind := aText;
+  DoFindNext(self);
+  result := TextFound;
 end;
 
 end.
