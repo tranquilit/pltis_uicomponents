@@ -101,6 +101,7 @@ type
     GridMetaDataPopupMenu: TPopupMenu;
     GridMetaDataSetMenuItem: TMenuItem;
     GridMetaDataGetMenuItem: TMenuItem;
+    GridSearchEdit: TTisSearchEdit;
     function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -127,6 +128,7 @@ type
       const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
     procedure GridMetaDataGetMenuItemClick(Sender: TObject);
     procedure GridMetaDataSetMenuItemClick(Sender: TObject);
+    procedure GridSearchEditSearch(Sender: TObject; const aText: string);
   private
     procedure DoAsyncSearch(sender: TObject; const aText: string);
   end;
@@ -312,6 +314,11 @@ procedure TGridFrame.GridMetaDataSetMenuItemClick(Sender: TObject);
 begin
   Grid.MetaData := StringToUtf8(InOutputEdit.Lines.Text);
   ShowMessage('Done! Test your grid now.');
+end;
+
+procedure TGridFrame.GridSearchEditSearch(Sender: TObject; const aText: string);
+begin
+  Grid.Search(aText);
 end;
 
 procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);
