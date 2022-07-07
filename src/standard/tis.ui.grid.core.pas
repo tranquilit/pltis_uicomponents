@@ -2475,18 +2475,19 @@ var
     SetFocusSafe;
   end;
 
-  function _Match(aNode: PVirtualNode; aTxt: string): integer;
+  function _Match(aNode: PVirtualNode; var aTxt: string): integer;
   var
     i: integer;
-    cellTxt: string;
+    txt: string;
   begin
+    txt := '';
     aTxt := LowerCase(aTxt);
     result := -1;
     if fColumnToFind >= 0 then
     begin
-      DoGetText(aNode, fColumnToFind, ttNormal, cellTxt);
-      if (not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(cellTxt)) > 0)) or
-        (aTxt = LowerCase(cellTxt)) then
+      DoGetText(aNode, fColumnToFind, ttNormal, txt);
+      if (not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(txt)) > 0)) or
+        (aTxt = LowerCase(txt)) then
       begin
         result := fColumnToFind;
         TextFound := True;
@@ -2496,9 +2497,9 @@ var
     else
       for i := 0 to Header.Columns.Count - 1 do
       begin
-        DoGetText(aNode, i, ttNormal, cellTxt);
-        if not (frWholeWord in fFindDlg.Options) and (pos(aTxt, LowerCase(cellTxt)) > 0) or
-          (aTxt = LowerCase(cellTxt)) then
+        DoGetText(aNode, i, ttNormal, txt);
+        if not (frWholeWord in fFindDlg.Options) and (pos(aTxt, LowerCase(txt)) > 0) or
+          (aTxt = LowerCase(txt)) then
         begin
           TextFound := True;
           result := i;
