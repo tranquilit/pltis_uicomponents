@@ -387,7 +387,7 @@ type
     HMFind, HMFindNext, HMReplace: HMENU;
     HMCut, HMCopy, HMCopyCell, HMPaste, HMFindReplace: HMENU;
     HMInsert, HMDelete, HMSelAll: HMENU;
-    HMExcel, HMPrint: HMENU;
+    HMExcel, HMJson, HMPrint: HMENU;
     HMCollAll, HMExpAll: HMENU;
     HMCustomize: HMENU;
     HMAdvancedCustomize: HMENU;
@@ -2351,9 +2351,9 @@ begin
   else
     HMExcel := AddItem(RsExportAllExcel, 0, @DoExportExcel);
   if (pmoShowExportJson in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMExcel := AddItem(RsExportSelectedJson, 0, @DoExportJson)
+    HMJson := AddItem(RsExportSelectedJson, 0, @DoExportJson)
   else
-    HMExcel := AddItem(RsExportAllJson, 0, @DoExportJson);
+    HMJson := AddItem(RsExportAllJson, 0, @DoExportJson);
   {if (HMPrint = 0) then
     HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
   AddItem('-', 0, nil);
