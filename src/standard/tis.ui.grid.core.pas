@@ -585,6 +585,10 @@ type
     procedure LoadSettingsFromIni(const aFileName: TFileName);
     /// it returns TRUE if tree mode options were settled
     function IsTreeMode: Boolean;
+    /// if using TreeMode, it will expand all
+    procedure ExpandAllNodes;
+    /// if using TreeMode, it will collapse all
+    procedure CollapseAllNodes;
     /// it will search aText in all columns
     // - focus will go to the grid
     function Search(const aText: string): Boolean;
@@ -2509,6 +2513,9 @@ begin
     fFindDlg.Execute
   else
   begin
+    if IsTreeMode then
+     // necessary to show the node for the user, otherwise it gets in an infinity loop
+      ExpandAllNodes;
     p := FocusedNode;
     TextFound := False;
     if p <> nil then
@@ -3446,6 +3453,34 @@ end;
 function TTisGrid.IsTreeMode: Boolean;
 begin
   result := TREEMODE_OPTIONS <= TreeOptions.PaintOptions;
+end;
+
+procedure TTisGrid.ExpandAllNodes;
+var
+  n: PVirtualNode;
+begin
+  n := GetFirst;
+  BeginUpdate;
+  while Assigned(n) do
+  begin
+    Expanded[n] := True;
+    n := GetNext(n);
+  end;
+  EndUpdate;
+end;
+
+procedure TTisGrid.CollapseAllNodes;
+var
+  n: PVirtualNode;
+begin
+  n := GetFirst;
+  BeginUpdate;
+  while Assigned(n) do
+  begin
+    Expanded[n] := False;
+    n := GetNext(n);
+  end;
+  EndUpdate;
 end;
 
 function TTisGrid.Search(const aText: string): Boolean;
