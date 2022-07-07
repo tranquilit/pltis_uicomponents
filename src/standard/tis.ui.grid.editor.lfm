@@ -435,7 +435,7 @@ object TisGridEditor: TTisGridEditor
       object TreeModeCheckBox: TCheckBox
         Left = 24
         Height = 19
-        Hint = 'Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions'
+        Hint = 'Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions'#13#10'- you should define KeyNames and ParentNames in Data tab as well'
         Top = 176
         Width = 76
         Caption = 'Tree Mode'
