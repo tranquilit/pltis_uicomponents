@@ -267,6 +267,7 @@ type
     pmoShowCustomizeColumns,
     // below here, False by default
     pmoShowExportExcel,
+    pmoShowExportJson,
     pmoShowCustomizeGrid
   );
 
@@ -477,6 +478,7 @@ type
     procedure DoUndoLastUpdate(Sender: TObject); virtual;
     procedure DoRevertRecord(Sender: TObject); virtual;
     procedure DoExportExcel(Sender: TObject); virtual;
+    procedure DoExportJson(Sender: TObject); virtual;
     procedure DoCopyToClipBoard(Sender: TObject); virtual;
     procedure DoCopyCellToClipBoard(Sender: TObject); virtual;
     procedure DoCutToClipBoard(Sender: TObject); virtual;
@@ -576,6 +578,9 @@ type
     function ContentAsCSV(aSource: TVSTTextSourceType; const aSeparator: string): RawUtf8;
     /// creates a temporary CSV file and open it in the default app
     procedure ExportExcel(const aPrefix: string; aSelection: TVSTTextSourceType;
+      aSeparator: Char);
+    /// creates a temporary JSON file and open it in the default app
+    procedure ExportJson(const aPrefix: string; aSelection: TVSTTextSourceType;
       aSeparator: Char);
     /// force refresh the "Selected / Total : %d/%d" label
     procedure UpdateSelectedAndTotalLabel;
@@ -879,6 +884,8 @@ resourcestring
   rsSelectAll = 'Select all rows';
   rsExportSelectedExcel = 'Export selected rows to CSV file...';
   rsExportAllExcel = 'Export all rows to CSV file...';
+  rsExportSelectedJson = 'Export selected rows to JSON file...';
+  rsExportAllJson = 'Export all rows to JSON file...';
   rsPrint = 'Print...';
   rsExpandAll = 'Expand all';
   rsCollapseAll = 'Collapse all';
@@ -2343,6 +2350,10 @@ begin
     HMExcel := AddItem(RsExportSelectedExcel, 0, @DoExportExcel)
   else
     HMExcel := AddItem(RsExportAllExcel, 0, @DoExportExcel);
+  if (pmoShowExportJson in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
+    HMExcel := AddItem(RsExportSelectedJson, 0, @DoExportJson)
+  else
+    HMExcel := AddItem(RsExportAllJson, 0, @DoExportJson);
   {if (HMPrint = 0) then
     HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
   AddItem('-', 0, nil);
@@ -2498,7 +2509,7 @@ var
       for i := 0 to Header.Columns.Count - 1 do
       begin
         DoGetText(aNode, i, ttNormal, txt);
-        if not (frWholeWord in fFindDlg.Options) and (pos(aTxt, LowerCase(txt)) > 0) or
+        if not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(txt)) > 0) or
           (aTxt = LowerCase(txt)) then
         begin
           TextFound := True;
@@ -2594,6 +2605,14 @@ begin
     ExportExcel(Name, tstSelected,',')
   else
     ExportExcel(Name, tstAll,',');
+end;
+
+procedure TTisGrid.DoExportJson(Sender: TObject);
+begin
+  if (toMultiSelect in TreeOptions.SelectionOptions) then
+    ExportJson(Name, tstSelected,',')
+  else
+    ExportJson(Name, tstAll,',');
 end;
 
 procedure TTisGrid.DoCopyToClipBoard(Sender: TObject);
@@ -3362,24 +3381,23 @@ begin
   end;
 end;
 
+function GetTempFileName(const Prefix, ext: string): string;
+var
+  I: Integer;
+  Start: string;
+  Disc: string;
+begin
+  Start := GetTempDir;
+  I := 0;
+  Disc := '';
+  repeat
+    result := Format('%s%s%s%s', [Start,Prefix,Disc,ext]);
+    Disc := Format('%.5d', [i]);
+    Inc(I);
+  until not FileExists(result);
+end;
+
 procedure TTisGrid.ExportExcel(const aPrefix: string; aSelection: TVSTTextSourceType; aSeparator: Char);
-
-  function GetTempFileName(const Prefix, ext: string): string;
-  var
-    I: Integer;
-    Start: string;
-    Disc: string;
-  begin
-    Start := GetTempDir;
-    I := 0;
-    Disc := '';
-    repeat
-      result := Format('%s%s%s%s', [Start,Prefix,Disc,ext]);
-      Disc := Format('%.5d', [i]);
-      Inc(I);
-    until not FileExists(result);
-  end;
-
 var
   tempfn: Utf8String;
   txt: Utf8String;
@@ -3392,6 +3410,29 @@ begin
   Rewrite(st,1);
   try
     txt := ContentAsCSV(aSelection, aSeparator)+#0;
+    txtbuf := PChar(txt);
+    l := strlen(txtbuf);
+    BlockWrite(st, txtbuf^, l);
+  finally
+    CloseFile(st);
+    OpenDocument(tempfn);
+  end;
+end;
+
+procedure TTisGrid.ExportJson(const aPrefix: string;
+  aSelection: TVSTTextSourceType; aSeparator: Char);
+var
+  tempfn: Utf8String;
+  txt: Utf8String;
+  txtbuf: PChar;
+  l: LongInt;
+  st: File;
+begin
+  tempfn := GetTempFileName(aPrefix,'.json');
+  AssignFile(st,tempfn);
+  Rewrite(st,1);
+  try
+    txt := fData.ToJson;
     txtbuf := PChar(txt);
     l := strlen(txtbuf);
     BlockWrite(st, txtbuf^, l);
