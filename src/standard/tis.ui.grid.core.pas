@@ -2346,14 +2346,20 @@ begin
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
     HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows);
   AddItem('-', 0, nil);
-  if (pmoShowExportExcel in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMExcel := AddItem(RsExportSelectedExcel, 0, @DoExportExcel)
-  else
-    HMExcel := AddItem(RsExportAllExcel, 0, @DoExportExcel);
-  if (pmoShowExportJson in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMJson := AddItem(RsExportSelectedJson, 0, @DoExportJson)
-  else
-    HMJson := AddItem(RsExportAllJson, 0, @DoExportJson);
+  if pmoShowExportExcel in fPopupMenuOptions then
+  begin
+    if toMultiSelect in TreeOptions.SelectionOptions then
+      HMExcel := AddItem(RsExportSelectedExcel, 0, @DoExportExcel)
+    else
+      HMExcel := AddItem(RsExportAllExcel, 0, @DoExportExcel);
+  end;
+  if pmoShowExportJson in fPopupMenuOptions then
+  begin
+    if (toMultiSelect in TreeOptions.SelectionOptions) then
+      HMJson := AddItem(RsExportSelectedJson, 0, @DoExportJson)
+    else
+      HMJson := AddItem(RsExportAllJson, 0, @DoExportJson);
+  end;
   {if (HMPrint = 0) then
     HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
   AddItem('-', 0, nil);
