@@ -176,6 +176,18 @@ type
     apHidden
   );
 
+  TTisGridExportFormatOption = (
+    /// inherited types
+    gefRtf,  // by ContentToRTF
+    gefHtml, // by ContentToHTML
+    gefText, // by ContentToText
+    /// our own types
+    gefCsv,  // by ContentToCsv
+    gefJson // by ContentToJson
+  );
+
+  TTisGridExportFormatOptions = set of TTisGridExportFormatOption;
+
   TOnGridHeaderAddPopupItem = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex;
     var aItem: TTisGridHeaderPopupItem) of object;
 
@@ -266,8 +278,7 @@ type
     pmoShowSelectAll,
     pmoShowCustomizeColumns,
     // below here, False by default
-    pmoShowExportExcel,
-    pmoShowExportJson,
+    pmoShowExport,
     pmoShowCustomizeGrid
   );
 
@@ -369,6 +380,7 @@ type
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     fDefaultSettings: Variant; // all default settings after load component
+    fExportFormatOptions: TTisGridExportFormatOptions;
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
@@ -387,7 +399,7 @@ type
     HMFind, HMFindNext, HMReplace: HMENU;
     HMCut, HMCopy, HMCopyCell, HMPaste, HMFindReplace: HMENU;
     HMInsert, HMDelete, HMSelAll: HMENU;
-    HMExcel, HMJson, HMPrint: HMENU;
+    HMExport, HMPrint: HMENU;
     HMCollAll, HMExpAll: HMENU;
     HMCustomize: HMENU;
     HMAdvancedCustomize: HMENU;
@@ -423,6 +435,7 @@ type
   protected
     // ------------------------------- new constants -------------------------------
     const DefaultPopupMenuOptions = [pmoShowFind..pmoShowCustomizeColumns];
+    const DefaultExportFormatOptions = [gefCsv, gefJson];
     const DefaultWantTabs = True;
     // ------------------------------- inherited methods ---------------------------
     procedure Loaded; override;
@@ -477,8 +490,7 @@ type
     procedure DoFindReplace(Sender: TObject);
     procedure DoUndoLastUpdate(Sender: TObject); virtual;
     procedure DoRevertRecord(Sender: TObject); virtual;
-    procedure DoExportExcel(Sender: TObject); virtual;
-    procedure DoExportJson(Sender: TObject); virtual;
+    procedure DoExport(Sender: TObject); virtual;
     procedure DoCopyToClipBoard(Sender: TObject); virtual;
     procedure DoCopyCellToClipBoard(Sender: TObject); virtual;
     procedure DoCutToClipBoard(Sender: TObject); virtual;
@@ -499,6 +511,14 @@ type
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
       var aNewValue: Variant; var aAbort: Boolean); virtual;
+    /// it returns the filter for the Save Dialog, when user wants to export data
+    // - it will add file filters based on ExportFormatOptions property values
+    // - you can override this method to customize default filters
+    function GetExportDialogFilter: string; virtual;
+    /// custom format implementation
+    // - you should implement this method, if you use a non-default format
+    procedure GetExportCustomContent(aSource: TVSTTextSourceType;
+      var aBuffer: RawUtf8); virtual; abstract;
     /// it restore original settings from original design
     procedure RestoreSettings;
     // ------------------------------- new properties ------------------------------
@@ -575,13 +595,8 @@ type
       const aOldValues, aNewValues: TDocVariantData);
     /// add columns based on Data content
     procedure CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
-    function ContentAsCSV(aSource: TVSTTextSourceType; const aSeparator: string): RawUtf8;
-    /// creates a temporary CSV file and open it in the default app
-    procedure ExportExcel(const aPrefix: string; aSelection: TVSTTextSourceType;
-      aSeparator: Char);
-    /// creates a temporary JSON file and open it in the default app
-    procedure ExportJson(const aPrefix: string; aSelection: TVSTTextSourceType;
-      aSeparator: Char);
+    /// export Data to CSV format
+    function ContentToCsv(aSource: TVSTTextSourceType; const aSeparator: string): RawUtf8;
     /// force refresh the "Selected / Total : %d/%d" label
     procedure UpdateSelectedAndTotalLabel;
     /// save Settings to an IniFile
@@ -711,6 +726,8 @@ type
       read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions
       read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
+    property ExportFormatOptions: TTisGridExportFormatOptions
+      read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
     // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumns;
@@ -882,10 +899,8 @@ resourcestring
   rsDeleteRows = 'Delete selected rows';
   rsConfDeleteRow = 'Confirm the deletion of the %d selected rows ?';
   rsSelectAll = 'Select all rows';
-  rsExportSelectedExcel = 'Export selected rows to CSV file...';
-  rsExportAllExcel = 'Export all rows to CSV file...';
-  rsExportSelectedJson = 'Export selected rows to JSON file...';
-  rsExportAllJson = 'Export all rows to JSON file...';
+  rsExportSelected = 'Export selected rows to file...';
+  rsExportAll = 'Export all rows to file...';
   rsPrint = 'Print...';
   rsExpandAll = 'Expand all';
   rsCollapseAll = 'Collapse all';
@@ -2346,19 +2361,12 @@ begin
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
     HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows);
   AddItem('-', 0, nil);
-  if pmoShowExportExcel in fPopupMenuOptions then
+  if pmoShowExport in fPopupMenuOptions then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
-      HMExcel := AddItem(RsExportSelectedExcel, 0, @DoExportExcel)
+      HMExport := AddItem(rsExportSelected, 0, @DoExport)
     else
-      HMExcel := AddItem(RsExportAllExcel, 0, @DoExportExcel);
-  end;
-  if pmoShowExportJson in fPopupMenuOptions then
-  begin
-    if (toMultiSelect in TreeOptions.SelectionOptions) then
-      HMJson := AddItem(RsExportSelectedJson, 0, @DoExportJson)
-    else
-      HMJson := AddItem(RsExportAllJson, 0, @DoExportJson);
+      HMExport := AddItem(rsExportAll, 0, @DoExport);
   end;
   {if (HMPrint = 0) then
     HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
@@ -2605,20 +2613,68 @@ procedure TTisGrid.DoRevertRecord(Sender: TObject);
 begin
 end;
 
-procedure TTisGrid.DoExportExcel(Sender: TObject);
-begin
-  if (toMultiSelect in TreeOptions.SelectionOptions) then
-    ExportExcel(Name, tstSelected,',')
-  else
-    ExportExcel(Name, tstAll,',');
-end;
+procedure TTisGrid.DoExport(Sender: TObject);
 
-procedure TTisGrid.DoExportJson(Sender: TObject);
+  function _GetSourceType: TVSTTextSourceType;
+  begin
+    if (toMultiSelect in TreeOptions.SelectionOptions) then
+      result := tstSelected
+    else
+      result := tstAll;
+  end;
+
+  procedure _SaveInFile(const aFileName: TFileName; const aBuffer: RawUtf8);
+  var
+    buf: PUtf8Char;
+    l: LongInt;
+    st: File;
+  begin
+    AssignFile(st, aFileName);
+    Rewrite(st,1);
+    try
+      buf := PUtf8Char(aBuffer + #0);
+      l := StrLen(buf);
+      BlockWrite(st, buf^, l);
+    finally
+      CloseFile(st);
+    end;
+  end;
+
+var
+  dlg: TSaveDialog;
+  buf: RawUtf8;
+  ext: RawByteString;
 begin
-  if (toMultiSelect in TreeOptions.SelectionOptions) then
-    ExportJson(Name, tstSelected,',')
-  else
-    ExportJson(Name, tstAll,',');
+  buf := '';
+  dlg := TSaveDialog.Create(nil);
+  try
+    dlg.Title := Application.Title;
+    dlg.Filter := GetExportDialogFilter;
+    dlg.DefaultExt := 'csv';
+    dlg.FileName := 'data.csv';
+    dlg.Options := dlg.Options + [ofOverwritePrompt];
+    if dlg.Execute then
+    begin
+      ext := ExtractFileExt(dlg.FileName);
+      case ext of
+        '.csv':
+          buf := ContentToCsv(_GetSourceType, ',');
+        '.json':
+          buf := fData.ToJson;
+        '.html', '.htm':
+          buf := StringToUtf8(ContentToHTML(_GetSourceType));
+        '.rtf':
+          buf := StringToUtf8(ContentToRTF(_GetSourceType));
+        '.txt':
+          buf := StringToUtf8(ContentToText(_GetSourceType, ','));
+      else
+        GetExportCustomContent(_GetSourceType, buf);
+      end;
+      _SaveInFile(dlg.FileName, buf);
+    end;
+  finally
+    dlg.Free;
+  end;
 end;
 
 procedure TTisGrid.DoCopyToClipBoard(Sender: TObject);
@@ -2775,6 +2831,29 @@ begin
     fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
 end;
 
+function TTisGrid.GetExportDialogFilter: string;
+
+  procedure _Add(const aFilter: string);
+  begin
+    if result <> '' then
+      result += '|';
+    result += aFilter;
+  end;
+
+begin
+  result := '';
+  if gefCsv in fExportFormatOptions then
+    _Add('CSV (*.csv)|*.csv');
+  if gefJson in fExportFormatOptions then
+   _Add('JSON (*.json)|*.json');
+  if gefRtf in fExportFormatOptions then
+    _Add('RTF (*.rtf)|*.rtf');
+  if gefHtml in fExportFormatOptions then
+    _Add('HTML (*.html, *.htm)|*.html;*.htm');
+  if gefText in fExportFormatOptions then
+    _Add('Text (*.txt)|*.txt');
+end;
+
 procedure TTisGrid.RestoreSettings;
 begin
   Settings := fDefaultSettings;
@@ -2792,6 +2871,7 @@ begin
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
+  fExportFormatOptions := DefaultExportFormatOptions;
   WantTabs := DefaultWantTabs;
   TabStop := True;
   with TreeOptions do
@@ -3344,7 +3424,7 @@ begin
   end;
 end;
 
-function TTisGrid.ContentAsCSV(aSource: TVSTTextSourceType;
+function TTisGrid.ContentToCsv(aSource: TVSTTextSourceType;
   const aSeparator: string): RawUtf8;
 var
   tmp, cols, rows: TDocVariantData;
@@ -3384,67 +3464,6 @@ begin
       end;
     end;
     result := result + tmp.ToCsv(aSeparator) + LineEnding;
-  end;
-end;
-
-function GetTempFileName(const Prefix, ext: string): string;
-var
-  I: Integer;
-  Start: string;
-  Disc: string;
-begin
-  Start := GetTempDir;
-  I := 0;
-  Disc := '';
-  repeat
-    result := Format('%s%s%s%s', [Start,Prefix,Disc,ext]);
-    Disc := Format('%.5d', [i]);
-    Inc(I);
-  until not FileExists(result);
-end;
-
-procedure TTisGrid.ExportExcel(const aPrefix: string; aSelection: TVSTTextSourceType; aSeparator: Char);
-var
-  tempfn: Utf8String;
-  txt: Utf8String;
-  txtbuf: PChar;
-  l: LongInt;
-  st: File;
-begin
-  tempfn := GetTempFileName(aPrefix,'.csv');
-  AssignFile(st,tempfn);
-  Rewrite(st,1);
-  try
-    txt := ContentAsCSV(aSelection, aSeparator)+#0;
-    txtbuf := PChar(txt);
-    l := strlen(txtbuf);
-    BlockWrite(st, txtbuf^, l);
-  finally
-    CloseFile(st);
-    OpenDocument(tempfn);
-  end;
-end;
-
-procedure TTisGrid.ExportJson(const aPrefix: string;
-  aSelection: TVSTTextSourceType; aSeparator: Char);
-var
-  tempfn: Utf8String;
-  txt: Utf8String;
-  txtbuf: PChar;
-  l: LongInt;
-  st: File;
-begin
-  tempfn := GetTempFileName(aPrefix,'.json');
-  AssignFile(st,tempfn);
-  Rewrite(st,1);
-  try
-    txt := fData.ToJson;
-    txtbuf := PChar(txt);
-    l := strlen(txtbuf);
-    BlockWrite(st, txtbuf^, l);
-  finally
-    CloseFile(st);
-    OpenDocument(tempfn);
   end;
 end;
 

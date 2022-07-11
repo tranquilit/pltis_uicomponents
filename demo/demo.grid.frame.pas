@@ -287,7 +287,7 @@ end;
 
 procedure TGridFrame.ClipboardSelectedRowLabel1Click(Sender: TObject);
 begin
-  InOutputEdit.Lines.Text := Utf8ToString(Grid.ContentAsCSV(tstSelected, ','));
+  InOutputEdit.Lines.Text := Utf8ToString(Grid.ContentToCsv(tstSelected, ','));
 end;
 
 procedure TGridFrame.GridEditValidated(sender: TTisGrid;

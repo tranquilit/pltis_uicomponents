@@ -46,21 +46,13 @@ msgstr "Supprimer les lignes sélectionnées"
 msgid "Expand all"
 msgstr "Tout développer"
 
-#: tis.ui.grid.core.rsexportallexcel
-msgid "Export all rows to CSV file..."
-msgstr "Exporter toutes les lignes vers un fichier CSV..."
+#: tis.ui.grid.core.rsexportall
+msgid "Export all rows to file..."
+msgstr "Exporter toutes les lignes vers un fichier..."
 
-#: tis.ui.grid.core.rsexportalljson
-msgid "Exporter toutes les lignes vers un JSON CSV..."
-msgstr ""
-
-#: tis.ui.grid.core.rsexportselectedexcel
-msgid "Export selected rows to CSV file..."
-msgstr "Exporter les lignes sélectionnées vers un fichier CSV..."
-
-#: tis.ui.grid.core.rsexportselectedjson
-msgid "Export selected rows to JSON file..."
-msgstr "Exporter les lignes sélectionnées vers un fichier JSON..."
+#: tis.ui.grid.core.rsexportselected
+msgid "Export selected rows to file..."
+msgstr "Exporter les lignes sélectionnées vers un fichier..."
 
 #: tis.ui.grid.core.rsfind
 msgid "Search..."

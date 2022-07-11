@@ -45,20 +45,12 @@ msgstr ""
 msgid "Expand all"
 msgstr ""
 
-#: tis.ui.grid.core.rsexportallexcel
-msgid "Export all rows to CSV file..."
+#: tis.ui.grid.core.rsexportall
+msgid "Export all rows to file..."
 msgstr ""
 
-#: tis.ui.grid.core.rsexportalljson
-msgid "Export all rows to JSON file..."
-msgstr ""
-
-#: tis.ui.grid.core.rsexportselectedexcel
-msgid "Export selected rows to CSV file..."
-msgstr ""
-
-#: tis.ui.grid.core.rsexportselectedjson
-msgid "Export selected rows to JSON file..."
+#: tis.ui.grid.core.rsexportselected
+msgid "Export selected rows to file..."
 msgstr ""
 
 #: tis.ui.grid.core.rsfind
