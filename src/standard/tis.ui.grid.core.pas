@@ -597,6 +597,8 @@ type
     procedure CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
     /// export Data to CSV format
     function ContentToCsv(aSource: TVSTTextSourceType; const aSeparator: string): RawUtf8;
+    /// export Data to JSON format
+    function ContentToJson(aSource: TVSTTextSourceType): RawUtf8;
     /// force refresh the "Selected / Total : %d/%d" label
     procedure UpdateSelectedAndTotalLabel;
     /// save Settings to an IniFile
@@ -2658,7 +2660,7 @@ begin
         '.csv':
           buf := ContentToCsv(_GetSourceType, ',');
         '.json':
-          buf := fData.ToJson;
+          buf := ContentToJson(_GetSourceType);
         '.html', '.htm':
           buf := StringToUtf8(ContentToHTML(_GetSourceType));
         '.rtf':
@@ -3463,6 +3465,25 @@ begin
     end;
     result := result + tmp.ToCsv(aSeparator) + LineEnding;
   end;
+end;
+
+function TTisGrid.ContentToJson(aSource: TVSTTextSourceType): RawUtf8;
+var
+  cols, rows: TDocVariantData;
+  c: Integer;
+begin
+  if aSource in [tstAll, tstInitialized, tstVisible] then
+    rows := fData
+  else
+    rows := SelectedRows;
+  cols.InitArray([], JSON_FAST_FLOAT);
+  for c := 0 to Header.Columns.Count-1 do
+  begin
+    if coVisible in Header.Columns[c].Options then
+      cols.AddItemText(StringToUtf8('"' + TTisGridColumn(Header.Columns[c]).Text + '"'));
+  end;
+  rows.Reduce(cols.ToRawUtf8DynArray, False);
+  result := rows.ToJson;
 end;
 
 procedure TTisGrid.UpdateSelectedAndTotalLabel;
