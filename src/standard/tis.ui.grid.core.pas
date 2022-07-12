@@ -3428,6 +3428,7 @@ function TTisGrid.ContentToCsv(aSource: TVSTTextSourceType;
   const aSeparator: string): RawUtf8;
 var
   tmp, cols, rows: TDocVariantData;
+  col: TTisGridColumn;
   c: Integer;
   s: RawUtf8;
   o: PDocVariantData;
@@ -3439,8 +3440,9 @@ begin
   cols.InitArray([], JSON_FAST_FLOAT);
   for c := 0 to Header.Columns.Count-1 do
   begin
-    if coVisible in Header.Columns[c].Options then
-      cols.AddItemText(StringToUtf8('"' + TTisGridColumn(Header.Columns[c]).Text + '"'));
+    col := TTisGridColumn(Header.Columns[c]);
+    if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
+      cols.AddItemText(StringToUtf8('"' + col.Text + '"'));
   end;
   result := cols.ToCsv(aSeparator) + LineEnding;
   tmp.InitArray([], JSON_FAST_FLOAT);
@@ -3449,9 +3451,10 @@ begin
     tmp.Reset;
     for c := 0 to Header.Columns.Count-1 do
     begin
-      if coVisible in Header.Columns[c].Options then
+      col := TTisGridColumn(Header.Columns[c]);
+      if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
       begin
-        s := o^.U[TTisGridColumn(Header.Columns[c]).PropertyName];
+        s := o^.U[col.PropertyName];
         if s <> '' then
         begin
           if VarType(o^.Value[s]) in [varDouble, varCurrency, varInteger] then
@@ -3469,7 +3472,8 @@ end;
 
 function TTisGrid.ContentToJson(aSource: TVSTTextSourceType): RawUtf8;
 var
-  cols, rows: TDocVariantData;
+  cols, rows, res: TDocVariantData;
+  col: TTisGridColumn;
   c: Integer;
 begin
   if aSource in [tstAll, tstInitialized, tstVisible] then
@@ -3479,11 +3483,12 @@ begin
   cols.InitArray([], JSON_FAST_FLOAT);
   for c := 0 to Header.Columns.Count-1 do
   begin
-    if coVisible in Header.Columns[c].Options then
-      cols.AddItemText(StringToUtf8('"' + TTisGridColumn(Header.Columns[c]).Text + '"'));
+    col := TTisGridColumn(Header.Columns[c]);
+    if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
+      cols.AddItemText(col.Text);
   end;
-  rows.Reduce(cols.ToRawUtf8DynArray, False);
-  result := rows.ToJson;
+  rows.Reduce(cols.ToRawUtf8DynArray, False, res);
+  result := res.ToJson;
 end;
 
 procedure TTisGrid.UpdateSelectedAndTotalLabel;
