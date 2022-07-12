@@ -379,8 +379,8 @@ type
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
-    fDefaultSettings: Variant; // all default settings after load component
     fExportFormatOptions: TTisGridExportFormatOptions;
+    fDefaultSettings: Variant; // all default settings after load component
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
     fOnCutToClipBoard: TNotifyEvent;
@@ -2623,7 +2623,7 @@ procedure TTisGrid.DoExport(Sender: TObject);
       result := tstAll;
   end;
 
-  procedure _SaveInFile(const aFileName: TFileName; const aBuffer: RawUtf8);
+  procedure _SaveToFile(const aFileName: TFileName; const aBuffer: RawUtf8);
   var
     buf: PUtf8Char;
     l: LongInt;
@@ -2643,7 +2643,6 @@ procedure TTisGrid.DoExport(Sender: TObject);
 var
   dlg: TSaveDialog;
   buf: RawUtf8;
-  ext: RawByteString;
 begin
   buf := '';
   dlg := TSaveDialog.Create(nil);
@@ -2655,8 +2654,7 @@ begin
     dlg.Options := dlg.Options + [ofOverwritePrompt];
     if dlg.Execute then
     begin
-      ext := ExtractFileExt(dlg.FileName);
-      case ext of
+      case ExtractFileExt(dlg.FileName) of
         '.csv':
           buf := ContentToCsv(_GetSourceType, ',');
         '.json':
@@ -2670,7 +2668,7 @@ begin
       else
         GetExportCustomContent(_GetSourceType, buf);
       end;
-      _SaveInFile(dlg.FileName, buf);
+      _SaveToFile(dlg.FileName, buf);
     end;
   finally
     dlg.Free;
