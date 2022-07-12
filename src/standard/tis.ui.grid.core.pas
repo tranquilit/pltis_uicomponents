@@ -2217,18 +2217,21 @@ procedure TTisGrid.DoBeforeCellPaint(ACanvas: TCanvas; Node: PVirtualNode;
 begin
   if CellPaintMode = cpmPaint then
   begin
-    if vsSelected in Node^.States then
+    if focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions) then
     begin
-      if not Focused or (column <> FocusedColumn) or (Node <> FocusedNode) then
+      if (vsSelected in Node^.States) then
       begin
-        ACanvas.Brush.Color := clLtGray;
-        ACanvas.FillRect(CellRect);
-      end
-      else
-      if (Column = FocusedColumn) and (Node = FocusedNode) and Focused then
-      begin
-        ACanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
-        ACanvas.FillRect(CellRect);
+        if (column <> FocusedColumn) or (Node <> FocusedNode) then
+        begin
+          ACanvas.Brush.Color := Colors.UnfocusedSelectionColor;
+          ACanvas.FillRect(CellRect);
+        end
+        else
+        if (Column = FocusedColumn) and (Node = FocusedNode)  then
+        begin
+          ACanvas.Brush.Color := Colors.FocusedSelectionColor;
+          ACanvas.FillRect(CellRect);
+        end;
       end;
     end;
   end;
@@ -2239,10 +2242,10 @@ procedure TTisGrid.DoTextDrawing(var PaintInfo: TVTPaintInfo;
   const AText: string; CellRect: TRect; DrawFormat: cardinal);
 begin
   // pour affichage lignes multiselect en gris clair avec cellule focused en bleu
-  if Focused and
+  if (focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions))  and
     (vsSelected in PaintInfo.Node^.States) and (PaintInfo.Node = FocusedNode) and
     (PaintInfo.column = FocusedColumn) then
-    PaintInfo.Canvas.Font.Color := clWhite;
+    PaintInfo.Canvas.Font.Color := Colors.SelectionTextColor;
   inherited;
 end;
 
