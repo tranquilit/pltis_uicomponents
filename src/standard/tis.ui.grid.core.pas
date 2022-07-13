@@ -3488,8 +3488,9 @@ begin
   begin
     col := TTisGridColumn(Header.Columns[c]);
     if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
-      cols.AddItemText(col.Text);
+      cols.AddItemText(col.PropertyName);
   end;
+  res.Clear;
   rows.Reduce(cols.ToRawUtf8DynArray, False, res);
   result := res.ToJson;
 end;
