@@ -352,6 +352,11 @@ type
   TOnGridEditValidated = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
     const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean) of object;
 
+  /// export a custom format
+  // - use it to pass a custom buffer to the grid when call ExportData, if you use a non-default format
+  TOnGridExportCustomContent = procedure(sender: TTisGrid; aSource: TVSTTextSourceType;
+    var aBuffer: RawUtf8) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -394,6 +399,7 @@ type
     fOnEditorLookup: TOnGridEditorLookup;
     fOnPrepareEditor: TOnGridPrepareEditor;
     fOnEditValidated: TOnGridEditValidated;
+    fOnGridExportCustomContent: TOnGridExportCustomContent;
     // ------------------------------- HMENU ---------------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
@@ -491,6 +497,10 @@ type
     procedure DoUndoLastUpdate(Sender: TObject); virtual;
     procedure DoRevertRecord(Sender: TObject); virtual;
     procedure DoExport(Sender: TObject); virtual;
+    /// custom format implementation
+    // - use OnExportCustomContent to pass a custom buffer to the grid
+    // - implement this method, if you use a non-default format
+    procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
     procedure DoCopyToClipBoard(Sender: TObject); virtual;
     procedure DoCopyCellToClipBoard(Sender: TObject); virtual;
     procedure DoCutToClipBoard(Sender: TObject); virtual;
@@ -515,10 +525,6 @@ type
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
     function GetExportDialogFilter: string; virtual;
-    /// custom format implementation
-    // - you should implement this method, if you use a non-default format
-    procedure GetExportCustomContent(aSource: TVSTTextSourceType;
-      var aBuffer: RawUtf8); virtual; abstract;
     /// it restore original settings from original design
     procedure RestoreSettings;
     // ------------------------------- new properties ------------------------------
@@ -547,6 +553,12 @@ type
     // - it will not clean previous columns, if they exists
     // - return TRUE if success, otherwise FALSE, with a Dialog error if aShowError is TRUE
     function TryLoadAllFrom(const aJson: string; aShowError: Boolean = True): Boolean;
+    /// export data
+    // - it will export using the format that matchs to aFileName extension
+    // - if extension do not exist in ExportFormatOptions, it will use OnExportCustomContent event to get the content
+    // - use aSelection as tstAll to export all nodes - default
+    // - use aSelection as tstSelected to export only selected nodes
+    procedure ExportData(const aFileName: TFileName; const aSelection: TVSTTextSourceType = tstAll);
     /// get all checked rows
     function CheckedRows: TDocVariantData;
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
@@ -877,6 +889,8 @@ type
       read fOnPrepareEditor write fOnPrepareEditor;
     property OnEditValidated: TOnGridEditValidated
       read fOnEditValidated write fOnEditValidated;
+    property OnGridExportCustomContent: TOnGridExportCustomContent
+      read fOnGridExportCustomContent write fOnGridExportCustomContent;
   end;
 
 const
@@ -2620,7 +2634,7 @@ end;
 
 procedure TTisGrid.DoExport(Sender: TObject);
 
-  function _GetSourceType: TVSTTextSourceType;
+  function _GetSelectionType: TVSTTextSourceType;
   begin
     if (toMultiSelect in TreeOptions.SelectionOptions) then
       result := tstSelected
@@ -2628,28 +2642,9 @@ procedure TTisGrid.DoExport(Sender: TObject);
       result := tstAll;
   end;
 
-  procedure _SaveToFile(const aFileName: TFileName; const aBuffer: RawUtf8);
-  var
-    buf: PUtf8Char;
-    l: LongInt;
-    st: File;
-  begin
-    AssignFile(st, aFileName);
-    Rewrite(st,1);
-    try
-      buf := PUtf8Char(aBuffer + #0);
-      l := StrLen(buf);
-      BlockWrite(st, buf^, l);
-    finally
-      CloseFile(st);
-    end;
-  end;
-
 var
   dlg: TSaveDialog;
-  buf: RawUtf8;
 begin
-  buf := '';
   dlg := TSaveDialog.Create(nil);
   try
     dlg.Title := Application.Title;
@@ -2658,26 +2653,17 @@ begin
     dlg.FileName := 'data.csv';
     dlg.Options := dlg.Options + [ofOverwritePrompt];
     if dlg.Execute then
-    begin
-      case ExtractFileExt(dlg.FileName) of
-        '.csv':
-          buf := ContentToCsv(_GetSourceType, ',');
-        '.json':
-          buf := ContentToJson(_GetSourceType);
-        '.html', '.htm':
-          buf := StringToUtf8(ContentToHTML(_GetSourceType));
-        '.rtf':
-          buf := StringToUtf8(ContentToRTF(_GetSourceType));
-        '.txt':
-          buf := StringToUtf8(ContentToText(_GetSourceType, ','));
-      else
-        GetExportCustomContent(_GetSourceType, buf);
-      end;
-      _SaveToFile(dlg.FileName, buf);
-    end;
+      ExportData(dlg.FileName, _GetSelectionType);
   finally
     dlg.Free;
   end;
+end;
+
+procedure TTisGrid.DoExportCustomContent(aSource: TVSTTextSourceType;
+  var aBuffer: RawUtf8);
+begin
+  if Assigned(fOnGridExportCustomContent) then
+    fOnGridExportCustomContent(self, aSource, aBuffer);
 end;
 
 procedure TTisGrid.DoCopyToClipBoard(Sender: TObject);
@@ -3094,6 +3080,47 @@ begin
   except
     _ShowError;
   end;
+end;
+
+procedure TTisGrid.ExportData(const aFileName: TFileName;
+  const aSelection: TVSTTextSourceType);
+
+  procedure _SaveToFile(const aBuffer: RawUtf8);
+  var
+    buf: PUtf8Char;
+    l: LongInt;
+    st: File;
+  begin
+    AssignFile(st, aFileName);
+    Rewrite(st,1);
+    try
+      buf := PUtf8Char(aBuffer + #0);
+      l := StrLen(buf);
+      BlockWrite(st, buf^, l);
+    finally
+      CloseFile(st);
+    end;
+  end;
+
+var
+  buf: RawUtf8;
+begin
+  buf := '';
+  case SysUtils.LowerCase(ExtractFileExt(aFileName)) of
+    '.csv':
+      buf := ContentToCsv(aSelection, ',');
+    '.json':
+      buf := ContentToJson(aSelection);
+    '.html', '.htm':
+      buf := StringToUtf8(ContentToHTML(aSelection));
+    '.rtf':
+      buf := StringToUtf8(ContentToRTF(aSelection));
+    '.txt':
+      buf := StringToUtf8(ContentToText(aSelection, ','));
+  else
+    DoExportCustomContent(aSelection, buf);
+  end;
+  _SaveToFile(buf);
 end;
 
 function TTisGrid.CheckedRows: TDocVariantData;
