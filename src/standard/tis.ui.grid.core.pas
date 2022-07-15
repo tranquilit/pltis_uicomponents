@@ -497,9 +497,6 @@ type
     procedure DoUndoLastUpdate(Sender: TObject); virtual;
     procedure DoRevertRecord(Sender: TObject); virtual;
     procedure DoExport(Sender: TObject); virtual;
-    /// custom format implementation
-    // - use OnExportCustomContent to pass a custom buffer to the grid
-    // - implement this method, if you use a non-default format
     procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
     procedure DoCopyToClipBoard(Sender: TObject); virtual;
     procedure DoCopyCellToClipBoard(Sender: TObject); virtual;
