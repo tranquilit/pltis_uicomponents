@@ -102,7 +102,7 @@ type
     GridMetaDataSetMenuItem: TMenuItem;
     GridMetaDataGetMenuItem: TMenuItem;
     GridSearchEdit: TTisSearchEdit;
-    function GridCompareByRow(sender: TTisGrid; const aPropertyName: RawUtf8;
+    function GridCompareByRow({%H-}aSender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
@@ -111,10 +111,10 @@ type
     procedure ClipboardGridDataLabelClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure ClipboardSelectedRowLabelClick(Sender: TObject);
-    procedure GridPrepareEditor(sender: TTisGrid;
+    procedure GridPrepareEditor(aSender: TTisGrid;
       aColumn: TTisGridColumn; aControl: TTisGridControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
-    procedure GridEditorLookup(sender: TTisGrid; aColumn: TTisGridColumn;
+    procedure GridEditorLookup(aSender: TTisGrid; aColumn: TTisGridColumn;
       aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
     procedure GridDataAddRowsMenuItemClick(Sender: TObject);
     procedure GridInputDeleteRowsMenuItemClick(Sender: TObject);
@@ -124,13 +124,13 @@ type
     procedure GridDataCustomizeMenuItem1Click(Sender: TObject);
     procedure GridSelRowsMenuItemClick(Sender: TObject);
     procedure ClipboardSelectedRowLabel1Click(Sender: TObject);
-    procedure GridEditValidated(sender: TTisGrid; aColumn: TTisGridColumn;
+    procedure GridEditValidated(aSender: TTisGrid; aColumn: TTisGridColumn;
       const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
     procedure GridMetaDataGetMenuItemClick(Sender: TObject);
     procedure GridMetaDataSetMenuItemClick(Sender: TObject);
     procedure GridSearchEditSearch(Sender: TObject; const aText: string);
   private
-    procedure DoAsyncSearch(sender: TObject; const aText: string);
+    procedure DoAsyncSearch(aSender: TObject; const aText: string);
   end;
 
 implementation
@@ -139,7 +139,7 @@ implementation
 
 { TGridFrame }
 
-function TGridFrame.GridCompareByRow(sender: TTisGrid;
+function TGridFrame.GridCompareByRow(aSender: TTisGrid;
   const aPropertyName: RawUtf8; const aRow1, aRow2: TDocVariantData;
   var aHandled: Boolean): PtrInt;
 begin
@@ -183,7 +183,7 @@ begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.SelectedRow.ToJson('', '', jsonHumanReadable));
 end;
 
-procedure TGridFrame.GridPrepareEditor(sender: TTisGrid;
+procedure TGridFrame.GridPrepareEditor(aSender: TTisGrid;
   aColumn: TTisGridColumn; aControl: TTisGridControl);
 var
   a: TTisColumnDataTypeAdapter;
@@ -203,7 +203,7 @@ begin
   a.EnumsToStrings(cbColumnDataType.Items);
 end;
 
-procedure TGridFrame.GridEditorLookup(sender: TTisGrid;
+procedure TGridFrame.GridEditorLookup(aSender: TTisGrid;
   aColumn: TTisGridColumn; aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
 begin
   if aColumn.PropertyName = ColumnNameEdit.Text then
@@ -290,7 +290,7 @@ begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.ContentToCsv(tstSelected, ','));
 end;
 
-procedure TGridFrame.GridEditValidated(sender: TTisGrid;
+procedure TGridFrame.GridEditValidated(aSender: TTisGrid;
   aColumn: TTisGridColumn; const aCurValue: Variant; var aNewValue: Variant;
   var aAbort: Boolean);
 begin
@@ -321,9 +321,9 @@ begin
   Grid.Search(aText);
 end;
 
-procedure TGridFrame.DoAsyncSearch(sender: TObject; const aText: string);
+procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);
 begin
-  with sender as TTisSearchEdit do
+  with aSender as TTisSearchEdit do
   begin
     Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
     LoadData;

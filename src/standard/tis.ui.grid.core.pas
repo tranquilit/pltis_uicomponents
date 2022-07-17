@@ -61,6 +61,8 @@ type
     cdtFloat,
     cdtBoolean,
     cdtMemo,
+    /// it shows only "***" in Columns and Editor
+    // - this type will not be exported
     cdtPassword
   );
 
@@ -99,8 +101,8 @@ type
     fNode: PVirtualNode;
     fColumn: Integer;
   protected
-    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); virtual;
-    procedure EditExit(Sender: TObject); virtual;
+    procedure EditKeyDown({%H-}aSender: TObject; var Key: Word; Shift: TShiftState); virtual;
+    procedure EditExit({%H-}aSender: TObject); virtual;
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
@@ -188,10 +190,10 @@ type
 
   TTisGridExportFormatOptions = set of TTisGridExportFormatOption;
 
-  TOnGridHeaderAddPopupItem = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex;
+  TOnGridHeaderAddPopupItem = procedure(const aSender: TBaseVirtualTree; const aColumn: TColumnIndex;
     var aItem: TTisGridHeaderPopupItem) of object;
 
-  TOnGridHeaderColumnChange = procedure(const sender: TBaseVirtualTree; const aColumn: TColumnIndex; aVisible: Boolean) of object;
+  TOnGridHeaderColumnChange = procedure(const aSender: TBaseVirtualTree; const aColumn: TColumnIndex; aVisible: Boolean) of object;
 
   TTisGridHeaderMenuItem = class(TMenuItem);
 
@@ -204,10 +206,10 @@ type
     procedure RemoveAutoItems; virtual;
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
-    procedure OnMenuItemClick(sender: TObject);
-    procedure OnMenuShowAllClick(sender: TObject);
-    procedure OnMenuHideAllClick(sender: TObject);
-    procedure OnMenuRestoreClick(sender: TObject);
+    procedure OnMenuItemClick(aSender: TObject);
+    procedure OnMenuShowAllClick(aSender: TObject);
+    procedure OnMenuHideAllClick(aSender: TObject);
+    procedure OnMenuRestoreClick(aSender: TObject);
   public
     procedure Popup(x, y: Integer); override;
   published
@@ -303,22 +305,22 @@ type
     property MultiLineHeight: Integer read fMultiLineHeight write SetMultiLineHeight default DefaultMultiLineHeight;
   end;
 
-  TOnGridGetText = procedure(sender: TBaseVirtualTree; aNode: PVirtualNode;
+  TOnGridGetText = procedure(aSender: TBaseVirtualTree; aNode: PVirtualNode;
     const aCell: TDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
     var aText: string) of object;
 
-  TOnGridRows = procedure(sender: TTisGrid; aRows: PDocVariantData) of object;
+  TOnGridRows = procedure(aSender: TTisGrid; aRows: PDocVariantData) of object;
 
   /// event to manipulate rows before deleting them
   // - as used by TTisGrid.OnBeforeDeleteRows
   // - use it for change the rows or abort the process
-  TOnGridBeforeDeleteRows = procedure (sender: TTisGrid; aRows: PDocVariantData;
+  TOnGridBeforeDeleteRows = procedure (aSender: TTisGrid; aRows: PDocVariantData;
     var aAskUser, aAbort: Boolean) of object;
 
   /// event to manipulate data before change the internal Data
   // - as used by TTisGrid.OnBeforeDataChage
   // - use it for check/change the aData argument, before assign it, and/or abort the process
-  TOnGridBeforeDataChange = procedure (sender: TTisGrid; aData: PDocVariantData;
+  TOnGridBeforeDataChange = procedure (aSender: TTisGrid; aData: PDocVariantData;
     var aAbort: Boolean) of object;
 
   /// event to manipulate data after Data changed
@@ -327,34 +329,34 @@ type
 
   /// event for comparing rows of objects
   // - as used by TTisGrid.OnCompareByRow
-  TOnGridCompareByRow = function(sender: TTisGrid; const aPropertyName: RawUtf8;
+  TOnGridCompareByRow = function(aSender: TTisGrid; const aPropertyName: RawUtf8;
     const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt of object;
 
   /// event to manipulate rows using copy/paste on grid
   // - use it for check/change the aData argument, before assign it, and/or abort the process
-  TOnGridPaste = procedure(sender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
+  TOnGridPaste = procedure(aSender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
 
   /// event that allows users customize the control instance, creating a new one, replacing the default
-  TOnGridCustomEditor = procedure(sender: TObject; aColumn: TTisGridColumn;
+  TOnGridCustomEditor = procedure(aSender: TObject; aColumn: TTisGridColumn;
     out aControl: TTisGridControl) of object;
 
   /// event that simplifies the use of a TisSearchEdit as Edit Control
-  TOnGridEditorLookup = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
+  TOnGridEditorLookup = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
     aSearchEdit: TTisSearchEdit; var aHandled: Boolean) of object;
 
   /// event that allows users to change some edit control properties, before it shows up
-  TOnGridPrepareEditor = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
+  TOnGridPrepareEditor = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
     aControl: TTisGridControl) of object;
 
   /// event that allow to validate the new value from user input
   // - aCurValue is the current value for the aColumn
   // - use it for check/change the aNewValue argument, before assign it, and/or abort the process
-  TOnGridEditValidated = procedure(sender: TTisGrid; aColumn: TTisGridColumn;
+  TOnGridEditValidated = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
     const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean) of object;
 
   /// export a custom format
   // - use it to pass a custom buffer to the grid when call ExportData, if you use a non-default format
-  TOnGridExportCustomContent = procedure(sender: TTisGrid; aSource: TVSTTextSourceType;
+  TOnGridExportCustomContent = procedure(aSender: TTisGrid; aSource: TVSTTextSourceType;
     var aBuffer: RawUtf8) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
@@ -475,40 +477,40 @@ type
       var EraseAction: TItemEraseAction); override;
     function DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
-    procedure DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
-      const AXProportion, AYProportion: Double); override;
+    procedure DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
+      const aXProportion, {%H-}aYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
     function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
     /// standard menu management
-    procedure FillPopupMenu(sender: TObject);
+    procedure FillPopupMenu({%H-}aSender: TObject);
     function FindText(const aText: string): PVirtualNode;
-    procedure FindDlgFind(Sender: TObject);
+    procedure FindDlgFind(aSender: TObject);
     /// add aData into Data property
     // - will test if it is an array or object
     // - returns TRUE if something has been added
     function Add(aData: PDocVariantData): Boolean;
     function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
       aRow2: PDocVariantData): PtrInt; virtual;
-    procedure DoFindText(Sender: TObject);
-    procedure DoFindNext(Sender: TObject);
-    procedure DoFindReplace(Sender: TObject);
-    procedure DoUndoLastUpdate(Sender: TObject); virtual;
-    procedure DoRevertRecord(Sender: TObject); virtual;
-    procedure DoExport(Sender: TObject); virtual;
+    procedure DoFindText({%H-}aSender: TObject);
+    procedure DoFindNext({%H-}aSender: TObject);
+    procedure DoFindReplace({%H-}aSender: TObject);
+    procedure DoUndoLastUpdate({%H-}aSender: TObject); virtual;
+    procedure DoRevertRecord({%H-}aSender: TObject); virtual;
+    procedure DoExport({%H-}aSender: TObject); virtual;
     procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
-    procedure DoCopyToClipBoard(Sender: TObject); virtual;
-    procedure DoCopyCellToClipBoard(Sender: TObject); virtual;
-    procedure DoCutToClipBoard(Sender: TObject); virtual;
-    procedure DoDeleteRows(Sender: TObject); virtual;
-    procedure DoPaste(Sender: TObject); virtual;
-    procedure DoSelectAllRows(Sender: TObject); virtual;
-    procedure DoPrint(Sender: TObject); virtual;
-    procedure DoCustomizeColumns(Sender: TObject); virtual;
-    procedure DoAdvancedCustomizeColumns(Sender: TObject); virtual;
-    procedure DoExpandAll(Sender: TObject); virtual;
-    procedure DoCollapseAll(Sender: TObject); virtual;
+    procedure DoCopyToClipBoard({%H-}aSender: TObject); virtual;
+    procedure DoCopyCellToClipBoard({%H-}aSender: TObject); virtual;
+    procedure DoCutToClipBoard(aSender: TObject); virtual;
+    procedure DoDeleteRows({%H-}aSender: TObject); virtual;
+    procedure DoPaste({%H-}aSender: TObject); virtual;
+    procedure DoSelectAllRows({%H-}aSender: TObject); virtual;
+    procedure DoPrint({%H-}aSender: TObject); virtual;
+    procedure DoCustomizeColumns({%H-}aSender: TObject); virtual;
+    procedure DoAdvancedCustomizeColumns({%H-}aSender: TObject); virtual;
+    procedure DoExpandAll({%H-}aSender: TObject); virtual;
+    procedure DoCollapseAll({%H-}aSender: TObject); virtual;
     /// performs OnCustonEditor event, if it was assigned
     procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl); virtual;
     /// performs OnEditorLookup event, if it was assigned
@@ -601,7 +603,7 @@ type
     procedure Customize;
     /// source events handling
     procedure NotifyChange(aEventType: TTisDataEvent; aRow: PDocVariantData;
-      const aOldValues, aNewValues: TDocVariantData);
+      const {%H-}aOldValues, {%H-}aNewValues: TDocVariantData);
     /// add columns based on Data content
     procedure CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
     /// export Data to CSV format
@@ -1009,7 +1011,7 @@ end;
 
 { TTisGridEditLink }
 
-procedure TTisGridEditLink.EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+procedure TTisGridEditLink.EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState);
 var
   CanAdvance: Boolean;
 begin
@@ -1050,7 +1052,7 @@ begin
   end;
 end;
 
-procedure TTisGridEditLink.EditExit(Sender: TObject);
+procedure TTisGridEditLink.EditExit(aSender: TObject);
 begin
   if Assigned(fControl) then
   begin
@@ -1335,22 +1337,22 @@ begin
     fOnColumnChange(TVirtualTreeCast(PopupComponent), aColumn, aVisible);
 end;
 
-procedure TTisGridHeaderPopupMenu.OnMenuItemClick(sender: TObject);
+procedure TTisGridHeaderPopupMenu.OnMenuItemClick(aSender: TObject);
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
-    with TMenuItem(Sender), TVirtualTreeCast(PopupComponent).Header.Columns.Items[Tag] do
+    with TMenuItem(aSender), TVirtualTreeCast(PopupComponent).Header.Columns.Items[Tag] do
     begin
       if Checked then
         Options := Options - [coVisible]
       else
         Options := Options + [coVisible];
-       DoColumnChange(TMenuItem(Sender).Tag, not Checked);
+       DoColumnChange(TMenuItem(aSender).Tag, not Checked);
     end;
   end;
 end;
 
-procedure TTisGridHeaderPopupMenu.OnMenuShowAllClick(sender: TObject);
+procedure TTisGridHeaderPopupMenu.OnMenuShowAllClick(aSender: TObject);
 var
   i: Integer;
 begin
@@ -1368,7 +1370,7 @@ begin
   end;
 end;
 
-procedure TTisGridHeaderPopupMenu.OnMenuHideAllClick(sender: TObject);
+procedure TTisGridHeaderPopupMenu.OnMenuHideAllClick(aSender: TObject);
 var
   i: Integer;
 begin
@@ -1386,7 +1388,7 @@ begin
   end;
 end;
 
-procedure TTisGridHeaderPopupMenu.OnMenuRestoreClick(sender: TObject);
+procedure TTisGridHeaderPopupMenu.OnMenuRestoreClick(aSender: TObject);
 begin
    TTisGrid(PopupComponent).RestoreSettings;
 end;
@@ -2283,22 +2285,22 @@ begin
     fSelectedAndTotalLabel := nil;
 end;
 
-procedure TTisGrid.DoAutoAdjustLayout(const AMode: TLayoutAdjustmentPolicy;
-  const AXProportion, AYProportion: Double);
+procedure TTisGrid.DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
+  const aXProportion, aYProportion: Double);
 var
   i: Integer;
 begin
-  if (AMode in [lapAutoAdjustForDPI]) then
+  if (aMode in [lapAutoAdjustForDPI]) then
   begin
-    Header.MinHeight := max(18,round(Header.MinHeight * AXProportion)+1);
-    Header.MaxHeight := max(18,round(Header.MaxHeight * AXProportion)+1);
-    Header.DefaultHeight := max(18,round(Header.DefaultHeight * AXProportion)+1);
-    Header.Height := max(18,round(Header.Height * AXProportion)+1);
+    Header.MinHeight := max(18,round(Header.MinHeight * aXProportion)+1);
+    Header.MaxHeight := max(18,round(Header.MaxHeight * aXProportion)+1);
+    Header.DefaultHeight := max(18,round(Header.DefaultHeight * aXProportion)+1);
+    Header.Height := max(18,round(Header.Height * aXProportion)+1);
     for i := 0 to header.Columns.Count-1 do
     begin
-      header.Columns[i].MaxWidth:=round(header.Columns[i].MaxWidth * AXProportion);
-      header.Columns[i].Width:=round(header.Columns[i].Width * AXProportion);
-      header.Columns[i].MinWidth:=round(header.Columns[i].MinWidth * AXProportion);
+      header.Columns[i].MaxWidth:=round(header.Columns[i].MaxWidth * aXProportion);
+      header.Columns[i].Width:=round(header.Columns[i].Width * aXProportion);
+      header.Columns[i].MinWidth:=round(header.Columns[i].MinWidth * aXProportion);
     end;
   end;
 end;
@@ -2315,7 +2317,7 @@ begin
   result := TTisGridHeader;
 end;
 
-procedure TTisGrid.FillPopupMenu(sender: TObject);
+procedure TTisGrid.FillPopupMenu(aSender: TObject);
 
   procedure RemoveAutoItems;
   var
@@ -2435,7 +2437,7 @@ begin
     result := TTisGridColumn(Header.Columns[aIndex]);
 end;
 
-procedure TTisGrid.FindDlgFind(Sender: TObject);
+procedure TTisGrid.FindDlgFind(aSender: TObject);
 begin
   if (fFindDlg.FindText <> TextToFind) then
   begin
@@ -2446,7 +2448,7 @@ begin
     TextToFind := fFindDlg.FindText;
     //if frDown in fFindDlg.Options then
     begin
-      DoFindNext(Sender);
+      DoFindNext(aSender);
       if TextFound then
         fFindDlg.CloseDialog;
     end;
@@ -2456,9 +2458,9 @@ begin
   end
   else
     //if frDown in fFindDlg.Options then
-    DoFindNext(Sender);
+    DoFindNext(aSender);
   //else
-  //DoFindPrior(Sender);
+  //DoFindPrior(aSender);
 end;
 
 function TTisGrid.Add(aData: PDocVariantData): Boolean;
@@ -2495,15 +2497,15 @@ begin
     result := aRow1^.CompareObject([aPropertyName], aRow2^);
 end;
 
-procedure TTisGrid.DoFindText(Sender: TObject);
+procedure TTisGrid.DoFindText(aSender: TObject);
 begin
   fStartSearchNode := nil;
   TextFound := False;
   TextToFind := '';
-  DoFindNext(Sender);
+  DoFindNext(aSender);
 end;
 
-procedure TTisGrid.DoFindNext(Sender: TObject);
+procedure TTisGrid.DoFindNext(aSender: TObject);
 var
   col: integer;
   p: PVirtualNode;
@@ -2605,7 +2607,7 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoFindReplace(Sender: TObject);
+procedure TTisGrid.DoFindReplace(aSender: TObject);
 begin
   if fReplaceDialog = nil then
     fReplaceDialog := TReplaceDialog.Create(self);
@@ -2621,15 +2623,15 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoUndoLastUpdate(Sender: TObject);
+procedure TTisGrid.DoUndoLastUpdate(aSender: TObject);
 begin
 end;
 
-procedure TTisGrid.DoRevertRecord(Sender: TObject);
+procedure TTisGrid.DoRevertRecord(aSender: TObject);
 begin
 end;
 
-procedure TTisGrid.DoExport(Sender: TObject);
+procedure TTisGrid.DoExport(aSender: TObject);
 
   function _GetSelectionType: TVSTTextSourceType;
   begin
@@ -2663,7 +2665,7 @@ begin
     fOnGridExportCustomContent(self, aSource, aBuffer);
 end;
 
-procedure TTisGrid.DoCopyToClipBoard(Sender: TObject);
+procedure TTisGrid.DoCopyToClipBoard(aSender: TObject);
 var
   s: RawByteString;
   c: TClipboardAdapter;
@@ -2680,7 +2682,7 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoCopyCellToClipBoard(Sender: TObject);
+procedure TTisGrid.DoCopyCellToClipBoard(aSender: TObject);
 var
   c: TClipboardAdapter;
   r: TDocVariantData;
@@ -2702,13 +2704,13 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoCutToClipBoard(Sender: TObject);
+procedure TTisGrid.DoCutToClipBoard(aSender: TObject);
 begin
   if Assigned(fOnCutToClipBoard) then
-    fOnCutToClipBoard(Sender);
+    fOnCutToClipBoard(aSender);
 end;
 
-procedure TTisGrid.DoDeleteRows(Sender: TObject);
+procedure TTisGrid.DoDeleteRows(aSender: TObject);
 var
   d: TDocVariantData;
   ask, aborted: Boolean;
@@ -2740,7 +2742,7 @@ begin
       DeleteRows(@d);
 end;
 
-procedure TTisGrid.DoPaste(Sender: TObject);
+procedure TTisGrid.DoPaste(aSender: TObject);
 var
   c: TClipboardAdapter;
   d: PDocVariantData;
@@ -2752,32 +2754,32 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoSelectAllRows(Sender: TObject);
+procedure TTisGrid.DoSelectAllRows(aSender: TObject);
 begin
   SelectAll(False);
 end;
 
-procedure TTisGrid.DoPrint(Sender: TObject);
+procedure TTisGrid.DoPrint(aSender: TObject);
 begin
   raise Exception.Create('Not implemented');
 end;
 
-procedure TTisGrid.DoCustomizeColumns(Sender: TObject);
+procedure TTisGrid.DoCustomizeColumns(aSender: TObject);
 begin
   Header.PopupMenu.PopUp;
 end;
 
-procedure TTisGrid.DoAdvancedCustomizeColumns(Sender: TObject);
+procedure TTisGrid.DoAdvancedCustomizeColumns(aSender: TObject);
 begin
   Customize;
 end;
 
-procedure TTisGrid.DoExpandAll(Sender: TObject);
+procedure TTisGrid.DoExpandAll(aSender: TObject);
 begin
   FullExpand;
 end;
 
-procedure TTisGrid.DoCollapseAll(Sender: TObject);
+procedure TTisGrid.DoCollapseAll(aSender: TObject);
 begin
   FullCollapse;
 end;
