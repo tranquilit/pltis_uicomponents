@@ -180,12 +180,12 @@ type
 
   TTisGridExportFormatOption = (
     /// inherited types
-    gefRtf,  // by ContentToRTF
-    gefHtml, // by ContentToHTML
-    gefText, // by ContentToText
-    /// our own types
-    gefCsv,  // by ContentToCsv
-    gefJson // by ContentToJson
+    efoRtf,  // by ContentToRTF
+    efoHtml, // by ContentToHTML
+    efoText, // by ContentToText
+    /// our custom types
+    efoCsv,  // by ContentToCsv
+    efoJson // by ContentToJson
   );
 
   TTisGridExportFormatOptions = set of TTisGridExportFormatOption;
@@ -443,7 +443,7 @@ type
   protected
     // ------------------------------- new constants -------------------------------
     const DefaultPopupMenuOptions = [pmoShowFind..pmoShowCustomizeColumns];
-    const DefaultExportFormatOptions = [gefCsv, gefJson];
+    const DefaultExportFormatOptions = [efoCsv, efoJson];
     const DefaultWantTabs = True;
     // ------------------------------- inherited methods ---------------------------
     procedure Loaded; override;
@@ -595,7 +595,7 @@ type
     procedure DeleteSelectedRows;
     /// redraw the rows matching this record
     procedure InvalidateNodeByDocVariant(const aData: PDocVariantData);
-    /// it will call Clear, plus it will clear everything else as Columns, etc
+    /// it will call Clear and also clear everything else as Columns, etc
     procedure ClearAll; virtual;
     /// sort columns headers collection based on manual positioning
     procedure ReorderColumns;
@@ -623,7 +623,7 @@ type
     /// if using TreeMode, it will collapse all
     procedure CollapseAllNodes;
     /// it will search aText in all columns
-    // - focus will go to the grid
+    // - if found, focus will go to the grid
     function Search(const aText: string): Boolean;
     // ------------------------------- inherited events ----------------------------
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
@@ -2319,7 +2319,7 @@ end;
 
 procedure TTisGrid.FillPopupMenu(aSender: TObject);
 
-  procedure RemoveAutoItems;
+  procedure _RemoveAutoItems;
   var
     i: Integer;
   begin
@@ -2328,7 +2328,7 @@ procedure TTisGrid.FillPopupMenu(aSender: TObject);
         PopupMenu.Items.Delete(i);
   end;
 
-  function AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent): HMENU;
+  function _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent): HMENU;
   var
     mi: TMenuItem;
   begin
@@ -2352,52 +2352,52 @@ procedure TTisGrid.FillPopupMenu(aSender: TObject);
 begin
   if PopupMenu = nil then
     exit;
-  RemoveAutoItems;
+  _RemoveAutoItems;
   if Assigned(fPopupOrigEvent) then
     fPopupOrigEvent(self);
   if (PopupMenu.Items.Count > 0) then
-    AddItem('-', 0, nil);
+    _AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
-    HMFind := AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText);
+    HMFind := _AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText);
   if pmoShowFindNext in fPopupMenuOptions then
-    HMFindNext := AddItem(RsFindNext, VK_F3, @DoFindNext);
-  {HMFindReplace := AddItem(RsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
+    HMFindNext := _AddItem(RsFindNext, VK_F3, @DoFindNext);
+  {HMFindReplace := _AddItem(RsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
     @DoFindReplace);}
-  AddItem('-', 0, nil);
+  _AddItem('-', 0, nil);
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipBoard) then
-    HMCut := AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipBoard);
+    HMCut := _AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipBoard);
   if pmoShowCopy in fPopupMenuOptions then
-    HMCopy := AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipBoard);
+    HMCopy := _AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipBoard);
   if pmoShowCopyCell in fPopupMenuOptions then
-    HMCopyCell := AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipBoard);
+    HMCopyCell := _AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipBoard);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
-    HMPaste := AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste);
-  AddItem('-', 0, nil);
+    HMPaste := _AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste);
+  _AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) then
-    HMDelete := AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows);
+    HMDelete := _AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMSelAll := AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows);
-  AddItem('-', 0, nil);
+    HMSelAll := _AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows);
+  _AddItem('-', 0, nil);
   if pmoShowExport in fPopupMenuOptions then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
-      HMExport := AddItem(rsExportSelected, 0, @DoExport)
+      HMExport := _AddItem(rsExportSelected, 0, @DoExport)
     else
-      HMExport := AddItem(rsExportAll, 0, @DoExport);
+      HMExport := _AddItem(rsExportAll, 0, @DoExport);
   end;
   {if (HMPrint = 0) then
-    HMPrint := AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
-  AddItem('-', 0, nil);
-  HMExpAll := AddItem(RsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
+    HMPrint := _AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
+  _AddItem('-', 0, nil);
+  HMExpAll := _AddItem(RsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
     @DoExpandAll);
-  HMCollAll := AddItem(RsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
+  HMCollAll := _AddItem(RsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
     @DoCollapseAll);}
-  AddItem('-', 0, nil);
+  _AddItem('-', 0, nil);
   if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
-    HMCustomize := AddItem(RsCustomizeColumns, 0, @DoCustomizeColumns);
+    HMCustomize := _AddItem(RsCustomizeColumns, 0, @DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
-    HMAdvancedCustomize := AddItem(RsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
+    HMAdvancedCustomize := _AddItem(RsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;
@@ -2830,15 +2830,15 @@ function TTisGrid.GetExportDialogFilter: string;
 
 begin
   result := '';
-  if gefCsv in fExportFormatOptions then
+  if efoCsv in fExportFormatOptions then
     _Add('CSV (*.csv)|*.csv');
-  if gefJson in fExportFormatOptions then
+  if efoJson in fExportFormatOptions then
    _Add('JSON (*.json)|*.json');
-  if gefRtf in fExportFormatOptions then
+  if efoRtf in fExportFormatOptions then
     _Add('RTF (*.rtf)|*.rtf');
-  if gefHtml in fExportFormatOptions then
+  if efoHtml in fExportFormatOptions then
     _Add('HTML (*.html, *.htm)|*.html;*.htm');
-  if gefText in fExportFormatOptions then
+  if efoText in fExportFormatOptions then
     _Add('Text (*.txt)|*.txt');
 end;
 
