@@ -480,9 +480,9 @@ procedure TTisGridEditor.TreeModeCheckBoxChange(Sender: TObject);
 begin
   with Grid.TreeOptions do
     if TreeModeCheckBox.Checked then
-      PaintOptions := PaintOptions + TREEMODE_OPTIONS
+      PaintOptions := PaintOptions + Grid.TREEMODE_OPTIONS
     else
-      PaintOptions := PaintOptions - TREEMODE_OPTIONS;
+      PaintOptions := PaintOptions - Grid.TREEMODE_OPTIONS;
   Grid.LoadData;
 end;
 

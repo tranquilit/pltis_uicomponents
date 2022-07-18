@@ -557,6 +557,8 @@ type
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
   public
+    const TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
+  public
     /// primary construtor
     constructor Create(AOwner: TComponent); override;
     /// destructor
@@ -918,9 +920,6 @@ type
     property OnGridExportCustomContent: TOnGridExportCustomContent
       read fOnGridExportCustomContent write fOnGridExportCustomContent;
   end;
-
-const
-  TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
 
 resourcestring
   rsNoRecordFind = 'No more record found for "%s"';
