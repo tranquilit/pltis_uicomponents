@@ -3673,7 +3673,7 @@ begin
   for c := 0 to Header.Columns.Count-1 do
   begin
     col := TTisGridColumn(Header.Columns[c]);
-    if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
+    if ((coVisible in col.Options) or not aColumnsVisibleOnly) and (col.DataType <> cdtPassword) then
       cols.AddItemText(col.PropertyName);
   end;
   res.Clear;
