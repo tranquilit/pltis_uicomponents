@@ -26,6 +26,10 @@ msgstr "Copier"
 msgid "Copy cell"
 msgstr "Copier la cellule"
 
+#: tis.ui.grid.core.rscopyspecial
+msgid "Copy special..."
+msgstr "Copie spéciale..."
+
 #: tis.ui.grid.core.rscustomizecolumns
 msgid "Customize columns..."
 msgstr "Configurer les colonnes..."

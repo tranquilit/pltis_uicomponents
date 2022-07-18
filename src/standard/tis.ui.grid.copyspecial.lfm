@@ -1,0 +1,164 @@
+object CopySpecialForm: TCopySpecialForm
+  Left = 552
+  Height = 182
+  Top = 369
+  Width = 210
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Copy Special'
+  ClientHeight = 182
+  ClientWidth = 210
+  Constraints.MinWidth = 210
+  Position = poOwnerFormCenter
+  ShowHint = True
+  LCLVersion = '2.0.12.0'
+  object PanBottom: TPanel
+    Left = 5
+    Height = 26
+    Top = 151
+    Width = 200
+    Align = alBottom
+    AutoSize = True
+    BorderSpacing.Around = 5
+    BevelOuter = bvNone
+    ClientHeight = 26
+    ClientWidth = 200
+    TabOrder = 0
+    object BitBtn1: TBitBtn
+      Left = 53
+      Height = 26
+      Top = 0
+      Width = 62
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      Default = True
+      DefaultCaption = True
+      Kind = bkOK
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object BitBtn2: TBitBtn
+      Left = 113
+      Height = 26
+      Top = 0
+      Width = 82
+      Anchors = [akTop, akRight]
+      AutoSize = True
+      DefaultCaption = True
+      Kind = bkCancel
+      ModalResult = 2
+      TabOrder = 1
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 146
+    Top = 0
+    Width = 210
+    Align = alClient
+    ClientHeight = 146
+    ClientWidth = 210
+    TabOrder = 1
+    object FormatLabel: TLabel
+      AnchorSideLeft.Control = Panel1
+      AnchorSideTop.Control = Panel1
+      Left = 11
+      Height = 15
+      Top = 11
+      Width = 38
+      BorderSpacing.Left = 10
+      BorderSpacing.Top = 10
+      Caption = 'Format'
+      ParentColor = False
+    end
+    object SelectionLabel: TLabel
+      AnchorSideLeft.Control = FormatLabel
+      AnchorSideTop.Control = FormatCombo
+      AnchorSideTop.Side = asrBottom
+      Left = 11
+      Height = 15
+      Top = 40
+      Width = 48
+      BorderSpacing.Top = 10
+      Caption = 'Selection'
+      ParentColor = False
+    end
+    object SelectionCombo: TComboBox
+      AnchorSideLeft.Control = FormatCombo
+      AnchorSideTop.Control = FormatCombo
+      AnchorSideTop.Side = asrBottom
+      Left = 64
+      Height = 23
+      Top = 35
+      Width = 124
+      BorderSpacing.Top = 5
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'All'
+        'Selected'
+      )
+      Style = csDropDownList
+      TabOrder = 1
+      Text = 'All'
+    end
+    object FormatCombo: TComboBox
+      AnchorSideLeft.Control = FormatLabel
+      AnchorSideLeft.Side = asrBottom
+      AnchorSideTop.Control = FormatLabel
+      AnchorSideTop.Side = asrCenter
+      Left = 64
+      Height = 23
+      Top = 7
+      Width = 124
+      BorderSpacing.Left = 15
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object ColumnsGroupBox: TGroupBox
+      AnchorSideLeft.Control = SelectionLabel
+      AnchorSideTop.Control = SelectionLabel
+      AnchorSideTop.Side = asrBottom
+      Left = 11
+      Height = 72
+      Top = 60
+      Width = 178
+      BorderSpacing.Top = 5
+      Caption = 'Columns'
+      ClientHeight = 52
+      ClientWidth = 174
+      TabOrder = 2
+      object ColumnsVisibleOnlyCheckBox: TCheckBox
+        AnchorSideLeft.Control = ColumnsGroupBox
+        AnchorSideTop.Control = ColumnsGroupBox
+        Left = 10
+        Height = 19
+        Hint = 'Visible only'#13#10'- uncheck it to use all columns'
+        Top = 5
+        Width = 80
+        BorderSpacing.Left = 10
+        BorderSpacing.Top = 5
+        Caption = 'Visible only'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+      end
+      object TranslatedColumnsCheckBox: TCheckBox
+        AnchorSideLeft.Control = ColumnsVisibleOnlyCheckBox
+        AnchorSideTop.Control = ColumnsVisibleOnlyCheckBox
+        AnchorSideTop.Side = asrBottom
+        Left = 10
+        Height = 19
+        Hint = 'Translated columns captions'#13#10'- uncheck it to use PropertyName'
+        Top = 29
+        Width = 74
+        BorderSpacing.Top = 5
+        Caption = 'Translated'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+      end
+    end
+  end
+end

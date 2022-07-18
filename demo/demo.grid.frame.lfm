@@ -44,7 +44,7 @@ object GridFrame: TGridFrame
       TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
       TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
       ZebraColor = 15593713
-      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
+      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoText, efoCsv, efoJson]
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow

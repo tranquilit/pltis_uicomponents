@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="20">
+    <Files Count="23">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -109,6 +109,18 @@
         <Filename Value="..\src\standard\tis.ui.toolbar.editor.pas"/>
         <UnitName Value="tis.ui.toolbar.editor"/>
       </Item20>
+      <Item21>
+        <Filename Value="..\src\standard\tis.ui.grid.copyspecial.lfm"/>
+        <Type Value="LFM"/>
+      </Item21>
+      <Item22>
+        <Filename Value="..\src\standard\tis.ui.grid.copyspecial.lrj"/>
+        <Type Value="Text"/>
+      </Item22>
+      <Item23>
+        <Filename Value="..\src\standard\tis.ui.grid.copyspecial.pas"/>
+        <UnitName Value="tis.ui.grid.copyspecial"/>
+      </Item23>
     </Files>
     <i18n>
       <EnableI18N Value="True"/>

@@ -40,6 +40,7 @@ uses
   mormot.core.unicode,
   mormot.core.text,
   mormot.core.buffers,
+  mormot.core.rtti,
   tisstrings,
   tis.core.os,
   tis.core.utils,
@@ -190,6 +191,24 @@ type
 
   TTisGridExportFormatOptions = set of TTisGridExportFormatOption;
 
+  /// adapter for TTisGridExportFormatOption
+  TTisGridExportFormatOptionAdapter = object
+    /// convert enum to caption
+    function EnumToCaption(const aValue: TTisGridExportFormatOption): string;
+    /// convert caption to enum
+    // - if aValue not found, it will return the first element
+    function CaptionToEnum(const aValue: string): TTisGridExportFormatOption;
+    /// convert all enums to strings
+    // - you can customize elements using aCustom
+    procedure EnumsToStrings(aDest: TStrings; const aCustom: TTisGridExportFormatOptions = [
+      low(TTisGridExportFormatOption)..high(TTisGridExportFormatOption)]);
+    /// convert file extension to enum
+    // - if aValue not found, it will return the first element
+    function ExtensionToEnum(const aValue: TFileName): TTisGridExportFormatOption;
+    /// convert enum to save dialog filter
+    function EnumToFilter(const aValue: TTisGridExportFormatOption): string;
+  end;
+
   TOnGridHeaderAddPopupItem = procedure(const aSender: TBaseVirtualTree; const aColumn: TColumnIndex;
     var aItem: TTisGridHeaderPopupItem) of object;
 
@@ -269,17 +288,18 @@ type
 
   /// popup menu options that will be added when it shows up
   // - some items depends of others grid properties combined to appear
+  // - see DefaultPopupMenuOptions constant to know what is enabled/disabled by default in Grid
   TTisPopupMenuOption = (
     pmoShowFind,
     pmoShowFindNext,
     pmoShowCut,
     pmoShowCopy,
     pmoShowCopyCell,
+    pmoShowCopySpecial,
     pmoShowPaste,
     pmoShowDelete,
     pmoShowSelectAll,
     pmoShowCustomizeColumns,
-    // below here, False by default
     pmoShowExport,
     pmoShowCustomizeGrid
   );
@@ -390,7 +410,7 @@ type
     fDefaultSettings: Variant; // all default settings after load component
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
-    fOnCutToClipBoard: TNotifyEvent;
+    fOnCutToClipboard: TNotifyEvent;
     fOnBeforeDataChange: TOnGridBeforeDataChange;
     fOnAfterDataChange: TOnGridAfterDataChange;
     fOnBeforePaste: TOnGridPaste;
@@ -405,7 +425,7 @@ type
     // ------------------------------- HMENU ---------------------------------------
     HMUndo, HMRevert: HMENU;
     HMFind, HMFindNext, HMReplace: HMENU;
-    HMCut, HMCopy, HMCopyCell, HMPaste, HMFindReplace: HMENU;
+    HMCut, HMCopy, HMCopyCell, HMCopySpecial, HMPaste, HMFindReplace: HMENU;
     HMInsert, HMDelete, HMSelAll: HMENU;
     HMExport, HMPrint: HMENU;
     HMCollAll, HMExpAll: HMENU;
@@ -429,7 +449,7 @@ type
     procedure SetMetaData(const aValue: RawUtf8);
     procedure SetFocusedColumnObject(aValue: TTisGridColumn);
     procedure SetFocusedRow(aValue: PDocVariantData);
-    procedure SetOnCutToClipBoard(aValue: TNotifyEvent);
+    procedure SetOnCutToClipboard(aValue: TNotifyEvent);
     function GetOptions: TStringTreeOptions;
     procedure SetOptions(const aValue: TStringTreeOptions);
     function GetSelectedRows: TDocVariantData;
@@ -442,9 +462,14 @@ type
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
   protected
     // ------------------------------- new constants -------------------------------
-    const DefaultPopupMenuOptions = [pmoShowFind..pmoShowCustomizeColumns];
+    const DefaultPopupMenuOptions = [
+      pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell,
+      pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
     const DefaultExportFormatOptions = [efoCsv, efoJson];
     const DefaultWantTabs = True;
+    // ------------------------------- new fields ----------------------------------
+  protected
+    DefaultCsvSeparator: string;
     // ------------------------------- inherited methods ---------------------------
     procedure Loaded; override;
     function GetPopupMenu: TPopupMenu; override;
@@ -500,9 +525,10 @@ type
     procedure DoRevertRecord({%H-}aSender: TObject); virtual;
     procedure DoExport({%H-}aSender: TObject); virtual;
     procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
-    procedure DoCopyToClipBoard({%H-}aSender: TObject); virtual;
-    procedure DoCopyCellToClipBoard({%H-}aSender: TObject); virtual;
-    procedure DoCutToClipBoard(aSender: TObject); virtual;
+    procedure DoCopyToClipboard({%H-}aSender: TObject); virtual;
+    procedure DoCopyCellToClipboard({%H-}aSender: TObject); virtual;
+    procedure DoCopySpecialToClipboard({%H-}aSender: TObject); virtual;
+    procedure DoCutToClipboard(aSender: TObject); virtual;
     procedure DoDeleteRows({%H-}aSender: TObject); virtual;
     procedure DoPaste({%H-}aSender: TObject); virtual;
     procedure DoSelectAllRows({%H-}aSender: TObject); virtual;
@@ -607,9 +633,10 @@ type
     /// add columns based on Data content
     procedure CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
     /// export Data to CSV format
-    function ContentToCsv(aSource: TVSTTextSourceType; const aSeparator: string): RawUtf8;
+    function ContentToCsv(aSource: TVSTTextSourceType; const aSeparator: string = ',';
+      aColumnsVisibleOnly: Boolean = True; aColumnsTranslated: Boolean = True): RawUtf8;
     /// export Data to JSON format
-    function ContentToJson(aSource: TVSTTextSourceType): RawUtf8;
+    function ContentToJson(aSource: TVSTTextSourceType; aColumnsVisibleOnly: Boolean = True): RawUtf8;
     /// force refresh the "Selected / Total : %d/%d" label
     procedure UpdateSelectedAndTotalLabel;
     /// save Settings to an IniFile
@@ -843,8 +870,8 @@ type
     // ------------------------------- new events ----------------------------------
     property OnGetText: TOnGridGetText
       read fOnGetText write fOnGetText;
-    property OnCutToClipBoard: TNotifyEvent
-      read fOnCutToClipBoard write SetOnCutToClipBoard;
+    property OnCutToClipboard: TNotifyEvent
+      read fOnCutToClipboard write SetOnCutToClipboard;
     /// event to manipulate data before change the internal Data
     // - use it for check/change the aData argument, before assign it, and/or abort the process
     property OnBeforeDataChange: TOnGridBeforeDataChange
@@ -907,6 +934,7 @@ resourcestring
   rsFindReplace = 'Find and replace...';
   rsCopy = 'Copy';
   rsCopyCell = 'Copy cell';
+  rsCopySpecial = 'Copy special...';
   rsCut = 'Cut';
   rsPaste = 'Paste';
   rsInsert = 'Insert';
@@ -930,12 +958,13 @@ implementation
 uses
   IniFiles,
   Variants,
-  tis.ui.grid.editor;
+  tis.ui.grid.editor,
+  tis.ui.grid.copyspecial;
 
 { TTisColumnDataTypeAdapter }
 
 var
-  COLUMNDATATYPES: array [TTisColumnDataType] of record
+  cColumnDataTypes: array[TTisColumnDataType] of record
     Caption: string;
   end = (
     (Caption: 'String'),
@@ -947,6 +976,18 @@ var
     (Caption: 'Boolean'),
     (Caption: 'Memo'),
     (Caption: 'Password')
+  );
+
+  cGridExportFormatOptions: array[TTisGridExportFormatOption] of record
+    Caption: string;
+    Extension: string;
+    Filter: string;
+  end = (
+    (Caption: 'RTF'; Extension: '.rtf'; Filter: 'RTF (*.rtf)|*.rtf'),
+    (Caption: 'HTML'; Extension: '.html'; Filter: 'HTML (*.html)|*.html'),
+    (Caption: 'Text'; Extension: '.text'; Filter: 'Text (*.txt)|*.txt'),
+    (Caption: 'CSV'; Extension: '.csv'; Filter: 'CSV (*.csv)|*.csv'),
+    (Caption: 'JSON'; Extension: '.json'; Filter: 'JSON (*.json)|*.json')
   );
 
 { TTisStringTreeOptions }
@@ -962,7 +1003,7 @@ end;
 
 function TTisColumnDataTypeAdapter.EnumToCaption(const aValue: TTisColumnDataType): string;
 begin
-  result := COLUMNDATATYPES[aValue].Caption;
+  result := cColumnDataTypes[aValue].Caption;
 end;
 
 function TTisColumnDataTypeAdapter.EnumToRawUtf8(
@@ -981,8 +1022,8 @@ var
   i: TTisColumnDataType;
 begin
   result := low(TTisColumnDataType);
-  for i := low(COLUMNDATATYPES) to high(COLUMNDATATYPES) do
-    if COLUMNDATATYPES[i].Caption = aValue then
+  for i := low(cColumnDataTypes) to high(cColumnDataTypes) do
+    if cColumnDataTypes[i].Caption = aValue then
     begin
       result := i;
       exit;
@@ -1302,6 +1343,57 @@ begin
   end
   else
     inherited Assign(aSource);
+end;
+
+{ TTisGridExportFormatOptionAdapter }
+
+function TTisGridExportFormatOptionAdapter.EnumToCaption(
+  const aValue: TTisGridExportFormatOption): string;
+begin
+  result := cGridExportFormatOptions[aValue].Caption;
+end;
+
+function TTisGridExportFormatOptionAdapter.CaptionToEnum(const aValue: string): TTisGridExportFormatOption;
+var
+  i: TTisGridExportFormatOption;
+begin
+  result := low(TTisGridExportFormatOption);
+  for i := low(cGridExportFormatOptions) to high(cGridExportFormatOptions) do
+    if cGridExportFormatOptions[i].Caption = aValue then
+    begin
+      result := i;
+      exit;
+    end;
+end;
+
+procedure TTisGridExportFormatOptionAdapter.EnumsToStrings(aDest: TStrings;
+  const aCustom: TTisGridExportFormatOptions);
+var
+  i: TTisGridExportFormatOption;
+begin
+  for i := low(TTisGridExportFormatOption) to high(TTisGridExportFormatOption) do
+    if i in aCustom then
+      aDest.Append(EnumToCaption(i));
+end;
+
+function TTisGridExportFormatOptionAdapter.ExtensionToEnum(
+  const aValue: TFileName): TTisGridExportFormatOption;
+var
+  i: TTisGridExportFormatOption;
+begin
+  result := low(TTisGridExportFormatOption);
+  for i := low(cGridExportFormatOptions) to high(cGridExportFormatOptions) do
+    if cGridExportFormatOptions[i].Extension = aValue then
+    begin
+      result := i;
+      exit;
+    end;
+end;
+
+function TTisGridExportFormatOptionAdapter.EnumToFilter(
+  const aValue: TTisGridExportFormatOption): string;
+begin
+  result := cGridExportFormatOptions[aValue].Filter;
 end;
 
 type
@@ -1809,9 +1901,9 @@ begin
   SetFocusedRowNoClearSelection(aValue);
 end;
 
-procedure TTisGrid.SetOnCutToClipBoard(aValue: TNotifyEvent);
+procedure TTisGrid.SetOnCutToClipboard(aValue: TNotifyEvent);
 begin
-  fOnCutToClipBoard := aValue;
+  fOnCutToClipboard := aValue;
 end;
 
 function TTisGrid.GetOptions: TStringTreeOptions;
@@ -2328,7 +2420,8 @@ procedure TTisGrid.FillPopupMenu(aSender: TObject);
         PopupMenu.Items.Delete(i);
   end;
 
-  function _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent): HMENU;
+  function _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
+    aEnabled: Boolean = True): HMENU;
   var
     mi: TMenuItem;
   begin
@@ -2341,6 +2434,7 @@ procedure TTisGrid.FillPopupMenu(aSender: TObject);
         Caption := aCaption;
         ShortCut := aShortcut;
         OnClick := aEvent;
+        Enabled := aEnabled;
         // to delete them
         Tag := 250; { TODO -omsantos : we might create a new property for custom this number }
       end;
@@ -2358,46 +2452,48 @@ begin
   if (PopupMenu.Items.Count > 0) then
     _AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
-    HMFind := _AddItem(RsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText);
+    HMFind := _AddItem(rsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
   if pmoShowFindNext in fPopupMenuOptions then
-    HMFindNext := _AddItem(RsFindNext, VK_F3, @DoFindNext);
-  {HMFindReplace := _AddItem(RsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
+    HMFindNext := _AddItem(rsFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
+  {HMFindReplace := _AddItem(rsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
     @DoFindReplace);}
   _AddItem('-', 0, nil);
-  if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipBoard) then
-    HMCut := _AddItem(RsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipBoard);
+  if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipboard) then
+    HMCut := _AddItem(rsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
   if pmoShowCopy in fPopupMenuOptions then
-    HMCopy := _AddItem(RsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipBoard);
+    HMCopy := _AddItem(rsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
   if pmoShowCopyCell in fPopupMenuOptions then
-    HMCopyCell := _AddItem(RsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipBoard);
+    HMCopyCell := _AddItem(rsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
+  if pmoShowCopySpecial in fPopupMenuOptions then
+    HMCopySpecial := _AddItem(rsCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
-    HMPaste := _AddItem(RsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste);
+    HMPaste := _AddItem(rsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
   _AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) then
-    HMDelete := _AddItem(RsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows);
+    HMDelete := _AddItem(rsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMSelAll := _AddItem(RsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows);
+    HMSelAll := _AddItem(rsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
   _AddItem('-', 0, nil);
   if pmoShowExport in fPopupMenuOptions then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
-      HMExport := _AddItem(rsExportSelected, 0, @DoExport)
+      HMExport := _AddItem(rsExportSelected, 0, @DoExport, not fData.IsVoid)
     else
-      HMExport := _AddItem(rsExportAll, 0, @DoExport);
+      HMExport := _AddItem(rsExportAll, 0, @DoExport, not fData.IsVoid);
   end;
   {if (HMPrint = 0) then
-    HMPrint := _AddItem(RsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
+    HMPrint := _AddItem(rsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
   _AddItem('-', 0, nil);
-  HMExpAll := _AddItem(RsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
+  HMExpAll := _AddItem(rsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
     @DoExpandAll);
-  HMCollAll := _AddItem(RsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
+  HMCollAll := _AddItem(rsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
     @DoCollapseAll);}
   _AddItem('-', 0, nil);
   if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
-    HMCustomize := _AddItem(RsCustomizeColumns, 0, @DoCustomizeColumns);
+    HMCustomize := _AddItem(rsCustomizeColumns, 0, @DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
-    HMAdvancedCustomize := _AddItem(RsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
+    HMAdvancedCustomize := _AddItem(rsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;
@@ -2665,7 +2761,7 @@ begin
     fOnGridExportCustomContent(self, aSource, aBuffer);
 end;
 
-procedure TTisGrid.DoCopyToClipBoard(aSender: TObject);
+procedure TTisGrid.DoCopyToClipboard(aSender: TObject);
 var
   s: RawByteString;
   c: TClipboardAdapter;
@@ -2682,7 +2778,7 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoCopyCellToClipBoard(aSender: TObject);
+procedure TTisGrid.DoCopyCellToClipboard(aSender: TObject);
 var
   c: TClipboardAdapter;
   r: TDocVariantData;
@@ -2704,10 +2800,63 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoCutToClipBoard(aSender: TObject);
+procedure TTisGrid.DoCopySpecialToClipboard(aSender: TObject);
+var
+  buf: RawByteString;
+  c: TClipboardAdapter;
+  efo: TTisGridExportFormatOptionAdapter;
+  params: record
+    Selection: TVSTTextSourceType;
+    Format: TTisGridExportFormatOption;
+    Columns: record
+      VisibleOnly: Boolean;
+      Translated: Boolean;
+    end;
+  end;
+  form: TCopySpecialForm;
 begin
-  if Assigned(fOnCutToClipBoard) then
-    fOnCutToClipBoard(aSender);
+  form := TCopySpecialForm.Create(self.Owner);
+  try
+    c.Open;
+    efo.EnumsToStrings(form.FormatCombo.Items, [efoCsv, efoJson]);
+    form.FormatCombo.ItemIndex := 0;
+    form.SelectionCombo.ItemIndex := 0;
+    if form.ShowModal <> mrOK then
+      exit;
+    c.Clear;
+    if form.SelectionCombo.ItemIndex = 0 then
+      params.Selection := tstAll
+    else
+      params.Selection := tstSelected;
+    params.Format := efo.CaptionToEnum(form.FormatCombo.Text);
+    params.Columns.VisibleOnly := form.ColumnsVisibleOnlyCheckBox.Checked;
+    params.Columns.Translated := form.TranslatedColumnsCheckBox.Checked;
+    case params.Format of
+      efoCsv:
+      begin
+        buf := ContentToCsv(params.Selection,
+          DefaultCsvSeparator, params.Columns.VisibleOnly, params.Columns.Translated);
+        c.Add(cbkText, buf[1], Length(buf));
+      end;
+      efoJson:
+      begin
+        buf := ContentToJson(params.Selection, params.Columns.VisibleOnly);
+        c.Add(cbkText, buf[1], Length(buf));
+        c.Add(cbkJson, buf[1], Length(buf));
+      end;
+    else
+      raise ETisGrid.Create('Format not enabled to copy from it.');
+    end;
+  finally
+    c.Close;
+    form.Free;
+  end;
+end;
+
+procedure TTisGrid.DoCutToClipboard(aSender: TObject);
+begin
+  if Assigned(fOnCutToClipboard) then
+    fOnCutToClipboard(aSender);
 end;
 
 procedure TTisGrid.DoDeleteRows(aSender: TObject);
@@ -2828,18 +2977,20 @@ function TTisGrid.GetExportDialogFilter: string;
     result += aFilter;
   end;
 
+var
+  efo: TTisGridExportFormatOptionAdapter;
 begin
   result := '';
   if efoCsv in fExportFormatOptions then
-    _Add('CSV (*.csv)|*.csv');
+    _Add(efo.EnumToFilter(efoCsv));
   if efoJson in fExportFormatOptions then
-   _Add('JSON (*.json)|*.json');
+   _Add(efo.EnumToFilter(efoJson));
   if efoRtf in fExportFormatOptions then
-    _Add('RTF (*.rtf)|*.rtf');
+    _Add(efo.EnumToFilter(efoRtf));
   if efoHtml in fExportFormatOptions then
-    _Add('HTML (*.html, *.htm)|*.html;*.htm');
+    _Add(efo.EnumToFilter(efoHtml));
   if efoText in fExportFormatOptions then
-    _Add('Text (*.txt)|*.txt');
+    _Add(efo.EnumToFilter(efoText));
 end;
 
 procedure TTisGrid.RestoreSettings;
@@ -2855,6 +3006,7 @@ begin
   fSelectedData.Clear;
   fSelectedData.InitArray([], JSON_FAST_FLOAT);
   DefaultText := '';
+  DefaultCsvSeparator := ',';
   fZebraColor := $00EDF0F1;
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
@@ -3103,18 +3255,19 @@ procedure TTisGrid.ExportData(const aFileName: TFileName;
 
 var
   buf: RawUtf8;
+  efo: TTisGridExportFormatOptionAdapter;
 begin
   buf := '';
-  case SysUtils.LowerCase(ExtractFileExt(aFileName)) of
-    '.csv':
-      buf := ContentToCsv(aSelection, ',');
-    '.json':
+  case efo.ExtensionToEnum(SysUtils.LowerCase(ExtractFileExt(aFileName))) of
+    efoCsv:
+      buf := ContentToCsv(aSelection, DefaultCsvSeparator);
+    efoJson:
       buf := ContentToJson(aSelection);
-    '.html', '.htm':
+    efoHtml:
       buf := StringToUtf8(ContentToHTML(aSelection));
-    '.rtf':
+    efoRtf:
       buf := StringToUtf8(ContentToRTF(aSelection));
-    '.txt':
+    efoText:
       buf := StringToUtf8(ContentToText(aSelection, ','));
   else
     DoExportCustomContent(aSelection, buf);
@@ -3454,7 +3607,8 @@ begin
 end;
 
 function TTisGrid.ContentToCsv(aSource: TVSTTextSourceType;
-  const aSeparator: string): RawUtf8;
+  const aSeparator: string; aColumnsVisibleOnly: Boolean;
+  aColumnsTranslated: Boolean): RawUtf8;
 var
   tmp, cols, rows: TDocVariantData;
   col: TTisGridColumn;
@@ -3470,8 +3624,13 @@ begin
   for c := 0 to Header.Columns.Count-1 do
   begin
     col := TTisGridColumn(Header.Columns[c]);
-    if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
-      cols.AddItemText(StringToUtf8('"' + col.Text + '"'));
+    if ((coVisible in col.Options) or not aColumnsVisibleOnly) and (col.DataType <> cdtPassword) then
+    begin
+      if aColumnsTranslated then
+        cols.AddItemText(StringToUtf8('"' + col.Text + '"'))
+      else
+        cols.AddItemText(StringToUtf8('"' + col.PropertyName + '"'));
+    end;
   end;
   result := cols.ToCsv(aSeparator) + LineEnding;
   tmp.InitArray([], JSON_FAST_FLOAT);
@@ -3481,7 +3640,7 @@ begin
     for c := 0 to Header.Columns.Count-1 do
     begin
       col := TTisGridColumn(Header.Columns[c]);
-      if (coVisible in col.Options) and (col.DataType <> cdtPassword) then
+      if ((coVisible in col.Options) or not aColumnsVisibleOnly) and (col.DataType <> cdtPassword) then
       begin
         s := o^.U[col.PropertyName];
         if s <> '' then
@@ -3499,7 +3658,8 @@ begin
   end;
 end;
 
-function TTisGrid.ContentToJson(aSource: TVSTTextSourceType): RawUtf8;
+function TTisGrid.ContentToJson(aSource: TVSTTextSourceType;
+  aColumnsVisibleOnly: Boolean): RawUtf8;
 var
   cols, rows, res: TDocVariantData;
   col: TTisGridColumn;
