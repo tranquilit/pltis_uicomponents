@@ -2973,11 +2973,14 @@ var
   i: TTisGridExportFormatOption;
 begin
   result := '';
-  for i := high(fExportFormatOptions) downto low(fExportFormatOptions) do
+  for i := high(TTisGridExportFormatOption) downto low(TTisGridExportFormatOption) do
   begin
-    if result <> '' then
-      result += '|';
-    result += efo.EnumToFilter(i);
+    if i in fExportFormatOptions then
+    begin
+      if result <> '' then
+        result += '|';
+      result += efo.EnumToFilter(i);
+    end;
   end;
 end;
 
