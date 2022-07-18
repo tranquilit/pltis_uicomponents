@@ -2744,8 +2744,7 @@ begin
   try
     dlg.Title := Application.Title;
     dlg.Filter := GetExportDialogFilter;
-    dlg.DefaultExt := 'csv';
-    dlg.FileName := 'data.csv';
+    dlg.FileName := 'data';
     dlg.Options := dlg.Options + [ofOverwritePrompt];
     if dlg.Execute then
       ExportData(dlg.FileName, _GetSelectionType);
@@ -2969,28 +2968,17 @@ begin
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
-
-  procedure _Add(const aFilter: string);
+var
+  efo: TTisGridExportFormatOptionAdapter;
+  i: TTisGridExportFormatOption;
+begin
+  result := '';
+  for i := high(fExportFormatOptions) downto low(fExportFormatOptions) do
   begin
     if result <> '' then
       result += '|';
-    result += aFilter;
+    result += efo.EnumToFilter(i);
   end;
-
-var
-  efo: TTisGridExportFormatOptionAdapter;
-begin
-  result := '';
-  if efoCsv in fExportFormatOptions then
-    _Add(efo.EnumToFilter(efoCsv));
-  if efoJson in fExportFormatOptions then
-   _Add(efo.EnumToFilter(efoJson));
-  if efoRtf in fExportFormatOptions then
-    _Add(efo.EnumToFilter(efoRtf));
-  if efoHtml in fExportFormatOptions then
-    _Add(efo.EnumToFilter(efoHtml));
-  if efoText in fExportFormatOptions then
-    _Add(efo.EnumToFilter(efoText));
 end;
 
 procedure TTisGrid.RestoreSettings;
