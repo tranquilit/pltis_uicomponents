@@ -280,7 +280,7 @@ begin
     end;
     bkClear:
     begin
-      Clear;
+      Text := '';
       RefreshSearch;
     end;
   end;
