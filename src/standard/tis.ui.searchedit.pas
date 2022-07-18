@@ -22,6 +22,7 @@ uses
   ExtCtrls,
   Buttons,
   Variants,
+  Menus,
   mormot.core.variants,
   mormot.core.unicode,
   tis.ui.parts.buttons;
@@ -85,6 +86,10 @@ type
     procedure DoButtonClick(Sender: TObject); virtual;
     /// it implements IButtonProperties.Setup
     procedure Setup(aButton: TButtonItem); virtual;
+    /// it implements a Popup menu for Clear buttons to clean all
+    procedure SetupClearPopupMenu; virtual;
+    /// callback to Popup menu to clear all
+    procedure DoClearCallback(aSender: TObject);
   public
     // ------------------------------- inherited methods ----------------------------------
     constructor Create(aOwner: TComponent); override;
@@ -137,6 +142,9 @@ type
     /// an event that will be trigger when the Timer stops
     property OnStopSearch: TNotifyEvent read GetOnStopSearch write SetOnStopSearch;
   end;
+
+resourcestring
+  rsClearAll = 'Clear all';
 
 implementation
 
@@ -210,6 +218,8 @@ procedure TTisSearchEdit.Loaded;
 begin
   inherited Loaded;
   fButtons.Invalidate;
+  if not (csDesigning in ComponentState) then
+    SetupClearPopupMenu;
 end;
 
 procedure TTisSearchEdit.SetParent(aNewParent: TWinControl);
@@ -289,6 +299,39 @@ end;
 procedure TTisSearchEdit.Setup(aButton: TButtonItem);
 begin
   aButton.Button.OnClick := @DoButtonClick;
+end;
+
+procedure TTisSearchEdit.SetupClearPopupMenu;
+var
+  mi: TMenuItem;
+  b: TButtonItem;
+  i: Integer;
+begin
+  for i := 0 to fButtons.Count -1 do
+  begin
+    b := fButtons[i];
+    if b.Kind = bkClear then
+    begin
+      if not Assigned(b.Button.PopupMenu) then
+        b.Button.PopupMenu := TPopupMenu.Create(self);
+      if b.Button.PopupMenu.Items.Count > 0 then
+      begin
+        mi := TMenuItem.Create(self);
+        mi.Caption := '-';
+        b.Button.PopupMenu.Items.Add(mi);
+      end;
+      mi := TMenuItem.Create(self);
+      mi.Tag := -1;
+      mi.Caption := rsClearAll;
+      mi.OnClick := @DoClearCallback;
+      b.Button.PopupMenu.Items.Add(mi);
+    end;
+  end;
+end;
+
+procedure TTisSearchEdit.DoClearCallback(aSender: TObject);
+begin
+  Clear;
 end;
 
 constructor TTisSearchEdit.Create(aOwner: TComponent);

@@ -130,7 +130,7 @@ uses
   tis.ui.toolbar.editor;
 
 resourcestring
-  rsCustomizeToolbar='Customize the toolbar';
+  rsCustomizeToolbar = 'Customize the toolbar';
 
 { TActionsItem }
 
