@@ -24,7 +24,7 @@ type
     Panel3: TPanel;
     Panel1: TPanel;
     FormatLabel: TLabel;
-    SelectionLabel: TLabel;
+    RowsLabel: TLabel;
     SelectionCombo: TComboBox;
     FormatCombo: TComboBox;
     ColumnsGroupBox: TGroupBox;

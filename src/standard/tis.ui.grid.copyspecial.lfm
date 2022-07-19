@@ -71,16 +71,16 @@ object CopySpecialForm: TCopySpecialForm
       Caption = 'Format'
       ParentColor = False
     end
-    object SelectionLabel: TLabel
+    object RowsLabel: TLabel
       AnchorSideLeft.Control = FormatLabel
       AnchorSideTop.Control = FormatCombo
       AnchorSideTop.Side = asrBottom
       Left = 11
       Height = 15
       Top = 40
-      Width = 48
+      Width = 28
       BorderSpacing.Top = 10
-      Caption = 'Selection'
+      Caption = 'Rows'
       ParentColor = False
     end
     object SelectionCombo: TComboBox
@@ -111,8 +111,8 @@ object CopySpecialForm: TCopySpecialForm
       TabOrder = 0
     end
     object ColumnsGroupBox: TGroupBox
-      AnchorSideLeft.Control = SelectionLabel
-      AnchorSideTop.Control = SelectionLabel
+      AnchorSideLeft.Control = RowsLabel
+      AnchorSideTop.Control = RowsLabel
       AnchorSideTop.Side = asrBottom
       Left = 11
       Height = 72
