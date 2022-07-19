@@ -2,7 +2,6 @@
 {"hash":248374316,"name":"tcopyspecialform.caption","sourcebytes":[67,111,112,121,32,83,112,101,99,105,97,108],"value":"Copy Special"},
 {"hash":81171332,"name":"tcopyspecialform.formatlabel.caption","sourcebytes":[70,111,114,109,97,116],"value":"Format"},
 {"hash":45807518,"name":"tcopyspecialform.selectionlabel.caption","sourcebytes":[83,101,108,101,99,116,105,111,110],"value":"Selection"},
-{"hash":18476,"name":"tcopyspecialform.selectioncombo.text","sourcebytes":[65,108,108],"value":"All"},
 {"hash":174310419,"name":"tcopyspecialform.columnsgroupbox.caption","sourcebytes":[67,111,108,117,109,110,115],"value":"Columns"},
 {"hash":28922003,"name":"tcopyspecialform.columnsvisibleonlycheckbox.hint","sourcebytes":[86,105,115,105,98,108,101,32,111,110,108,121,13,10,45,32,117,110,99,104,101,99,107,32,105,116,32,116,111,32,117,115,101,32,97,108,108,32,99,111,108,117,109,110,115],"value":"Visible only\r\n- uncheck it to use all columns"},
 {"hash":128441513,"name":"tcopyspecialform.columnsvisibleonlycheckbox.caption","sourcebytes":[86,105,115,105,98,108,101,32,111,110,108,121],"value":"Visible only"},

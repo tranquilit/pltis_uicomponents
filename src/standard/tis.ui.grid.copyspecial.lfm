@@ -93,14 +93,8 @@ object CopySpecialForm: TCopySpecialForm
       Width = 124
       BorderSpacing.Top = 5
       ItemHeight = 15
-      ItemIndex = 0
-      Items.Strings = (
-        'All'
-        'Selected'
-      )
       Style = csDropDownList
       TabOrder = 1
-      Text = 'All'
     end
     object FormatCombo: TComboBox
       AnchorSideLeft.Control = FormatLabel
