@@ -340,6 +340,7 @@ begin
   fTimer := TTimer.Create(nil);
   fTimer.Enabled := False;
   fTimer.OnTimer := @DoSearch;
+  OnSelect := @DoSearch;
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
   fSearchMaxHistory := DefaultSearchMaxHistory;
