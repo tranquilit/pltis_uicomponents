@@ -66,7 +66,7 @@ type
     // -------- Timer events end --------
   protected
     const DefaultSearchMaxHistory = 8;
-    const DefaultSearchInterval = 1000;
+    const DefaultSearchInterval = 300;
   protected
     // ------------------------------- inherited methods ----------------------------------
     procedure Loaded; override;
