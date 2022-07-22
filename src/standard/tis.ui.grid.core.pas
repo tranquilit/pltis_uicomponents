@@ -1046,12 +1046,12 @@ end;
 
 procedure TTisGridEditLink.EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState);
 var
-  CanAdvance: Boolean;
+  vCanAdvance: Boolean;
 begin
-  CanAdvance := True;
+  vCanAdvance := True;
   case Key of
     VK_ESCAPE:
-      if CanAdvance then
+      if vCanAdvance then
       begin
         fControl.Internal.OnExit := nil; // prevents an Access Violation
         fGrid.SetFocusSafe; // needed if grid.parent is a Frame
@@ -1069,12 +1069,12 @@ begin
     VK_DOWN:
       begin  { TODO -omsantos : should be refactored, as these checks should came from the instance }
         // consider special cases before finishing edit mode
-        CanAdvance := Shift = [];
+        vCanAdvance := Shift = [];
         if fControl.Internal is TCustomComboBox then
-          CanAdvance := CanAdvance and not TCustomComboBox(fControl.Internal).DroppedDown;
+          vCanAdvance := vCanAdvance and not TCustomComboBox(fControl.Internal).DroppedDown;
         if fControl.Internal is TCustomMemo then
-          CanAdvance := False;
-        if CanAdvance then
+          vCanAdvance := False;
+        if vCanAdvance then
         begin
           // forward the keypress to the tree
           // it will asynchronously change the focused node
@@ -1111,14 +1111,14 @@ end;
 
 function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;
 var
-  handled: Boolean;
+  vHandled: Boolean;
 begin
   fGrid.DoCustomEditor(aColumn, result);
   if result = nil then
   begin
-    handled := False;
-    fGrid.DoEditorLookup(aColumn, result, handled);
-    if not handled then
+    vHandled := False;
+    fGrid.DoEditorLookup(aColumn, result, vHandled);
+    if not vHandled then
       result := ControlClasses[aColumn.DataType].Create;
   end;
   if Assigned(result) then
@@ -1157,40 +1157,40 @@ end;
 
 function TTisGridEditLink.EndEdit: Boolean; stdcall;
 var
-  d: PDocVariantData;
-  c: TTisGridColumn;
-  aborted: Boolean;
-  cur, new: Variant;
+  vDoc: PDocVariantData;
+  vCol: TTisGridColumn;
+  vAborted: Boolean;
+  vCur, vNew: Variant;
 begin
   result := True;
-  d := fGrid.GetNodeDataAsDocVariant(fNode);
-  c := fGrid.FindColumnByIndex(fColumn);
-  aborted := False;
-  cur := d^.GetValueOrNull(c.PropertyName);
-  new := fControl.GetValue;
-  fGrid.DoEditValidated(c, cur, new, aborted);
+  vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
+  vCol := fGrid.FindColumnByIndex(fColumn);
+  vAborted := False;
+  vCur := vDoc^.GetValueOrNull(vCol.PropertyName);
+  vNew := fControl.GetValue;
+  fGrid.DoEditValidated(vCol, vCur, vNew, vAborted);
   try
-    if aborted then
+    if vAborted then
       exit;
-    if VarIsNull(new) then
+    if VarIsNull(vNew) then
     begin
-      if not c.Required then
-        d^.Value[c.PropertyName] := NULL;
+      if not vCol.Required then
+        vDoc^.Value[vCol.PropertyName] := NULL;
     end
     else
-      case c.DataType of
+      case vCol.DataType of
         cdtString, cdtMemo:
-          d^.S[c.PropertyName] := VarToStr(new);
+          vDoc^.S[vCol.PropertyName] := VarToStr(vNew);
         cdtDate, cdtTime, cdtDateTime:
-          d^.U[c.PropertyName] := DateTimeToIso8601Text(new);
+          vDoc^.U[vCol.PropertyName] := DateTimeToIso8601Text(vNew);
         cdtInteger:
-          d^.I[c.PropertyName] := new;
+          vDoc^.I[vCol.PropertyName] := vNew;
         cdtFloat:
-          d^.D[c.PropertyName] := new;
+          vDoc^.D[vCol.PropertyName] := vNew;
         cdtBoolean:
-          d^.B[c.PropertyName] := new;
+          vDoc^.B[vCol.PropertyName] := vNew;
       else
-        d^.S[c.PropertyName] := VarToStr(new);
+        vDoc^.S[vCol.PropertyName] := VarToStr(vNew);
       end;
   finally
     FreeAndNil(fControl); // for do not perform any event from it
@@ -1207,33 +1207,33 @@ end;
 function TTisGridEditLink.PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNode;
   aColumn: TColumnIndex): Boolean; stdcall;
 var
-  d: PDocVariantData;
-  c: TTisGridColumn;
+  vDoc: PDocVariantData;
+  vCol: TTisGridColumn;
 begin
   result := True;
   fGrid := aTree as TTisGrid;
   fNode := aNode;
   fColumn := aColumn;
   FreeAndNil(fControl);
-  d := fGrid.GetNodeDataAsDocVariant(fNode);
-  c := fGrid.FindColumnByIndex(fColumn);
-  fControl := NewControl(c);
-  fControl.ReadOnly := c.ReadOnly;
-  case c.DataType of
+  vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
+  vCol := fGrid.FindColumnByIndex(fColumn);
+  fControl := NewControl(vCol);
+  fControl.ReadOnly := vCol.ReadOnly;
+  case vCol.DataType of
     cdtString, cdtMemo:
-      fControl.SetValue(d^.S[c.PropertyName]);
+      fControl.SetValue(vDoc^.S[vCol.PropertyName]);
     cdtDate, cdtTime, cdtDateTime:
-      fControl.SetValue(Iso8601ToDateTime(d^.U[c.PropertyName]));
+      fControl.SetValue(Iso8601ToDateTime(vDoc^.U[vCol.PropertyName]));
     cdtInteger:
-      fControl.SetValue(d^.I[c.PropertyName]);
+      fControl.SetValue(vDoc^.I[vCol.PropertyName]);
     cdtFloat:
-      fControl.SetValue(d^.D[c.PropertyName]);
+      fControl.SetValue(vDoc^.D[vCol.PropertyName]);
     cdtBoolean:
-      fControl.SetValue(d^.B[c.PropertyName]);
+      fControl.SetValue(vDoc^.B[vCol.PropertyName]);
   else
-    fControl.SetValue(d^.S[c.PropertyName]);
+    fControl.SetValue(vDoc^.S[vCol.PropertyName]);
   end;
-  fGrid.DoPrepareEditor(c, fControl);
+  fGrid.DoPrepareEditor(vCol, fControl);
 end;
 
 procedure TTisGridEditLink.ProcessMessage(var aMessage: TLMessage); stdcall;
@@ -1243,12 +1243,12 @@ end;
 
 procedure TTisGridEditLink.SetBounds(R: TRect); stdcall;
 var
-  dummy: Integer;
+  vDummy: Integer;
 begin
   // Since we don't want to activate grid extensions in the tree (this would
   // influence how the selection is drawn)
   // we have to set the edit's width explicitly to the width of the column.
-  fGrid.Header.Columns.GetColumnBounds(fColumn, dummy, R.Right);
+  fGrid.Header.Columns.GetColumnBounds(fColumn, vDummy, R.Right);
   fControl.Internal.BoundsRect := R;
 end;
 
@@ -1319,18 +1319,18 @@ end;
 procedure TTisGridColumns.Assign(aSource: TPersistent);
 var
   i: Integer;
-  c: TTisGridColumn;
-  src: TTisGridColumns;
+  vCol: TTisGridColumn;
+  vSource: TTisGridColumns;
 begin
   if aSource is TTisGridColumns then
   begin
     Header.Columns.Clear;
-    src := aSource as TTisGridColumns;
-    for i := 0 to src.Header.Columns.Count-1 do
+    vSource := aSource as TTisGridColumns;
+    for i := 0 to vSource.Header.Columns.Count-1 do
     begin
-      c := Header.Columns.Add as TTisGridColumn;
-      c.Assign(src.Header.Columns[i]);
-      c.Options := src.Header.Columns[i].Options;
+      vCol := Header.Columns.Add as TTisGridColumn;
+      vCol.Assign(vSource.Header.Columns[i]);
+      vCol.Options := vSource.Header.Columns[i].Options;
     end;
   end
   else
@@ -1535,12 +1535,12 @@ end;
 
 procedure TTisGridHeaderPopupMenu.Popup(x, y: Integer);
 var
-  ColPos: TColumnPosition;
-  ColIdx: TColumnIndex;
-  NewMenuItem: TMenuItem;
-  hpi: TTisGridHeaderPopupItem;
-  VisibleCounter: Cardinal;
-  VisibleItem: TMenuItem;
+  vColPos: TColumnPosition;
+  vColIdx: TColumnIndex;
+  vNewMenuItem: TMenuItem;
+  vHpi: TTisGridHeaderPopupItem;
+  vVisibleCounter: Cardinal;
+  vVisibleItem: TMenuItem;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
@@ -1554,63 +1554,63 @@ begin
       else
         // remove a possible reference to image list of another tree previously assigned
         self.Images := nil;
-      VisibleItem := nil;
-      VisibleCounter := 0;
-      for ColPos := 0 to Columns.Count - 1 do
+      vVisibleItem := nil;
+      vVisibleCounter := 0;
+      for vColPos := 0 to Columns.Count - 1 do
       begin
         if poOriginalOrder in fOptions then
-          ColIdx := ColPos
+          vColIdx := vColPos
         else
-          ColIdx := Columns.ColumnFromPosition(ColPos);
-        if ColIdx = NoColumn then
+          vColIdx := Columns.ColumnFromPosition(vColPos);
+        if vColIdx = NoColumn then
           break;
-        with Columns[ColIdx] as TTisGridColumn do
+        with Columns[vColIdx] as TTisGridColumn do
         begin
           if coVisible in Options then
-            Inc(VisibleCounter);
-          DoAddHeaderPopupItem(ColIdx, hpi);
-          if hpi <> apHidden then
+            Inc(vVisibleCounter);
+          DoAddHeaderPopupItem(vColIdx, vHpi);
+          if vHpi <> apHidden then
           begin
-            NewMenuItem := TTisGridHeaderMenuItem.Create(self);
-            NewMenuItem.Tag := ColIdx;
-            NewMenuItem.Caption := Text + ' (' + Utf8ToString(PropertyName) + ')';
-            NewMenuItem.Hint := Hint;
-            NewMenuItem.ImageIndex := ImageIndex;
-            NewMenuItem.Checked := coVisible in Options;
-            NewMenuItem.OnClick := @OnMenuItemClick;
-            if hpi = apDisabled then
-              NewMenuItem.Enabled := False
+            vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
+            vNewMenuItem.Tag := vColIdx;
+            vNewMenuItem.Caption := Text + ' (' + Utf8ToString(PropertyName) + ')';
+            vNewMenuItem.Hint := Hint;
+            vNewMenuItem.ImageIndex := ImageIndex;
+            vNewMenuItem.Checked := coVisible in Options;
+            vNewMenuItem.OnClick := @OnMenuItemClick;
+            if vHpi = apDisabled then
+              vNewMenuItem.Enabled := False
             else
               if coVisible in Options then
-                VisibleItem := NewMenuItem;
-            Items.Add(NewMenuItem);
+                vVisibleItem := vNewMenuItem;
+            Items.Add(vNewMenuItem);
           end;
         end;
       end;
-      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      NewMenuItem.Caption := '-';
-      Items.Add(NewMenuItem);
+      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      vNewMenuItem.Caption := '-';
+      Items.Add(vNewMenuItem);
       // show all columns
-      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      NewMenuItem.Tag := -1;
-      NewMenuItem.Caption := rsShowAllColumns;
-      NewMenuItem.OnClick := @OnMenuShowAllClick;
-      Items.Add(NewMenuItem);
+      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      vNewMenuItem.Tag := -1;
+      vNewMenuItem.Caption := rsShowAllColumns;
+      vNewMenuItem.OnClick := @OnMenuShowAllClick;
+      Items.Add(vNewMenuItem);
       // hide all columns
-      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      NewMenuItem.Tag := -2;
-      NewMenuItem.Caption := rsHideAllColumns;
-      NewMenuItem.OnClick := @OnMenuHideAllClick;
-      Items.Add(NewMenuItem);
+      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      vNewMenuItem.Tag := -2;
+      vNewMenuItem.Caption := rsHideAllColumns;
+      vNewMenuItem.OnClick := @OnMenuHideAllClick;
+      Items.Add(vNewMenuItem);
       // restore default columns
-      NewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      NewMenuItem.Tag := -3;
-      NewMenuItem.Caption := rsRestoreDefaultColumns;
-      NewMenuItem.OnClick := @OnMenuRestoreClick;
-      Items.Add(NewMenuItem);
+      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      vNewMenuItem.Tag := -3;
+      vNewMenuItem.Caption := rsRestoreDefaultColumns;
+      vNewMenuItem.OnClick := @OnMenuRestoreClick;
+      Items.Add(vNewMenuItem);
       // conditionally disable menu item of last enabled column
-      if (VisibleCounter = 1) and (VisibleItem <> nil) and not (poAllowHideAll in fOptions) then
-        VisibleItem.Enabled := False;
+      if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
+        vVisibleItem.Enabled := False;
     end;
   end;
   inherited Popup(x, y);
@@ -1781,14 +1781,14 @@ end;
 
 procedure TTisGrid.SetParentKeyFieldsNames(const aValue: string);
 var
-  keys: TRawUtf8DynArray;
-  parents: TRawUtf8DynArray;
+  vKeys: TRawUtf8DynArray;
+  vParents: TRawUtf8DynArray;
 begin
   if aValue <> '' then
   begin
-    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, keys);
-    StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, parents);
-    if high(parents) > high(keys) then
+    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vKeys);
+    StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, vParents);
+    if high(vParents) > high(vKeys) then
       raise ETisGrid.Create('ParentKeyFieldsList should not have more fields than KeyFieldsList.');
   end;
   fParentKeyFieldsList := StrSplit(aValue, ';', True);
@@ -1797,24 +1797,24 @@ end;
 function TTisGrid.GetSettings: Variant;
 var
   i: integer;
-  col: TTisGridColumn;
-  r, cols: PDocVariantData;
+  vCol: TTisGridColumn;
+  r, vCols: PDocVariantData;
 begin
   TDocVariant.NewFast(result);
   r := @result;
   r^.I['sortcolumn'] := Header.SortColumn;
   r^.I['sortdirection'] := ord(Header.SortDirection);
-  cols := r^.A_['columns'];
+  vCols := r^.A_['columns'];
   for i := 0 to Header.Columns.Count-1 do
   begin
-    col := Header.Columns[i] as TTisGridColumn;
-    cols^.AddItem(
+    vCol := Header.Columns[i] as TTisGridColumn;
+    vCols^.AddItem(
       _ObjFast([
-        'propertyname', col.PropertyName,
-        'text', StringToUtf8(col.Text),
-        'position', col.Position,
-        'width', col.Width,
-        'visible', (coVisible in col.Options)
+        'propertyname', vCol.PropertyName,
+        'text', StringToUtf8(vCol.Text),
+        'position', vCol.Position,
+        'width', vCol.Width,
+        'visible', (coVisible in vCol.Options)
       ])
     );
   end;
@@ -1822,39 +1822,39 @@ end;
 
 procedure TTisGrid.SetSettings(const aValue: Variant);
 var
-  c, v: PDocVariantData;
-  int: Integer;
-  n: RawUtf8;
-  gc: TTisGridColumn;
+  vObj, vSettings: PDocVariantData;
+  vIntValue: Integer;
+  vPropName: RawUtf8;
+  vCol: TTisGridColumn;
 begin
-  v := _Safe(aValue);
-  if not v^.IsVoid then
+  vSettings := _Safe(aValue);
+  if not vSettings^.IsVoid then
   begin
-    for c in v^.A_['columns']^.Objects do
+    for vObj in vSettings^.A_['columns']^.Objects do
     begin
-      n := c^.U['propertyname'];
-      gc := FindColumnByPropertyName(n);
-      if gc = nil then
+      vPropName := vObj^.U['propertyname'];
+      vCol := FindColumnByPropertyName(vPropName);
+      if vCol = nil then
       begin
-        gc := Header.Columns.Add as TTisGridColumn;
-        gc.Text := c^.S['text'];
-        gc.PropertyName := n;
-        gc.Width := 100;
+        vCol := Header.Columns.Add as TTisGridColumn;
+        vCol.Text := vObj^.S['text'];
+        vCol.PropertyName := vPropName;
+        vCol.Width := 100;
       end
       else
       begin
-        gc.Position := c^.I['position'];
-        gc.Width := c^.I['width'];
-        if c^.B['visible'] then
-          gc.Options := gc.Options + [coVisible]
+        vCol.Position := vObj^.I['position'];
+        vCol.Width := vObj^.I['width'];
+        if vObj^.B['visible'] then
+          vCol.Options := vCol.Options + [coVisible]
         else
-          gc.Options := gc.Options - [coVisible];
+          vCol.Options := vCol.Options - [coVisible];
       end;
     end;
-    if v^.GetAsInteger('sortcolumn', int) then
-      Header.SortColumn := int;
-    if v^.GetAsInteger('sortdirection', int) then
-      Header.SortDirection := TSortDirection(int);
+    if vSettings^.GetAsInteger('sortcolumn', vIntValue) then
+      Header.SortColumn := vIntValue;
+    if vSettings^.GetAsInteger('sortdirection', vIntValue) then
+      Header.SortDirection := TSortDirection(vIntValue);
   end;
 end;
 
@@ -1878,14 +1878,14 @@ end;
 
 procedure TTisGrid.SetData(const aValue: TDocVariantData);
 var
-  aborted: Boolean;
+  vAborted: Boolean;
 begin
   if fData.Equals(aValue) then
     exit;
-  aborted := False;
+  vAborted := False;
   if Assigned(fOnBeforeDataChange) then
-    fOnBeforeDataChange(self, @aValue, aborted);
-  if aborted then
+    fOnBeforeDataChange(self, @aValue, vAborted);
+  if vAborted then
     exit;
   fData := aValue;
   LoadData;
@@ -1897,53 +1897,53 @@ end;
 function TTisGrid.GetMetaData: RawUtf8;
 var
   i: Integer;
-  d: TDocVariantData;
-  col: record
+  vDoc: TDocVariantData;
+  vCol: record
     cur: TTisGridColumn;
     items: PDocVariantData;
     adapt: TTisColumnDataTypeAdapter;
   end;
 begin
-  d.InitFast;
-  col.items := d.A_['columns'];
+  vDoc.InitFast;
+  vCol.items := vDoc.A_['columns'];
   for i := 0 to Header.Columns.Count -1 do
   begin
-    col.cur := Header.Columns[i] as TTisGridColumn;
-    col.items^.AddItem(
+    vCol.cur := Header.Columns[i] as TTisGridColumn;
+    vCol.items^.AddItem(
       _ObjFast([
-        'propertyname', col.cur.PropertyName,
-        'datatype', col.adapt.EnumToRawUtf8(col.cur.DataType),
-        'required', col.cur.Required,
-        'readonly', col.cur.ReadOnly,
-        'width',col.cur.Width
+        'propertyname', vCol.cur.PropertyName,
+        'datatype', vCol.adapt.EnumToRawUtf8(vCol.cur.DataType),
+        'required', vCol.cur.Required,
+        'readonly', vCol.cur.ReadOnly,
+        'width',vCol.cur.Width
       ])
     );
   end;
-  result := d.ToJson;
+  result := vDoc.ToJson;
 end;
 
 procedure TTisGrid.SetMetaData(const aValue: RawUtf8);
 var
-  d: TDocVariantData;
-  col: record
+  vDoc: TDocVariantData;
+  vCol: record
     cur: PDocVariantData;
     adapt: TTisColumnDataTypeAdapter;
     gc: TTisGridColumn;
   end;
 begin
-  d.InitJson(aValue, JSON_FAST_FLOAT);
-  if d.IsVoid then
+  vDoc.InitJson(aValue, JSON_FAST_FLOAT);
+  if vDoc.IsVoid then
     exit;
-  for col.cur in d.A_['columns']^.Objects do
+  for vCol.cur in vDoc.A_['columns']^.Objects do
   begin
-    col.gc := FindColumnByPropertyName(col.cur^.U['propertyname']);
-    if col.gc <> nil then
+    vCol.gc := FindColumnByPropertyName(vCol.cur^.U['propertyname']);
+    if vCol.gc <> nil then
     begin
-      col.gc.DataType := col.adapt.RawUtf8ToEnum(col.cur^.U['datatype']);
-      col.gc.Required := col.cur^.B['required'];
-      col.gc.ReadOnly := col.cur^.B['readonly'];
-      if col.cur^.GetValueIndex('width')>=0 then
-        col.gc.Width := col.cur^.I['width'];
+      vCol.gc.DataType := vCol.adapt.RawUtf8ToEnum(vCol.cur^.U['datatype']);
+      vCol.gc.Required := vCol.cur^.B['required'];
+      vCol.gc.ReadOnly := vCol.cur^.B['readonly'];
+      if vCol.cur^.GetValueIndex('width')>=0 then
+        vCol.gc.Width := vCol.cur^.I['width'];
     end
   end;
 end;
@@ -1977,24 +1977,24 @@ end;
 
 function TTisGrid.GetSelectedRows: TDocVariantData;
 var
-  n: PVirtualNode;
-  d: PDocVariantData;
+  vNode: PVirtualNode;
+  vDoc: PDocVariantData;
 begin
-  n := GetFirstSelected;
+  vNode := GetFirstSelected;
   result.InitArray([], JSON_FAST);
-  while n <> nil do
+  while vNode <> nil do
   begin
-    d := GetNodeDataAsDocVariant(n);
-    result.AddItem(variant(d^));
-    n := GetNextSelected(n, True);
+    vDoc := GetNodeDataAsDocVariant(vNode);
+    result.AddItem(variant(vDoc^));
+    vNode := GetNextSelected(vNode, True);
   end;
 end;
 
 procedure TTisGrid.SetSelectedRows(const aValue: TDocVariantData);
 var
-  NodesToSelect: TNodeArray;
-  ANode, NodeToFocus: PVirtualNode;
-  ARow, PreviousFocusedRow: PDocVariantData;
+  vNodesToSelect: TNodeArray;
+  vNode, vNodeToFocus: PVirtualNode;
+  vRow, vPreviousFocusedRow: PDocVariantData;
 begin
   if aValue.IsVoid then
   begin
@@ -2003,48 +2003,48 @@ begin
   end
   else
   begin
-    PreviousFocusedRow := FocusedRow;
+    vPreviousFocusedRow := FocusedRow;
     ClearSelection;
-    ANode := nil;
-    NodeToFocus := nil;
+    vNode := nil;
+    vNodeToFocus := nil;
     BeginUpdate;
     try
-      for ARow in aValue.Objects do
+      for vRow in aValue.Objects do
       begin
         if Length(KeyFieldsList) = 1 then
-          NodesToSelect := GetNodesBy(StringToUtf8(KeyFieldsList[0]), ARow^.U[StringToUtf8(KeyFieldsList[0])])
+          vNodesToSelect := GetNodesBy(StringToUtf8(KeyFieldsList[0]), vRow^.U[StringToUtf8(KeyFieldsList[0])])
         else
-          NodesToSelect := GetNodesBy(ARow, Length(KeyFieldsList) > 0);
-        for ANode in NodesToSelect do
+          vNodesToSelect := GetNodesBy(vRow, Length(KeyFieldsList) > 0);
+        for vNode in vNodesToSelect do
         begin
-          if (PreviousFocusedRow <> nil) and ARow^.Equals(PreviousFocusedRow^) then
-            NodeToFocus := ANode;
-          Selected[ANode] := True;
+          if (vPreviousFocusedRow <> nil) and vRow^.Equals(vPreviousFocusedRow^) then
+            vNodeToFocus := vNode;
+          Selected[vNode] := True;
         end;
       end;
     finally
       EndUpdate;
     end;
     // focused the last selected node
-    if NodeToFocus <> nil then
-      FocusedNode := NodeToFocus
-    else if ANode <> nil then
-      SetFocusedRowNoClearSelection(PreviousFocusedRow);
+    if vNodeToFocus <> nil then
+      FocusedNode := vNodeToFocus
+    else if vNode <> nil then
+      SetFocusedRowNoClearSelection(vPreviousFocusedRow);
   end;
 end;
 
 function TTisGrid.GetSelectedObjects: PDocVariantDataDynArray;
 var
-  node: PVirtualNode;
   n: integer;
+  vNode: PVirtualNode;
 begin
-  node := GetFirstSelected;
+  vNode := GetFirstSelected;
   n := 0;
   result := nil;
-  while node <> nil do
+  while vNode <> nil do
   begin
-    PtrArrayAdd(result, GetNodeDataAsDocVariant(node), n);
-    node := GetNextSelected(node, True);
+    PtrArrayAdd(result, GetNodeDataAsDocVariant(vNode), n);
+    vNode := GetNextSelected(vNode, True);
   end;
   SetLength(result, n);
 end;
@@ -2115,25 +2115,25 @@ procedure TTisGrid.WMKeyDown(var Message: TLMKeyDown);
 {$ENDIF}
 
 var
-  Shift: TShiftState;
-  KeyState: TKeyboardState;
-  Buffer: array[0..1] of Char;
   m: TLMessage;
+  vShift: TShiftState;
+  vKeyState: TKeyboardState;
+  vBuffer: array[0..1] of Char;
 begin
   // manage immediate editor
   with Message do
   begin
-    Shift := KeyDataToShiftState(KeyData);
-    KeyState := Default(TKeyboardState);
-    GetKeyboardState(KeyState);
+    vShift := KeyDataToShiftState(KeyData);
+    vKeyState := Default(TKeyboardState);
+    GetKeyboardState(vKeyState);
     // avoid conversion to control characters
-    // - we have captured the control key state already in Shift
-    KeyState[VK_CONTROL] := 0;
+    // - we have captured the control key state already in vShift
+    vKeyState[VK_CONTROL] := 0;
     if (
-      (ToASCII(Message.CharCode, (Message.KeyData shr 16) and 7, KeyState, @Buffer, 0) > 0) or
+      (ToASCII(Message.CharCode, (Message.KeyData shr 16) and 7, vKeyState, @vBuffer, 0) > 0) or
       (Message.CharCode = VK_F2)
       )
-      and (Shift * [ssCtrl, ssAlt] = []) and (CharCode >= 32) then
+      and (vShift * [ssCtrl, ssAlt] = []) and (CharCode >= 32) then
     begin
       EditColumn := FocusedColumn;
       if EditColumn = NoColumn then
@@ -2143,7 +2143,7 @@ begin
       begin
         DoEdit;
         m.msg := LM_CHAR;
-        m.wParam := ord(Buffer[0]);
+        m.wParam := ord(vBuffer[0]);
         m.lParam := 0;
         if Message.CharCode <> VK_F2 then
           EditLink.ProcessMessage(m);
@@ -2188,13 +2188,13 @@ type
 //Bugfix :
 procedure TTisGrid.WndProc(var Message: TLMessage);
 var
-  Handled: Boolean;
+  vHandled: Boolean;
 begin
-  Handled := False;
+  vHandled := False;
   // try the header whether it needs to take this message
   if Assigned(Header) and (Header.States <> []) then
-    Handled := TVTHeaderHack(Header).HandleMessage(Message);
-  if not Handled then
+    vHandled := TVTHeaderHack(Header).HandleMessage(Message);
+  if not vHandled then
   begin
     // for auto drag mode, let tree handle itself, instead of TControl
     if not (csDesigning in ComponentState) and
@@ -2207,18 +2207,18 @@ begin
         not Header.InHeader(SmallPointToPoint(TLMMouse(Message).Pos)) then
       begin
         if IsControlMouseMsg(TLMMouse(Message)) then
-          Handled := True;
-        if not Handled then
+          vHandled := True;
+        if not vHandled then
         begin
           ControlState := ControlState + [csLButtonDown];
           Dispatch(Message);  // overrides TControl's BeginDrag
-          Handled := True;
+          vHandled := True;
         end;
       end;
     end;
-    if not Handled and Assigned(Header) then
-      Handled := TVTHeaderHack(Header).HandleMessage(Message);
-    if not Handled then
+    if not vHandled and Assigned(Header) then
+      vHandled := TVTHeaderHack(Header).HandleMessage(Message);
+    if not vHandled then
     begin
       //lcl: probably  necessary
       {$IFNDEF UNIX}
@@ -2237,47 +2237,47 @@ end;
 procedure TTisGrid.DoNewText(aNode: PVirtualNode; aColumn: TColumnIndex;
   const aText: string);
 var
-  RowData: PDocVariantData;
-  PropertyName: RawUtf8;
+  vRowData: PDocVariantData;
+  vPropertyName: RawUtf8;
 begin
   if aNode = nil then
     exit;
-  RowData := GetNodeDataAsDocVariant(aNode);
-  if RowData <> nil then
+  vRowData := GetNodeDataAsDocVariant(aNode);
+  if vRowData <> nil then
   begin
     if aColumn >= 0 then
-      PropertyName := TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName
+      vPropertyName := TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName
     else
-      PropertyName := StringToUtf8(DefaultText);
+      vPropertyName := StringToUtf8(DefaultText);
     { TODO -omsantos : we should test for more cases }
-    case VarType(RowData^.Value[PropertyName]) of
+    case VarType(vRowData^.Value[vPropertyName]) of
       varDouble, varCurrency:
-        RowData^.D[PropertyName] := StrToFloatDef(aText, 0);
+        vRowData^.D[vPropertyName] := StrToFloatDef(aText, 0);
       varInteger:
-        RowData^.I[PropertyName] := StrToIntDef(aText, 0);
+        vRowData^.I[vPropertyName] := StrToIntDef(aText, 0);
       else
-        RowData^.S[PropertyName] := aText;
+        vRowData^.S[vPropertyName] := aText;
     end;
-    inherited DoNewText(aNode, aColumn, RowData^.S[PropertyName]);
+    inherited DoNewText(aNode, aColumn, vRowData^.S[vPropertyName]);
   end;
 end;
 
 procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
   aTextType: TVSTTextType; var aText: string);
 var
-  r: PDocVariantData;
-  c: TTisGridColumn;
+  vDoc: PDocVariantData;
+  vCol: TTisGridColumn;
 begin
-  r := nil;
+  vDoc := nil;
   if aNode <> nil then
   begin
-    r := GetNodeDataAsDocVariant(aNode);
-    if r <> nil then
+    vDoc := GetNodeDataAsDocVariant(aNode);
+    if vDoc <> nil then
     begin
       if (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
-        aText := r^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
+        aText := vDoc^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
       else if DefaultText <> '' then
-        aText := r^.S[DefaultText];
+        aText := vDoc^.S[DefaultText];
       if aText = '' then
         aText := DefaultText;
     end
@@ -2287,11 +2287,11 @@ begin
   else
     aText := '';
   if Assigned(fOnGetText) and (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
-    fOnGetText(self, aNode, r^, aColumn, aTextType, aText);
-  c := FindColumnByIndex(aColumn);
-  if c <> nil then
+    fOnGetText(self, aNode, vDoc^, aColumn, aTextType, aText);
+  vCol := FindColumnByIndex(aColumn);
+  if vCol <> nil then
   begin
-    if c.DataType = cdtPassword then
+    if vCol.DataType = cdtPassword then
       aText := StrRepeatChar('*', Length(aText));
   end;
 end;
@@ -2299,12 +2299,12 @@ end;
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
 var
-  AData: PCardinal;
+  vData: PCardinal;
 begin
-  AData := fInternalData.Data(aNode);
-  if (AData <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
+  vData := fInternalData.Data(aNode);
+  if (vData <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
   begin
-    AData^ := aNode^.Index;
+    vData^ := aNode^.Index;
     aNode^.CheckType := ctCheckBox;
     if fNodeOptions.MultiLine then
       aNode^.States := aNode^.States + [vsMultiline];
@@ -2315,28 +2315,28 @@ end;
 procedure TTisGrid.DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode;
   var aNodeHeight: Integer);
 var
-  i, cellheight, maxheight: Integer;
+  i, vCellHeight, vMaxHeight: Integer;
 begin
   if Assigned(OnMeasureItem) then
     inherited DoMeasureItem(aTargetCanvas, aNode, aNodeHeight)
   else
   begin
-    maxheight := DefaultNodeHeight;
+    vMaxHeight := DefaultNodeHeight;
     if MultiLine[aNode] then
     begin
       for i := 0 to Header.Columns.Count -1 do
       begin
         if (coVisible in Header.Columns[i].Options) then
         begin
-          cellheight := ComputeNodeHeight(aTargetCanvas, aNode, i);
-          if cellheight > maxheight then
-            maxheight := cellheight;
+          vCellHeight := ComputeNodeHeight(aTargetCanvas, aNode, i);
+          if vCellHeight > vMaxHeight then
+            vMaxHeight := vCellHeight;
         end;
       end;
     end;
-    if maxheight > 6 * DefaultNodeHeight then
-      maxheight := 6 * DefaultNodeHeight;
-    aNodeHeight := maxheight + fNodeOptions.MultiLineHeight;
+    if vMaxHeight > 6 * DefaultNodeHeight then
+      vMaxHeight := 6 * DefaultNodeHeight;
+    aNodeHeight := vMaxHeight + fNodeOptions.MultiLineHeight;
   end;
 end;
 
@@ -2482,13 +2482,13 @@ procedure TTisGrid.FillPopupMenu(aSender: TObject);
   function _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
     aEnabled: Boolean = True): HMENU;
   var
-    mi: TMenuItem;
+    vMenuItem: TMenuItem;
   begin
-    mi := PopupMenu.Items.Find(aCaption);
-    if mi = nil then
+    vMenuItem := PopupMenu.Items.Find(aCaption);
+    if vMenuItem = nil then
     begin
-      mi := TMenuItem.Create(PopupMenu);
-      with mi do
+      vMenuItem := TMenuItem.Create(PopupMenu);
+      with vMenuItem do
       begin
         Caption := aCaption;
         ShortCut := aShortcut;
@@ -2497,9 +2497,9 @@ procedure TTisGrid.FillPopupMenu(aSender: TObject);
         // to delete them
         Tag := 250; { TODO -omsantos : we might create a new property for custom this number }
       end;
-      PopupMenu.Items.Add(mi);
+      PopupMenu.Items.Add(vMenuItem);
     end;
-    result := mi.Handle;
+    result := vMenuItem.Handle;
   end;
 
 begin
@@ -2620,13 +2620,13 @@ end;
 
 function TTisGrid.Add(aData: PDocVariantData): Boolean;
 var
-  o: PDocVariantData;
+  vObj: PDocVariantData;
 begin
   result := True;
   case aData^.Kind of
     dvArray:
-      for o in aData^.Objects do
-        fData.AddItem(variant(o^));
+      for vObj in aData^.Objects do
+        fData.AddItem(variant(vObj^));
     dvObject:
       fData.AddItem(variant(aData^));
     else
@@ -2639,16 +2639,16 @@ end;
 function TTisGrid.DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
   aRow2: PDocVariantData): PtrInt;
 var
-  handled: Boolean;
+  vHandled: Boolean;
 begin
-  handled := False;
+  vHandled := False;
   if not Assigned(aRow1) or not Assigned(aRow2) then
     exit(0);
   if Assigned(OnCompareByRow) then
-    result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, handled)
+    result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, vHandled)
   else
     result := 0;
-  if not handled then // use default comparison
+  if not vHandled then // use default comparison
     result := aRow1^.CompareObject([aPropertyName], aRow2^);
 end;
 
@@ -2676,16 +2676,16 @@ var
   function _Match(aNode: PVirtualNode; var aTxt: string): integer;
   var
     i: integer;
-    txt: string;
+    vTxt: string;
   begin
-    txt := '';
+    vTxt := '';
     aTxt := LowerCase(aTxt);
     result := -1;
     if fColumnToFind >= 0 then
     begin
-      DoGetText(aNode, fColumnToFind, ttNormal, txt);
-      if (not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(txt)) > 0)) or
-        (aTxt = LowerCase(txt)) then
+      DoGetText(aNode, fColumnToFind, ttNormal, vTxt);
+      if (not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(vTxt)) > 0)) or
+        (aTxt = LowerCase(vTxt)) then
       begin
         result := fColumnToFind;
         TextFound := True;
@@ -2695,9 +2695,9 @@ var
     else
       for i := 0 to Header.Columns.Count - 1 do
       begin
-        DoGetText(aNode, i, ttNormal, txt);
-        if not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(txt)) > 0) or
-          (aTxt = LowerCase(txt)) then
+        DoGetText(aNode, i, ttNormal, vTxt);
+        if not (frWholeWord in fFindDlg.Options) and (Pos(aTxt, LowerCase(vTxt)) > 0) or
+          (aTxt = LowerCase(vTxt)) then
         begin
           TextFound := True;
           result := i;
@@ -2797,18 +2797,18 @@ procedure TTisGrid.DoExport(aSender: TObject);
   end;
 
 var
-  dlg: TSaveDialog;
+  vDialog: TSaveDialog;
 begin
-  dlg := TSaveDialog.Create(nil);
+  vDialog := TSaveDialog.Create(nil);
   try
-    dlg.Title := Application.Title;
-    dlg.Filter := GetExportDialogFilter;
-    dlg.FileName := 'data';
-    dlg.Options := dlg.Options + [ofOverwritePrompt];
-    if dlg.Execute then
-      ExportData(dlg.FileName, _GetSelectionType);
+    vDialog.Title := Application.Title;
+    vDialog.Filter := GetExportDialogFilter;
+    vDialog.FileName := 'data';
+    vDialog.Options := vDialog.Options + [ofOverwritePrompt];
+    if vDialog.Execute then
+      ExportData(vDialog.FileName, _GetSelectionType);
   finally
-    dlg.Free;
+    vDialog.Free;
   end;
 end;
 
@@ -2860,11 +2860,11 @@ end;
 
 procedure TTisGrid.DoCopySpecialToClipboard(aSender: TObject);
 var
-  buf: RawByteString;
-  c: TClipboardAdapter;
-  efo: TTisGridExportFormatOptionAdapter;
-  tst: TTisGridTextSourceTypeAdapter;
-  params: record
+  vBuf: RawByteString;
+  vClipAdapter: TClipboardAdapter;
+  vExportAdapter: TTisGridExportFormatOptionAdapter;
+  vSourceAdapter: TTisGridTextSourceTypeAdapter;
+  vParams: record
     Selection: TVSTTextSourceType;
     Format: TTisGridExportFormatOption;
     Columns: record
@@ -2872,41 +2872,41 @@ var
       Translated: Boolean;
     end;
   end;
-  form: TCopySpecialForm;
+  vCopyForm: TCopySpecialForm;
 begin
-  form := TCopySpecialForm.Create(self.Owner);
+  vCopyForm := TCopySpecialForm.Create(self.Owner);
   try
-    c.Open;
-    efo.EnumsToStrings(form.FormatCombo.Items, [efoCsv, efoJson]);
-    form.FormatCombo.ItemIndex := 0;
-    tst.EnumsToStrings(form.SelectionCombo.Items);
-    form.SelectionCombo.ItemIndex := 0;
-    if form.ShowModal <> mrOK then
+    vClipAdapter.Open;
+    vExportAdapter.EnumsToStrings(vCopyForm.FormatCombo.Items, [efoCsv, efoJson]);
+    vCopyForm.FormatCombo.ItemIndex := 0;
+    vSourceAdapter.EnumsToStrings(vCopyForm.SelectionCombo.Items);
+    vCopyForm.SelectionCombo.ItemIndex := 0;
+    if vCopyForm.ShowModal <> mrOK then
       exit;
-    c.Clear;
-    params.Selection := tst.CaptionToEnum(form.SelectionCombo.Text);
-    params.Format := efo.CaptionToEnum(form.FormatCombo.Text);
-    params.Columns.VisibleOnly := form.ColumnsVisibleOnlyCheckBox.Checked;
-    params.Columns.Translated := form.TranslatedColumnsCheckBox.Checked;
-    case params.Format of
+    vClipAdapter.Clear;
+    vParams.Selection := vSourceAdapter.CaptionToEnum(vCopyForm.SelectionCombo.Text);
+    vParams.Format := vExportAdapter.CaptionToEnum(vCopyForm.FormatCombo.Text);
+    vParams.Columns.VisibleOnly := vCopyForm.ColumnsVisibleOnlyCheckBox.Checked;
+    vParams.Columns.Translated := vCopyForm.TranslatedColumnsCheckBox.Checked;
+    case vParams.Format of
       efoCsv:
       begin
-        buf := ContentToCsv(params.Selection,
-          DefaultCsvSeparator, params.Columns.VisibleOnly, params.Columns.Translated);
-        c.Add(cbkText, buf[1], Length(buf));
+        vBuf := ContentToCsv(vParams.Selection,
+          DefaultCsvSeparator, vParams.Columns.VisibleOnly, vParams.Columns.Translated);
+        vClipAdapter.Add(cbkText, vBuf[1], Length(vBuf));
       end;
       efoJson:
       begin
-        buf := ContentToJson(params.Selection, params.Columns.VisibleOnly);
-        c.Add(cbkText, buf[1], Length(buf));
-        c.Add(cbkJson, buf[1], Length(buf));
+        vBuf := ContentToJson(vParams.Selection, vParams.Columns.VisibleOnly);
+        vClipAdapter.Add(cbkText, vBuf[1], Length(vBuf));
+        vClipAdapter.Add(cbkJson, vBuf[1], Length(vBuf));
       end;
     else
       raise ETisGrid.Create('Format not enabled to copy from it.');
     end;
   finally
-    c.Close;
-    form.Free;
+    vClipAdapter.Close;
+    vCopyForm.Free;
   end;
 end;
 
@@ -2918,8 +2918,8 @@ end;
 
 procedure TTisGrid.DoDeleteRows(aSender: TObject);
 var
-  d: TDocVariantData;
-  ask, aborted: Boolean;
+  vDoc: TDocVariantData;
+  vAsk, vAborted: Boolean;
 
   function UserConfirmed: Boolean;
   begin
@@ -2929,34 +2929,34 @@ var
   end;
 
 begin
-  d := SelectedRows;
-  if d.IsVoid then
+  vDoc := SelectedRows;
+  if vDoc.IsVoid then
     exit;
   if Assigned(fOnBeforeDeleteRows) then
   begin
-    ask := True;
-    aborted := False;
-    fOnBeforeDeleteRows(self, @d, ask, aborted);
-    if aborted then
+    vAsk := True;
+    vAborted := False;
+    fOnBeforeDeleteRows(self, @vDoc, vAsk, vAborted);
+    if vAborted then
       exit;
-    if ask and (not UserConfirmed) then
+    if vAsk and (not UserConfirmed) then
       exit;
-    DeleteRows(@d);
+    DeleteRows(@vDoc);
   end
   else
     if UserConfirmed then
-      DeleteRows(@d);
+      DeleteRows(@vDoc);
 end;
 
 procedure TTisGrid.DoPaste(aSender: TObject);
 var
-  c: TClipboardAdapter;
-  d: PDocVariantData;
+  vClipAdapter: TClipboardAdapter;
+  vDoc: PDocVariantData;
 begin
-  if c.IsValidFor(cbkJson) or c.IsValidFor(cbkText) then
+  if vClipAdapter.IsValidFor(cbkJson) or vClipAdapter.IsValidFor(cbkText) then
   begin
-    d := _Safe(_Json(c.AsJson));
-    PasteRows(d);
+    vDoc := _Safe(_Json(vClipAdapter.AsJson));
+    PasteRows(vDoc);
   end;
 end;
 
@@ -3027,7 +3027,7 @@ end;
 
 function TTisGrid.GetExportDialogFilter: string;
 var
-  efo: TTisGridExportFormatOptionAdapter;
+  vExportAdapter: TTisGridExportFormatOptionAdapter;
   i: TTisGridExportFormatOption;
 begin
   result := '';
@@ -3037,7 +3037,7 @@ begin
     begin
       if result <> '' then
         result += '|';
-      result += efo.EnumToFilter(i);
+      result += vExportAdapter.EnumToFilter(i);
     end;
   end;
 end;
@@ -3110,12 +3110,12 @@ end;
 
 procedure TTisGrid.Clear;
 var
-  PrevReadOnly: Boolean;
+  vPrevReadOnly: Boolean;
 begin
-  PrevReadOnly := toReadOnly in TreeOptions.MiscOptions;
+  vPrevReadOnly := toReadOnly in TreeOptions.MiscOptions;
   TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
   inherited Clear;
-  if PrevReadOnly then
+  if vPrevReadOnly then
     TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
   fData.Clear;
   fData.InitArray([], JSON_FAST_FLOAT);
@@ -3123,7 +3123,7 @@ end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
 var
-  d: PCardinal;
+  vData: PCardinal;
 begin
   result := nil;
   if aNode = nil then
@@ -3132,9 +3132,9 @@ begin
   begin
     if aNode^.Index < Cardinal(fData.Count) then
     begin
-      d := fInternalData.Data(aNode);
-      if d <> nil then
-        result := _Safe(fData.Values[d^]);
+      vData := fInternalData.Data(aNode);
+      if vData <> nil then
+        result := _Safe(fData.Values[vData^]);
     end;
   end;
 end;
@@ -3143,37 +3143,37 @@ procedure TTisGrid.LoadData;
 
   procedure _ViewInTreeMode;
   var
-    d, o: PDocVariantData;
-    p: PVirtualNode;
     i: PtrInt;
-    keys: TRawUtf8DynArray;
-    parents: TRawUtf8DynArray;
-    equal: Boolean;
+    vDoc, vObj: PDocVariantData;
+    vNode: PVirtualNode;
+    vKeys: TRawUtf8DynArray;
+    vParents: TRawUtf8DynArray;
+    vEqual: Boolean;
   begin
-    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, keys);
-    StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, parents);
-    p := GetFirst(True);
-    while p <> nil do
+    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vKeys);
+    StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, vParents);
+    vNode := GetFirst(True);
+    while vNode <> nil do
     begin
-      d := GetNodeDataAsDocVariant(p);
-      if d <> nil then
+      vDoc := GetNodeDataAsDocVariant(vNode);
+      if vDoc <> nil then
       begin
-        for o in fData.Objects do
+        for vObj in fData.Objects do
         begin
-          equal := True;
-          for i := low(parents) to high(parents) do
+          vEqual := True;
+          for i := low(vParents) to high(vParents) do
           begin
-            if d^.U[parents[i]] <> o^.U[keys[i]] then
+            if vDoc^.U[vParents[i]] <> vObj^.U[vKeys[i]] then
             begin
-              equal := False;
+              vEqual := False;
               break;
             end;
           end;
-          if equal then
-            MoveTo(p, GetNodeBy(o, True), amAddChildLast, False);
+          if vEqual then
+            MoveTo(vNode, GetNodeBy(vObj, True), amAddChildLast, False);
         end;
       end;
-      p := GetNext(p, True);
+      vNode := GetNext(vNode, True);
     end;
   end;
 
@@ -3287,41 +3287,41 @@ procedure TTisGrid.ExportData(const aFileName: TFileName;
 
   procedure _SaveToFile(const aBuffer: RawUtf8);
   var
-    buf: PUtf8Char;
+    vBuf: PUtf8Char;
     l: LongInt;
-    st: File;
+    vFile: File;
   begin
-    AssignFile(st, aFileName);
-    Rewrite(st,1);
+    AssignFile(vFile, aFileName);
+    Rewrite(vFile,1);
     try
-      buf := PUtf8Char(aBuffer + #0);
-      l := StrLen(buf);
-      BlockWrite(st, buf^, l);
+      vBuf := PUtf8Char(aBuffer + #0);
+      l := StrLen(vBuf);
+      BlockWrite(vFile, vBuf^, l);
     finally
-      CloseFile(st);
+      CloseFile(vFile);
     end;
   end;
 
 var
-  buf: RawUtf8;
-  efo: TTisGridExportFormatOptionAdapter;
+  vBuf: RawUtf8;
+  vExportAdapter: TTisGridExportFormatOptionAdapter;
 begin
-  buf := '';
-  case efo.ExtensionToEnum(SysUtils.LowerCase(ExtractFileExt(aFileName))) of
+  vBuf := '';
+  case vExportAdapter.ExtensionToEnum(SysUtils.LowerCase(ExtractFileExt(aFileName))) of
     efoCsv:
-      buf := ContentToCsv(aSelection, DefaultCsvSeparator);
+      vBuf := ContentToCsv(aSelection, DefaultCsvSeparator);
     efoJson:
-      buf := ContentToJson(aSelection);
+      vBuf := ContentToJson(aSelection);
     efoHtml:
-      buf := StringToUtf8(ContentToHTML(aSelection));
+      vBuf := StringToUtf8(ContentToHTML(aSelection));
     efoRtf:
-      buf := StringToUtf8(ContentToRTF(aSelection));
+      vBuf := StringToUtf8(ContentToRTF(aSelection));
     efoText:
-      buf := StringToUtf8(ContentToText(aSelection, ','));
+      vBuf := StringToUtf8(ContentToText(aSelection, ','));
   else
-    DoExportCustomContent(aSelection, buf);
+    DoExportCustomContent(aSelection, vBuf);
   end;
-  _SaveToFile(buf);
+  _SaveToFile(vBuf);
 end;
 
 function TTisGrid.CheckedRows: TDocVariantData;
@@ -3397,27 +3397,27 @@ var
   d: PDocVariantData;
   p: PVirtualNode;
   a, b: TDocVariantData;
-  ar: TRawUtf8DynArray;
-  usearray: Boolean;
+  vArray: TRawUtf8DynArray;
+  vUseArray: Boolean;
 begin
   SetLength(result, 0);
   if not assigned(aData) or aData^.IsVoid then
     exit;
-  usearray := aUseKeyFieldsList and (Length(fKeyFieldsList) > 0);
-  if usearray then
-    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, ar);
+  vUseArray := aUseKeyFieldsList and (Length(fKeyFieldsList) > 0);
+  if vUseArray then
+    StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vArray);
   p := GetFirst(True);
   while p <> nil do
   begin
     d := GetNodeDataAsDocVariant(p);
     if d <> nil then
     begin
-      if usearray then
+      if vUseArray then
       begin
         a.Clear;
-        d^.Reduce(ar, False, a);
+        d^.Reduce(vArray, False, a);
         b.Clear;
-        aData^.Reduce(ar, False, b);
+        aData^.Reduce(vArray, False, b);
         if a.Equals(b) then
           _Add(result, p);
       end
@@ -3475,12 +3475,12 @@ end;
 
 procedure TTisGrid.PasteRows(aRows: PDocVariantData);
 var
-  aborted: Boolean;
+  vAborted: Boolean;
 begin
-  aborted := False;
+  vAborted := False;
   if Assigned(fOnBeforePaste) then
-    fOnBeforePaste(self, aRows, aborted);
-  if not aborted then
+    fOnBeforePaste(self, aRows, vAborted);
+  if not vAborted then
     Add(aRows);
 end;
 
@@ -3553,46 +3553,46 @@ end;
 procedure TTisGrid.ReorderColumns;
 var
   i: TColumnIndex;
-  FocColumn: TTisGridColumn;
+  vFocusedColumn: TTisGridColumn;
 begin
   try
-    FocColumn := FocusedColumnObject;
+    vFocusedColumn := FocusedColumnObject;
     for i := 0 to Header.Columns.Count-1 do
       Header.Columns[i].Tag := Header.Columns[i].Position;
     Header.Columns.Sort(@SortColumnsPosition);
     for i := 0 to Header.Columns.Count-1 do
       Header.Columns[i].Position := TTisGridColumn(Header.Columns[i]).Index;
   finally
-    FocusedColumnObject := FocColumn;
+    FocusedColumnObject := vFocusedColumn;
   end;
 end;
 
 procedure TTisGrid.Customize;
 var
-  target: TTisGrid;
+  vTarget: TTisGrid;
 begin
   BeginUpdate;
   try
     with TTisGridEditor.Create(Application) do
     try
-      target := self;
+      vTarget := self;
       Grid.ClearAll;
-      Grid.Header.Assign(target.Header);
-      Grid.TreeOptions.Assign(target.TreeOptions);
-      Grid.NodeOptions.Assign(target.NodeOptions);
-      Grid.Settings := target.Settings;
-      Grid.KeyFieldsNames := target.KeyFieldsNames;
-      Grid.ParentKeyFieldsNames := target.ParentKeyFieldsNames;
+      Grid.Header.Assign(vTarget.Header);
+      Grid.TreeOptions.Assign(vTarget.TreeOptions);
+      Grid.NodeOptions.Assign(vTarget.NodeOptions);
+      Grid.Settings := vTarget.Settings;
+      Grid.KeyFieldsNames := vTarget.KeyFieldsNames;
+      Grid.ParentKeyFieldsNames := vTarget.ParentKeyFieldsNames;
       if ShowModal = mrOK then
       begin
-        target.ClearAll;
-        target.Header.Assign(Grid.Header);
-        target.TreeOptions.Assign(Grid.TreeOptions);
-        target.NodeOptions.Assign(Grid.NodeOptions);
-        target.KeyFieldsNames := KeyNamesEdit.Text;
-        target.ParentKeyFieldsNames := ParentNamesEdit.Text;
+        vTarget.ClearAll;
+        vTarget.Header.Assign(Grid.Header);
+        vTarget.TreeOptions.Assign(Grid.TreeOptions);
+        vTarget.NodeOptions.Assign(Grid.NodeOptions);
+        vTarget.KeyFieldsNames := KeyNamesEdit.Text;
+        vTarget.ParentKeyFieldsNames := ParentNamesEdit.Text;
         if KeepDataCheckBox.Checked then
-          target.Data := Grid.Data;
+          vTarget.Data := Grid.Data;
       end;
     finally
       Free;
@@ -3659,75 +3659,75 @@ function TTisGrid.ContentToCsv(aSource: TVSTTextSourceType;
   const aSeparator: string; aColumnsVisibleOnly: Boolean;
   aColumnsTranslated: Boolean): RawUtf8;
 var
-  tmp, cols, rows: TDocVariantData;
-  col: TTisGridColumn;
+  vTmp, vCols, vRows: TDocVariantData;
+  vCol: TTisGridColumn;
   c: Integer;
   s: RawUtf8;
   o: PDocVariantData;
 begin
   if aSource in [tstAll, tstInitialized, tstVisible] then
-    rows := fData
+    vRows := fData
   else
-    rows := SelectedRows;
-  cols.InitArray([], JSON_FAST_FLOAT);
+    vRows := SelectedRows;
+  vCols.InitArray([], JSON_FAST_FLOAT);
   for c := 0 to Header.Columns.Count-1 do
   begin
-    col := TTisGridColumn(Header.Columns[c]);
-    if ((coVisible in col.Options) or not aColumnsVisibleOnly) and (col.DataType <> cdtPassword) then
+    vCol := TTisGridColumn(Header.Columns[c]);
+    if ((coVisible in vCol.Options) or not aColumnsVisibleOnly) and (vCol.DataType <> cdtPassword) then
     begin
       if aColumnsTranslated then
-        cols.AddItemText(StringToUtf8('"' + col.Text + '"'))
+        vCols.AddItemText(StringToUtf8('"' + vCol.Text + '"'))
       else
-        cols.AddItemText(StringToUtf8('"' + col.PropertyName + '"'));
+        vCols.AddItemText(StringToUtf8('"' + vCol.PropertyName + '"'));
     end;
   end;
-  result := cols.ToCsv(aSeparator) + LineEnding;
-  tmp.InitArray([], JSON_FAST_FLOAT);
-  for o in rows.Objects do
+  result := vCols.ToCsv(aSeparator) + LineEnding;
+  vTmp.InitArray([], JSON_FAST_FLOAT);
+  for o in vRows.Objects do
   begin
-    tmp.Reset;
+    vTmp.Reset;
     for c := 0 to Header.Columns.Count-1 do
     begin
-      col := TTisGridColumn(Header.Columns[c]);
-      if ((coVisible in col.Options) or not aColumnsVisibleOnly) and (col.DataType <> cdtPassword) then
+      vCol := TTisGridColumn(Header.Columns[c]);
+      if ((coVisible in vCol.Options) or not aColumnsVisibleOnly) and (vCol.DataType <> cdtPassword) then
       begin
-        s := o^.U[col.PropertyName];
+        s := o^.U[vCol.PropertyName];
         if s <> '' then
         begin
           if VarType(o^.Value[s]) in [varDouble, varCurrency, varInteger] then
-            tmp.AddItemText(s)
+            vTmp.AddItemText(s)
           else
-            tmp.AddItemText(QuotedStr(s, '"'));
+            vTmp.AddItemText(QuotedStr(s, '"'));
         end
         else
-          cols.AddItemText('""');
+          vCols.AddItemText('""');
       end;
     end;
-    result := result + tmp.ToCsv(aSeparator) + LineEnding;
+    result := result + vTmp.ToCsv(aSeparator) + LineEnding;
   end;
 end;
 
 function TTisGrid.ContentToJson(aSource: TVSTTextSourceType;
   aColumnsVisibleOnly: Boolean): RawUtf8;
 var
-  cols, rows, res: TDocVariantData;
-  col: TTisGridColumn;
+  vCols, vRows, vRes: TDocVariantData;
+  vCol: TTisGridColumn;
   c: Integer;
 begin
   if aSource in [tstAll, tstInitialized, tstVisible] then
-    rows := fData
+    vRows := fData
   else
-    rows := SelectedRows;
-  cols.InitArray([], JSON_FAST_FLOAT);
+    vRows := SelectedRows;
+  vCols.InitArray([], JSON_FAST_FLOAT);
   for c := 0 to Header.Columns.Count-1 do
   begin
-    col := TTisGridColumn(Header.Columns[c]);
-    if ((coVisible in col.Options) or not aColumnsVisibleOnly) and (col.DataType <> cdtPassword) then
-      cols.AddItemText(col.PropertyName);
+    vCol := TTisGridColumn(Header.Columns[c]);
+    if ((coVisible in vCol.Options) or not aColumnsVisibleOnly) and (vCol.DataType <> cdtPassword) then
+      vCols.AddItemText(vCol.PropertyName);
   end;
-  res.Clear;
-  rows.Reduce(cols.ToRawUtf8DynArray, False, res);
-  result := res.ToJson;
+  vRes.Clear;
+  vRows.Reduce(vCols.ToRawUtf8DynArray, False, vRes);
+  result := vRes.ToJson;
 end;
 
 procedure TTisGrid.UpdateSelectedAndTotalLabel;
@@ -3749,34 +3749,34 @@ end;
 
 procedure TTisGrid.SaveSettingsToIni(const aFileName: TFileName);
 var
-  json: RawUtf8;
-  b64: string;
-  ini: TIniFile;
+  vJson: RawUtf8;
+  vB64: string;
+  vIni: TIniFile;
 begin
-  json := _Safe(Settings)^.ToJson;
-  b64 := BinToBase64(Utf8ToString(json));
-  ini := TIniFile.Create(aFileName);
+  vJson := _Safe(Settings)^.ToJson;
+  vB64 := BinToBase64(Utf8ToString(vJson));
+  vIni := TIniFile.Create(aFileName);
   try
-    ini.WriteString(Owner.Name, Name, b64);
+    vIni.WriteString(Owner.Name, Name, vB64);
   finally
-    FreeAndNil(ini);
+    FreeAndNil(vIni);
   end;
 end;
 
 procedure TTisGrid.LoadSettingsFromIni(const aFileName: TFileName);
 var
-  b64: string;
-  ini: TIniFile;
+  vB64: string;
+  vIni: TIniFile;
 begin
-  ini := TIniFile.Create(aFileName);
+  vIni := TIniFile.Create(aFileName);
   try
-    b64 := ini.ReadString(Owner.Name, Name, '');
-    if b64 <> '' then
+    vB64 := vIni.ReadString(Owner.Name, Name, '');
+    if vB64 <> '' then
     begin
-      SetSettings(_Json(Base64ToBin(StringToUtf8(b64))));
+      SetSettings(_Json(Base64ToBin(StringToUtf8(vB64))));
     end;
   finally
-    FreeAndNil(ini);
+    FreeAndNil(vIni);
   end;
 end;
 

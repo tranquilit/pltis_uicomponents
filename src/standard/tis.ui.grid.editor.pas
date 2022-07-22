@@ -192,19 +192,19 @@ uses
 
 procedure TTisGridEditor.ActPasteCSVExecute(Sender: TObject);
 var
-  cb: TClipboardAdapter;
+  vClip: TClipboardAdapter;
 begin
-  Grid.Data.InitCsv(cb.AsUtf8, JSON_FAST_FLOAT);
+  Grid.Data.InitCsv(vClip.AsUtf8, JSON_FAST_FLOAT);
 end;
 
 procedure TTisGridEditor.ActAddColumnExecute(Sender: TObject);
 var
-  col : TTisGridColumn;
+  vCol : TTisGridColumn;
 begin
-  col :=  TTisGridColumn(Grid.Header.Columns.Add);
-  col.Text := 'Col ' + IntToStr(col.Index);
-  col.PropertyName := 'column' + IntToStr(col.Index);
-  Grid.FocusedColumn := col.Index;
+  vCol :=  TTisGridColumn(Grid.Header.Columns.Add);
+  vCol.Text := 'vCol ' + IntToStr(vCol.Index);
+  vCol.PropertyName := 'column' + IntToStr(vCol.Index);
+  Grid.FocusedColumn := vCol.Index;
   AddFakeDataIfNeedIt;
 end;
 
@@ -221,22 +221,22 @@ end;
 
 procedure TTisGridEditor.ActDelColumnExecute(Sender: TObject);
 var
-  col: TTisGridColumn;
-  idx: Integer;
+  vCol: TTisGridColumn;
+  vIdx: Integer;
 begin
-  col := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
-  idx := col.Index-1;
-  Grid.Header.Columns.Delete(col.Index);
-  if not Grid.Header.Columns.IsValidColumn(idx) then
+  vCol := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
+  vIdx := vCol.Index-1;
+  Grid.Header.Columns.Delete(vCol.Index);
+  if not Grid.Header.Columns.IsValidColumn(vIdx) then
   begin
     if Grid.Header.Columns.GetLastVisibleColumn >= 0 then
-      idx := Grid.Header.Columns.GetLastVisibleColumn;
+      vIdx := Grid.Header.Columns.GetLastVisibleColumn;
   end;
-  if idx > NoColumn then
+  if vIdx > NoColumn then
   begin
-    col := TTisGridColumn(Grid.Header.Columns[idx]);
-    SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType, col.Required, col.ReadOnly);
+    vCol := TTisGridColumn(Grid.Header.Columns[vIdx]);
+    SetPropertiesPanel(IntToStr(vCol.Index), vCol.Text, vCol.PropertyName,
+      IntToStr(vCol.Position), vCol.DataType, vCol.Required, vCol.ReadOnly);
   end
   else
     ClearPropertiesPanel;
@@ -244,9 +244,9 @@ end;
 
 procedure TTisGridEditor.ActPasteJsonTemplateExecute(Sender: TObject);
 var
-  cb: TClipboardAdapter;
+  vClip: TClipboardAdapter;
 begin
-  Grid.TryLoadAllFrom(cb.AsString);
+  Grid.TryLoadAllFrom(vClip.AsString);
 end;
 
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
@@ -257,17 +257,17 @@ end;
 
 procedure TTisGridEditor.ActUpdateColumnExecute(Sender: TObject);
 var
-  col: TTisGridColumn;
   a: TTisColumnDataTypeAdapter;
+  vCol: TTisGridColumn;
 begin
-  col := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
-  if col <> nil then
+  vCol := TTisGridColumn(Grid.Header.Columns[StrToInt(EdColumnIndex.Text)]);
+  if vCol <> nil then
   begin
-    col.Text := EdColumnTitle.Text;
-    col.PropertyName := EdColumnProperty.Text;
-    col.DataType := a.CaptionToEnum(cbColumnDataType.Text);
-    col.Required := RequiredCheckBox.Checked;
-    col.ReadOnly := ReadOnlyCheckBox.Checked;
+    vCol.Text := EdColumnTitle.Text;
+    vCol.PropertyName := EdColumnProperty.Text;
+    vCol.DataType := a.CaptionToEnum(cbColumnDataType.Text);
+    vCol.Required := RequiredCheckBox.Checked;
+    vCol.ReadOnly := ReadOnlyCheckBox.Checked;
   end;
   Grid.Invalidate;
 end;
@@ -393,12 +393,12 @@ end;
 procedure TTisGridEditor.GridFocusChanged(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex);
 var
-  col: TTisGridColumn;
+  vCol: TTisGridColumn;
 begin
-  col := Grid.FocusedColumnObject;
-  if col <> nil then
-    SetPropertiesPanel(IntToStr(col.Index), col.Text, col.PropertyName,
-      IntToStr(col.Position), col.DataType, col.Required, col.ReadOnly)
+  vCol := Grid.FocusedColumnObject;
+  if vCol <> nil then
+    SetPropertiesPanel(IntToStr(vCol.Index), vCol.Text, vCol.PropertyName,
+      IntToStr(vCol.Position), vCol.DataType, vCol.Required, vCol.ReadOnly)
   else
     ClearPropertiesPanel;
 end;
@@ -547,23 +547,23 @@ end;
 
 procedure TTisGridComponentEditor.DoLoadSettingsFromIni;
 var
-  od: TOpenDialog;
-  target: TTisGrid;
+  vDialog: TOpenDialog;
+  vTarget: TTisGrid;
 begin
-  od := TOpenDialog.Create(Application);
+  vDialog := TOpenDialog.Create(Application);
   try
     if fPreviousFilename <> '' then
-      od.FileName := fPreviousFilename;
-    od.Filter := 'Ini file|*.ini|All files|*.*';
-    od.DefaultExt := '.ini';
-    if od.Execute then
+      vDialog.FileName := fPreviousFilename;
+    vDialog.Filter := 'Ini file|*.ini|All files|*.*';
+    vDialog.DefaultExt := '.ini';
+    if vDialog.Execute then
     begin
-      target := (Component as TTisGrid);
-      target.LoadSettingsFromIni(od.FileName);
-      fPreviousFilename := od.FileName;
+      vTarget := (Component as TTisGrid);
+      vTarget.LoadSettingsFromIni(vDialog.FileName);
+      fPreviousFilename := vDialog.FileName;
     end;
   finally
-    od.Free;
+    vDialog.Free;
   end;
 end;
 

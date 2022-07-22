@@ -222,11 +222,11 @@ end;
 
 procedure TTagEditorFrame.InputTagsAsArrayLabelClick(Sender: TObject);
 var
-  input: string;
+  vInput: string;
 begin
-  input := InputBox('Delimited Text', 'Type tags separating them, using one of the TagInput.DelimiterChars property', '');
-  if input <> '' then
-    TagEditor.Tags.DelimitedText := input;
+  vInput := InputBox('Delimited Text', 'Type tags separating them, using one of the TagInput.DelimiterChars property', '');
+  if vInput <> '' then
+    TagEditor.Tags.DelimitedText := vInput;
 end;
 
 procedure TTagEditorFrame.TagEditorTagAfterAdd(Sender: TObject; aTag: TTagItem);

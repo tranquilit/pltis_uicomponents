@@ -93,8 +93,7 @@ var
 
 { TClipboardAdapter }
 
-function TClipboardAdapter.ToFormat(const aValue: TClipboardKind
-  ): TClipboardFormat;
+function TClipboardAdapter.ToFormat(const aValue: TClipboardKind): TClipboardFormat;
 begin
   if aValue in CLIPBOARD_PRE_TYPES then
     result := PredefinedClipboardFormat(CLIPBOARD_PRE_FORMATS[aValue])
@@ -107,10 +106,9 @@ begin
   result := Clipboard.HasFormat(ToFormat(aValue));
 end;
 
-function TClipboardAdapter.ToStream(const aValue: TClipboardKind; aDest: TStream
-  ): Boolean;
+function TClipboardAdapter.ToStream(const aValue: TClipboardKind; aDest: TStream): Boolean;
 begin
-  if assigned(aDest) then
+  if Assigned(aDest) then
   begin
     result := Clipboard.GetFormat(ToFormat(aValue), aDest);
     aDest.Seek(0, 0);
@@ -135,8 +133,7 @@ begin
   result := Clipboard.AddFormat(ToFormat(aKind), aBuffer, aSize);
 end;
 
-function TClipboardAdapter.Add(const aKind: TClipboardKind; aSource: TStream
-  ): Boolean;
+function TClipboardAdapter.Add(const aKind: TClipboardKind; aSource: TStream): Boolean;
 begin
   result := Clipboard.AddFormat(ToFormat(aKind), aSource);
 end;
@@ -158,16 +155,16 @@ end;
 
 function TClipboardAdapter.AsJson: RawUtf8;
 var
-  json: TRawByteStringStream;
+  vJson: TRawByteStringStream;
 begin
-  json := TRawByteStringStream.Create('');
+  vJson := TRawByteStringStream.Create('');
   try
-    ToStream(cbkJson, json);
-    if json.DataString = '' then
-      ToStream(cbkText, json);
-    result := json.DataString;
+    ToStream(cbkJson, vJson);
+    if vJson.DataString = '' then
+      ToStream(cbkText, vJson);
+    result := vJson.DataString;
   finally
-    json.Free;
+    vJson.Free;
   end;
 end;
 

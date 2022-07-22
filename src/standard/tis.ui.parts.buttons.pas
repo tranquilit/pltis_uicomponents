@@ -134,27 +134,27 @@ end;
 
 procedure TButtonItem.SetKind(aValue: TButtonKind);
 var
-  img: TImage;
-  n, r: string;
+  vImage: TImage;
+  vNewName, vResName: string;
 begin
   if fKind = aValue then
     exit;
   fKind := aValue;
-  img := TImage.Create(nil);
+  vImage := TImage.Create(nil);
   try
-    n := Utf8ToString(LowerCase(GetEnumNameTrimed(TypeInfo(TButtonKind), ord(aValue))));
-    r := 'searchedit_' + n;
-    Name := n + Index.ToString;
-    if Assigned(LazarusResources.Find(r)) then
+    vNewName := Utf8ToString(LowerCase(GetEnumNameTrimed(TypeInfo(TButtonKind), ord(aValue))));
+    vResName := 'searchedit_' + vNewName;
+    Name := vNewName + Index.ToString;
+    if Assigned(LazarusResources.Find(vResName)) then
     begin
-      img.Picture.LoadFromLazarusResource(r);
-      Button.Glyph.Assign(img.Picture.Bitmap);
+      vImage.Picture.LoadFromLazarusResource(vResName);
+      Button.Glyph.Assign(vImage.Picture.Bitmap);
     end
     else
       Button.Glyph.Clear;
     Buttons.Invalidate;
   finally
-    img.Free;
+    vImage.Free;
   end;
 end;
 
@@ -222,35 +222,35 @@ end;
 
 procedure TButtonCollection.Setup(aButton: TButtonItem);
 var
-  props: IButtonProperties;
+  vProps: IButtonProperties;
 begin
-  if Supports(fControl, IButtonProperties, props) then
-    props.Setup(aButton);
+  if Supports(fControl, IButtonProperties, vProps) then
+    vProps.Setup(aButton);
 end;
 
 procedure TButtonCollection.Invalidate;
 const
-  SPACE = 2;
+  cSpace = 2;
 var
   i, m: Integer;
-  b: TButtonItem;
-  sb: TSpeedButton;
+  vButton: TButtonItem;
+  vSpeedButton: TSpeedButton;
 begin
-  m := fControl.Left + fControl.Width + SPACE;
+  m := fControl.Left + fControl.Width + cSpace;
   for i := 0 to Count -1 do
   begin
-    b := TButtonItem(Items[i]);
-    Setup(b);
-    sb := b.Button;
-    sb.SetBounds(fControl.Left, fControl.Top, sb.Width, sb.Height);
-    if sb.Visible then
+    vButton := TButtonItem(Items[i]);
+    Setup(vButton);
+    vSpeedButton := vButton.Button;
+    vSpeedButton.SetBounds(fControl.Left, fControl.Top, vSpeedButton.Width, vSpeedButton.Height);
+    if vSpeedButton.Visible then
     begin
-      sb.Left := m;
-      inc(m, sb.Width + SPACE);
+      vSpeedButton.Left := m;
+      inc(m, vSpeedButton.Width + cSpace);
     end;
-    sb.Parent := fControl.Parent;
-    sb.Tag := i; // it could be used to locate the corresponding item instance
-    sb.Invalidate;
+    vSpeedButton.Parent := fControl.Parent;
+    vSpeedButton.Tag := i; // it could be used to locate the corresponding item instance
+    vSpeedButton.Invalidate;
   end;
 end;
 

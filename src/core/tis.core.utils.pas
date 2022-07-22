@@ -34,19 +34,19 @@ implementation
 
 procedure TWidgetHelper.SetFocusSafe;
 var
-  p: TWinControl;
+  vControl: TWinControl;
 begin
   try
     if Visible and Enabled then
     begin
-      p := Parent;
-      if p.InheritsFrom(TFrame) then
-        p.SetFocusSafe;
-      while Assigned(p) and p.Enabled do
+      vControl := Parent;
+      if vControl.InheritsFrom(TFrame) then
+        vControl.SetFocusSafe;
+      while Assigned(vControl) and vControl.Enabled do
       begin
-        if p.InheritsFrom(TTabSheet) then
-          TPageControl(p.Parent).ActivePage := TTabSheet(p);
-        p := p.Parent;
+        if vControl.InheritsFrom(TTabSheet) then
+          TPageControl(vControl.Parent).ActivePage := TTabSheet(vControl);
+        vControl := vControl.Parent;
       end;
       if CanFocus then
         SetFocus;

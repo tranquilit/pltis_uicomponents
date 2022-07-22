@@ -416,15 +416,15 @@ end;
 
 procedure SafeDrawFocusRect(hDC: hDC; const R: TRect);
 var
-  oldBkColor, oldTextColor: COLORREF;
+  vOldBkColor, vOldTextColor: COLORREF;
 begin
-  oldBkColor := SetBkColor(hDC, clWhite);
-  oldTextColor := SetTextColor(hDC, clBlack);
+  vOldBkColor := SetBkColor(hDC, clWhite);
+  vOldTextColor := SetTextColor(hDC, clBlack);
   DrawFocusRect(hDC, R);
-  if oldBkColor <> CLR_INVALID then
-    SetBkColor(hDC, oldBkColor);
-  if oldTextColor <> CLR_INVALID then
-    SetTextColor(hDC, oldTextColor);
+  if vOldBkColor <> CLR_INVALID then
+    SetBkColor(hDC, vOldBkColor);
+  if vOldTextColor <> CLR_INVALID then
+    SetTextColor(hDC, vOldTextColor);
 end;
 
 /// round color to white or black
@@ -486,12 +486,12 @@ end;
 
 procedure TTagItem.UpdateTagEditor;
 var
-  e: TTisTagEditor;
+  vEditor: TTisTagEditor;
 begin
-  e := GetTagEditor;
-  if assigned(e) then
+  vEditor := GetTagEditor;
+  if assigned(vEditor) then
   begin
-    e.Invalidate;
+    vEditor.Invalidate;
   end;
 end;
 
@@ -936,14 +936,14 @@ end;
 
 function TTisTagEditor.NewPopupMenu: TPopupMenu;
 var
-  mi: TMenuItem;
+  vMenuItem: TMenuItem;
 begin
   result := TPopupMenu.Create(Self);
-  mi := TMenuItem.Create(PopupMenu);
-  mi.Caption := 'Delete';
-  mi.OnClick := DoPopupMenuDeleteItem;
-  mi.Hint := 'Delete selected tag.';
-  result.Items.Add(mi);
+  vMenuItem := TMenuItem.Create(PopupMenu);
+  vMenuItem.Caption := 'Delete';
+  vMenuItem.OnClick := DoPopupMenuDeleteItem;
+  vMenuItem.Hint := 'Delete selected tag.';
+  result.Items.Add(vMenuItem);
 end;
 
 procedure TTisTagEditor.LoadComboBox;
@@ -964,7 +964,7 @@ end;
 
 function TTisTagEditor.AddTag(const aText: string): Boolean;
 var
-  ctx: TTagContext;
+  vContext: TTagContext;
   s: string;
 begin
   result := False;
@@ -986,11 +986,11 @@ begin
     end;
     if DoTagBeforeAdd(s) then
     begin
-      ctx.CanDelete := ioShowDeleteButton in fTagInput.Options;
-      ctx.BgColor := fTagBgColor;
-      ctx.BorderColor := fTagBorderColor;
-      ctx.TextColor := fTagTextColor;
-      DoTagAfterAdd(fTags.Add(ctx, s));
+      vContext.CanDelete := ioShowDeleteButton in fTagInput.Options;
+      vContext.BgColor := fTagBgColor;
+      vContext.BorderColor := fTagBorderColor;
+      vContext.TextColor := fTagTextColor;
+      DoTagAfterAdd(fTags.Add(vContext, s));
       result := True;
       DoChange;
     end;
@@ -1001,13 +1001,13 @@ end;
 
 procedure TTisTagEditor.DeleteTag(aTagIndex: Integer);
 var
-  aborted: Boolean;
+  vAborted: Boolean;
 begin
-  if assigned(fOnTagBeforeDelete) then
+  if Assigned(fOnTagBeforeDelete) then
   begin
-    aborted := False;
-    fOnTagBeforeDelete(self, fTags.Items[aTagIndex], aborted);
-    if aborted then
+    vAborted := False;
+    fOnTagBeforeDelete(self, fTags.Items[aTagIndex], vAborted);
+    if vAborted then
       exit;
   end;
   fTags.Delete(aTagIndex);
@@ -1016,14 +1016,14 @@ end;
 
 function TTisTagEditor.DoTagBeforeAdd(const aTag: string): Boolean;
 var
-  aborted: Boolean;
+  vAborted: Boolean;
 begin
   result := True;
   if assigned(fOnTagBeforeAdd) then
   begin
-    aborted := False;
-    fOnTagBeforeAdd(self, aTag, aborted);
-    result := not aborted;
+    vAborted := False;
+    fOnTagBeforeAdd(self, aTag, vAborted);
+    result := not vAborted;
   end;
 end;
 
@@ -1213,7 +1213,7 @@ end;
 
 procedure TTisTagEditor.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
 var
-  SepIndex: Integer;
+  vSepIndex: Integer;
 begin
   inherited;
   Inc(Y, fScrollInfo.nPos);
@@ -1222,14 +1222,14 @@ begin
   begin
     fDragging := True;
     Screen.Cursor := crDrag;
-    SepIndex := GetSeparatorIndexAt(X, Y);
+    vSepIndex := GetSeparatorIndexAt(X, Y);
     CreateCaret;
-    if SepIndex = fTags.Count then
-      SetCaretPos(fLefts[SepIndex - 1] + fWidths[SepIndex - 1] + fSpacing div 2,
-        fTops[SepIndex - 1] - fScrollInfo.nPos)
+    if vSepIndex = fTags.Count then
+      SetCaretPos(fLefts[vSepIndex - 1] + fWidths[vSepIndex - 1] + fSpacing div 2,
+        fTops[vSepIndex - 1] - fScrollInfo.nPos)
     else
-      SetCaretPos(fLefts[SepIndex] - fSpacing div 2,
-        fTops[SepIndex] - fScrollInfo.nPos);
+      SetCaretPos(fLefts[vSepIndex] - fSpacing div 2,
+        fTops[vSepIndex] - fScrollInfo.nPos);
     ShowCaret(Handle);
     exit;
   end;
@@ -1246,12 +1246,12 @@ end;
 procedure TTisTagEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X: Integer; Y: Integer);
 var
-  pnt: TPoint;
-  info: TClickInfo;
   i: word;
-  p: cardinal;
-  SepIndex: Integer;
-  oldpos, newpos: TTagIndex;
+  vTagPart: cardinal;
+  vScreenPoint: TPoint;
+  vInfo: TClickInfo;
+  vSepIndex: Integer;
+  vOldPos, vNewPos: TTagIndex;
 begin
   inherited;
   Inc(Y, fScrollInfo.nPos);
@@ -1260,23 +1260,23 @@ begin
     DestroyCaret;
     fDragging := False;
     Screen.Cursor := crDefault;
-    SepIndex := GetSeparatorIndexAt(X, Y);
-    if not InRange(SepIndex, TTagIndex(fMouseDownClickInfo),
+    vSepIndex := GetSeparatorIndexAt(X, Y);
+    if not InRange(vSepIndex, TTagIndex(fMouseDownClickInfo),
       TTagIndex(fMouseDownClickInfo) + 1) then
     begin
-      oldpos := TTagIndex(fMouseDownClickInfo);
-      newpos := TTagIndex(SepIndex - IfThen(SepIndex > TTagIndex(fMouseDownClickInfo), 1, 0));
-      fTags.Move(oldpos, newpos);
-      DoAfterDrag(oldpos, newpos);
+      vOldPos := TTagIndex(fMouseDownClickInfo);
+      vNewPos := TTagIndex(vSepIndex - IfThen(vSepIndex > TTagIndex(fMouseDownClickInfo), 1, 0));
+      fTags.Move(vOldPos, vNewPos);
+      DoAfterDrag(vOldPos, vNewPos);
       DoChange;
     end;
     exit;
   end;
-  info := GetClickInfoAt(X, Y);
-  if info <> fMouseDownClickInfo then
+  vInfo := GetClickInfoAt(X, Y);
+  if vInfo <> fMouseDownClickInfo then
     exit;
-  i := TTagIndex(info);
-  p := GetTagPart(info);
+  i := TTagIndex(vInfo);
+  vTagPart := GetTagPart(vInfo);
   case i of
     EDITOR:
       ShowComboBox;
@@ -1286,7 +1286,7 @@ begin
     case Button of
       mbLeft:
         begin
-          case p of
+          case vTagPart of
             PART_BODY:
               if Assigned(fOnTagClick) then
                 fOnTagClick(Self, fTags.Items[i]);
@@ -1302,9 +1302,9 @@ begin
       mbRight:
         begin
           fPopupMenu.Items[0].Tag := i;
-          pnt := ClientToScreen(Point(X, Y));
+          vScreenPoint := ClientToScreen(Point(X, Y));
           fPopupMenu.Items[0].Caption := 'Delete "' + fTags.Items[i].Text + '"';
-          fPopupMenu.Popup(pnt.X, pnt.Y - fScrollInfo.nPos);
+          fPopupMenu.Popup(vScreenPoint.X, vScreenPoint.Y - fScrollInfo.nPos);
         end;
     end;
   end;
@@ -1312,12 +1312,11 @@ end;
 
 procedure TTisTagEditor.UpdateMetrics;
 const
-  CLOSE_TEXT = 'X';
+  cCloseText = 'x';
 var
-  i: Integer;
-  X, Y: Integer;
-  MeanWidth: Integer;
-  AdjustedFDesiredHeight: Integer;
+  i, x, y: Integer;
+  vMeanWidth: Integer;
+  vAdjustedDesiredHeight: Integer;
 begin
   SetLength(fLefts, fTags.Count);
   SetLength(fRights, fTags.Count);
@@ -1326,81 +1325,81 @@ begin
   SetLength(fWidths, fTags.Count);
   SetLength(fCloseBtnLefts, fTags.Count);
   SetLength(fCloseBtnTops, fTags.Count);
-  fCloseBtnWidth := Canvas.TextWidth(CLOSE_TEXT);
+  fCloseBtnWidth := Canvas.TextWidth(cCloseText);
   fShrunk := False;
   fNumRows := 1;
   if fMultiLine then
   begin
     fActualTagHeight := fTagHeight;
-    X := fSpacing;
-    Y := fSpacing;
+    x := fSpacing;
+    y := fSpacing;
     for i := 0 to fTags.Count - 1 do
     begin
       fWidths[i] := Canvas.TextWidth(fTags.Items[i].Text +
-        IfThen(ioShowDeleteButton in fTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * fSpacing;
-      fLefts[i] := X;
-      fRights[i] := X + fWidths[i];
-      fTops[i] := Y;
-      fBottoms[i] := Y + fTagHeight;
-      if X + fWidths[i] + fSpacing > ClientWidth then
+        IfThen(ioShowDeleteButton in fTagInput.Options, ' ' + cCloseText, '')) + 2 * fSpacing;
+      fLefts[i] := x;
+      fRights[i] := x + fWidths[i];
+      fTops[i] := y;
+      fBottoms[i] := y + fTagHeight;
+      if x + fWidths[i] + fSpacing > ClientWidth then
       begin
-        X := fSpacing;
-        Inc(Y, fTagHeight + fSpacing);
+        x := fSpacing;
+        Inc(y, fTagHeight + fSpacing);
         Inc(fNumRows);
-        fLefts[i] := X;
-        fRights[i] := X + fWidths[i];
-        fTops[i] := Y;
-        fBottoms[i] := Y + fTagHeight;
+        fLefts[i] := x;
+        fRights[i] := x + fWidths[i];
+        fTops[i] := y;
+        fBottoms[i] := y + fTagHeight;
       end;
-      fCloseBtnLefts[i] := X + fWidths[i] - fCloseBtnWidth - fSpacing;
-      fCloseBtnTops[i] := Y;
-      Inc(X, fWidths[i] + fSpacing);
+      fCloseBtnLefts[i] := x + fWidths[i] - fCloseBtnWidth - fSpacing;
+      fCloseBtnTops[i] := y;
+      Inc(x, fWidths[i] + fSpacing);
     end;
   end
   else
   begin
     fActualTagHeight := ClientHeight - 2 * fSpacing;
-    X := fSpacing;
-    Y := fSpacing;
+    x := fSpacing;
+    y := fSpacing;
     for i := 0 to fTags.Count - 1 do
     begin
       fWidths[i] := Canvas.TextWidth(fTags.Items[i].Text +
-        IfThen(ioShowDeleteButton in fTagInput.Options, ' ' + CLOSE_TEXT, '')) + 2 * fSpacing;
-      fLefts[i] := X;
-      fRights[i] := X + fWidths[i];
-      fTops[i] := Y;
-      fBottoms[i] := Y + fActualTagHeight;
-      Inc(X, fWidths[i] + fSpacing);
+        IfThen(ioShowDeleteButton in fTagInput.Options, ' ' + cCloseText, '')) + 2 * fSpacing;
+      fLefts[i] := x;
+      fRights[i] := x + fWidths[i];
+      fTops[i] := y;
+      fBottoms[i] := y + fActualTagHeight;
+      Inc(x, fWidths[i] + fSpacing);
       fCloseBtnLefts[i] := fRights[i] - fCloseBtnWidth - fSpacing;
-      fCloseBtnTops[i] := Y;
+      fCloseBtnTops[i] := y;
     end;
-    fShrunk := X + 64 { fComboBox } > ClientWidth;
+    fShrunk := x + 64 { fComboBox } > ClientWidth;
     if fShrunk then
     begin
-      X := fSpacing;
-      Y := fSpacing;
+      x := fSpacing;
+      y := fSpacing;
       for i := 0 to fTags.Count - 1 do
       begin
         fWidths[i] := Canvas.TextWidth(fTags.Items[i].Text) + 2 * fSpacing;
-        fLefts[i] := X;
-        fRights[i] := X + fWidths[i];
-        fTops[i] := Y;
-        fBottoms[i] := Y + fActualTagHeight;
-        Inc(X, fWidths[i] + fSpacing);
+        fLefts[i] := x;
+        fRights[i] := x + fWidths[i];
+        fTops[i] := y;
+        fBottoms[i] := y + fActualTagHeight;
+        Inc(x, fWidths[i] + fSpacing);
         fCloseBtnLefts[i] := fRights[i] - fCloseBtnWidth - fSpacing;
-        fCloseBtnTops[i] := Y;
+        fCloseBtnTops[i] := y;
       end;
-      if X + 64 { fComboBox } > ClientWidth then
+      if x + 64 { fComboBox } > ClientWidth then
       begin
-        MeanWidth := (ClientWidth - 2 * fSpacing - 64 { fComboBox } )
+        vMeanWidth := (ClientWidth - 2 * fSpacing - 64 { fComboBox } )
           div fTags.Count - fSpacing;
-        X := fSpacing;
+        x := fSpacing;
         for i := 0 to fTags.Count - 1 do
         begin
-          fWidths[i] := Min(fWidths[i], MeanWidth);
-          fLefts[i] := X;
-          fRights[i] := X + fWidths[i];
-          Inc(X, fWidths[i] + fSpacing);
+          fWidths[i] := Min(fWidths[i], vMeanWidth);
+          fLefts[i] := x;
+          fRights[i] := x + fWidths[i];
+          Inc(x, fWidths[i] + fSpacing);
         end;
       end;
     end;
@@ -1410,16 +1409,16 @@ begin
   if fTags.Count > 0 then
     fEditPos := Point(fRights[fTags.Count - 1] + fSpacing,
       fTops[fTags.Count - 1] + (fActualTagHeight - fComboBox.Height) div 2);
-  if fMultiLine and (fEditPos.X + 64 { fComboBox } > ClientWidth) and (fTags.Count > 0) then
+  if fMultiLine and (fEditPos.x + 64 { fComboBox } > ClientWidth) and (fTags.Count > 0) then
   begin
     fEditPos := Point(fSpacing, fTops[fTags.Count - 1] + fTagHeight + fSpacing +
       (fActualTagHeight - fComboBox.Height) div 2);
     Inc(fNumRows);
   end;
   fDesiredHeight := fSpacing + fNumRows * (fTagHeight + fSpacing);
-  AdjustedFDesiredHeight := Min(fDesiredHeight, fMaxHeight);
-  if fMultiLine and fAutoHeight and (ClientHeight <> AdjustedFDesiredHeight) then
-    ClientHeight := AdjustedFDesiredHeight;
+  vAdjustedDesiredHeight := Min(fDesiredHeight, fMaxHeight);
+  if fMultiLine and fAutoHeight and (ClientHeight <> vAdjustedDesiredHeight) then
+    ClientHeight := vAdjustedDesiredHeight;
   UpdateScrollBars;
 end;
 
@@ -1427,10 +1426,10 @@ procedure TTisTagEditor.Paint;
 var
   i: Integer;
   w: Integer;
-  X, Y, newEditWidth: Integer;
-  R: TRect;
-  S: string;
-  clip: HRGN;
+  x, y, vNewEditWidth: Integer;
+  r: TRect;
+  s: string;
+  vClip: HRGN;
 begin
   inherited Paint;
   UpdateMetrics;
@@ -1438,15 +1437,15 @@ begin
   Canvas.Pen.Color := IfThen(Enabled, fBorderColor, fBorderColorDisabled);
   Canvas.Rectangle(ClientRect);
   Canvas.Font.Assign(Self.Font);
-  clip := CreateRectRgnIndirect(GetShrunkClientRect(3));
-  SelectClipRgn(Canvas.Handle, clip);
-  DeleteObject(clip);
+  vClip := CreateRectRgnIndirect(GetShrunkClientRect(3));
+  SelectClipRgn(Canvas.Handle, vClip);
+  DeleteObject(vClip);
   for i := 0 to fTags.Count - 1 do
   begin
-    X := fLefts[i];
-    Y := fTops[i] - fScrollInfo.nPos;
+    x := fLefts[i];
+    y := fTops[i] - fScrollInfo.nPos;
     w := fWidths[i];
-    R := Rect(X, Y, X + w, Y + fActualTagHeight);
+    r := Rect(x, y, x + w, y + fActualTagHeight);
     with fTags.Items[i] do
     begin
       Canvas.Brush.Color := IfThen(
@@ -1460,15 +1459,15 @@ begin
       );
     end;
     Canvas.Pen.Color := fTags.Items[i].fBorderColor;
-    Canvas.RoundRect(R, fTagRoundBorder, fTagRoundBorder);
+    Canvas.RoundRect(r, fTagRoundBorder, fTagRoundBorder);
     Canvas.Font.Color := fTags.Items[i].fTextColor;
     Canvas.Brush.Style := bsClear;
-    R.Left := R.Left + fSpacing;
-    S := fTags.Items[i].Text;
+    r.Left := r.Left + fSpacing;
+    s := fTags.Items[i].Text;
     if (not fShrunk) and (ioShowDeleteButton in fTagInput.Options) then
     begin
       if fTagInput.DeleteIcon.Empty then
-        S := S + ' X'
+        s := s + ' x'
       else
       {$ifdef windows} //todo
         Windows.DrawIconEx(Canvas.Handle, fCloseBtnLefts[i], fCloseBtnTops[i] + 10,
@@ -1476,19 +1475,19 @@ begin
           fTagInput.DeleteIcon.Height, 0, DI_NORMAL, DI_NORMAL);
       {$endif}
     end;
-    DrawText(Canvas.Handle, PChar(S), -1, R, DT_SINGLELINE or DT_VCENTER or
+    DrawText(Canvas.Handle, PChar(s), -1, r, DT_SINGLELINE or DT_VCENTER or
       DT_LEFT or DT_END_ELLIPSIS or DT_NOPREFIX);
     Canvas.Brush.Style := bsSolid;
   end;
   if fComboBox.Visible then
   begin
-    newEditWidth := ClientWidth - fEditPos.X - fSpacing;
-    if newEditWidth < fComboBox.Width then
-      fComboBox.Width := newEditWidth;
-    fComboBox.Left := fEditPos.X;
-    if newEditWidth > fComboBox.Width then
-      fComboBox.Width := newEditWidth;
-    fComboBox.Top := fEditPos.Y - fScrollInfo.nPos;
+    vNewEditWidth := ClientWidth - fEditPos.x - fSpacing;
+    if vNewEditWidth < fComboBox.Width then
+      fComboBox.Width := vNewEditWidth;
+    fComboBox.Left := fEditPos.x;
+    if vNewEditWidth > fComboBox.Width then
+      fComboBox.Width := vNewEditWidth;
+    fComboBox.Top := fEditPos.y - fScrollInfo.nPos;
   end;
   SelectClipRgn(Canvas.Handle, 0);
   if Focused then

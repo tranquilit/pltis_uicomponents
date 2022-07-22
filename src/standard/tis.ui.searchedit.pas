@@ -259,12 +259,12 @@ end;
 
 function TTisSearchEdit.DoBeforeSearch: Boolean;
 var
-  aborted: Boolean;
+  vAborted: Boolean;
 begin
-  aborted := False;
+  vAborted := False;
   if Assigned(fOnBeforeSearch) then
-    fOnBeforeSearch(self, Text, aborted);
-  result := not aborted;
+    fOnBeforeSearch(self, Text, vAborted);
+  result := not vAborted;
 end;
 
 procedure TTisSearchEdit.DoSearch(Sender: TObject);
@@ -276,13 +276,13 @@ end;
 
 procedure TTisSearchEdit.DoButtonClick(Sender: TObject);
 var
-  b: TButtonItem;
+  vButton: TButtonItem;
 begin
-  b := fButtons.Items[(Sender as TComponent).Tag];
-  case b.Kind of
+  vButton := fButtons.Items[(Sender as TComponent).Tag];
+  case vButton.Kind of
     bkCustom:
       if Assigned(fOnButtonClick) then
-        fOnButtonClick(self, b);
+        fOnButtonClick(self, vButton);
     bkSearch:
     begin
       RefreshSearch;
@@ -303,28 +303,28 @@ end;
 
 procedure TTisSearchEdit.SetupClearPopupMenu;
 var
-  mi: TMenuItem;
-  b: TButtonItem;
   i: Integer;
+  vMenuItem: TMenuItem;
+  vButton: TButtonItem;
 begin
   for i := 0 to fButtons.Count -1 do
   begin
-    b := fButtons[i];
-    if b.Kind = bkClear then
+    vButton := fButtons[i];
+    if vButton.Kind = bkClear then
     begin
-      if not Assigned(b.Button.PopupMenu) then
-        b.Button.PopupMenu := TPopupMenu.Create(self);
-      if b.Button.PopupMenu.Items.Count > 0 then
+      if not Assigned(vButton.Button.PopupMenu) then
+        vButton.Button.PopupMenu := TPopupMenu.Create(self);
+      if vButton.Button.PopupMenu.Items.Count > 0 then
       begin
-        mi := TMenuItem.Create(self);
-        mi.Caption := '-';
-        b.Button.PopupMenu.Items.Add(mi);
+        vMenuItem := TMenuItem.Create(self);
+        vMenuItem.Caption := '-';
+        vButton.Button.PopupMenu.Items.Add(vMenuItem);
       end;
-      mi := TMenuItem.Create(self);
-      mi.Tag := -1;
-      mi.Caption := rsClearAll;
-      mi.OnClick := @DoClearCallback;
-      b.Button.PopupMenu.Items.Add(mi);
+      vMenuItem := TMenuItem.Create(self);
+      vMenuItem.Tag := -1;
+      vMenuItem.Caption := rsClearAll;
+      vMenuItem.OnClick := @DoClearCallback;
+      vButton.Button.PopupMenu.Items.Add(vMenuItem);
     end;
   end;
 end;
@@ -384,14 +384,14 @@ end;
 
 procedure TTisSearchEdit.LoadData;
 var
-  o: PDocVariantData;
+  vObj: PDocVariantData;
 begin
   if not fData.IsVoid then
     inherited Clear; // clear Items
   if Sorted then
     Sort;
-  for o in fData.Objects do
-    Items.Add(o^.S[StringToUtf8(fLookupDisplayField)]);
+  for vObj in fData.Objects do
+    Items.Add(vObj^.S[StringToUtf8(fLookupDisplayField)]);
 end;
 
 procedure TTisSearchEdit.RefreshSearch;
