@@ -61,23 +61,29 @@ type
     procedure ToolBarRestoreButtonClick(Sender: TObject);
   private
     fTarget: TTisToolBar;
+    fReferences: TStringList;
     fDesigner: TComponentEditorDesigner;
+    function IsDesignTime: Boolean;
     procedure SetTarget(aValue: TTisToolBar);
     procedure AddCommand;
     procedure AddDivider;
-    procedure AddToolBarItem(aAction: TAction);
-    procedure InsertItem(Item: TListItem);
+    procedure AddToolBarItem(aButton: TToolButton);
+    procedure InsertItem(aItem: TListItem);
     procedure MoveUpDown(aOffset: integer);
     function NewLvItem(const aCaption: string): TListItem;
     procedure RemoveCommand;
     procedure SetupCaptions;
+    procedure SaveReferences;
     procedure LoadCategories;
     procedure LoadButtons;
     procedure AddMenuItem(aParentNode: TTreeNode; aAction: TAction);
+  private
+    const DIVIDER_CAPTION = '---------------';
   protected
     property Designer: TComponentEditorDesigner read fDesigner write fDesigner;
   public
     constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
     property Target: TTisToolBar read fTarget write SetTarget;
   end;
 
@@ -100,9 +106,6 @@ resourcestring
 implementation
 
 {$R *.lfm}
-
-const
-  DIVIDER_CAPTION = '---------------';
 
 { TTisToolBarEditor }
 
@@ -148,61 +151,66 @@ end;
 
 procedure TTisToolBarEditor.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
-
-  function _HasDesigner: Boolean;
-  begin
-    result := Assigned(fDesigner) and Assigned(fDesigner.PropertyEditorHook);
-  end;
-
 var
-  button: record
-    style: TToolButtonStyle;
-    sibling: TToolButton;
-    self: TToolButton;
+  i, x: Integer;
+  vButtonR: record
+    Style: TToolButtonStyle;
+    Sibling: TToolButton;
   end;
-  li: TListItem;
-  i: Integer;
+  vButton: TToolButton;
+  vListItem: TListItem;
+  vAction: TAction;
 begin
   if ModalResult = mrOK then
   begin
-    if _HasDesigner then
+    if IsDesignTime then
     begin
       for i := fTarget.ButtonCount-1 downto 0 do
       begin
-        button.self := fTarget.Buttons[i];
-        fDesigner.PropertyEditorHook.DeletePersistent(TPersistent(button.self));
+        vButton := fTarget.Buttons[i];
+        fDesigner.PropertyEditorHook.DeletePersistent(TPersistent(vButton));
         fDesigner.Modified;
       end;
     end
     else
       fTarget.RemoveButtons;
-    for i := 0 to lvToolbar.Items.Count -1 do
+    for x := 0 to lvToolbar.Items.Count -1 do
     begin
-      li := lvToolbar.Items[i];
-      if li.Caption = DIVIDER_CAPTION then
-        button.style := tbsDivider
+      vListItem := lvToolbar.Items[x];
+      if vListItem.Caption = DIVIDER_CAPTION then
+        vButtonR.Style := tbsDivider
       else
-        button.style := tbsButton;
-      if _HasDesigner then
+        vButtonR.Style := tbsButton;
+      if Assigned(vListItem.Data) then
+        vAction := TAction(vListItem.Data)
+      else
+        vAction := nil;
+      if IsDesignTime then
       begin
-        button.self := TToolButton.Create(fTarget.Owner);
-        button.self.Caption := fDesigner.CreateUniqueComponentName(button.self.ClassName);
-        button.self.Name := button.self.Caption;
-        button.self.Style := button.style;
-        // position the button next to the last button
+        vButton := TToolButton.Create(fTarget.Owner);
+        vButton.Name := fDesigner.CreateUniqueComponentName(vButton.ClassName);
+        vButton.Caption := vButton.Caption;
+        vButton.Style := vButtonR.Style;
+        // position the button next to the last one
         if fTarget.ButtonCount > 0 then
         begin
-          button.sibling := fTarget.Buttons[fTarget.ButtonCount - 1];
-          button.self.SetBounds(button.sibling.Left + button.sibling.Width,
-            button.sibling.Top, button.self.Width, button.self.Height);
+          vButtonR.Sibling := fTarget.Buttons[fTarget.ButtonCount - 1];
+          vButton.SetBounds(vButtonR.Sibling.Left + vButtonR.Sibling.Width,
+            vButtonR.Sibling.Top, vButton.Width, vButton.Height);
         end;
-        button.self.Parent := fTarget;
-        button.self.Action := TAction(li.Data);
-        fDesigner.PropertyEditorHook.PersistentAdded(button.self, True);
+        vButton.Parent := fTarget;
+        vButton.Action := vAction;
+        fDesigner.PropertyEditorHook.PersistentAdded(vButton, True);
         fDesigner.Modified;
       end
       else
-        fTarget.AddButton(button.style, TAction(li.Data));
+        vButton := fTarget.AddButton(vListItem.Caption, vButtonR.Style, vAction);
+      i := fReferences.IndexOf(vButton.Caption);
+      if i > -1 then
+      begin
+        vButton.Style := tbsButtonDrop;
+        vButton.DropdownMenu := fReferences.Objects[i] as TPopupMenu;
+      end;
     end;
   end;
 end;
@@ -213,14 +221,14 @@ begin
   LoadButtons;
 end;
 
-procedure TTisToolBarEditor.InsertItem(Item: TListItem);
+procedure TTisToolBarEditor.InsertItem(aItem: TListItem);
 begin
   lvToolbar.ItemIndex := -1;
   lvToolbar.Selected := nil;
-  if Item.Index < lvToolbar.Items.Count-1 then
-    lvToolbar.ItemIndex := Item.Index+1
+  if aItem.Index < lvToolbar.Items.Count-1 then
+    lvToolbar.ItemIndex := aItem.Index+1
   else
-    lvToolbar.ItemIndex := Item.Index;
+    lvToolbar.ItemIndex := aItem.Index;
 end;
 
 procedure TTisToolBarEditor.btnAddClick(Sender: TObject);
@@ -230,51 +238,50 @@ end;
 
 function TTisToolBarEditor.NewLvItem(const aCaption: string): TListItem;
 var
-  I: Integer;
+  i: Integer;
 begin
-  I := lvToolbar.ItemIndex;
-  if I = -1 then
-    I := lvToolbar.Items.Count-1;    // Add before the last empty item.
-  if I = -1 then
+  i := lvToolbar.ItemIndex;
+  if i = -1 then
+    i := lvToolbar.Items.Count-1;    // Add before the last empty item.
+  if i = -1 then
     Result := lvToolbar.Items.Add
   else
-    Result := lvToolbar.Items.Insert(I);
+    Result := lvToolbar.Items.Insert(i);
   Result.Caption := aCaption;
 end;
 
 procedure TTisToolBarEditor.AddCommand;
 var
-  n: TTreeNode;
-  s: string;
-  li: TListItem;
+  vNode: TTreeNode;
+  vCaption: string;
+  vListItem: TListItem;
 begin
-  n := TV.Selected;
-  if (n = nil) or (n.Data = nil) then
+  vNode := TV.Selected;
+  if (vNode = nil) or (vNode.Data = nil) then
     exit;
-  s := TAction(n.Data).Caption;
-  DeleteAmpersands(s);
-  li := NewLvItem(s);
-  li.Data := n.Data;
-  li.ImageIndex := n.ImageIndex;
-  InsertItem(li);                  // Add the newly created item to ListView.
-  // Update selection in TreeView.
-  n := TV.Selected.GetNext;
+  vCaption := TAction(vNode.Data).Caption;
+  DeleteAmpersands(vCaption);
+  vListItem := NewLvItem(vCaption);
+  vListItem.Data := vNode.Data;
+  vListItem.ImageIndex := vNode.ImageIndex;
+  InsertItem(vListItem);
+  vNode := TV.Selected.GetNext;
   TV.Selected.Visible := False;
-  if n <> nil then
-    TV.Selected := n;
+  if vNode <> nil then
+    TV.Selected := vNode;
   UpdateButtonsState;
 end;
 
 procedure TTisToolBarEditor.RemoveCommand;
-Var
-  a: TAction;
-  n: TTreeNode;
+var
   i: Integer;
+  vAction: TAction;
+  vNode: TTreeNode;
 begin
   i := lvToolbar.ItemIndex;
   if (i < 0)  then
     exit;
-  a := TAction(lvToolbar.Items[i].Data);
+  vAction := TAction(lvToolbar.Items[i].Data);
   lvToolbar.Items.Delete(i);
   {$IF DEFINED(LCLQt) or DEFINED(LCLQt5)}
   lvToolbar.ItemIndex := -1;     // Try to make LCLQt behave.
@@ -282,22 +289,22 @@ begin
   {$ENDIF}
   lvToolbar.Selected := lvToolbar.Items[i];
   // Show the command as available again in TreeView.
-  if Assigned(a) then
+  if Assigned(vAction) then
   begin
-    n := TV.Items.FindNodeWithData(a);
-    if n <> nil then
-      n.Visible := True;
+    vNode := TV.Items.FindNodeWithData(vAction);
+    if vNode <> nil then
+      vNode.Visible := True;
   end;
   UpdateButtonsState;
 end;
 
 procedure TTisToolBarEditor.btnAddDividerClick(Sender: TObject);
 var
-  li: TListItem;
+  vListItem: TListItem;
 begin
-  li := NewLvItem(DIVIDER_CAPTION);
-  li.ImageIndex := -1;
-  InsertItem(li);
+  vListItem := NewLvItem(DIVIDER_CAPTION);
+  vListItem.ImageIndex := -1;
+  InsertItem(vListItem);
   UpdateButtonsState;
 end;
 
@@ -309,30 +316,30 @@ end;
 procedure TTisToolBarEditor.lvToolbarSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 var
-  RealCount: integer;
+  vRealCount: integer;
 begin
   UpdateButtonsState;
   // Update selection status label.
-  RealCount := lvToolbar.Items.Count-1;
-  if lvToolbar.ItemIndex < RealCount then
-    lblSelect.Caption := Format('%d / %d', [lvToolbar.ItemIndex+1, RealCount])
+  vRealCount := lvToolbar.Items.Count-1;
+  if lvToolbar.ItemIndex < vRealCount then
+    lblSelect.Caption := Format('%d / %d', [lvToolbar.ItemIndex+1, vRealCount])
   else
-    lblSelect.Caption := Format('%d+ / %d', [lvToolbar.ItemIndex, RealCount])
+    lblSelect.Caption := Format('%d+ / %d', [lvToolbar.ItemIndex, vRealCount])
 end;
 
 procedure TTisToolBarEditor.MoveUpDown(aOffset: integer);
 var
-  Index1,Index2: Integer;
+  vIndex1, vIndex2: Integer;
 begin
-  Index1 := lvToolbar.ItemIndex;
-  Index2 := Index1 + aOffset;
-  lvToolbar.Items.Exchange(Index1,Index2);
-  lvToolbar.Items[Index1].Selected := False;
-  lvToolbar.Items[Index2].Selected := False;
+  vIndex1 := lvToolbar.ItemIndex;
+   vIndex2 := vIndex1 + aOffset;
+  lvToolbar.Items.Exchange(vIndex1, vIndex2);
+  lvToolbar.Items[vIndex1].Selected := False;
+  lvToolbar.Items[ vIndex2].Selected := False;
   lvToolbar.ItemIndex:= -1;
   lvToolbar.Selected := nil;
-  lvToolbar.ItemIndex:= Index2;
-  lvToolbar.Selected := lvToolbar.Items[Index2];
+  lvToolbar.ItemIndex:=  vIndex2;
+  lvToolbar.Selected := lvToolbar.Items[ vIndex2];
 end;
 
 procedure TTisToolBarEditor.btnMoveDownClick(Sender: TObject);
@@ -357,54 +364,49 @@ begin
   ToolBarRestoreButton.Caption := rsToolBarRestore;
 end;
 
+procedure TTisToolBarEditor.SaveReferences;
+var
+  i: Integer;
+  vButton: TToolButton;
+begin
+  fReferences.Clear;
+  for i := 0 to fTarget.ButtonCount -1 do
+  begin
+    vButton := fTarget.Buttons[i];
+    if (vButton.Style = tbsButtonDrop) and Assigned(vButton.DropdownMenu) then
+      fReferences.AddObject(vButton.Caption, vButton.DropdownMenu);
+  end;
+end;
+
 procedure TTisToolBarEditor.LoadCategories;
 var
   i, x, y: Integer;
-  n: TTreeNode;
-  categories: TStringList;
-  tmp: record
-    list: TActionList;
-    action: TAction;
-    category: record
-      name: string;
-      hiddens: TStrings;
-    end;
-  end;
+  vNode: TTreeNode;
+  vCategory: string;
+  vActions: TActionList;
+  vAction: TAction;
 begin
   TV.Items.BeginUpdate;
-  categories := TStringList.Create;
   try
+    TV.Items.Clear;
     for i := 0 to Target.Actions.Count -1 do
     begin
-      tmp.list := Target.Actions.Items[i].List;
-      tmp.category.hiddens := Target.Actions.Items[i].HiddenCategories;
-      for x := 0 to tmp.list.ActionCount -1 do
+      vActions := Target.Actions.Items[i].List;
+      for x := 0 to vActions.ActionCount -1 do
       begin
-        tmp.action := tmp.list.Actions[x] as TAction;
-        if (categories.IndexOf(tmp.action.Category) = -1) and
-          (tmp.category.hiddens.IndexOf(tmp.action.Category) = -1) then
-          categories.Append(tmp.action.Category);
-      end;
-    end;
-    TV.Items.Clear;
-    for x := 0 to categories.Count-1 do
-    begin
-      tmp.category.name := categories[x];
-      DeleteAmpersands(tmp.category.name);
-      n := TV.Items.AddChild(nil, tmp.category.name);
-      for i := 0 to Target.Actions.Count -1 do
-      begin
-        tmp.list := Target.Actions.Items[i].List;
-        for y := 0 to tmp.list.ActionCount -1 do
+        vAction := vActions.Actions[x] as TAction;
+        vCategory := vAction.Category;
+        DeleteAmpersands(vCategory);
+        if Target.Actions.Items[i].HiddenCategories.IndexOf(vCategory) = -1 then
         begin
-          tmp.action := tmp.list.Actions[y] as TAction;
-          if tmp.action.Category = tmp.category.name then
-            AddMenuItem(n, tmp.action);
+          vNode := TV.Items.FindNodeWithText(vCategory);
+          if vNode = nil then
+            vNode := TV.Items.AddChild(nil, vCategory);
+          AddMenuItem(vNode, vAction);
         end;
       end;
     end;
   finally
-    categories.Free;
     TV.Items.EndUpdate;
   end;
 end;
@@ -412,7 +414,7 @@ end;
 procedure TTisToolBarEditor.LoadButtons;
 var
   i: Integer;
-  b: TToolButton;
+  vButton: TToolButton;
 begin
   if lvToolbar.Items.Count > 0 then
   begin
@@ -422,29 +424,43 @@ begin
   end;
   for i := 0 to fTarget.ButtonCount -1 do
   begin
-    b := fTarget.Buttons[i];
-    if b.Style = tbsDivider then
-      AddDivider
+    vButton := fTarget.Buttons[i];
+    case vButton.Style of
+      tbsDivider, tbsSeparator:
+        AddDivider;
     else
-      AddToolBarItem(b.Action as TAction);
+      AddToolBarItem(vButton);
+    end;
   end;
 end;
 
 procedure TTisToolBarEditor.AddMenuItem(aParentNode: TTreeNode; aAction: TAction);
 var
-  n: TTreeNode;
+  vNode: TTreeNode;
 begin
   if aAction.Caption = '-' then
     exit; // divider
-  n := TV.Items.AddChild(aParentNode, Format('%s', [aAction.Caption]));
-  n.ImageIndex := aAction.ImageIndex;
-  n.SelectedIndex := aAction.ImageIndex;
-  n.Data := aAction;
+  vNode := TV.Items.AddChild(aParentNode, Format('%s', [aAction.Caption]));
+  vNode.ImageIndex := aAction.ImageIndex;
+  vNode.SelectedIndex := aAction.ImageIndex;
+  vNode.Data := aAction;
 end;
 
 constructor TTisToolBarEditor.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
+  fReferences := TStringList.Create;
+end;
+
+destructor TTisToolBarEditor.Destroy;
+begin
+  fReferences.Free;
+  inherited Destroy;
+end;
+
+function TTisToolBarEditor.IsDesignTime: Boolean;
+begin
+  result := Assigned(fDesigner) and Assigned(fDesigner.PropertyEditorHook);
 end;
 
 procedure TTisToolBarEditor.SetTarget(aValue: TTisToolBar);
@@ -455,33 +471,37 @@ begin
   TV.Images := fTarget.Images;
   lvToolbar.SmallImages := fTarget.Images;
   SetupCaptions;
+  SaveReferences;
   LoadCategories;
   LoadButtons;
 end;
 
-procedure TTisToolBarEditor.AddToolBarItem(aAction: TAction);
+procedure TTisToolBarEditor.AddToolBarItem(aButton: TToolButton);
 var
-  n: TTreeNode;
-  li: TListItem;
+  vNode: TTreeNode;
+  vListItem: TListItem;
+  vAction: TAction;
 begin
-  if aAction = nil then
-    exit;
-  li := lvToolbar.Items.Add;
-  li.Caption := aAction.Caption;
-  li.Data := aAction;
-  li.ImageIndex := aAction.ImageIndex;
-  n := TV.Items.FindNodeWithData(aAction);
-  if n <> nil then
-    n.Visible := False;
+  vListItem := lvToolbar.Items.Add;
+  vListItem.Caption := aButton.Caption;
+  vAction := aButton.Action as TAction;
+  vListItem.Data := vAction;
+  if Assigned(vAction) then
+    vListItem.ImageIndex := vAction.ImageIndex
+  else
+    vListItem.ImageIndex := aButton.ImageIndex;
+  vNode := TV.Items.FindNodeWithData(vAction);
+  if vNode <> nil then
+    vNode.Visible := False;
 end;
 
 procedure TTisToolBarEditor.AddDivider;
 var
-  li: TListItem;
+  vListItem: TListItem;
 begin
-  li := lvToolbar.Items.Add;
-  li.Caption := DIVIDER_CAPTION;
-  li.ImageIndex := -1;
+  vListItem := lvToolbar.Items.Add;
+  vListItem.Caption := DIVIDER_CAPTION;
+  vListItem.ImageIndex := -1;
 end;
 
 { TTisToolBarComponentEditor }

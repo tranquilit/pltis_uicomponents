@@ -2,11 +2,11 @@ object ToolBarFrame: TToolBarFrame
   Left = 0
   Height = 292
   Top = 0
-  Width = 441
+  Width = 513
   ClientHeight = 292
-  ClientWidth = 441
+  ClientWidth = 513
   TabOrder = 0
-  DesignLeft = 436
+  DesignLeft = 437
   DesignTop = 127
   object Memo1: TMemo
     AnchorSideLeft.Control = Label1
@@ -15,7 +15,7 @@ object ToolBarFrame: TToolBarFrame
     Left = 16
     Height = 203
     Top = 53
-    Width = 402
+    Width = 474
     Anchors = [akTop, akLeft, akRight, akBottom]
     ScrollBars = ssAutoBoth
     TabOrder = 0
@@ -25,7 +25,7 @@ object ToolBarFrame: TToolBarFrame
     Left = 0
     Height = 26
     Top = 0
-    Width = 441
+    Width = 513
     Caption = 'TisToolBar1'
     Flat = False
     PopupMenu = ToolBarPopup
@@ -34,9 +34,15 @@ object ToolBarFrame: TToolBarFrame
     Actions = <    
       item
         List = ActionList
+        HiddenCategories.Strings = (
+          'HiddenExample'
+        )
       end    
       item
         List = EditorList
+        HiddenCategories.Strings = (
+          'Hidden'
+        )
       end>
     EditorOptions = [eoShowOnDblClick, eoShowOnPopupMenu]
     object ToolButton1: TToolButton
@@ -50,28 +56,52 @@ object ToolBarFrame: TToolBarFrame
       Action = SetSessionValuesAction
     end
     object ToolButton3: TToolButton
-      Left = 214
+      Left = 324
       Top = 2
       Action = Action3
     end
     object ToolButton4: TToolButton
-      Left = 263
+      Left = 426
       Height = 22
       Top = 2
       Caption = 'ToolButton4'
       Style = tbsDivider
     end
     object ToolButton5: TToolButton
-      Left = 268
+      Left = 431
       Top = 2
       Action = ShowEditorAction
     end
     object ToolButton6: TToolButton
-      Left = 209
+      Left = 256
       Height = 22
       Top = 2
       Caption = 'ToolButton6'
       Style = tbsDivider
+    end
+    object ToolButton7: TToolButton
+      Left = 373
+      Top = 2
+      Caption = 'popup'
+      DropdownMenu = ToolBarPopup
+      Style = tbsButtonDrop
+    end
+    object ToolButton8: TToolButton
+      Left = 261
+      Top = 2
+      Caption = 'no action'
+    end
+    object ToolButton9: TToolButton
+      Left = 319
+      Height = 22
+      Top = 2
+      Caption = 'ToolButton9'
+      Style = tbsDivider
+    end
+    object ToolButton10: TToolButton
+      Left = 209
+      Top = 2
+      Action = RestoreAction
     end
   end
   object Label1: TLabel
@@ -111,6 +141,15 @@ object ToolBarFrame: TToolBarFrame
       Category = 'HiddenExample'
       Caption = 'Action6'
     end
+    object RestoreAction: TAction
+      Category = 'Category A'
+      Caption = 'Restore'
+      OnExecute = RestoreActionExecute
+    end
+    object Action2: TAction
+      Category = 'Hidden'
+      Caption = 'Action2'
+    end
   end
   object EditorList: TActionList
     Left = 192
@@ -119,6 +158,10 @@ object ToolBarFrame: TToolBarFrame
       Category = 'Editor'
       Caption = 'Show Editor'
       OnExecute = ShowEditorActionExecute
+    end
+    object Action1: TAction
+      Category = 'Hidden'
+      Caption = 'Action1'
     end
   end
   object ToolBarPopup: TPopupMenu

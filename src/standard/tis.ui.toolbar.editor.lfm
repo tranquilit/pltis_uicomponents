@@ -1,5 +1,5 @@
 object TisToolBarEditor: TTisToolBarEditor
-  Left = 246
+  Left = 247
   Height = 457
   Top = 129
   Width = 696

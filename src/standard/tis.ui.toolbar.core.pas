@@ -34,10 +34,10 @@ uses
 type
   // forward class declarations
   TTisToolBar = class;
-  TActionsCollection = class;
+  TTisActionsCollection = class;
 
   /// define a item for the collection
-  TActionsItem = class(TCollectionItem)
+  TTisActionsItem = class(TCollectionItem)
   private
     fList: TActionList;
     fHiddenCategories: TStrings;
@@ -45,7 +45,7 @@ type
     procedure SetList(aValue: TActionList);
   protected
     const DefaultReadOnly = False;
-    function GetActions: TActionsCollection;
+    function GetActions: TTisActionsCollection;
   public
     constructor Create(aCollection: TCollection); override;
     destructor Destroy; override;
@@ -57,11 +57,11 @@ type
   end;
 
   /// actions collection
-  TActionsCollection = class(TCollection)
+  TTisActionsCollection = class(TCollection)
   private
     fControl: TWinControl;
-    function GetItems(aIndex: Integer): TActionsItem;
-    procedure SetItems(aIndex: Integer; aValue: TActionsItem);
+    function GetItems(aIndex: Integer): TTisActionsItem;
+    procedure SetItems(aIndex: Integer; aValue: TTisActionsItem);
   protected
     // ------------------------------- inherited methods ----------------------------
     function GetOwner: TPersistent; override;
@@ -71,10 +71,10 @@ type
     function LocateAction(const aListOwnerName, aListName, aActionName: string): TAction;
     function GetToolBar: TTisToolBar;
     /// items of the collection
-    property Items[aIndex: Integer]: TActionsItem read GetItems write SetItems; default;
+    property Items[aIndex: Integer]: TTisActionsItem read GetItems write SetItems; default;
   end;
 
-  TEditorOption = (
+  TTisEditorOption = (
     /// user can double-click on toolbar to show editor
     // - only if OnDblClick event was not assigned
     eoShowOnDblClick,
@@ -84,12 +84,12 @@ type
     eoShowOnPopupMenu
   );
 
-  TEditorOptions = set of TEditorOption;
+  TTisEditorOptions = set of TTisEditorOption;
 
   TTisToolBar = class(TToolBar)
   private
-    fActions: TActionsCollection;
-    fEditorOptions: TEditorOptions;
+    fActions: TTisActionsCollection;
+    fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu];
@@ -102,7 +102,7 @@ type
     procedure SetSessionValues(const aValue: string); virtual;
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
-    procedure ShowEditorCallback({%H-}sender: TObject); virtual;
+    procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -110,7 +110,9 @@ type
     procedure Assign(aSource: TPersistent); override;
     // ------------------------------- new methods ----------------------------------
     /// add a new button related to an action
-    procedure AddButton(aStyle: TToolButtonStyle; aAction: TAction); overload;
+    function AddButton(const aCaption: string; aStyle: TToolButtonStyle;
+      aAction: TAction; aPopupMenu: TPopupMenu = nil): TToolButton; overload;
+    procedure RemoveButton(aButton: TToolButton); overload; virtual;
     /// remove all buttons
     procedure RemoveButtons;
     /// it shows the Editor to manage buttons/actions
@@ -119,8 +121,8 @@ type
     procedure RestoreSession;
   published
     // ------------------------------- new properties -------------------------------
-    property Actions: TActionsCollection read fActions write fActions;
-    property EditorOptions: TEditorOptions read fEditorOptions write fEditorOptions default DefaultEditorOptions;
+    property Actions: TTisActionsCollection read fActions write fActions;
+    property EditorOptions: TTisEditorOptions read fEditorOptions write fEditorOptions default DefaultEditorOptions;
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
   end;
 
@@ -132,15 +134,15 @@ uses
 resourcestring
   rsCustomizeToolbar = 'Customize the toolbar';
 
-{ TActionsItem }
+{ TTisActionsItem }
 
-procedure TActionsItem.SetHiddenCategories(aValue: TStrings);
+procedure TTisActionsItem.SetHiddenCategories(aValue: TStrings);
 begin
   if (aValue <> nil) then
     fHiddenCategories.Assign(aValue);
 end;
 
-procedure TActionsItem.SetList(aValue: TActionList);
+procedure TTisActionsItem.SetList(aValue: TActionList);
 begin
   if fList = aValue then
     exit;
@@ -149,27 +151,27 @@ begin
     fList.FreeNotification(GetActions.GetToolBar);
 end;
 
-function TActionsItem.GetActions: TActionsCollection;
+function TTisActionsItem.GetActions: TTisActionsCollection;
 begin
-  result := GetOwner as TActionsCollection;
+  result := GetOwner as TTisActionsCollection;
 end;
 
-constructor TActionsItem.Create(aCollection: TCollection);
+constructor TTisActionsItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
   fHiddenCategories := TTextStrings.Create;
 end;
 
-destructor TActionsItem.Destroy;
+destructor TTisActionsItem.Destroy;
 begin
   fHiddenCategories.Free;
   inherited Destroy;
 end;
 
-procedure TActionsItem.Assign(aSource: TPersistent);
+procedure TTisActionsItem.Assign(aSource: TPersistent);
 begin
-  if aSource is TActionsItem then
-    with aSource as TActionsItem do
+  if aSource is TTisActionsItem then
+    with aSource as TTisActionsItem do
     begin
       self.List := List;
     end
@@ -177,49 +179,49 @@ begin
     inherited Assign(aSource);
 end;
 
-{ TActionsCollection }
+{ TTisActionsCollection }
 
-function TActionsCollection.GetItems(aIndex: Integer): TActionsItem;
+function TTisActionsCollection.GetItems(aIndex: Integer): TTisActionsItem;
 begin
-  result := TActionsItem(inherited Items[aIndex]);
+  result := TTisActionsItem(inherited Items[aIndex]);
 end;
 
-procedure TActionsCollection.SetItems(aIndex: Integer; aValue: TActionsItem);
+procedure TTisActionsCollection.SetItems(aIndex: Integer; aValue: TTisActionsItem);
 begin
   Items[aIndex].Assign(aValue);
 end;
 
-function TActionsCollection.GetOwner: TPersistent;
+function TTisActionsCollection.GetOwner: TPersistent;
 begin
   result := fControl;
 end;
 
-function TActionsCollection.GetToolBar: TTisToolBar;
+function TTisActionsCollection.GetToolBar: TTisToolBar;
 begin
   result := fControl as TTisToolBar;
 end;
 
-constructor TActionsCollection.Create(aControl: TWinControl);
+constructor TTisActionsCollection.Create(aControl: TWinControl);
 begin
-  inherited Create(TActionsItem);
+  inherited Create(TTisActionsItem);
   fControl := aControl;
 end;
 
-function TActionsCollection.LocateAction(const aListOwnerName, aListName,
+function TTisActionsCollection.LocateAction(const aListOwnerName, aListName,
   aActionName: string): TAction;
 var
   i: Integer;
-  l: TActionList;
+  vActions: TActionList;
 begin
   result := nil;
   for i := 0 to Count -1 do
   begin
-    l := Items[i].List;
-    if l = nil then
+    vActions := Items[i].List;
+    if vActions = nil then
       continue;
-    if (l.Owner.Name = aListOwnerName) and (l.Name = aListName) then
+    if (vActions.Owner.Name = aListOwnerName) and (vActions.Name = aListName) then
     begin
-      result := l.ActionByName(aActionName) as TAction;
+      result := vActions.ActionByName(aActionName) as TAction;
       exit;
     end;
   end;
@@ -230,9 +232,8 @@ end;
 procedure TTisToolBar.Loaded;
 begin
   inherited Loaded;
-  fDefaultSessionValues := SessionValues; // save default values
-{ Setup options for showing Editor only if there are items in Actions collection.
-  There is no reason opening the Editor, if user cannot manage buttons/actions }
+  fDefaultSessionValues := SessionValues;
+  // setup things, if there are items in Actions collection
   if not (csDesigning in ComponentState) and (Actions.Count > 0) then
   begin
     SetupDblClick;
@@ -244,58 +245,93 @@ procedure TTisToolBar.Notification(aComponent: TComponent;
   aOperation: TOperation);
 var
   i: Integer;
-  ai: TActionsItem;
+  vActionItem: TTisActionsItem;
 begin
   inherited Notification(aComponent, aOperation);
   if aOperation = opRemove then
   begin
     for i := 0 to Actions.Count -1 do
     begin
-      ai := Actions.Items[i];
-      if ai.List = aComponent then
-        ai.List := nil;
+      vActionItem := Actions.Items[i];
+      if vActionItem.List = aComponent then
+        vActionItem.List := nil;
     end;
   end;
 end;
 
 function TTisToolBar.GetSessionValues: string;
 var
-  d: TDocVariantData;
   i: Integer;
-  a: TAction;
-  b: TToolButton;
-  o: Variant;
+  vDoc: TDocVariantData;
+  vAction: TAction;
+  vButton: TToolButton;
+  vObj: Variant;
+  vPopup: TPopupMenu;
 begin
-  d.InitArray([], JSON_FAST_FLOAT);
+  vDoc.InitArray([], JSON_FAST_FLOAT);
   for i := 0 to ButtonCount -1 do
   begin
-    b := Buttons[i];
-    o := _ObjFast([
-      'left', b.Left,
-      'style', b.Style
+    vButton := Buttons[i];
+    vObj := _ObjFast([
+      'caption', vButton.Caption,
+      'left', vButton.Left,
+      'style', vButton.Style
     ]);
-    a := b.Action as TAction;
-    // checking all before use it as a valid action
-    if (a <> nil) and (a.ActionList <> nil) and (a.ActionList.Owner <> nil) then
+    vAction := vButton.Action as TAction;
+    if Assigned(vAction) and
+      Assigned(vAction.ActionList) and
+      Assigned(vAction.ActionList.Owner) then
     begin
-      o.action := _ObjFast([
-        'owner', a.ActionList.Owner.Name,
-        'list', a.ActionList.Name,
-        'name', a.Name
+      vObj.action := _ObjFast([
+        'owner', vAction.ActionList.Owner.Name,
+        'list', vAction.ActionList.Name,
+        'name', vAction.Name
       ]);
     end;
-    d.AddItem(o);
+    vPopup := vButton.DropdownMenu;
+    if Assigned(vPopup) then
+    begin
+      vObj.popup := _ObjFast([
+        'owner', vPopup.Owner.Name,
+        'name', vPopup.Name
+      ]);
+    end;
+    vDoc.AddItem(vObj);
   end;
-  // by default, the original list order is by instance added, not by design order
-  // - session needs to save the buttons design order
-  d.SortArrayByField('left');
-  result := Utf8ToString(d.ToJson);
+  // by default, the original list order is added by instance not by design
+  // - session needs to save buttons by design order
+  vDoc.SortArrayByField('left');
+  result := Utf8ToString(vDoc.ToJson);
 end;
 
 procedure TTisToolBar.SetSessionValues(const aValue: string);
+
+  /// it will try to locate a PopupMenu using the same Actions owners
+  function _LocatePopupMenu(const aOwnerName, aPopupName: TComponentName): TPopupMenu;
+  var
+    i: Integer;
+    vActions: TActionList;
+  begin
+    result := nil;
+    for i := 0 to Actions.Count -1 do
+    begin
+      vActions := Actions.Items[i].List;
+      if vActions = nil then
+        continue;
+      if (vActions.Owner.Name = aOwnerName) then
+      begin
+        result := vActions.Owner.FindComponent(aPopupName) as TPopupMenu;
+        exit;
+      end;
+    end;
+  end;
+
 var
-  d: TDocVariantData;
-  o, a: PDocVariantData;
+  vDoc: TDocVariantData;
+  vAction: TAction;
+  vPopup: TPopupMenu;
+  vObj: PDocVariantData;
+  vObjAction, vObjPopup: PVariant;
 begin
   if (csDesigning in ComponentState) or
    (GetSessionValues = aValue) or
@@ -303,22 +339,24 @@ begin
     exit;
   RemoveButtons;
   try
-    if not d.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
-      d.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT); // use default values, if aValue is invalid
-    for o in d.Objects do
+    if not vDoc.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
+      vDoc.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT); // use default values, if aValue is invalid
+    for vObj in vDoc.Objects do
     begin
-      a := o^.O_['action'];
-      AddButton(
-        TToolButtonStyle(o^.I['style']),
-        Actions.LocateAction(a^.S['owner'], a^.S['list'], a^.S['name'])
-      );
+      if vObj^.GetAsPVariant('action', vObjAction) then
+        vAction := Actions.LocateAction(vObjAction^.owner, vObjAction^.list, vObjAction^.name)
+      else
+        vAction := nil;
+      if vObj^.GetAsPVariant('popup', vObjPopup) then
+        vPopup := _LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
+      else
+        vPopup := nil;
+      AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vAction, vPopup);
     end;
   except
     // shows exception only in designtime
     if csDesigning in ComponentState then
       Application.HandleException(self)
-    else
-      // it should not happen... but if did, do not show exception for users
   end;
 end;
 
@@ -330,7 +368,7 @@ end;
 
 procedure TTisToolBar.SetupPopupMenu;
 var
-  mi: TMenuItem;
+  vMenuItem: TMenuItem;
 begin
   if not Assigned(PopupMenu) then
     PopupMenu := TPopupMenu.Create(self);
@@ -338,34 +376,43 @@ begin
   begin
     if PopupMenu.Items.Count > 0 then
     begin
-      mi := TMenuItem.Create(self);
-      mi.Caption := '-';
-      PopupMenu.Items.Add(mi);
+      vMenuItem := TMenuItem.Create(self);
+      vMenuItem.Caption := '-';
+      PopupMenu.Items.Add(vMenuItem);
     end;
-    mi := TMenuItem.Create(self);
-    mi.Tag := -1;
-    mi.Caption := rsCustomizeToolbar;
-    mi.OnClick := @ShowEditorCallback;
-    PopupMenu.Items.Add(mi);
+    vMenuItem := TMenuItem.Create(self);
+    vMenuItem.Tag := -1;
+    vMenuItem.Caption := rsCustomizeToolbar;
+    vMenuItem.OnClick := @ShowEditorCallback;
+    PopupMenu.Items.Add(vMenuItem);
   end;
 end;
 
-procedure TTisToolBar.ShowEditorCallback(sender: TObject);
+procedure TTisToolBar.ShowEditorCallback(aSender: TObject);
 begin
   ShowEditor;
 end;
 
-procedure TTisToolBar.AddButton(aStyle: TToolButtonStyle;
-  aAction: TAction);
+function TTisToolBar.AddButton(const aCaption: string;
+  aStyle: TToolButtonStyle; aAction: TAction; aPopupMenu: TPopupMenu): TToolButton;
 begin
-  with TToolButton.Create(self) do
+  result := TToolButton.Create(self);
+  with result do
   begin
     Parent := self;
+    Caption := aCaption;
     Action := aAction;
     Style := aStyle;
     AutoSize := True;
     Left := Parent.Width;
+    DropdownMenu := aPopupMenu;
   end;
+end;
+
+procedure TTisToolBar.RemoveButton(aButton: TToolButton);
+begin
+  ButtonList.Remove(aButton);
+  RemoveControl(aButton);
 end;
 
 procedure TTisToolBar.RemoveButtons;
@@ -380,7 +427,7 @@ end;
 constructor TTisToolBar.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fActions := TActionsCollection.Create(self);
+  fActions := TTisActionsCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
 end;
 

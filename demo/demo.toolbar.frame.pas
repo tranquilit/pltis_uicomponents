@@ -34,9 +34,17 @@ type
     Action6: TAction;
     ToolBarPopup: TPopupMenu;
     MenuItem1: TMenuItem;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
+    RestoreAction: TAction;
+    ToolButton10: TToolButton;
+    Action1: TAction;
+    Action2: TAction;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);
+    procedure RestoreActionExecute(Sender: TObject);
   private
 
   public
@@ -73,6 +81,11 @@ begin
     ShowMessage('There is no values to update')
   else
     TisToolBar1.SessionValues := Memo1.Text;
+end;
+
+procedure TToolBarFrame.RestoreActionExecute(Sender: TObject);
+begin
+  TisToolBar1.RestoreSession;
 end;
 
 end.
