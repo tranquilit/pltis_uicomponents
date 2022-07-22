@@ -91,6 +91,7 @@ type
     fActions: TTisActionsCollection;
     fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
+    fPopupReferences: TStringList;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu];
   protected
@@ -102,6 +103,7 @@ type
     procedure SetSessionValues(const aValue: string); virtual;
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
+    procedure SavePopupReferences; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
   public
     // ------------------------------- inherited methods ----------------------------
@@ -238,6 +240,7 @@ begin
   begin
     SetupDblClick;
     SetupPopupMenu;
+    SavePopupReferences;
   end;
 end;
 
@@ -388,6 +391,20 @@ begin
   end;
 end;
 
+procedure TTisToolBar.SavePopupReferences;
+var
+  i: Integer;
+  vButton: TToolButton;
+begin
+  fPopupReferences.Clear;
+  for i := 0 to ButtonCount -1 do
+  begin
+    vButton := Buttons[i];
+    if (vButton.Style = tbsButtonDrop) and Assigned(vButton.DropdownMenu) then
+      fPopupReferences.AddObject(vButton.Caption, vButton.DropdownMenu);
+  end;
+end;
+
 procedure TTisToolBar.ShowEditorCallback(aSender: TObject);
 begin
   ShowEditor;
@@ -429,11 +446,13 @@ begin
   inherited Create(aOwner);
   fActions := TTisActionsCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
+  fPopupReferences := TStringList.Create;
 end;
 
 destructor TTisToolBar.Destroy;
 begin
   fActions.Free;
+  fPopupReferences.Free;
   inherited Destroy;
 end;
 
@@ -454,6 +473,7 @@ begin
   with TTisToolBarEditor.Create(Application) do
   try
     Target := self;
+    PopupReferences := fPopupReferences;
     ShowModal;
   finally
     Free;

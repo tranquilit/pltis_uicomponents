@@ -61,7 +61,7 @@ type
     procedure ToolBarRestoreButtonClick(Sender: TObject);
   private
     fTarget: TTisToolBar;
-    fReferences: TStringList;
+    fPopupReferences: TStringList;
     fDesigner: TComponentEditorDesigner;
     function IsDesignTime: Boolean;
     procedure SetTarget(aValue: TTisToolBar);
@@ -73,7 +73,6 @@ type
     function NewLvItem(const aCaption: string): TListItem;
     procedure RemoveCommand;
     procedure SetupCaptions;
-    procedure SaveReferences;
     procedure LoadCategories;
     procedure LoadButtons;
     procedure AddMenuItem(aParentNode: TTreeNode; aAction: TAction);
@@ -85,6 +84,7 @@ type
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     property Target: TTisToolBar read fTarget write SetTarget;
+    property PopupReferences: TStringList read fPopupReferences write fPopupReferences;
   end;
 
   /// ToolBar component editor
@@ -205,11 +205,11 @@ begin
       end
       else
         vButton := fTarget.AddButton(vListItem.Caption, vButtonR.Style, vAction);
-      i := fReferences.IndexOf(vButton.Caption);
+      i := fPopupReferences.IndexOf(vButton.Caption);
       if i > -1 then
       begin
         vButton.Style := tbsButtonDrop;
-        vButton.DropdownMenu := fReferences.Objects[i] as TPopupMenu;
+        vButton.DropdownMenu := fPopupReferences.Objects[i] as TPopupMenu;
       end;
     end;
   end;
@@ -364,20 +364,6 @@ begin
   ToolBarRestoreButton.Caption := rsToolBarRestore;
 end;
 
-procedure TTisToolBarEditor.SaveReferences;
-var
-  i: Integer;
-  vButton: TToolButton;
-begin
-  fReferences.Clear;
-  for i := 0 to fTarget.ButtonCount -1 do
-  begin
-    vButton := fTarget.Buttons[i];
-    if (vButton.Style = tbsButtonDrop) and Assigned(vButton.DropdownMenu) then
-      fReferences.AddObject(vButton.Caption, vButton.DropdownMenu);
-  end;
-end;
-
 procedure TTisToolBarEditor.LoadCategories;
 var
   i, x, y: Integer;
@@ -449,12 +435,10 @@ end;
 constructor TTisToolBarEditor.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fReferences := TStringList.Create;
 end;
 
 destructor TTisToolBarEditor.Destroy;
 begin
-  fReferences.Free;
   inherited Destroy;
 end;
 
@@ -471,7 +455,6 @@ begin
   TV.Images := fTarget.Images;
   lvToolbar.SmallImages := fTarget.Images;
   SetupCaptions;
-  SaveReferences;
   LoadCategories;
   LoadButtons;
 end;
