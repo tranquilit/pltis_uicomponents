@@ -77,11 +77,12 @@ type
     function NewButtonDivider: TToolButton;
     procedure RemoveCommand;
     procedure SetupCaptions;
-    procedure LoadActions;
+    procedure LoadActionsAndPopups;
     procedure LoadButtons;
     function FindTreeViewNodeBy(aAction: TAction): TTreeNode;
   private
-    const DIVIDER_CAPTION = '---------------';
+    const DIVIDER_LISTVIEW_CAPTION = '---------------';
+    const DIVIDER_BUTTON_CAPTION = '-';
   protected
     property Designer: TComponentEditorDesigner read fDesigner write fDesigner;
   public
@@ -116,6 +117,7 @@ type
   public
     Action: TAction;
     Button: TToolButton;
+    Popup: TTisPopupMenusItem;
     constructor Create(aEditor: TTisToolBarEditor); reintroduce;
   end;
 
@@ -217,19 +219,12 @@ begin
         else
         begin
           vSibling := fTarget.Buttons[x-1];
-          //vButton.Left := vSibling.Left + vSibling.Width;
           vButton.SetBounds(
             vSibling.Left + vSibling.Width,
             vSibling.Top, vButton.Width, vButton.Height);
         end;
         vButton.AutoSize := True; // should be True, as a new Action caption can be long
         vButton.Parent := fTarget; // show it in the target toolbar, if it is new
-        i := fTarget.PopupReferences.IndexOf(vButton.Caption);
-        if i > -1 then
-        begin
-          vButton.Style := tbsButtonDrop;
-          vButton.DropdownMenu := fTarget.PopupReferences.Objects[i] as TPopupMenu;
-        end;
       end;
     finally
       fTarget.EndUpdate;
@@ -309,8 +304,17 @@ begin
   vData := TSharedData(aNode.Data);
   if vData <> nil then
   begin
-    result.Caption := vData.Action.Caption;
-    result.Action := vData.Action;
+    if vData.Action <> nil then
+    begin
+      result.Caption := vData.Action.Caption;
+      result.Action := vData.Action;
+    end
+    else if vData.Popup <> nil then
+    begin
+      result.Caption := vData.Popup.Category;
+      result.DropdownMenu := vData.Popup.PopupMenu;
+      result.Style := tbsButtonDrop;
+    end;
   end;
   CheckButtonDesigntime(result);
 end;
@@ -335,7 +339,12 @@ begin
   vData := TSharedData(vNode.Data);
   if vData.Button = nil then
     vData.Button := NewButtonBy(vNode);
-  vCaption := vData.Action.Caption;
+  if vData.Action <> nil then
+    vCaption := vData.Action.Caption
+  else if vData.Popup <> nil then
+    vCaption := vData.Popup.Category
+  else
+    vCaption := '';
   DeleteAmpersands(vCaption);
   vListItem := NewListViewItem(vCaption);
   vListItem.Data := vNode.Data;
@@ -379,7 +388,7 @@ var
   vListItem: TListItem;
   vData: TSharedData;
 begin
-  vListItem := NewListViewItem(DIVIDER_CAPTION);
+  vListItem := NewListViewItem(DIVIDER_LISTVIEW_CAPTION);
   vListItem.ImageIndex := -1;
   InsertItem(vListItem);
   vData := TSharedData.Create(self);
@@ -444,21 +453,24 @@ begin
   ToolBarRestoreButton.Caption := rsToolBarRestore;
 end;
 
-procedure TTisToolBarEditor.LoadActions;
+procedure TTisToolBarEditor.LoadActionsAndPopups;
 var
   i, x: Integer;
-  vNode: TTreeNode;
+  vNode, vPopupRootNode: TTreeNode;
   vCategory: string;
   vAction: TAction;
   vActions: TActionList;
   vActionsItem: TTisActionsItem;
+  vPopup: TPopupMenu;
+  vPopupMenusItem: TTisPopupMenusItem;
+  vPopupItem: TMenuItem;
   vFound: Boolean;
   vData: TSharedData;
 begin
   TV.Items.BeginUpdate;
   try
     TV.Items.Clear;
-    // auto add actions
+    // adding auto actions
     if eoAutoAddActions in fTarget.EditorOptions then
     begin
       for i := 0 to fTarget.ButtonCount -1 do
@@ -502,7 +514,7 @@ begin
           vNode := TV.Items.FindNodeWithText(vCategory);
           if vNode = nil then
             vNode := TV.Items.AddChild(nil, vCategory);
-          if vAction.Caption <> '-' then // include, if it is not a divider
+          if vAction.Caption <> DIVIDER_BUTTON_CAPTION then // include, if it is not a divider
           begin
             vData := TSharedData.Create(self);
             vData.Action := vAction;
@@ -513,6 +525,61 @@ begin
               Data := vData;
             end;
           end;
+        end;
+      end;
+    end;
+    // adding auto popup menus
+    if eoAutoAddPopupMenus in fTarget.EditorOptions then
+    begin
+      for i := 0 to fTarget.ButtonCount -1 do
+      begin
+        vPopup := fTarget.Buttons[i].DropdownMenu;
+        if vPopup = nil then
+          Continue;
+        vFound := False;
+        for x := 0 to fTarget.PopupMenus.Count -1 do
+        begin
+          if vPopup = fTarget.PopupMenus[x].PopupMenu then
+          begin
+            vFound := True;
+            Break;
+          end;
+        end;
+        if not vFound then
+        begin
+          vPopupMenusItem := fTarget.PopupMenus.Add as TTisPopupMenusItem;
+          vPopupMenusItem.PopupMenu := vPopup;
+          if IsDesignTime then
+          begin
+            fDesigner.PropertyEditorHook.PersistentAdded(vPopupMenusItem, False);
+            fDesigner.Modified;
+          end;
+        end;
+      end;
+    end;
+    // load popups
+    if fTarget.PopupMenus.Count > 0 then
+      vPopupRootNode := TV.Items.AddChild(nil, 'Popup Menus');
+    for i := 0 to fTarget.PopupMenus.Count -1 do
+    begin
+      vPopupMenusItem := fTarget.PopupMenus.Items[i];
+      vPopup := vPopupMenusItem.PopupMenu;
+      vCategory := vPopupMenusItem.Category;
+      vData := TSharedData.Create(self);
+      vData.Popup := vPopupMenusItem;
+      vNode := TV.Items.AddChild(vPopupRootNode, vCategory);
+      vNode.Data := vData;
+      for x := 0 to vPopup.Items.Count -1 do
+      begin
+        vPopupItem := vPopup.Items[x];
+        vCategory := vPopupItem.Caption;
+        if vCategory = DIVIDER_BUTTON_CAPTION then
+          Continue;
+        DeleteAmpersands(vCategory);
+        with TV.Items.AddChild(vNode, vCategory) do
+        begin
+          ImageIndex := vPopupItem.ImageIndex;
+          SelectedIndex := vPopupItem.ImageIndex;
         end;
       end;
     end;
@@ -531,7 +598,6 @@ begin
     for i := 0 to lvToolbar.Items.Count -1 do
       RemoveCommand;
   end;
-  fTarget.SavePopupReferences;
   for i := 0 to fTarget.ButtonCount -1 do
     AddListViewItem(fTarget.Buttons[i]);
   lvToolbar.Sort; // sort by Button.Left following original design
@@ -562,7 +628,7 @@ begin
   TV.Images := fTarget.Images;
   lvToolbar.SmallImages := fTarget.Images;
   SetupCaptions;
-  LoadActions;
+  LoadActionsAndPopups;
   LoadButtons;
 end;
 
@@ -582,7 +648,7 @@ begin
   case aButton.Style of
     tbsDivider, tbsSeparator:
     begin
-      vListItem.Caption := DIVIDER_CAPTION;
+      vListItem.Caption := DIVIDER_LISTVIEW_CAPTION;
       vListItem.ImageIndex := -1;
     end
     else

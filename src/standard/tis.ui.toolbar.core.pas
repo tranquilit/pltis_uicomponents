@@ -78,6 +78,7 @@ type
   TTisPopupMenusItem = class(TCollectionItem)
   private
     fPopupMenu: TPopupMenu;
+    fCategory: string;
     procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     function GetPopupMenus: TTisPopupMenusCollection;
@@ -87,6 +88,7 @@ type
     procedure Assign(aSource: TPersistent); override;
   published
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
+    property Category: string read fCategory write fCategory;
   end;
 
   /// popup menus collection
@@ -131,7 +133,6 @@ type
     fPopupMenus: TTisPopupMenusCollection;
     fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
-    fPopupReferences: TStringList;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
   protected
@@ -160,8 +161,6 @@ type
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
-    procedure SavePopupReferences;
-    property PopupReferences: TStringList read fPopupReferences;
   published
     // ------------------------------- new properties -------------------------------
     property Actions: TTisActionsCollection read fActions write fActions;
@@ -278,6 +277,8 @@ begin
   if fPopupMenu = aValue then
     exit;
   fPopupMenu := aValue;
+  if fCategory = '' then
+    fCategory := fPopupMenu.Name;
   if fPopupMenu <> nil then
     fPopupMenu.FreeNotification(GetPopupMenus.GetToolBar);
 end;
@@ -328,7 +329,7 @@ end;
 
 constructor TTisPopupMenusCollection.Create(aControl: TWinControl);
 begin
-  inherited Create(TTisActionsItem);
+  inherited Create(TTisPopupMenusItem);
   fControl := aControl;
 end;
 
@@ -503,20 +504,6 @@ begin
   end;
 end;
 
-procedure TTisToolBar.SavePopupReferences;
-var
-  i: Integer;
-  vButton: TToolButton;
-begin
-  fPopupReferences.Clear;
-  for i := 0 to ButtonCount -1 do
-  begin
-    vButton := Buttons[i];
-    if (vButton.Style = tbsButtonDrop) and Assigned(vButton.DropdownMenu) then
-      fPopupReferences.AddObject(vButton.Caption, vButton.DropdownMenu);
-  end;
-end;
-
 procedure TTisToolBar.ShowEditorCallback(aSender: TObject);
 begin
   ShowEditor;
@@ -559,14 +546,12 @@ begin
   fActions := TTisActionsCollection.Create(self);
   fPopupMenus := TTisPopupMenusCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
-  fPopupReferences := TStringList.Create;
 end;
 
 destructor TTisToolBar.Destroy;
 begin
   fActions.Free;
   fPopupMenus.Free;
-  fPopupReferences.Free;
   inherited Destroy;
 end;
 
