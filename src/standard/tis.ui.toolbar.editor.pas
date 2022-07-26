@@ -201,7 +201,7 @@ begin
       begin
         vFound := False;
         vButton := fTarget.Buttons[i];
-        vButton.Parent := nil; // temporarily removed from the target to change its position
+        vButton.Parent := nil; // temporarily removed from the target to change its bound more below
         for x := 0 to lvToolbar.Items.Count -1 do
         begin
           vListItem := lvToolbar.Items[x];
@@ -222,7 +222,7 @@ begin
             fTarget.RemoveButton(vButton);
         end;
       end;
-      // reorganizing buttons on toolbar
+      // reorganizing buttons bounds on toolbar
       for x := 0 to lvToolbar.Items.Count -1 do
       begin
         vListItem := lvToolbar.Items[x];
@@ -236,8 +236,8 @@ begin
             vSibling.Left + vSibling.Width,
             vSibling.Top, vButton.Width, vButton.Height);
         end;
-        vButton.AutoSize := True; // should be True, as a new Action caption can be long
-        vButton.Parent := fTarget; // show it in the target toolbar, if it is new
+        vButton.AutoSize := True; // should be True, as the new caption can be long
+        vButton.Parent := fTarget; // show it in the target toolbar
       end;
     finally
       fTarget.EndUpdate;
