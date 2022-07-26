@@ -88,7 +88,8 @@ type
     procedure SetupCaptions;
     procedure LoadActionsAndPopups;
     procedure LoadButtons;
-    function FindTreeViewNodeBy(aAction: TAction): TTreeNode;
+    function FindTreeViewNodeBy(aAction: TAction): TTreeNode; overload;
+    function FindTreeViewNodeBy(aPopupItem: TTisPopupMenusItem): TTreeNode; overload;
   private
     const DIVIDER_LISTVIEW_CAPTION = '---------------';
     const DIVIDER_BUTTON_CAPTION = '-';
@@ -113,6 +114,9 @@ resourcestring
   rsToolBarAvailableCommands = 'Available commands';
   rsToolBarCommands = 'Toolbar commands';
   rsToolBarRestore = 'Restore';
+
+const
+  rsPopupMenus = 'Popup Menus';
 
 implementation
 
@@ -386,6 +390,8 @@ begin
   if Assigned(vData) then
   begin
     vNode := FindTreeViewNodeBy(vData.Action);
+    if vNode = nil then
+      vNode := FindTreeViewNodeBy(vData.Popup);
     if vNode <> nil then
       vNode.Data := vData; // overriding data with button instance too
   end;
@@ -568,7 +574,7 @@ begin
     end;
     // load popups
     if fTarget.PopupMenus.Count > 0 then
-      vPopupRootNode := TV.Items.AddChild(nil, 'Popup Menus');
+      vPopupRootNode := TV.Items.AddChild(nil, rsPopupMenus);
     for i := 0 to fTarget.PopupMenus.Count -1 do
     begin
       vPopupMenusItem := fTarget.PopupMenus.Items[i];
@@ -619,6 +625,20 @@ begin
   result := TV.Items.FindTopLvlNode(aAction.Category);
   if result <> nil then
     result := TV.Items.FindNodeWithText(aAction.Caption);
+  if result <> nil then
+  begin
+    result.Visible := True;
+    result.Selected := True;
+  end;
+end;
+
+function TTisToolBarEditor.FindTreeViewNodeBy(aPopupItem: TTisPopupMenusItem): TTreeNode;
+begin
+  if aPopupItem = nil then
+    exit(nil);
+  result := TV.Items.FindTopLvlNode(rsPopupMenus);
+  if result <> nil then
+    result := TV.Items.FindNodeWithText(aPopupItem.Category);
   if result <> nil then
   begin
     result.Visible := True;
