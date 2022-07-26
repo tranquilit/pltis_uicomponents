@@ -316,8 +316,6 @@ begin
 end;
 
 function TTisToolBarEditor.NewButtonDivider: TToolButton;
-var
-  vData: TSharedData;
 begin
   result := TToolButton.Create(fTarget.Owner);
   result.Style := tbsDivider;
