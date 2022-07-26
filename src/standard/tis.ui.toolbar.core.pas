@@ -43,15 +43,18 @@ type
   private
     fList: TActionList;
     fHiddenCategories: TStrings;
+    // ------------------------------- new methods ----------------------------------
     procedure SetHiddenCategories(aValue: TStrings);
     procedure SetList(aValue: TActionList);
   protected
     function GetActions: TTisActionsCollection;
   public
+    // ------------------------------- inherited methods ----------------------------
     constructor Create(aCollection: TCollection); override;
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
+    // ------------------------------- new properties -------------------------------
     property List: TActionList read fList write SetList;
     /// use this list to hide categories on Editor by name
     property HiddenCategories: TStrings read fHiddenCategories write SetHiddenCategories;
@@ -71,6 +74,7 @@ type
     // ------------------------------- new methods ----------------------------------
     function LocateAction(const aListOwnerName, aListName, aActionName: string): TAction;
     function GetToolBar: TTisToolBar;
+    // ------------------------------- new properties -------------------------------
     /// items of the collection
     property Items[aIndex: Integer]: TTisActionsItem read GetItems write SetItems; default;
   end;
@@ -81,14 +85,17 @@ type
     fPopupMenu: TPopupMenu;
     fCategory: string;
     fImageIndex: Integer;
+    // ------------------------------- new methods ----------------------------------
     procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     function GetPopupMenus: TTisPopupMenusCollection;
   public
+    // ------------------------------- inherited methods ----------------------------
     constructor Create(aCollection: TCollection); override;
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
+    // ------------------------------- new properties -------------------------------
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
     /// it will be use to naming the Popup in the list
     property Category: string read fCategory write fCategory;
@@ -100,6 +107,7 @@ type
   TTisPopupMenusCollection = class(TCollection)
   private
     fControl: TWinControl;
+    // ------------------------------- new methods ----------------------------------
     function GetItems(aIndex: Integer): TTisPopupMenusItem;
     procedure SetItems(aIndex: Integer; aValue: TTisPopupMenusItem);
   protected
@@ -110,6 +118,7 @@ type
     // ------------------------------- new methods ----------------------------------
     function LocatePopupMenu(const aOwnerName, aPopuMenuName: string): TPopupMenu;
     function GetToolBar: TTisToolBar;
+    // ------------------------------- new properties -------------------------------
     /// items of the collection
     property Items[aIndex: Integer]: TTisPopupMenusItem read GetItems write SetItems; default;
   end;
