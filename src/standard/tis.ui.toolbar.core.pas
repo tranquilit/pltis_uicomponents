@@ -35,8 +35,9 @@ type
   // forward class declarations
   TTisToolBar = class;
   TTisActionsCollection = class;
+  TTisPopupMenusCollection = class;
 
-  /// define a item for the collection
+  /// define a item for the actions collection
   TTisActionsItem = class(TCollectionItem)
   private
     fList: TActionList;
@@ -44,7 +45,6 @@ type
     procedure SetHiddenCategories(aValue: TStrings);
     procedure SetList(aValue: TActionList);
   protected
-    const DefaultReadOnly = False;
     function GetActions: TTisActionsCollection;
   public
     constructor Create(aCollection: TCollection); override;
@@ -74,6 +74,39 @@ type
     property Items[aIndex: Integer]: TTisActionsItem read GetItems write SetItems; default;
   end;
 
+  /// define a item for the popup menus collection
+  TTisPopupMenusItem = class(TCollectionItem)
+  private
+    fPopupMenu: TPopupMenu;
+    procedure SetPopupMenu(aValue: TPopupMenu);
+  protected
+    function GetPopupMenus: TTisPopupMenusCollection;
+  public
+    constructor Create(aCollection: TCollection); override;
+    destructor Destroy; override;
+    procedure Assign(aSource: TPersistent); override;
+  published
+    property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
+  end;
+
+  /// popup menus collection
+  TTisPopupMenusCollection = class(TCollection)
+  private
+    fControl: TWinControl;
+    function GetItems(aIndex: Integer): TTisPopupMenusItem;
+    procedure SetItems(aIndex: Integer; aValue: TTisPopupMenusItem);
+  protected
+    // ------------------------------- inherited methods ----------------------------
+    function GetOwner: TPersistent; override;
+  public
+    constructor Create(aControl: TWinControl); reintroduce;
+    // ------------------------------- new methods ----------------------------------
+    function LocatePopupMenu(const aOwnerName, aPopuMenuName: string): TPopupMenu;
+    function GetToolBar: TTisToolBar;
+    /// items of the collection
+    property Items[aIndex: Integer]: TTisPopupMenusItem read GetItems write SetItems; default;
+  end;
+
   TTisEditorOption = (
     /// user can double-click on toolbar to show editor
     // - only if OnDblClick event was not assigned
@@ -81,7 +114,13 @@ type
     /// user can right-click to show a popup menu to access editor
     // - it will add a new item at the end of PopupMenu.Items
     // - if PopupMenu was not assigned, it will create it
-    eoShowOnPopupMenu
+    eoShowOnPopupMenu,
+    /// it will add Actions, which are already been using on buttons,
+    // in the Actions Collection property when open the Editor
+    eoAutoAddActions,
+    /// it will add PopupMenus, which are already been using on buttons,
+    // in the Popups Collection property when open the Editor
+    eoAutoAddPopupMenus
   );
 
   TTisEditorOptions = set of TTisEditorOption;
@@ -89,11 +128,12 @@ type
   TTisToolBar = class(TToolBar)
   private
     fActions: TTisActionsCollection;
+    fPopupMenus: TTisPopupMenusCollection;
     fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
     fPopupReferences: TStringList;
   protected
-    const DefaultEditorOptions = [eoShowOnPopupMenu];
+    const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
@@ -103,7 +143,6 @@ type
     procedure SetSessionValues(const aValue: string); virtual;
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
-    procedure SavePopupReferences; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
   public
     // ------------------------------- inherited methods ----------------------------
@@ -121,9 +160,12 @@ type
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
+    procedure SavePopupReferences;
+    property PopupReferences: TStringList read fPopupReferences;
   published
     // ------------------------------- new properties -------------------------------
     property Actions: TTisActionsCollection read fActions write fActions;
+    property PopupMenus: TTisPopupMenusCollection read fPopupMenus write fPopupMenus;
     property EditorOptions: TTisEditorOptions read fEditorOptions write fEditorOptions default DefaultEditorOptions;
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
   end;
@@ -198,11 +240,6 @@ begin
   result := fControl;
 end;
 
-function TTisActionsCollection.GetToolBar: TTisToolBar;
-begin
-  result := fControl as TTisToolBar;
-end;
-
 constructor TTisActionsCollection.Create(aControl: TWinControl);
 begin
   inherited Create(TTisActionsItem);
@@ -229,18 +266,93 @@ begin
   end;
 end;
 
+function TTisActionsCollection.GetToolBar: TTisToolBar;
+begin
+  result := fControl as TTisToolBar;
+end;
+
+{ TTisPopupMenusItem }
+
+procedure TTisPopupMenusItem.SetPopupMenu(aValue: TPopupMenu);
+begin
+  if fPopupMenu = aValue then
+    exit;
+  fPopupMenu := aValue;
+  if fPopupMenu <> nil then
+    fPopupMenu.FreeNotification(GetPopupMenus.GetToolBar);
+end;
+
+function TTisPopupMenusItem.GetPopupMenus: TTisPopupMenusCollection;
+begin
+  result := GetOwner as TTisPopupMenusCollection;
+end;
+
+constructor TTisPopupMenusItem.Create(aCollection: TCollection);
+begin
+  inherited Create(aCollection);
+end;
+
+destructor TTisPopupMenusItem.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TTisPopupMenusItem.Assign(aSource: TPersistent);
+begin
+  if aSource is TTisPopupMenusItem then
+    with aSource as TTisPopupMenusItem do
+    begin
+      self.PopupMenu := PopupMenu;
+    end
+  else
+    inherited Assign(aSource);
+end;
+
+{ TTisPopupMenusCollection }
+
+function TTisPopupMenusCollection.GetItems(aIndex: Integer): TTisPopupMenusItem;
+begin
+  result := TTisPopupMenusItem(inherited Items[aIndex]);
+end;
+
+procedure TTisPopupMenusCollection.SetItems(aIndex: Integer;
+  aValue: TTisPopupMenusItem);
+begin
+  Items[aIndex].Assign(aValue);
+end;
+
+function TTisPopupMenusCollection.GetOwner: TPersistent;
+begin
+  result := fControl;
+end;
+
+constructor TTisPopupMenusCollection.Create(aControl: TWinControl);
+begin
+  inherited Create(TTisActionsItem);
+  fControl := aControl;
+end;
+
+function TTisPopupMenusCollection.LocatePopupMenu(const aOwnerName,
+  aPopuMenuName: string): TPopupMenu;
+begin
+  result := nil; { TODO : to implement }
+end;
+
+function TTisPopupMenusCollection.GetToolBar: TTisToolBar;
+begin
+  result := fControl as TTisToolBar;
+end;
+
 { TTisToolBar }
 
 procedure TTisToolBar.Loaded;
 begin
   inherited Loaded;
   fDefaultSessionValues := SessionValues;
-  // setup things, if there are items in Actions collection
-  if not (csDesigning in ComponentState) and (Actions.Count > 0) then
+  if not (csDesigning in ComponentState) then
   begin
     SetupDblClick;
     SetupPopupMenu;
-    SavePopupReferences;
   end;
 end;
 
@@ -445,6 +557,7 @@ constructor TTisToolBar.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   fActions := TTisActionsCollection.Create(self);
+  fPopupMenus := TTisPopupMenusCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
   fPopupReferences := TStringList.Create;
 end;
@@ -452,6 +565,7 @@ end;
 destructor TTisToolBar.Destroy;
 begin
   fActions.Free;
+  fPopupMenus.Free;
   fPopupReferences.Free;
   inherited Destroy;
 end;
@@ -473,7 +587,6 @@ begin
   with TTisToolBarEditor.Create(Application) do
   try
     Target := self;
-    PopupReferences := fPopupReferences;
     ShowModal;
   finally
     Free;
