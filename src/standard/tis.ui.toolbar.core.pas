@@ -80,6 +80,7 @@ type
   private
     fPopupMenu: TPopupMenu;
     fCategory: string;
+    fImageIndex: Integer;
     procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     function GetPopupMenus: TTisPopupMenusCollection;
@@ -90,6 +91,7 @@ type
   published
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
     property Category: string read fCategory write fCategory;
+    property ImageIndex: Integer read fImageIndex write fImageIndex;
   end;
 
   /// popup menus collection

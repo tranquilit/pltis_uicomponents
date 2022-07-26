@@ -322,7 +322,9 @@ begin
       result.Caption := vData.Action.Caption;
       result.Action := vData.Action;
     end
-    else if vData.Popup <> nil then
+    else
+      result.ImageIndex := aNode.ImageIndex;
+    if vData.Popup <> nil then
     begin
       result.Caption := vData.Popup.Category;
       result.DropdownMenu := vData.Popup.PopupMenu;
@@ -584,6 +586,7 @@ begin
       vData.Popup := vPopupMenusItem;
       vNode := TV.Items.AddChild(vPopupRootNode, vCategory);
       vNode.Data := vData;
+      vNode.ImageIndex := vPopupMenusItem.ImageIndex;
       for x := 0 to vPopup.Items.Count -1 do
       begin
         vPopupItem := vPopup.Items[x];
