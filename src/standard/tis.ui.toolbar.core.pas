@@ -29,6 +29,7 @@ uses
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
+  mormot.core.text,
   mormot.core.rtti;
 
 type
@@ -279,6 +280,8 @@ begin
   fPopupMenu := aValue;
   if fCategory = '' then
     fCategory := fPopupMenu.Name;
+  if fCategory = fPopupMenu.Name then // try to beautify the original component name
+    fCategory := Utf8ToString(UnCamelCase(StringToUtf8(fCategory)));
   if fPopupMenu <> nil then
     fPopupMenu.FreeNotification(GetPopupMenus.GetToolBar);
 end;
@@ -335,8 +338,22 @@ end;
 
 function TTisPopupMenusCollection.LocatePopupMenu(const aOwnerName,
   aPopuMenuName: string): TPopupMenu;
+var
+  i: Integer;
+  vPopup: TPopupMenu;
 begin
-  result := nil; { TODO : to implement }
+  result := nil;
+  for i := 0 to Count -1 do
+  begin
+    vPopup := Items[i].PopupMenu;
+    if vPopup = nil then
+      Continue;
+    if (vPopup.Owner.Name = aOwnerName) and (vPopup.Name = aPopuMenuName) then
+    begin
+      result := vPopup;
+      exit;
+    end;
+  end;
 end;
 
 function TTisPopupMenusCollection.GetToolBar: TTisToolBar;
@@ -421,27 +438,6 @@ begin
 end;
 
 procedure TTisToolBar.SetSessionValues(const aValue: string);
-
-  /// it will try to locate a PopupMenu using the same Actions owners
-  function _LocatePopupMenu(const aOwnerName, aPopupName: TComponentName): TPopupMenu;
-  var
-    i: Integer;
-    vActions: TActionList;
-  begin
-    result := nil;
-    for i := 0 to Actions.Count -1 do
-    begin
-      vActions := Actions.Items[i].List;
-      if vActions = nil then
-        continue;
-      if (vActions.Owner.Name = aOwnerName) then
-      begin
-        result := vActions.Owner.FindComponent(aPopupName) as TPopupMenu;
-        exit;
-      end;
-    end;
-  end;
-
 var
   vDoc: TDocVariantData;
   vAction: TAction;
@@ -464,7 +460,7 @@ begin
       else
         vAction := nil;
       if vObj^.GetAsPVariant('popup', vObjPopup) then
-        vPopup := _LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
+        vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
       else
         vPopup := nil;
       AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vAction, vPopup);

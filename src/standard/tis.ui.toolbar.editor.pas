@@ -10,14 +10,23 @@ unit tis.ui.toolbar.editor;
 interface
 
 uses
-  Classes, SysUtils,
-  // LCL
-  LCLProc, LclIntf, Controls, Forms, Graphics, ExtCtrls, Buttons, StdCtrls,
-  ComCtrls, Menus, ButtonPanel, ActnList, Dialogs,
+  Classes,
+  SysUtils,
+  LCLProc,
+  LclIntf,
+  Controls,
+  Forms,
+  Graphics,
+  ExtCtrls,
+  Buttons,
+  StdCtrls,
+  ComCtrls,
+  Menus,
+  ButtonPanel,
+  ActnList,
+  Dialogs,
   ComponentEditors,
-  // LazControls
   TreeFilterEdit,
-  // TIS
   tis.ui.toolbar.core;
 
 type
