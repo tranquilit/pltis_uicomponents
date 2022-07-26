@@ -90,7 +90,9 @@ type
     procedure Assign(aSource: TPersistent); override;
   published
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
+    /// it will be use to naming the Popup in the list
     property Category: string read fCategory write fCategory;
+    /// an optional ImageIndex that will be used in the list
     property ImageIndex: Integer read fImageIndex write fImageIndex;
   end;
 
