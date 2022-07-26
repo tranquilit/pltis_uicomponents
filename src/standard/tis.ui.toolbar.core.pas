@@ -154,7 +154,7 @@ type
     // ------------------------------- new methods ----------------------------------
     /// add a new button related to an action
     function AddButton(const aCaption: string; aStyle: TToolButtonStyle;
-      aAction: TAction; aPopupMenu: TPopupMenu = nil): TToolButton; overload;
+      aImageIndex: Integer; aAction: TAction; aPopupMenu: TPopupMenu): TToolButton; overload;
     procedure RemoveButton(aButton: TToolButton); overload; virtual;
     /// remove all buttons
     procedure RemoveButtons;
@@ -408,7 +408,8 @@ begin
     vObj := _ObjFast([
       'caption', vButton.Caption,
       'left', vButton.Left,
-      'style', vButton.Style
+      'style', vButton.Style,
+      'imageindex', vButton.ImageIndex
     ]);
     vAction := vButton.Action as TAction;
     if Assigned(vAction) and
@@ -462,7 +463,7 @@ begin
         vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
       else
         vPopup := nil;
-      AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vAction, vPopup);
+      AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vObj^.I['imageindex'], vAction, vPopup);
     end;
   except
     // shows exception only in designtime
@@ -505,7 +506,7 @@ begin
 end;
 
 function TTisToolBar.AddButton(const aCaption: string;
-  aStyle: TToolButtonStyle; aAction: TAction; aPopupMenu: TPopupMenu): TToolButton;
+  aStyle: TToolButtonStyle; aImageIndex: Integer; aAction: TAction; aPopupMenu: TPopupMenu): TToolButton;
 begin
   result := TToolButton.Create(self);
   with result do
@@ -518,7 +519,9 @@ begin
     Left := Parent.Width;
     DropdownMenu := aPopupMenu;
     if aAction <> nil then
-      ImageIndex := aAction.ImageIndex;
+      ImageIndex := aAction.ImageIndex
+    else
+      ImageIndex := aImageIndex;
   end;
 end;
 
