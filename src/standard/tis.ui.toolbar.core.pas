@@ -446,8 +446,7 @@ var
   vObjAction, vObjPopup: PVariant;
 begin
   if (csDesigning in ComponentState) or
-   (GetSessionValues = aValue) or
-   (Actions.Count = 0) then
+   (GetSessionValues = aValue) then
     exit;
   RemoveButtons;
   try
@@ -518,6 +517,8 @@ begin
     AutoSize := True;
     Left := Parent.Width;
     DropdownMenu := aPopupMenu;
+    if aAction <> nil then
+      ImageIndex := aAction.ImageIndex;
   end;
 end;
 
