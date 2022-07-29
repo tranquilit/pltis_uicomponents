@@ -107,7 +107,8 @@ type
     procedure LoadData; virtual;
     /// it will refresh the search
     // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
-    procedure RefreshSearch; virtual;
+    // - if aForceDelayed=TRUE it will enable the timer even if AutoSearch=FALSE
+    procedure RefreshSearch(aForceDelayed : Boolean = False); virtual;
     /// it will sort Items and Data by LookupDisplayField
     procedure Sort; virtual;
     // ------------------------------- new properties ----------------------------------
@@ -394,10 +395,10 @@ begin
     Items.Add(vObj^.S[StringToUtf8(fLookupDisplayField)]);
 end;
 
-procedure TTisSearchEdit.RefreshSearch;
+procedure TTisSearchEdit.RefreshSearch(aForceDelayed : Boolean);
 begin
   fTimer.Enabled := False;
-  if fAutoSearch then
+  if fAutoSearch or aForceDelayed then
     fTimer.Enabled := True
   else
     Search;
