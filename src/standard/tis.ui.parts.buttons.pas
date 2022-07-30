@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.parts.buttons;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 interface
 

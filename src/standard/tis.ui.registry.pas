@@ -5,9 +5,8 @@
 // ------------------------------------------------------------------
 unit tis.ui.registry;
 
-{$mode objfpc}{$H+}
-{$modeswitch ADVANCEDRECORDS}
-{$modeswitch typehelpers}
+{$i tis.ui.defines.inc}
+
 interface
 
 uses
@@ -26,6 +25,7 @@ uses
   tis.ui.toolbar.core,
   tis.ui.toolbar.editor,
   tis.ui.togglebutton,
+  tis.ui.synedit,
   tis.ui.syncontroledit,
   tis.ui.lvlgraphcontrol;
 
@@ -37,7 +37,7 @@ procedure Register;
 begin
   RegisterComponents('Tranquil IT', [
     TTisGrid, TTisGridHeaderPopupMenu, TTisTagEditor,
-    TTisSearchEdit, TTisToolBar, TTisToggleButton,
+    TTisSearchEdit, TTisToolBar, TTisToggleButton, TTisSynEdit,
     TTisControlSynEditor, TTisLvlGraphControl]);
   RegisterComponentEditor(TTisGrid, TTisGridComponentEditor);
   RegisterComponentEditor(TTisToolBar, TTisToolBarComponentEditor);

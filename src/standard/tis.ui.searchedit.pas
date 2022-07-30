@@ -5,9 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.searchedit;
 
-{$mode objfpc}{$H+}
-{$modeswitch ADVANCEDRECORDS}
-{$modeswitch typehelpers}
+{$i tis.ui.defines.inc}
 
 interface
 

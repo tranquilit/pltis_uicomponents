@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.togglebutton;
 
-{$mode objfpc}{$H+}
+{$i tis.ui.defines.inc}
 
 interface
 

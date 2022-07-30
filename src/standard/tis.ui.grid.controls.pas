@@ -5,6 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.grid.controls;
 
+{.$i tis.ui.defines.inc}
 {$i mormot.defines.inc}
 
 interface

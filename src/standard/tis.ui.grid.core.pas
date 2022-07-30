@@ -5,9 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.grid.core;
 
-{.$i mormot.defines.inc}
-{$mode objfpc}{$H+}
-
+{$i tis.ui.defines.inc}
 
 interface
 

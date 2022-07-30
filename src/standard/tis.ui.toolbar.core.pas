@@ -5,9 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.toolbar.core;
 
-{$mode objfpc}{$H+}
-{$modeswitch ADVANCEDRECORDS}
-{$modeswitch typehelpers}
+{$i tis.ui.defines.inc}
 
 interface
 

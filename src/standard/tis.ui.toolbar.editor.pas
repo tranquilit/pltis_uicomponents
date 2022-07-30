@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit tis.ui.toolbar.editor;
 
-{$mode objfpc}{$H+}
+{$i tis.ui.defines.inc}
 
 interface
 

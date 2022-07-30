@@ -5,9 +5,8 @@
 // ------------------------------------------------------------------
 unit tis.core.os;
 
-{$mode objfpc}{$H+}
-{$modeswitch ADVANCEDRECORDS}
-{$modeswitch typehelpers}
+{$i tis.ui.defines.inc}
+
 interface
 
 uses

@@ -4,7 +4,7 @@
 
 unit tis.ui.tageditor.core;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 interface
 
@@ -928,10 +928,10 @@ begin
   result.BorderStyle := bsNone;
   result.Visible := False;
   result.BorderWidth := 0;
-  result.OnKeyPress := ComboBoxKeyPress;
-  result.OnEnter := ComboBoxEnter;
-  result.OnExit := ComboBoxExit;
-  result.OnEditingDone := ComboBoxEditingDone;
+  result.OnKeyPress := @ComboBoxKeyPress;
+  result.OnEnter := @ComboBoxEnter;
+  result.OnExit := @ComboBoxExit;
+  result.OnEditingDone := @ComboBoxEditingDone;
 end;
 
 function TTisTagEditor.NewPopupMenu: TPopupMenu;
@@ -941,7 +941,7 @@ begin
   result := TPopupMenu.Create(Self);
   vMenuItem := TMenuItem.Create(PopupMenu);
   vMenuItem.Caption := 'Delete';
-  vMenuItem.OnClick := DoPopupMenuDeleteItem;
+  vMenuItem.OnClick := @DoPopupMenuDeleteItem;
   vMenuItem.Hint := 'Delete selected tag.';
   result.Items.Add(vMenuItem);
 end;

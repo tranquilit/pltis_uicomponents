@@ -1,6 +1,6 @@
 unit tis.ui.syncontroledit;
 
-{$mode objfpc}{$H+}
+{$i tis.ui.defines.inc}
 
 interface
 
