@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 program demo;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 uses
   interfaces, // this includes the LCL widgetset

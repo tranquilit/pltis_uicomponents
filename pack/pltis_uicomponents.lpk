@@ -148,6 +148,7 @@
       </Item6>
     </RequiredPkgs>
     <UsageOptions>
+      <IncludePath Value="$(PkgIncPath)"/>
       <UnitPath Value="$(PkgOutDir)"/>
     </UsageOptions>
     <PublishOptions>
