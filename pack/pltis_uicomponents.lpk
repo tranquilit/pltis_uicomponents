@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="4">
+  <Package Version="5">
     <PathDelim Value="\"/>
     <Name Value="pltis_uicomponents"/>
     <Type Value="RunAndDesignTime"/>
@@ -122,6 +122,7 @@
         <UnitName Value="tis.ui.synedit"/>
       </Item23>
     </Files>
+    <CompatibilityMode Value="True"/>
     <i18n>
       <EnableI18N Value="True"/>
       <OutDir Value="..\languages"/>
@@ -129,7 +130,7 @@
     </i18n>
     <RequiredPkgs Count="6">
       <Item1>
-        <PackageName Value="DateTimeCtrlsDsgn"/>
+        <PackageName Value="DateTimeCtrls"/>
       </Item1>
       <Item2>
         <PackageName Value="SynEdit"/>

@@ -10,7 +10,7 @@ msgid "Collapse all"
 msgstr ""
 
 #: tis.ui.grid.core.rsconfdeleterow
-#| msgid "Confirm the deletion of selected rows ?"
+#, object-pascal-format
 msgid "Confirm the deletion of the %d selected rows ?"
 msgstr "Confirmer la suppression des %d lignes sélectionnées ?"
 
@@ -79,6 +79,7 @@ msgid "Insert"
 msgstr "Insérer"
 
 #: tis.ui.grid.core.rsnorecordfind
+#, object-pascal-format
 msgid "No more record found for \"%s\""
 msgstr "Pas d'autre enregistrement trouvé pour \"%s\""
 

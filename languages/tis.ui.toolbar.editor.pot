@@ -1,0 +1,19 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: tis.ui.toolbar.editor.rstoolbaravailablecommands
+msgid "Available commands"
+msgstr ""
+
+#: tis.ui.toolbar.editor.rstoolbarcommands
+msgid "Toolbar commands"
+msgstr ""
+
+#: tis.ui.toolbar.editor.rstoolbarconfiguration
+msgid "Toolbar Configuration"
+msgstr ""
+
+#: tis.ui.toolbar.editor.rstoolbarrestore
+msgid "Restore"
+msgstr ""
+

@@ -25,7 +25,6 @@ uses
   Dialogs,
   ExtCtrls,
   Buttons,
-  EditBtn,
   DateTimePicker,
   Spin,
   CheckBoxThemed,
