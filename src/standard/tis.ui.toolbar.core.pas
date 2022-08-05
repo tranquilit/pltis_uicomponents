@@ -45,6 +45,9 @@ type
     procedure SetHiddenCategories(aValue: TStrings);
     procedure SetList(aValue: TActionList);
   protected
+    // ------------------------------- inherited methods ----------------------------
+    function GetDisplayName: string; override;
+    // ------------------------------- new methods ----------------------------------
     function GetActions: TTisActionsCollection;
   public
     // ------------------------------- inherited methods ----------------------------
@@ -59,14 +62,11 @@ type
   end;
 
   /// actions collection
-  TTisActionsCollection = class(TCollection)
+  TTisActionsCollection = class(TOwnedCollection)
   private
     fControl: TWinControl;
     function GetItems(aIndex: Integer): TTisActionsItem;
     procedure SetItems(aIndex: Integer; aValue: TTisActionsItem);
-  protected
-    // ------------------------------- inherited methods ----------------------------
-    function GetOwner: TPersistent; override;
   public
     constructor Create(aControl: TWinControl); reintroduce;
     // ------------------------------- new methods ----------------------------------
@@ -86,6 +86,9 @@ type
     // ------------------------------- new methods ----------------------------------
     procedure SetPopupMenu(aValue: TPopupMenu);
   protected
+    // ------------------------------- inherited methods ----------------------------
+    function GetDisplayName: string; override;
+    // ------------------------------- new methods ----------------------------------
     function GetPopupMenus: TTisPopupMenusCollection;
   public
     // ------------------------------- inherited methods ----------------------------
@@ -102,15 +105,12 @@ type
   end;
 
   /// popup menus collection
-  TTisPopupMenusCollection = class(TCollection)
+  TTisPopupMenusCollection = class(TOwnedCollection)
   private
     fControl: TWinControl;
     // ------------------------------- new methods ----------------------------------
     function GetItems(aIndex: Integer): TTisPopupMenusItem;
     procedure SetItems(aIndex: Integer; aValue: TTisPopupMenusItem);
-  protected
-    // ------------------------------- inherited methods ----------------------------
-    function GetOwner: TPersistent; override;
   public
     constructor Create(aControl: TWinControl); reintroduce;
     // ------------------------------- new methods ----------------------------------
@@ -202,8 +202,16 @@ begin
   if fList = aValue then
     exit;
   fList := aValue;
-  if fList <> nil then
+  if Assigned(fList) then
     fList.FreeNotification(GetActions.GetToolBar);
+end;
+
+function TTisActionsItem.GetDisplayName: string;
+begin
+  if Assigned(List) then
+    result := '[' + List.Name + ']'
+  else
+    result := inherited GetDisplayName;
 end;
 
 function TTisActionsItem.GetActions: TTisActionsCollection;
@@ -246,14 +254,9 @@ begin
   Items[aIndex].Assign(aValue);
 end;
 
-function TTisActionsCollection.GetOwner: TPersistent;
-begin
-  result := fControl;
-end;
-
 constructor TTisActionsCollection.Create(aControl: TWinControl);
 begin
-  inherited Create(TTisActionsItem);
+  inherited Create(aControl, TTisActionsItem);
   fControl := aControl;
 end;
 
@@ -289,12 +292,22 @@ begin
   if fPopupMenu = aValue then
     exit;
   fPopupMenu := aValue;
-  if fCategory = '' then
-    fCategory := fPopupMenu.Name;
-  if fCategory = fPopupMenu.Name then // try to beautify the original component name
-    fCategory := Utf8ToString(UnCamelCase(StringToUtf8(fCategory)));
-  if fPopupMenu <> nil then
+  if Assigned(fPopupMenu) then
+  begin
     fPopupMenu.FreeNotification(GetPopupMenus.GetToolBar);
+    if fCategory = '' then
+      fCategory := fPopupMenu.Name;
+    if fCategory = fPopupMenu.Name then // try to beautify the original component name
+      fCategory := Utf8ToString(UnCamelCase(StringToUtf8(fCategory)));
+  end;
+end;
+
+function TTisPopupMenusItem.GetDisplayName: string;
+begin
+  if Assigned(PopupMenu) then
+    result := '[' + PopupMenu.Name + ']'
+  else
+    result := inherited GetDisplayName;
 end;
 
 function TTisPopupMenusItem.GetPopupMenus: TTisPopupMenusCollection;
@@ -336,14 +349,9 @@ begin
   Items[aIndex].Assign(aValue);
 end;
 
-function TTisPopupMenusCollection.GetOwner: TPersistent;
-begin
-  result := fControl;
-end;
-
 constructor TTisPopupMenusCollection.Create(aControl: TWinControl);
 begin
-  inherited Create(TTisPopupMenusItem);
+  inherited Create(aControl, TTisPopupMenusItem);
   fControl := aControl;
 end;
 
