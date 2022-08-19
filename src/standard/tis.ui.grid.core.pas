@@ -100,8 +100,8 @@ type
     fNode: PVirtualNode;
     fColumn: Integer;
   protected
-    procedure EditKeyDown({%H-}aSender: TObject; var Key: Word; Shift: TShiftState); virtual;
-    procedure EditExit({%H-}aSender: TObject); virtual;
+    procedure EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState); virtual;
+    procedure EditExit(aSender: TObject); virtual;
     procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for the column
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
@@ -515,13 +515,13 @@ type
     function DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
     procedure DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
-      const aXProportion, {%H-}aYProportion: Double); override;
+      const aXProportion, aYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
     function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
     /// standard menu management
-    procedure FillPopupMenu({%H-}aSender: TObject);
+    procedure FillPopupMenu(aSender: TObject);
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(aSender: TObject);
     /// add aData into Data property
@@ -530,25 +530,25 @@ type
     function Add(aData: PDocVariantData): Boolean;
     function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
       aRow2: PDocVariantData): PtrInt; virtual;
-    procedure DoFindText({%H-}aSender: TObject);
-    procedure DoFindNext({%H-}aSender: TObject);
-    procedure DoFindReplace({%H-}aSender: TObject);
-    procedure DoUndoLastUpdate({%H-}aSender: TObject); virtual;
-    procedure DoRevertRecord({%H-}aSender: TObject); virtual;
-    procedure DoExport({%H-}aSender: TObject); virtual;
+    procedure DoFindText(aSender: TObject);
+    procedure DoFindNext(aSender: TObject);
+    procedure DoFindReplace(aSender: TObject);
+    procedure DoUndoLastUpdate(aSender: TObject); virtual;
+    procedure DoRevertRecord(aSender: TObject); virtual;
+    procedure DoExport(aSender: TObject); virtual;
     procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
-    procedure DoCopyToClipboard({%H-}aSender: TObject); virtual;
-    procedure DoCopyCellToClipboard({%H-}aSender: TObject); virtual;
-    procedure DoCopySpecialToClipboard({%H-}aSender: TObject); virtual;
+    procedure DoCopyToClipboard(aSender: TObject); virtual;
+    procedure DoCopyCellToClipboard(aSender: TObject); virtual;
+    procedure DoCopySpecialToClipboard(aSender: TObject); virtual;
     procedure DoCutToClipboard(aSender: TObject); virtual;
-    procedure DoDeleteRows({%H-}aSender: TObject); virtual;
-    procedure DoPaste({%H-}aSender: TObject); virtual;
-    procedure DoSelectAllRows({%H-}aSender: TObject); virtual;
-    procedure DoPrint({%H-}aSender: TObject); virtual;
-    procedure DoCustomizeColumns({%H-}aSender: TObject); virtual;
-    procedure DoAdvancedCustomizeColumns({%H-}aSender: TObject); virtual;
-    procedure DoExpandAll({%H-}aSender: TObject); virtual;
-    procedure DoCollapseAll({%H-}aSender: TObject); virtual;
+    procedure DoDeleteRows(aSender: TObject); virtual;
+    procedure DoPaste(aSender: TObject); virtual;
+    procedure DoSelectAllRows(aSender: TObject); virtual;
+    procedure DoPrint(aSender: TObject); virtual;
+    procedure DoCustomizeColumns(aSender: TObject); virtual;
+    procedure DoAdvancedCustomizeColumns(aSender: TObject); virtual;
+    procedure DoExpandAll(aSender: TObject); virtual;
+    procedure DoCollapseAll(aSender: TObject); virtual;
     /// performs OnCustonEditor event, if it was assigned
     procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl); virtual;
     /// performs OnEditorLookup event, if it was assigned
@@ -643,7 +643,7 @@ type
     procedure Customize;
     /// source events handling
     procedure NotifyChange(aEventType: TTisDataEvent; aRow: PDocVariantData;
-      const {%H-}aOldValues, {%H-}aNewValues: TDocVariantData);
+      const aOldValues, aNewValues: TDocVariantData);
     /// add columns based on Data content
     procedure CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
     /// export Data to CSV format

@@ -102,7 +102,7 @@ type
     GridMetaDataSetMenuItem: TMenuItem;
     GridMetaDataGetMenuItem: TMenuItem;
     GridSearchEdit: TTisSearchEdit;
-    function GridCompareByRow({%H-}aSender: TTisGrid; const aPropertyName: RawUtf8;
+    function GridCompareByRow(aSender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
