@@ -484,8 +484,6 @@ type
     DefaultCsvSeparator: string;
     // ------------------------------- inherited methods ---------------------------
     procedure Loaded; override;
-    function GetPopupMenu: TPopupMenu; override;
-    procedure SetPopupMenu(aValue: TPopupMenu); // it should be virtual and protected on TControl class
     procedure WndProc(var Message: TLMessage); override;
     /// after cell editing to set Data
     procedure DoNewText(aNode: PVirtualNode; aColumn: TColumnIndex;
@@ -521,6 +519,7 @@ type
     property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
     /// standard menu management
+    procedure SetupPopupMenu; virtual;
     procedure FillPopupMenu(aSender: TObject);
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(aSender: TObject);
@@ -748,7 +747,7 @@ type
     property ParentColor default False;
     property ParentFont;
     property ParentShowHint;
-    property PopupMenu read GetPopupMenu write SetPopupMenu;
+    property PopupMenu;
     property ScrollBarOptions;
     property SelectionBlendFactor;
     property SelectionCurveRadius;
@@ -2156,26 +2155,8 @@ procedure TTisGrid.Loaded;
 begin
   inherited Loaded;
   if not (csDesigning in ComponentState) then
-    FillPopupMenu(PopupMenu);
+    SetupPopupMenu;
   fDefaultSettings := GetSettings;
-end;
-
-function TTisGrid.GetPopupMenu: TPopupMenu;
-begin
-  result := inherited GetPopupMenu;
-end;
-
-procedure TTisGrid.SetPopupMenu(aValue: TPopupMenu);
-begin
-  inherited PopupMenu := aValue;
-  if Assigned(PopupMenu) then
-  begin
-    if not (csDesigning in ComponentState) then
-    begin
-      fPopupOrigEvent := PopupMenu.OnPopup;
-      PopupMenu.OnPopup := @FillPopupMenu;
-    end;
-  end;
 end;
 
 // hack to allow right click menu on header popup menu  and different popup menu on rows
@@ -2464,6 +2445,15 @@ end;
 function TTisGrid.GetHeaderClass: TVTHeaderClass;
 begin
   result := TTisGridHeader;
+end;
+
+procedure TTisGrid.SetupPopupMenu;
+begin
+  if not Assigned(PopupMenu) then
+    PopupMenu := TPopupMenu.Create(self)
+  else
+    fPopupOrigEvent := PopupMenu.OnPopup;
+  PopupMenu.OnPopup := @FillPopupMenu;
 end;
 
 procedure TTisGrid.FillPopupMenu(aSender: TObject);
