@@ -100,6 +100,8 @@ type
     fNode: PVirtualNode;
     fColumn: Integer;
   protected
+    /// disable control events, especially OnExit, to prevents a GPF
+    procedure DisableControlEvents;
     procedure EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure EditExit(aSender: TObject); virtual;
     procedure SetupControlClasses; virtual;
@@ -1041,6 +1043,11 @@ end;
 
 { TTisGridEditLink }
 
+procedure TTisGridEditLink.DisableControlEvents;
+begin
+  fControl.SetOnExit(nil);
+end;
+
 procedure TTisGridEditLink.EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState);
 var
   vCanAdvance: Boolean;
@@ -1050,7 +1057,7 @@ begin
     VK_ESCAPE:
       if vCanAdvance then
       begin
-        fControl.Internal.OnExit := nil; // prevents an Access Violation
+        DisableControlEvents;
         fGrid.SetFocusSafe; // needed if grid.parent is a Frame
         fGrid.CancelEditNode;
         Key := 0;
@@ -1149,6 +1156,7 @@ end;
 function TTisGridEditLink.CancelEdit: Boolean; stdcall;
 begin
   result := True;
+  DisableControlEvents;
   fControl.Internal.Hide;
 end;
 
@@ -1160,6 +1168,7 @@ var
   vCur, vNew: Variant;
 begin
   result := True;
+  DisableControlEvents;
   vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
   vAborted := False;
