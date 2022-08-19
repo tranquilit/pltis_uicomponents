@@ -267,7 +267,7 @@ type
   end;
 
   /// a custom implementation for String Tree Options
-  TTisStringTreeOptions = class(TCustomStringTreeOptions)
+  TTisStringTreeOptions = class(TStringTreeOptions)
   protected
     const DefaultPaintOptions = VirtualTrees.DefaultPaintOptions -
       [toShowRoot] + [toAlwaysHideSelection, toShowHorzGridLines, toShowVertGridLines, toHideFocusRect];
@@ -462,8 +462,8 @@ type
     procedure SetFocusedColumnObject(aValue: TTisGridColumn);
     procedure SetFocusedRow(aValue: PDocVariantData);
     procedure SetOnCutToClipboard(aValue: TNotifyEvent);
-    function GetOptions: TStringTreeOptions;
-    procedure SetOptions(const aValue: TStringTreeOptions);
+    function GetTreeOptions: TTisStringTreeOptions;
+    procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
     function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
@@ -761,8 +761,8 @@ type
     // ------------------------------- new properties ------------------------------
     property SelectedAndTotalLabel: TLabel
       read fSelectedAndTotalLabel write SetSelectedAndTotalLabel;
-    property TreeOptions: TStringTreeOptions
-      read GetOptions write SetOptions;
+    property TreeOptions: TTisStringTreeOptions
+      read GetTreeOptions write SetTreeOptions;
     property KeyFieldsList: TStringDynArray
       read fKeyFieldsList;
     property KeyFieldsNames: string
@@ -1962,12 +1962,12 @@ begin
   fOnCutToClipboard := aValue;
 end;
 
-function TTisGrid.GetOptions: TStringTreeOptions;
+function TTisGrid.GetTreeOptions: TTisStringTreeOptions;
 begin
-  result := TStringTreeOptions(inherited TreeOptions);
+  result := TTisStringTreeOptions(inherited TreeOptions);
 end;
 
-procedure TTisGrid.SetOptions(const aValue: TStringTreeOptions);
+procedure TTisGrid.SetTreeOptions(const aValue: TTisStringTreeOptions);
 begin
   TreeOptions.Assign(aValue);
 end;
