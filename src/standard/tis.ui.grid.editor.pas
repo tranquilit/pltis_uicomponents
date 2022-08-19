@@ -24,10 +24,8 @@ uses
   ActnList,
   Menus,
   Buttons,
-  Messages,
   MaskEdit,
   LCLType,
-  EditBtn,
   ComCtrls,
   Spin,
   ComponentEditors,
@@ -200,7 +198,7 @@ var
   vCol : TTisGridColumn;
 begin
   vCol :=  TTisGridColumn(Grid.Header.Columns.Add);
-  vCol.Text := 'vCol ' + IntToStr(vCol.Index);
+  vCol.Text := 'Col ' + IntToStr(vCol.Index);
   vCol.PropertyName := 'column' + IntToStr(vCol.Index);
   Grid.FocusedColumn := vCol.Index;
   AddFakeDataIfNeedIt;
