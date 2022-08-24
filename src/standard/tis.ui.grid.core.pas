@@ -522,7 +522,7 @@ type
     // ----------------------------------- new methods -----------------------------
     /// standard menu management
     procedure SetupPopupMenu; virtual;
-    procedure FillPopupMenu(aSender: TObject);
+    procedure DoPopupMenu(aSender: TObject);
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(aSender: TObject);
     /// add aData into Data property
@@ -2462,10 +2462,10 @@ begin
     PopupMenu := TPopupMenu.Create(self)
   else
     fPopupOrigEvent := PopupMenu.OnPopup;
-  PopupMenu.OnPopup := @FillPopupMenu;
+  PopupMenu.OnPopup := @DoPopupMenu;
 end;
 
-procedure TTisGrid.FillPopupMenu(aSender: TObject);
+procedure TTisGrid.DoPopupMenu(aSender: TObject);
 
   procedure _RemoveAutoItems;
   var
