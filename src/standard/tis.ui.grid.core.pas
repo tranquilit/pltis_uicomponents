@@ -436,15 +436,6 @@ type
     fOnPrepareEditor: TOnGridPrepareEditor;
     fOnEditValidated: TOnGridEditValidated;
     fOnGridExportCustomContent: TOnGridExportCustomContent;
-    // ------------------------------- HMENU ---------------------------------------
-    HMUndo, HMRevert: HMENU;
-    HMFind, HMFindNext, HMReplace: HMENU;
-    HMCut, HMCopy, HMCopyCell, HMCopySpecial, HMPaste, HMFindReplace: HMENU;
-    HMInsert, HMDelete, HMSelAll: HMENU;
-    HMExport, HMPrint: HMENU;
-    HMCollAll, HMExpAll: HMENU;
-    HMCustomize: HMENU;
-    HMAdvancedCustomize: HMENU;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -2476,8 +2467,8 @@ procedure TTisGrid.DoPopupMenu(aSender: TObject);
         PopupMenu.Items.Delete(i);
   end;
 
-  function _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
-    aEnabled: Boolean = True): HMENU;
+  procedure _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
+    aEnabled: Boolean = True);
   var
     vMenuItem: TMenuItem;
   begin
@@ -2496,7 +2487,6 @@ procedure TTisGrid.DoPopupMenu(aSender: TObject);
       end;
       PopupMenu.Items.Add(vMenuItem);
     end;
-    result := vMenuItem.Handle;
   end;
 
 begin
@@ -2508,48 +2498,47 @@ begin
   if (PopupMenu.Items.Count > 0) then
     _AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
-    HMFind := _AddItem(rsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
+    _AddItem(rsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
   if pmoShowFindNext in fPopupMenuOptions then
-    HMFindNext := _AddItem(rsFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
-  {HMFindReplace := _AddItem(rsFindReplace, ShortCut(Ord('H'), [ssCtrl]),
-    @DoFindReplace);}
+    _AddItem(rsFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
+  {_AddItem(rsFindReplace, ShortCut(Ord('H'), [ssCtrl]), @DoFindReplace);}
   _AddItem('-', 0, nil);
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipboard) then
-    HMCut := _AddItem(rsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
+    _AddItem(rsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
   if pmoShowCopy in fPopupMenuOptions then
-    HMCopy := _AddItem(rsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
+    _AddItem(rsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
   if pmoShowCopyCell in fPopupMenuOptions then
-    HMCopyCell := _AddItem(rsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
+    _AddItem(rsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
   if pmoShowCopySpecial in fPopupMenuOptions then
-    HMCopySpecial := _AddItem(rsCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
+    _AddItem(rsCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
-    HMPaste := _AddItem(rsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
+    _AddItem(rsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
   _AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) then
-    HMDelete := _AddItem(rsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
+    _AddItem(rsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    HMSelAll := _AddItem(rsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
+    _AddItem(rsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
   _AddItem('-', 0, nil);
   if pmoShowExport in fPopupMenuOptions then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
-      HMExport := _AddItem(rsExportSelected, 0, @DoExport, not fData.IsVoid)
+      _AddItem(rsExportSelected, 0, @DoExport, not fData.IsVoid)
     else
-      HMExport := _AddItem(rsExportAll, 0, @DoExport, not fData.IsVoid);
+      _AddItem(rsExportAll, 0, @DoExport, not fData.IsVoid);
   end;
   {if (HMPrint = 0) then
-    HMPrint := _AddItem(rsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
+    _AddItem(rsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
   _AddItem('-', 0, nil);
-  HMExpAll := _AddItem(rsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
+  _AddItem(rsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
     @DoExpandAll);
-  HMCollAll := _AddItem(rsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
+  _AddItem(rsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
     @DoCollapseAll);}
   _AddItem('-', 0, nil);
   if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
-    HMCustomize := _AddItem(rsCustomizeColumns, 0, @DoCustomizeColumns);
+    _AddItem(rsCustomizeColumns, 0, @DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
-    HMAdvancedCustomize := _AddItem(rsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
+    _AddItem(rsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;
