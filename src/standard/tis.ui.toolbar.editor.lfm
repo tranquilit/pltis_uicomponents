@@ -12,7 +12,7 @@ object TisToolBarEditor: TTisToolBarEditor
   OnCreate = FormCreate
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '2.3.0.0'
   object lblMenuTree: TLabel
     AnchorSideLeft.Control = TV
     AnchorSideLeft.Side = asrCenter
@@ -24,6 +24,7 @@ object TisToolBarEditor: TTisToolBarEditor
     BorderSpacing.Top = 6
     BorderSpacing.Bottom = 6
     Caption = 'lblMenuTree'
+    Color = clDefault
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
@@ -38,6 +39,7 @@ object TisToolBarEditor: TTisToolBarEditor
     Width = 54
     BorderSpacing.Bottom = 6
     Caption = 'lblToolbar'
+    Color = clDefault
     Font.Style = [fsBold]
     ParentColor = False
     ParentFont = False
@@ -326,7 +328,6 @@ object TisToolBarEditor: TTisToolBarEditor
     SortType = stData
     TabOrder = 3
     ViewStyle = vsReport
-    OnCompare = lvToolbarCompare
     OnDblClick = lvToolbarDblClick
     OnEnter = lvToolbarEnterExit
     OnExit = lvToolbarEnterExit

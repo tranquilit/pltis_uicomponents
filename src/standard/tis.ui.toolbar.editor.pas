@@ -69,8 +69,6 @@ type
     procedure FormCloseQuery(Sender: TObject; var {%H-}CanClose: boolean);
     procedure ToolBarRestoreButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure lvToolbarCompare(Sender: TObject; Item1, Item2: TListItem;
-      Data: Integer; var Compare: Integer);
   private
     fTarget: TTisToolBar;
     fDesigner: TComponentEditorDesigner;
@@ -241,9 +239,15 @@ begin
       end;
     finally
       fTarget.EndUpdate;
-      fTarget.Invalidate;
       if IsDesignTime then
+      begin
         fDesigner.Modified;
+        // get new default values
+        fTarget.DefaultSessionValues := fTarget.SessionValues;
+        // force to use new values from DefaultSessionValues
+        fTarget.SessionValues := '';
+        fTarget.Invalidate;
+      end;
     end;
   end;
 end;
@@ -257,16 +261,6 @@ end;
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
 begin
   ToolBarRestoreButton.Visible := not IsDesignTime;
-end;
-
-procedure TTisToolBarEditor.lvToolbarCompare(Sender: TObject; Item1,
-  Item2: TListItem; Data: Integer; var Compare: Integer);
-var
-  vLeft, vRight: Integer;
-begin
-  vLeft := TSharedData(Item1.Data).Button.Left;
-  vRight := TSharedData(Item2.Data).Button.Left;
-  Compare := CompareStr(vLeft.ToString, vRight.ToString);
 end;
 
 procedure TTisToolBarEditor.InsertItem(aItem: TListItem);
@@ -618,7 +612,6 @@ begin
   end;
   for i := 0 to fTarget.ButtonCount -1 do
     AddListViewItem(fTarget.Buttons[i]);
-  lvToolbar.Sort; // sort by Button.Left following original design
 end;
 
 function TTisToolBarEditor.FindTreeViewNodeBy(aAction: TAction): TTreeNode;

@@ -173,6 +173,7 @@ type
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
+    property DefaultSessionValues: string read fDefaultSessionValues write fDefaultSessionValues;
   published
     // ------------------------------- new properties -------------------------------
     property Actions: TTisActionsCollection read fActions write fActions;
