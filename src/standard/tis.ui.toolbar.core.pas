@@ -173,6 +173,8 @@ type
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
+    /// it keeps SessionValues from original design
+    // - used by Editor, when in design time
     property DefaultSessionValues: string read fDefaultSessionValues write fDefaultSessionValues;
   published
     // ------------------------------- new properties -------------------------------
@@ -486,9 +488,7 @@ begin
       AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vObj^.I['imageindex'], vAction, vPopup);
     end;
   except
-    // shows exception only in designtime
-    if csDesigning in ComponentState then
-      Application.HandleException(self)
+    RestoreSession;
   end;
 end;
 
