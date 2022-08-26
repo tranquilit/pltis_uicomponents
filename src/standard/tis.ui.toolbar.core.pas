@@ -191,7 +191,7 @@ type
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
     /// event that will fire after the session has changed
     // - you can use it to fix some buttons, popup, actions, or properties in general
-    // that maybe was not exists in the SessionValues user machine
+    // that maybe did not exist in the SessionValues user machine
     property OnSessionChange: TOnSessionChange read fOnSessionChange write fOnSessionChange;
   end;
 
