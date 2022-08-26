@@ -110,6 +110,7 @@ object ToolBarFrame: TToolBarFrame
     Top = 38
     Width = 75
     Caption = 'Session Values'
+    Color = clDefault
     ParentColor = False
   end
   object ActionList: TActionList

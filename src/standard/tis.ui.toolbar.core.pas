@@ -139,14 +139,19 @@ type
 
   TTisEditorOptions = set of TTisEditorOption;
 
+  TOnSessionChange = procedure(aSender: TTisToolBar; aVersion: Integer) of object;
+
   TTisToolBar = class(TToolBar)
   private
     fActions: TTisActionsCollection;
     fPopupMenus: TTisPopupMenusCollection;
     fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
+    fOnSessionChange: TOnSessionChange;
+    fSessionVersion: Integer;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
+    const DefaultSessionVersion = 1;
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
@@ -157,6 +162,7 @@ type
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
+    procedure DoSessionChange(aVersion: Integer);
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -182,6 +188,11 @@ type
     property PopupMenus: TTisPopupMenusCollection read fPopupMenus write fPopupMenus;
     property EditorOptions: TTisEditorOptions read fEditorOptions write fEditorOptions default DefaultEditorOptions;
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
+    property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
+    /// event that will fire after the session has changed
+    // - you cans use it to fix some buttons, popup, actions, or properties in general
+    // that maybe was not exists in the SessionValues user machine
+    property OnSessionChange: TOnSessionChange read fOnSessionChange write fOnSessionChange;
   end;
 
 implementation
@@ -417,13 +428,13 @@ end;
 function TTisToolBar.GetSessionValues: string;
 var
   i: Integer;
-  vDoc: TDocVariantData;
+  vDoc, vDocButtons: TDocVariantData;
   vAction: TAction;
   vButton: TToolButton;
   vObj: Variant;
   vPopup: TPopupMenu;
 begin
-  vDoc.InitArray([], JSON_FAST_FLOAT);
+  vDocButtons.InitArray([], JSON_FAST_FLOAT);
   for i := 0 to ButtonCount -1 do
   begin
     vButton := Buttons[i];
@@ -452,11 +463,14 @@ begin
         'name', vPopup.Name
       ]);
     end;
-    vDoc.AddItem(vObj);
+    vDocButtons.AddItem(vObj);
   end;
   // by default, the original list order is added by instance not by design
   // - session needs to save buttons by design order
-  vDoc.SortArrayByField('left');
+  vDocButtons.SortArrayByField('left');
+  vDoc.InitFast;
+  vDoc.I['version'] := fSessionVersion;
+  vDoc.A_['buttons']^ := vDocButtons;
   result := Utf8ToString(vDoc.ToJson);
 end;
 
@@ -474,19 +488,29 @@ begin
   RemoveButtons;
   try
     if not vDoc.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
-      vDoc.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT); // use default values, if aValue is invalid
-    for vObj in vDoc.Objects do
     begin
-      if vObj^.GetAsPVariant('action', vObjAction) then
-        vAction := Actions.LocateAction(vObjAction^.owner, vObjAction^.list, vObjAction^.name)
-      else
-        vAction := nil;
-      if vObj^.GetAsPVariant('popup', vObjPopup) then
-        vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
-      else
-        vPopup := nil;
-      AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vObj^.I['imageindex'], vAction, vPopup);
+      // use default values, if aValue is invalid
+      vDoc.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT);
     end;
+    if vDoc.I['version'] < DefaultSessionVersion then
+    begin
+      // old session there is no version
+      RestoreSession;
+    end
+    else
+      for vObj in vDoc.A_['buttons']^.Objects do
+      begin
+        if vObj^.GetAsPVariant('action', vObjAction) then
+          vAction := Actions.LocateAction(vObjAction^.owner, vObjAction^.list, vObjAction^.name)
+        else
+          vAction := nil;
+        if vObj^.GetAsPVariant('popup', vObjPopup) then
+          vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
+        else
+          vPopup := nil;
+        AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vObj^.I['imageindex'], vAction, vPopup);
+      end;
+    DoSessionChange(vDoc.I['version']);
   except
     RestoreSession;
   end;
@@ -523,6 +547,12 @@ end;
 procedure TTisToolBar.ShowEditorCallback(aSender: TObject);
 begin
   ShowEditor;
+end;
+
+procedure TTisToolBar.DoSessionChange(aVersion: Integer);
+begin
+  if Assigned(fOnSessionChange) then
+    fOnSessionChange(self, aVersion);
 end;
 
 function TTisToolBar.AddButton(const aCaption: string;
@@ -566,6 +596,7 @@ begin
   fActions := TTisActionsCollection.Create(self);
   fPopupMenus := TTisPopupMenusCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
+  fSessionVersion := DefaultSessionVersion;
 end;
 
 destructor TTisToolBar.Destroy;
