@@ -419,7 +419,6 @@ type
     fSelectedData: TDocVariantData;
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
-    fPopupOrigEvent: TNotifyEvent; // it saves the original OnPopup event, if an external Popup instance was setted
     fExportFormatOptions: TTisGridExportFormatOptions;
     fDefaultSettings: Variant; // all default settings after load component
     // ------------------------------- new events ----------------------------------
@@ -512,8 +511,8 @@ type
     property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
     /// standard menu management
-    procedure SetupPopupMenu; virtual;
-    procedure DoPopupMenu(aSender: TObject);
+    procedure FillPopupMenu; virtual;
+    procedure CleanPopupMenu; virtual;
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(aSender: TObject);
     /// add aData into Data property
@@ -550,6 +549,8 @@ type
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
       var aNewValue: Variant; var aAbort: Boolean); virtual;
+    procedure DoEnter; override;
+    procedure DoExit; override;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -562,6 +563,7 @@ type
     property TextFound: boolean read fTextFound write fTextFound;
   public
     const TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
+    const POPUP_ITEM_TAG = 250;
   public
     /// primary construtor
     constructor Create(AOwner: TComponent); override;
@@ -2154,8 +2156,6 @@ end;
 procedure TTisGrid.Loaded;
 begin
   inherited Loaded;
-  if not (csDesigning in ComponentState) then
-    SetupPopupMenu;
   fDefaultSettings := GetSettings;
 end;
 
@@ -2447,25 +2447,7 @@ begin
   result := TTisGridHeader;
 end;
 
-procedure TTisGrid.SetupPopupMenu;
-begin
-  if not Assigned(PopupMenu) then
-    PopupMenu := TPopupMenu.Create(self)
-  else
-    fPopupOrigEvent := PopupMenu.OnPopup;
-  PopupMenu.OnPopup := @DoPopupMenu;
-end;
-
-procedure TTisGrid.DoPopupMenu(aSender: TObject);
-
-  procedure _RemoveAutoItems;
-  var
-    i: Integer;
-  begin
-    for i := PopupMenu.Items.Count-1 downto 0 do
-      if PopupMenu.Items[i].Tag = 250 then
-        PopupMenu.Items.Delete(i);
-  end;
+procedure TTisGrid.FillPopupMenu;
 
   procedure _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
     aEnabled: Boolean = True);
@@ -2482,20 +2464,18 @@ procedure TTisGrid.DoPopupMenu(aSender: TObject);
         ShortCut := aShortcut;
         OnClick := aEvent;
         Enabled := aEnabled;
-        // to delete them
-        Tag := 250; { TODO -omsantos : we might create a new property for custom this number }
+        Tag := POPUP_ITEM_TAG;
       end;
       PopupMenu.Items.Add(vMenuItem);
     end;
   end;
 
 begin
-  if PopupMenu = nil then
-    exit;
-  _RemoveAutoItems;
-  if Assigned(fPopupOrigEvent) then
-    fPopupOrigEvent(self);
-  if (PopupMenu.Items.Count > 0) then
+  if not Assigned(PopupMenu) then
+    PopupMenu := TPopupMenu.Create(self);
+  if Assigned(PopupMenu.OnPopup) then
+    PopupMenu.OnPopup(PopupMenu);
+  if PopupMenu.Items.Count > 0 then
     _AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
     _AddItem(rsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
@@ -2541,6 +2521,15 @@ begin
     _AddItem(rsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
+end;
+
+procedure TTisGrid.CleanPopupMenu;
+var
+  i: Integer;
+begin
+  for i := PopupMenu.Items.Count-1 downto 0 do
+    if PopupMenu.Items[i].Tag = POPUP_ITEM_TAG then
+      PopupMenu.Items.Delete(i);
 end;
 
 function TTisGrid.FindText(const aText: string): PVirtualNode;
@@ -3009,6 +2998,18 @@ procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
 begin
   if Assigned(fOnEditValidated) then
     fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
+end;
+
+procedure TTisGrid.DoEnter;
+begin
+  inherited DoEnter;
+  FillPopupMenu;
+end;
+
+procedure TTisGrid.DoExit;
+begin
+  CleanPopupMenu;
+  inherited DoExit;
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
