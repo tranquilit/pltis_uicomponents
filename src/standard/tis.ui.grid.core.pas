@@ -510,8 +510,13 @@ type
     function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
-    /// standard menu management
+    /// fill the popup menu with items in runtime when grid gets focus, for deal with the data and grid itself
+    // - each item will use the POPUP_ITEM_TAG public constant as its Tag value
+    // - it is called in DoEnter
     procedure FillPopupMenu; virtual;
+    /// clean the popup when lost focus, removing items inserted before
+    // - each item that has the POPUP_ITEM_TAG public constant as its Tag value, will be removed
+    // - it is called in DoExit
     procedure CleanPopupMenu; virtual;
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(aSender: TObject);
@@ -907,6 +912,8 @@ type
     // !aHandled := True;
     property OnCompareByRow: TOnGridCompareByRow
       read fOnCompareByRow write fOnCompareByRow;
+    /// event to manipulate Popup items after they being inserted
+    // - see FillPopupMenu
     property OnAfterFillPopupMenu: TNotifyEvent
       read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
     /// event that allows users customize the edit control instance, creating a new one,
@@ -2473,6 +2480,7 @@ procedure TTisGrid.FillPopupMenu;
 begin
   if not Assigned(PopupMenu) then
     PopupMenu := TPopupMenu.Create(self);
+  // fire the original user event, if it exists, for customize its items
   if Assigned(PopupMenu.OnPopup) then
     PopupMenu.OnPopup(PopupMenu);
   if PopupMenu.Items.Count > 0 then
