@@ -696,8 +696,8 @@ procedure TTisToolBarComponentEditor.DoShowEditor;
 begin
   with TTisToolBarEditor.Create(Application) do
   try
-    Target := (Component as TTisToolBar);
     Designer := GetDesigner;
+    Target := (Component as TTisToolBar);
     ShowModal;
   finally
     Free;
