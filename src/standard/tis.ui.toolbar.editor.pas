@@ -321,7 +321,7 @@ begin
       result.ImageIndex := aNode.ImageIndex;
     if vData.Popup <> nil then
     begin
-      result.Caption := vData.Popup.Category;
+      result.Caption := vData.Popup.Caption;
       result.DropdownMenu := vData.Popup.PopupMenu;
       result.Style := tbsButtonDrop;
     end;
@@ -352,7 +352,7 @@ begin
   if vData.Action <> nil then
     vCaption := vData.Action.Caption
   else if vData.Popup <> nil then
-    vCaption := vData.Popup.Category
+    vCaption := vData.Popup.Caption
   else
     vCaption := '';
   DeleteAmpersands(vCaption);
@@ -585,7 +585,7 @@ begin
   begin
     vPopupMenusItem := fTarget.PopupMenus.Items[i];
     vPopup := vPopupMenusItem.PopupMenu;
-    vCategory := vPopupMenusItem.Category;
+    vCategory := vPopupMenusItem.Caption;
     vData := TSharedData.Create(self);
     vData.Popup := vPopupMenusItem;
     vNode := TV.Items.AddChild(vPopupRootNode, vCategory);
@@ -641,7 +641,7 @@ begin
     exit(nil);
   result := TV.Items.FindTopLvlNode(rsPopupMenus);
   if result <> nil then
-    result := TV.Items.FindNodeWithText(aPopupItem.Category);
+    result := TV.Items.FindNodeWithText(aPopupItem.Caption);
   if result <> nil then
   begin
     result.Visible := True;

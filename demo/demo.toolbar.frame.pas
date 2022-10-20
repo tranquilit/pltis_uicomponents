@@ -41,10 +41,13 @@ type
     ToolButton10: TToolButton;
     Action1: TAction;
     Action2: TAction;
+    PopupAction: TAction;
+    MenuItem2: TMenuItem;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);
     procedure RestoreActionExecute(Sender: TObject);
+    procedure MenuItem2Click(Sender: TObject);
   private
 
   public
@@ -86,6 +89,11 @@ end;
 procedure TToolBarFrame.RestoreActionExecute(Sender: TObject);
 begin
   TisToolBar1.RestoreSession;
+end;
+
+procedure TToolBarFrame.MenuItem2Click(Sender: TObject);
+begin
+  ShowMessage('Hello');
 end;
 
 end.

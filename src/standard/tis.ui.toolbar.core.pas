@@ -24,6 +24,7 @@ uses
   ActnList,
   TextStrings,
   Menus,
+  LCLType,
   mormot.core.base,
   mormot.core.variants,
   mormot.core.unicode,
@@ -81,7 +82,7 @@ type
   TTisPopupMenusItem = class(TCollectionItem)
   private
     fPopupMenu: TPopupMenu;
-    fCategory: string;
+    fCaption: TTranslateString;
     fImageIndex: Integer;
     // ------------------------------- new methods ----------------------------------
     procedure SetPopupMenu(aValue: TPopupMenu);
@@ -98,8 +99,8 @@ type
   published
     // ------------------------------- new properties -------------------------------
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
-    /// it will be use to naming the Popup in the list
-    property Category: string read fCategory write fCategory;
+    /// it will be the Popup caption on the Editor
+    property Caption: TTranslateString read fCaption write fCaption;
     /// an optional ImageIndex that will be used in the list
     property ImageIndex: Integer read fImageIndex write fImageIndex;
   end;
@@ -309,10 +310,10 @@ begin
   if Assigned(fPopupMenu) then
   begin
     fPopupMenu.FreeNotification(GetPopupMenus.GetToolBar);
-    if fCategory = '' then
-      fCategory := fPopupMenu.Name;
-    if fCategory = fPopupMenu.Name then // try to beautify the original component name
-      fCategory := Utf8ToString(UnCamelCase(StringToUtf8(fCategory)));
+    if fCaption = '' then
+      fCaption := fPopupMenu.Name;
+    if fCaption = fPopupMenu.Name then // try to beautify the original component name
+      fCaption := Utf8ToString(UnCamelCase(StringToUtf8(fCaption)));
   end;
 end;
 
