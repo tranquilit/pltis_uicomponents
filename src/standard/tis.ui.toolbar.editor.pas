@@ -540,7 +540,7 @@ procedure TTisToolBarEditor.LoadPopups;
 var
   i, x: Integer;
   vNode, vPopupRootNode: TTreeNode;
-  vCategory: string;
+  vCaption: string;
   vPopup: TPopupMenu;
   vPopupMenusItem: TTisPopupMenusItem;
   vPopupItem: TMenuItem;
@@ -585,20 +585,20 @@ begin
   begin
     vPopupMenusItem := fTarget.PopupMenus.Items[i];
     vPopup := vPopupMenusItem.PopupMenu;
-    vCategory := vPopupMenusItem.Caption;
+    vCaption := vPopupMenusItem.Caption;
     vData := TSharedData.Create(self);
     vData.Popup := vPopupMenusItem;
-    vNode := TV.Items.AddChild(vPopupRootNode, vCategory);
+    vNode := TV.Items.AddChild(vPopupRootNode, vCaption);
     vNode.Data := vData;
     vNode.ImageIndex := vPopupMenusItem.ImageIndex;
     for x := 0 to vPopup.Items.Count -1 do
     begin
       vPopupItem := vPopup.Items[x];
-      vCategory := vPopupItem.Caption;
-      if vCategory = DIVIDER_BUTTON_CAPTION then
+      vCaption := vPopupItem.Caption;
+      if vCaption = DIVIDER_BUTTON_CAPTION then
         Continue;
-      DeleteAmpersands(vCategory);
-      with TV.Items.AddChild(vNode, vCategory) do
+      DeleteAmpersands(vCaption);
+      with TV.Items.AddChild(vNode, vCaption) do
       begin
         ImageIndex := vPopupItem.ImageIndex;
         SelectedIndex := vPopupItem.ImageIndex;
