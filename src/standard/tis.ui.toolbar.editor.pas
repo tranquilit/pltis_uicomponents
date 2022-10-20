@@ -84,7 +84,8 @@ type
     function NewButtonDivider: TToolButton;
     procedure RemoveCommand;
     procedure SetupCaptions;
-    procedure LoadActionsAndPopups;
+    procedure LoadActions;
+    procedure LoadPopups;
     procedure LoadButtons;
     function FindTreeViewNodeBy(aAction: TAction): TTreeNode; overload;
     function FindTreeViewNodeBy(aPopupItem: TTisPopupMenusItem): TTreeNode; overload;
@@ -464,139 +465,145 @@ begin
   ToolBarRestoreButton.Caption := rsToolBarRestore;
 end;
 
-procedure TTisToolBarEditor.LoadActionsAndPopups;
+procedure TTisToolBarEditor.LoadActions;
 var
   i, x: Integer;
-  vNode, vPopupRootNode: TTreeNode;
+  vNode: TTreeNode;
   vCategory: string;
   vAction: TAction;
   vActions: TActionList;
   vActionsItem: TTisActionsItem;
+  vFound: Boolean;
+  vData: TSharedData;
+begin
+  // adding auto actions
+  if eoAutoAddActions in fTarget.EditorOptions then
+  begin
+    for i := 0 to fTarget.ButtonCount -1 do
+    begin
+      vAction := fTarget.Buttons[i].Action as TAction;
+      if vAction = nil then
+        Continue;
+      vActions := vAction.ActionList as TActionList;
+      vFound := False;
+      for x := 0 to fTarget.Actions.Count -1 do
+      begin
+        if vActions = fTarget.Actions[x].List then
+        begin
+          vFound := True;
+          Break;
+        end;
+      end;
+      if not vFound then
+      begin
+        vActionsItem := fTarget.Actions.Add as TTisActionsItem;
+        vActionsItem.List := vActions;
+        if IsDesignTime then
+        begin
+          fDesigner.PropertyEditorHook.PersistentAdded(vActionsItem, False);
+          fDesigner.Modified;
+        end;
+      end;
+    end;
+  end;
+  // load categories and actions
+  for i := 0 to fTarget.Actions.Count -1 do
+  begin
+    vActions := fTarget.Actions.Items[i].List;
+    for x := 0 to vActions.ActionCount -1 do
+    begin
+      vAction := vActions.Actions[x] as TAction;
+      vCategory := vAction.Category;
+      DeleteAmpersands(vCategory);
+      if Target.Actions.Items[i].HiddenCategories.IndexOf(vCategory) = -1 then
+      begin
+        vNode := TV.Items.FindNodeWithText(vCategory);
+        if vNode = nil then
+          vNode := TV.Items.AddChild(nil, vCategory);
+        if vAction.Caption <> DIVIDER_BUTTON_CAPTION then // include, if it is not a divider
+        begin
+          vData := TSharedData.Create(self);
+          vData.Action := vAction;
+          with TV.Items.AddChild(vNode, Format('%s', [vAction.Caption])) do
+          begin
+            ImageIndex := vAction.ImageIndex;
+            SelectedIndex := vAction.ImageIndex;
+            Data := vData;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TTisToolBarEditor.LoadPopups;
+var
+  i, x: Integer;
+  vNode, vPopupRootNode: TTreeNode;
+  vCategory: string;
   vPopup: TPopupMenu;
   vPopupMenusItem: TTisPopupMenusItem;
   vPopupItem: TMenuItem;
   vFound: Boolean;
   vData: TSharedData;
 begin
-  TV.Items.BeginUpdate;
-  try
-    TV.Items.Clear;
-    // adding auto actions
-    if eoAutoAddActions in fTarget.EditorOptions then
+  // adding auto popup menus
+  if eoAutoAddPopupMenus in fTarget.EditorOptions then
+  begin
+    for i := 0 to fTarget.ButtonCount -1 do
     begin
-      for i := 0 to fTarget.ButtonCount -1 do
+      vPopup := fTarget.Buttons[i].DropdownMenu;
+      if vPopup = nil then
+        Continue;
+      vFound := False;
+      for x := 0 to fTarget.PopupMenus.Count -1 do
       begin
-        vAction := fTarget.Buttons[i].Action as TAction;
-        if vAction = nil then
-          Continue;
-        vActions := vAction.ActionList as TActionList;
-        vFound := False;
-        for x := 0 to fTarget.Actions.Count -1 do
+        if vPopup = fTarget.PopupMenus[x].PopupMenu then
         begin
-          if vActions = fTarget.Actions[x].List then
-          begin
-            vFound := True;
-            Break;
-          end;
+          vFound := True;
+          Break;
         end;
-        if not vFound then
+      end;
+      if not vFound then
+      begin
+        vPopupMenusItem := fTarget.PopupMenus.Add as TTisPopupMenusItem;
+        vPopupMenusItem.PopupMenu := vPopup;
+        if IsDesignTime then
         begin
-          vActionsItem := fTarget.Actions.Add as TTisActionsItem;
-          vActionsItem.List := vActions;
-          if IsDesignTime then
-          begin
-            fDesigner.PropertyEditorHook.PersistentAdded(vActionsItem, False);
-            fDesigner.Modified;
-          end;
+          fDesigner.PropertyEditorHook.PersistentAdded(vPopupMenusItem, False);
+          fDesigner.Modified;
         end;
       end;
     end;
-    // load categories and actions
-    for i := 0 to fTarget.Actions.Count -1 do
+  end;
+  // load popups
+  if fTarget.PopupMenus.Count > 0 then
+    vPopupRootNode := TV.Items.AddChild(nil, rsPopupMenus)
+  else
+    vPopupRootNode := nil;
+  for i := 0 to fTarget.PopupMenus.Count -1 do
+  begin
+    vPopupMenusItem := fTarget.PopupMenus.Items[i];
+    vPopup := vPopupMenusItem.PopupMenu;
+    vCategory := vPopupMenusItem.Category;
+    vData := TSharedData.Create(self);
+    vData.Popup := vPopupMenusItem;
+    vNode := TV.Items.AddChild(vPopupRootNode, vCategory);
+    vNode.Data := vData;
+    vNode.ImageIndex := vPopupMenusItem.ImageIndex;
+    for x := 0 to vPopup.Items.Count -1 do
     begin
-      vActions := fTarget.Actions.Items[i].List;
-      for x := 0 to vActions.ActionCount -1 do
+      vPopupItem := vPopup.Items[x];
+      vCategory := vPopupItem.Caption;
+      if vCategory = DIVIDER_BUTTON_CAPTION then
+        Continue;
+      DeleteAmpersands(vCategory);
+      with TV.Items.AddChild(vNode, vCategory) do
       begin
-        vAction := vActions.Actions[x] as TAction;
-        vCategory := vAction.Category;
-        DeleteAmpersands(vCategory);
-        if Target.Actions.Items[i].HiddenCategories.IndexOf(vCategory) = -1 then
-        begin
-          vNode := TV.Items.FindNodeWithText(vCategory);
-          if vNode = nil then
-            vNode := TV.Items.AddChild(nil, vCategory);
-          if vAction.Caption <> DIVIDER_BUTTON_CAPTION then // include, if it is not a divider
-          begin
-            vData := TSharedData.Create(self);
-            vData.Action := vAction;
-            with TV.Items.AddChild(vNode, Format('%s', [vAction.Caption])) do
-            begin
-              ImageIndex := vAction.ImageIndex;
-              SelectedIndex := vAction.ImageIndex;
-              Data := vData;
-            end;
-          end;
-        end;
+        ImageIndex := vPopupItem.ImageIndex;
+        SelectedIndex := vPopupItem.ImageIndex;
       end;
     end;
-    // adding auto popup menus
-    if eoAutoAddPopupMenus in fTarget.EditorOptions then
-    begin
-      for i := 0 to fTarget.ButtonCount -1 do
-      begin
-        vPopup := fTarget.Buttons[i].DropdownMenu;
-        if vPopup = nil then
-          Continue;
-        vFound := False;
-        for x := 0 to fTarget.PopupMenus.Count -1 do
-        begin
-          if vPopup = fTarget.PopupMenus[x].PopupMenu then
-          begin
-            vFound := True;
-            Break;
-          end;
-        end;
-        if not vFound then
-        begin
-          vPopupMenusItem := fTarget.PopupMenus.Add as TTisPopupMenusItem;
-          vPopupMenusItem.PopupMenu := vPopup;
-          if IsDesignTime then
-          begin
-            fDesigner.PropertyEditorHook.PersistentAdded(vPopupMenusItem, False);
-            fDesigner.Modified;
-          end;
-        end;
-      end;
-    end;
-    // load popups
-    if fTarget.PopupMenus.Count > 0 then
-      vPopupRootNode := TV.Items.AddChild(nil, rsPopupMenus);
-    for i := 0 to fTarget.PopupMenus.Count -1 do
-    begin
-      vPopupMenusItem := fTarget.PopupMenus.Items[i];
-      vPopup := vPopupMenusItem.PopupMenu;
-      vCategory := vPopupMenusItem.Category;
-      vData := TSharedData.Create(self);
-      vData.Popup := vPopupMenusItem;
-      vNode := TV.Items.AddChild(vPopupRootNode, vCategory);
-      vNode.Data := vData;
-      vNode.ImageIndex := vPopupMenusItem.ImageIndex;
-      for x := 0 to vPopup.Items.Count -1 do
-      begin
-        vPopupItem := vPopup.Items[x];
-        vCategory := vPopupItem.Caption;
-        if vCategory = DIVIDER_BUTTON_CAPTION then
-          Continue;
-        DeleteAmpersands(vCategory);
-        with TV.Items.AddChild(vNode, vCategory) do
-        begin
-          ImageIndex := vPopupItem.ImageIndex;
-          SelectedIndex := vPopupItem.ImageIndex;
-        end;
-      end;
-    end;
-  finally
-    TV.Items.EndUpdate;
   end;
 end;
 
@@ -653,7 +660,14 @@ begin
   TV.Images := fTarget.Images;
   lvToolbar.SmallImages := fTarget.Images;
   SetupCaptions;
-  LoadActionsAndPopups;
+  TV.Items.BeginUpdate;
+  try
+    TV.Items.Clear;
+    LoadActions;
+    LoadPopups;
+  finally
+    TV.Items.EndUpdate;
+  end;
   LoadButtons;
 end;
 
