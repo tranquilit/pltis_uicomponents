@@ -34,7 +34,6 @@ type
     Action6: TAction;
     ToolBarPopup: TPopupMenu;
     MenuItem1: TMenuItem;
-    ToolButton7: TToolButton;
     ToolButton8: TToolButton;
     ToolButton9: TToolButton;
     RestoreAction: TAction;
@@ -43,6 +42,7 @@ type
     Action2: TAction;
     PopupAction: TAction;
     MenuItem2: TMenuItem;
+    ToolButton11: TToolButton;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);

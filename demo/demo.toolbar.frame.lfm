@@ -54,59 +54,70 @@ object ToolBarFrame: TToolBarFrame
       Left = 1
       Top = 2
       Action = GetSessionValuesAction
+      AutoSize = True
     end
     object ToolButton2: TToolButton
       Left = 106
       Top = 2
       Action = SetSessionValuesAction
-    end
-    object ToolButton3: TToolButton
-      Left = 324
-      Top = 2
-      Action = Action3
+      AutoSize = True
     end
     object ToolButton4: TToolButton
-      Left = 428
+      Left = 209
       Height = 22
       Top = 2
+      AutoSize = True
       Caption = 'ToolButton4'
       Style = tbsDivider
     end
-    object ToolButton5: TToolButton
-      Left = 433
+    object ToolButton3: TToolButton
+      Left = 214
       Top = 2
-      Action = ShowEditorAction
+      Action = Action3
+      AutoSize = True
     end
     object ToolButton6: TToolButton
-      Left = 256
+      Left = 263
       Height = 22
       Top = 2
+      AutoSize = True
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
-    object ToolButton7: TToolButton
-      Left = 373
+    object ToolButton11: TToolButton
+      Left = 268
       Top = 2
-      Action = PopupAction
+      AutoSize = True
+      Caption = 'Tool bar popup'
       DropdownMenu = ToolBarPopup
+      ImageIndex = 0
       Style = tbsDropDown
     end
     object ToolButton8: TToolButton
-      Left = 261
+      Left = 369
       Top = 2
+      AutoSize = True
       Caption = 'no action'
     end
     object ToolButton9: TToolButton
-      Left = 319
+      Left = 427
       Height = 22
       Top = 2
+      AutoSize = True
       Caption = 'ToolButton9'
       Style = tbsDivider
     end
+    object ToolButton5: TToolButton
+      Left = 432
+      Top = 2
+      Action = ShowEditorAction
+      AutoSize = True
+    end
     object ToolButton10: TToolButton
-      Left = 209
+      Left = 503
       Top = 2
       Action = RestoreAction
+      AutoSize = True
     end
   end
   object Label1: TLabel
