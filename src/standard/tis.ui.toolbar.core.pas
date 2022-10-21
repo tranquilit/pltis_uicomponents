@@ -57,6 +57,7 @@ type
     procedure Assign(aSource: TPersistent); override;
   published
     // ------------------------------- new properties -------------------------------
+    /// the ActionList available to assign to a button
     property List: TActionList read fList write SetList;
     /// use this list to hide categories on Editor by name
     property HiddenCategories: TStrings read fHiddenCategories write SetHiddenCategories;
@@ -98,6 +99,7 @@ type
     procedure Assign(aSource: TPersistent); override;
   published
     // ------------------------------- new properties -------------------------------
+    /// the PopupMenu available to assign to a button
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
     /// it will be the Popup caption on the Editor
     property Caption: TTranslateString read fCaption write fCaption;
