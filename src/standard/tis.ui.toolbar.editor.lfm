@@ -14,7 +14,7 @@ object TisToolBarEditor: TTisToolBarEditor
   Position = poScreenCenter
   LCLVersion = '2.3.0.0'
   object lblMenuTree: TLabel
-    AnchorSideLeft.Control = TV
+    AnchorSideLeft.Control = ActionsTreeView
     AnchorSideLeft.Side = asrCenter
     AnchorSideTop.Control = Owner
     Left = 147
@@ -30,7 +30,7 @@ object TisToolBarEditor: TTisToolBarEditor
     ParentFont = False
   end
   object lblToolbar: TLabel
-    AnchorSideLeft.Control = lvToolbar
+    AnchorSideLeft.Control = ButtonsListView
     AnchorSideLeft.Side = asrCenter
     AnchorSideTop.Control = lblMenuTree
     Left = 523
@@ -97,7 +97,7 @@ object TisToolBarEditor: TTisToolBarEditor
   object btnAdd: TSpeedButton
     AnchorSideLeft.Control = Splitter1
     AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Control = TV
+    AnchorSideTop.Control = ActionsTreeView
     Left = 372
     Height = 26
     Top = 86
@@ -245,7 +245,7 @@ object TisToolBarEditor: TTisToolBarEditor
     ShowHint = True
     ParentShowHint = False
   end
-  object TV: TTreeView
+  object ActionsTreeView: TTreeView
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = FilterEdit
     AnchorSideTop.Side = asrBottom
@@ -262,15 +262,15 @@ object TisToolBarEditor: TTisToolBarEditor
     ReadOnly = True
     ScrollBars = ssAutoBoth
     TabOrder = 1
-    OnDblClick = TVDblClick
-    OnSelectionChanged = TVSelectionChanged
+    OnDblClick = ActionsTreeViewDblClick
+    OnSelectionChanged = ActionsTreeViewSelectionChanged
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
   end
   object FilterEdit: TTreeFilterEdit
-    AnchorSideLeft.Control = TV
+    AnchorSideLeft.Control = ActionsTreeView
     AnchorSideTop.Control = lblMenuTree
     AnchorSideTop.Side = asrBottom
-    AnchorSideRight.Control = TV
+    AnchorSideRight.Control = ActionsTreeView
     AnchorSideRight.Side = asrBottom
     Left = 8
     Height = 23
@@ -282,14 +282,14 @@ object TisToolBarEditor: TTisToolBarEditor
     MaxLength = 0
     ParentFont = False
     TabOrder = 0
-    FilteredTreeview = TV
+    FilteredTreeview = ActionsTreeView
     ExpandAllInitially = True
   end
   object Splitter1: TSplitter
-    AnchorSideLeft.Control = TV
+    AnchorSideLeft.Control = ActionsTreeView
     AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Control = TV
-    AnchorSideBottom.Control = TV
+    AnchorSideTop.Control = ActionsTreeView
+    AnchorSideBottom.Control = ActionsTreeView
     AnchorSideBottom.Side = asrBottom
     Left = 360
     Height = 353
@@ -298,13 +298,13 @@ object TisToolBarEditor: TTisToolBarEditor
     Align = alNone
     Anchors = [akTop, akBottom]
   end
-  object lvToolbar: TListView
+  object ButtonsListView: TListView
     AnchorSideLeft.Control = btnAdd
     AnchorSideLeft.Side = asrBottom
-    AnchorSideTop.Control = TV
+    AnchorSideTop.Control = ActionsTreeView
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
-    AnchorSideBottom.Control = TV
+    AnchorSideBottom.Control = ActionsTreeView
     AnchorSideBottom.Side = asrBottom
     Left = 413
     Height = 353
@@ -328,16 +328,16 @@ object TisToolBarEditor: TTisToolBarEditor
     SortType = stData
     TabOrder = 3
     ViewStyle = vsReport
-    OnDblClick = lvToolbarDblClick
+    OnDblClick = ButtonsListViewDblClick
     OnEnter = lvToolbarEnterExit
     OnExit = lvToolbarEnterExit
-    OnSelectItem = lvToolbarSelectItem
+    OnSelectItem = ButtonsListViewSelectItem
   end
   object btnAddDivider: TSpeedButton
     AnchorSideLeft.Control = btnAdd
     AnchorSideTop.Control = btnMoveDown
     AnchorSideTop.Side = asrBottom
-    AnchorSideBottom.Control = lvToolbar
+    AnchorSideBottom.Control = ButtonsListView
     AnchorSideBottom.Side = asrBottom
     Left = 372
     Height = 26
@@ -350,7 +350,7 @@ object TisToolBarEditor: TTisToolBarEditor
     ParentShowHint = False
   end
   object lblSelect: TLabel
-    AnchorSideRight.Control = lvToolbar
+    AnchorSideRight.Control = ButtonsListView
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = FilterEdit
     AnchorSideBottom.Side = asrCenter
@@ -383,7 +383,7 @@ object TisToolBarEditor: TTisToolBarEditor
     ShowGlyphs = [pbOK, pbCancel, pbHelp]
   end
   object ToolBarRestoreButton: TSpeedButton
-    AnchorSideLeft.Control = lvToolbar
+    AnchorSideLeft.Control = ButtonsListView
     Left = 413
     Height = 22
     Top = 29

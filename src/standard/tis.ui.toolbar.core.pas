@@ -37,7 +37,7 @@ type
   TTisActionsCollection = class;
   TTisPopupMenusCollection = class;
 
-  /// define a item for the actions collection
+  /// define a item for a collection of actions
   TTisActionsItem = class(TCollectionItem)
   private
     fList: TActionList;
@@ -49,7 +49,7 @@ type
     // ------------------------------- inherited methods ----------------------------
     function GetDisplayName: string; override;
     // ------------------------------- new methods ----------------------------------
-    function GetActions: TTisActionsCollection;
+    function GetOwnerAsActionsCollection: TTisActionsCollection;
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aCollection: TCollection); override;
@@ -63,7 +63,7 @@ type
     property HiddenCategories: TStrings read fHiddenCategories write SetHiddenCategories;
   end;
 
-  /// actions collection
+  /// a collection of actions
   TTisActionsCollection = class(TOwnedCollection)
   private
     fControl: TWinControl;
@@ -72,20 +72,22 @@ type
   public
     constructor Create(aControl: TWinControl); reintroduce;
     // ------------------------------- new methods ----------------------------------
-    function LocateAction(const aListOwnerName, aListName, aActionName: string): TAction;
+    /// it returns Control as Toolbar
     function GetToolBar: TTisToolBar;
+    /// it will try to locate the Action instance by name
+    function LocateAction(const aOwnerName, aListName, aActionName: string): TAction;
     // ------------------------------- new properties -------------------------------
     /// items of the collection
     property Items[aIndex: Integer]: TTisActionsItem read GetItems write SetItems; default;
   end;
 
-  /// define a item for the popup menus collection
+  /// define a item a collection of popup menus
   TTisPopupMenusItem = class(TCollectionItem)
   private
+    fAction: TAction;
     fPopupMenu: TPopupMenu;
-    fCaption: TTranslateString;
-    fImageIndex: Integer;
     // ------------------------------- new methods ----------------------------------
+    procedure SetAction(aValue: TAction);
     procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     // ------------------------------- inherited methods ----------------------------
@@ -99,15 +101,15 @@ type
     procedure Assign(aSource: TPersistent); override;
   published
     // ------------------------------- new properties -------------------------------
+    /// an action related to the button
+    // - if the action has OnExecute implemented, the button style will be tbsDropDown,
+    // otherwise tbsButtonDrop
+    property Action: TAction read fAction write SetAction;
     /// the PopupMenu available to assign to a button
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
-    /// it will be the Popup caption on the Editor
-    property Caption: TTranslateString read fCaption write fCaption;
-    /// an optional ImageIndex that will be used in the list
-    property ImageIndex: Integer read fImageIndex write fImageIndex;
   end;
 
-  /// popup menus collection
+  /// a collection of popup menus
   TTisPopupMenusCollection = class(TOwnedCollection)
   private
     fControl: TWinControl;
@@ -133,15 +135,18 @@ type
     // - if PopupMenu was not assigned, it will create it
     eoShowOnPopupMenu,
     /// it will add Actions, which are already been using on buttons,
-    // in the Actions Collection property when open the Editor
+    // into the Actions Collection property when open the Editor
     eoAutoAddActions,
-    /// it will add PopupMenus, which are already been using on buttons,
-    // in the Popups Collection property when open the Editor
+    /// it will add PopupMenus, which are already been using on buttons that
+    // has an Action assigned, into the Popups Collection property when open the Editor
     eoAutoAddPopupMenus
   );
 
   TTisEditorOptions = set of TTisEditorOption;
 
+  /// event to manipulate the user session, if it is using a different session
+  // version from component instance
+  // - the aVersion argument is the current user session version
   TOnSessionChange = procedure(aSender: TTisToolBar; aVersion: Integer) of object;
 
   TTisToolBar = class(TToolBar)
@@ -154,7 +159,7 @@ type
     fSessionVersion: Integer;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
-    const DefaultSessionVersion = 1;
+    const DefaultSessionVersion = 2;
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
@@ -182,7 +187,7 @@ type
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
-    /// it keeps SessionValues from original design
+    /// it keeps SessionValues from original design time
     // - used by Editor, when in design time
     property DefaultSessionValues: string read fDefaultSessionValues write fDefaultSessionValues;
   published
@@ -220,7 +225,7 @@ begin
     exit;
   fList := aValue;
   if Assigned(fList) then
-    fList.FreeNotification(GetActions.GetToolBar);
+    fList.FreeNotification(GetOwnerAsActionsCollection.GetToolBar);
 end;
 
 function TTisActionsItem.GetDisplayName: string;
@@ -231,7 +236,7 @@ begin
     result := inherited GetDisplayName;
 end;
 
-function TTisActionsItem.GetActions: TTisActionsCollection;
+function TTisActionsItem.GetOwnerAsActionsCollection: TTisActionsCollection;
 begin
   result := GetOwner as TTisActionsCollection;
 end;
@@ -254,6 +259,7 @@ begin
     with aSource as TTisActionsItem do
     begin
       self.List := List;
+      self.HiddenCategories := HiddenCategories;
     end
   else
     inherited Assign(aSource);
@@ -277,19 +283,24 @@ begin
   fControl := aControl;
 end;
 
-function TTisActionsCollection.LocateAction(const aListOwnerName, aListName,
+function TTisActionsCollection.GetToolBar: TTisToolBar;
+begin
+  result := fControl as TTisToolBar;
+end;
+
+function TTisActionsCollection.LocateAction(const aOwnerName, aListName,
   aActionName: string): TAction;
 var
-  i: Integer;
+  v1: Integer;
   vActions: TActionList;
 begin
   result := nil;
-  for i := 0 to Count -1 do
+  for v1 := 0 to Count -1 do
   begin
-    vActions := Items[i].List;
+    vActions := Items[v1].List;
     if vActions = nil then
       continue;
-    if (vActions.Owner.Name = aListOwnerName) and (vActions.Name = aListName) then
+    if (vActions.Owner.Name = aOwnerName) and (vActions.Name = aListName) then
     begin
       result := vActions.ActionByName(aActionName) as TAction;
       exit;
@@ -297,12 +308,16 @@ begin
   end;
 end;
 
-function TTisActionsCollection.GetToolBar: TTisToolBar;
-begin
-  result := fControl as TTisToolBar;
-end;
-
 { TTisPopupMenusItem }
+
+procedure TTisPopupMenusItem.SetAction(aValue: TAction);
+begin
+  if fAction = aValue then
+    exit;
+  fAction := aValue;
+  if Assigned(fAction) then
+    fAction.FreeNotification(GetPopupMenus.GetToolBar);
+end;
 
 procedure TTisPopupMenusItem.SetPopupMenu(aValue: TPopupMenu);
 begin
@@ -310,13 +325,7 @@ begin
     exit;
   fPopupMenu := aValue;
   if Assigned(fPopupMenu) then
-  begin
     fPopupMenu.FreeNotification(GetPopupMenus.GetToolBar);
-    if fCaption = '' then
-      fCaption := fPopupMenu.Name;
-    if fCaption = fPopupMenu.Name then // try to beautify the original component name
-      fCaption := Utf8ToString(UnCamelCase(StringToUtf8(fCaption)));
-  end;
 end;
 
 function TTisPopupMenusItem.GetDisplayName: string;
@@ -347,6 +356,7 @@ begin
   if aSource is TTisPopupMenusItem then
     with aSource as TTisPopupMenusItem do
     begin
+      self.Action := Action;
       self.PopupMenu := PopupMenu;
     end
   else
@@ -375,13 +385,13 @@ end;
 function TTisPopupMenusCollection.LocatePopupMenu(const aOwnerName,
   aPopuMenuName: string): TPopupMenu;
 var
-  i: Integer;
+  v1: Integer;
   vPopup: TPopupMenu;
 begin
   result := nil;
-  for i := 0 to Count -1 do
+  for v1 := 0 to Count -1 do
   begin
-    vPopup := Items[i].PopupMenu;
+    vPopup := Items[v1].PopupMenu;
     if vPopup = nil then
       Continue;
     if (vPopup.Owner.Name = aOwnerName) and (vPopup.Name = aPopuMenuName) then
@@ -413,15 +423,15 @@ end;
 procedure TTisToolBar.Notification(aComponent: TComponent;
   aOperation: TOperation);
 var
-  i: Integer;
+  v1: Integer;
   vActionItem: TTisActionsItem;
 begin
   inherited Notification(aComponent, aOperation);
   if aOperation = opRemove then
   begin
-    for i := 0 to Actions.Count -1 do
+    for v1 := 0 to Actions.Count -1 do
     begin
-      vActionItem := Actions.Items[i];
+      vActionItem := Actions.Items[v1];
       if vActionItem.List = aComponent then
         vActionItem.List := nil;
     end;
@@ -430,7 +440,7 @@ end;
 
 function TTisToolBar.GetSessionValues: string;
 var
-  i: Integer;
+  v1: Integer;
   vDoc, vDocButtons: TDocVariantData;
   vAction: TAction;
   vButton: TToolButton;
@@ -438,9 +448,9 @@ var
   vPopup: TPopupMenu;
 begin
   vDocButtons.InitArray([], JSON_FAST_FLOAT);
-  for i := 0 to ButtonCount -1 do
+  for v1 := 0 to ButtonCount -1 do
   begin
-    vButton := Buttons[i];
+    vButton := Buttons[v1];
     vObj := _ObjFast([
       'caption', vButton.Caption,
       'left', vButton.Left,
@@ -482,7 +492,7 @@ var
   vDoc: TDocVariantData;
   vAction: TAction;
   vPopup: TPopupMenu;
-  vObj: PDocVariantData;
+  vObjButton: PDocVariantData;
   vObjAction, vObjPopup: PVariant;
 begin
   if (csDesigning in ComponentState) or
@@ -501,17 +511,17 @@ begin
       RestoreSession;
     end
     else
-      for vObj in vDoc.A_['buttons']^.Objects do
+      for vObjButton in vDoc.A_['buttons']^.Objects do
       begin
-        if vObj^.GetAsPVariant('action', vObjAction) then
+        if vObjButton^.GetAsPVariant('action', vObjAction) then
           vAction := Actions.LocateAction(vObjAction^.owner, vObjAction^.list, vObjAction^.name)
         else
           vAction := nil;
-        if vObj^.GetAsPVariant('popup', vObjPopup) then
+        if vObjButton^.GetAsPVariant('popup', vObjPopup) then
           vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
         else
           vPopup := nil;
-        AddButton(vObj^.S['caption'], TToolButtonStyle(vObj^.I['style']), vObj^.I['imageindex'], vAction, vPopup);
+        AddButton(vObjButton^.S['caption'], TToolButtonStyle(vObjButton^.I['style']), vObjButton^.I['imageindex'], vAction, vPopup);
       end;
     DoSessionChange(vDoc.I['version']);
   except
@@ -586,10 +596,10 @@ end;
 
 procedure TTisToolBar.RemoveButtons;
 var
-  i: Integer;
+  v1: Integer;
 begin
-  for i := ButtonCount-1 downto 0 do
-    RemoveControl(Buttons[i]);
+  for v1 := ButtonCount-1 downto 0 do
+    RemoveControl(Buttons[v1]);
   ButtonList.Clear;
 end;
 

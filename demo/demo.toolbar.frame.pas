@@ -17,8 +17,8 @@ type
     ActionList: TActionList;
     GetSessionValuesAction: TAction;
     SetSessionValuesAction: TAction;
-    Action3: TAction;
-    Action4: TAction;
+    HelloAction: TAction;
+    NoHandlerAction: TAction;
     EditorList: TActionList;
     ShowEditorAction: TAction;
     Action5: TAction;
@@ -41,13 +41,12 @@ type
     Action1: TAction;
     Action2: TAction;
     PopupAction: TAction;
-    MenuItem2: TMenuItem;
     ToolButton11: TToolButton;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);
     procedure RestoreActionExecute(Sender: TObject);
-    procedure MenuItem2Click(Sender: TObject);
+    procedure HelloActionExecute(Sender: TObject);
   private
 
   public
@@ -91,7 +90,7 @@ begin
   TisToolBar1.RestoreSession;
 end;
 
-procedure TToolBarFrame.MenuItem2Click(Sender: TObject);
+procedure TToolBarFrame.HelloActionExecute(Sender: TObject);
 begin
   ShowMessage('Hello');
 end;
