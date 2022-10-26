@@ -159,7 +159,7 @@ type
     fSessionVersion: Integer;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
-    const DefaultSessionVersion = 2;
+    const DefaultSessionVersion = 3;
   protected
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
@@ -495,11 +495,11 @@ end;
 
 procedure TTisToolBar.SetSessionValues(const aValue: string);
 var
-  vDoc: TDocVariantData;
+  vSessionDoc: TDocVariantData;
+  vSessionButton: PDocVariantData;
+  vSessionAction, vSessionPopup: PVariant;
   vAction: TAction;
   vPopup: TPopupMenu;
-  vObjButton: PDocVariantData;
-  vObjAction, vObjPopup: PVariant;
   vCaption: TTranslateString;
 begin
   if (csDesigning in ComponentState) or
@@ -507,34 +507,34 @@ begin
     exit;
   RemoveButtons;
   try
-    if not vDoc.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
+    if not vSessionDoc.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
     begin
       // use default values, if aValue is invalid
-      vDoc.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT);
+      vSessionDoc.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT);
     end;
-    if vDoc.I['version'] < DefaultSessionVersion then
-    begin
-      // old session there is no version
-      RestoreSession;
-    end
+    // checking if user session version is minor than design time version
+    // - if yes, we must restore for the default one, as some Action,
+    // Popups, etc may be missing in the user session
+    if vSessionDoc.I['version'] < fSessionVersion then
+      RestoreSession
     else
-      for vObjButton in vDoc.A_['buttons']^.Objects do
+      for vSessionButton in vSessionDoc.A_['buttons']^.Objects do
       begin
-        if vObjButton^.GetAsPVariant('action', vObjAction) then
-          vAction := Actions.LocateAction(vObjAction^.owner, vObjAction^.list, vObjAction^.name)
+        if vSessionButton^.GetAsPVariant('action', vSessionAction) then
+          vAction := Actions.LocateAction(vSessionAction^.owner, vSessionAction^.list, vSessionAction^.name)
         else
           vAction := nil;
         if Assigned(vAction) then
           vCaption := vAction.Caption
         else
-          vCaption := vObjButton^.S['caption'];
-        if vObjButton^.GetAsPVariant('popup', vObjPopup) then
-          vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
+          vCaption := vSessionButton^.S['caption'];
+        if vSessionButton^.GetAsPVariant('popup', vSessionPopup) then
+          vPopup := PopupMenus.LocatePopupMenu(vSessionPopup^.owner, vSessionPopup^.name)
         else
           vPopup := nil;
-        AddButton(vCaption, TToolButtonStyle(vObjButton^.I['style']), vObjButton^.I['imageindex'], vAction, vPopup);
+        AddButton(vCaption, TToolButtonStyle(vSessionButton^.I['style']), vSessionButton^.I['imageindex'], vAction, vPopup);
       end;
-    DoSessionChange(vDoc.I['version']);
+    DoSessionChange(vSessionDoc.I['version']);
   except
     RestoreSession;
   end;
