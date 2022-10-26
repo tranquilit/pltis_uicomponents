@@ -2,9 +2,9 @@ object ToolBarFrame: TToolBarFrame
   Left = 0
   Height = 292
   Top = 0
-  Width = 577
+  Width = 700
   ClientHeight = 292
-  ClientWidth = 577
+  ClientWidth = 700
   TabOrder = 0
   DesignLeft = 438
   DesignTop = 127
@@ -15,7 +15,7 @@ object ToolBarFrame: TToolBarFrame
     Left = 16
     Height = 203
     Top = 53
-    Width = 538
+    Width = 661
     Anchors = [akTop, akLeft, akRight, akBottom]
     ScrollBars = ssAutoBoth
     TabOrder = 0
@@ -25,7 +25,7 @@ object ToolBarFrame: TToolBarFrame
     Left = 0
     Height = 26
     Top = 0
-    Width = 577
+    Width = 700
     Caption = 'TisToolBar1'
     Flat = False
     PopupMenu = ToolBarPopup
@@ -113,6 +113,11 @@ object ToolBarFrame: TToolBarFrame
       Action = RestoreAction
       AutoSize = True
     end
+    object ToolButton7: TToolButton
+      Left = 527
+      Top = 2
+      Action = AutoCheckAction
+    end
   end
   object Label1: TLabel
     Left = 16
@@ -166,6 +171,13 @@ object ToolBarFrame: TToolBarFrame
     object PopupAction: TAction
       Category = 'Category A'
       Caption = 'Popup'
+      DisableIfNoHandler = False
+    end
+    object AutoCheckAction: TAction
+      Category = 'Category C'
+      AutoCheck = True
+      Caption = 'Check/Uncheck'
+      Checked = True
       DisableIfNoHandler = False
     end
   end

@@ -42,6 +42,8 @@ type
     Action2: TAction;
     PopupAction: TAction;
     ToolButton11: TToolButton;
+    ToolButton7: TToolButton;
+    AutoCheckAction: TAction;
     procedure ShowEditorActionExecute(Sender: TObject);
     procedure GetSessionValuesActionExecute(Sender: TObject);
     procedure SetSessionValuesActionExecute(Sender: TObject);
