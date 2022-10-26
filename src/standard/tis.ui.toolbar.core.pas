@@ -446,13 +446,19 @@ var
   vButton: TToolButton;
   vObj: Variant;
   vPopup: TPopupMenu;
+  vCaption: TTranslateString;
 begin
   vDocButtons.InitArray([], JSON_FAST_FLOAT);
   for v1 := 0 to ButtonCount -1 do
   begin
     vButton := Buttons[v1];
+    vAction := vButton.Action as TAction;
+    if Assigned(vAction) then
+      vCaption := vAction.Caption
+    else
+      vCaption := vButton.Caption;
     vObj := _ObjFast([
-      'caption', vButton.Caption,
+      'caption', vCaption,
       'left', vButton.Left,
       'style', vButton.Style,
       'imageindex', vButton.ImageIndex
@@ -494,6 +500,7 @@ var
   vPopup: TPopupMenu;
   vObjButton: PDocVariantData;
   vObjAction, vObjPopup: PVariant;
+  vCaption: TTranslateString;
 begin
   if (csDesigning in ComponentState) or
    (GetSessionValues = aValue) then
@@ -517,11 +524,15 @@ begin
           vAction := Actions.LocateAction(vObjAction^.owner, vObjAction^.list, vObjAction^.name)
         else
           vAction := nil;
+        if Assigned(vAction) then
+          vCaption := vAction.Caption
+        else
+          vCaption := vObjButton^.S['caption'];
         if vObjButton^.GetAsPVariant('popup', vObjPopup) then
           vPopup := PopupMenus.LocatePopupMenu(vObjPopup^.owner, vObjPopup^.name)
         else
           vPopup := nil;
-        AddButton(vObjButton^.S['caption'], TToolButtonStyle(vObjButton^.I['style']), vObjButton^.I['imageindex'], vAction, vPopup);
+        AddButton(vCaption, TToolButtonStyle(vObjButton^.I['style']), vObjButton^.I['imageindex'], vAction, vPopup);
       end;
     DoSessionChange(vDoc.I['version']);
   except
@@ -575,16 +586,17 @@ begin
   with result do
   begin
     Parent := self;
-    Caption := aCaption;
-    Action := aAction;
+    if Assigned(aAction) then
+      Action := aAction
+    else
+    begin
+      Caption := aCaption;
+      ImageIndex := aImageIndex;
+    end;
     Style := aStyle;
     AutoSize := True;
     Left := Parent.Width;
     DropdownMenu := aPopupMenu;
-    if aAction <> nil then
-      ImageIndex := aAction.ImageIndex
-    else
-      ImageIndex := aImageIndex;
   end;
 end;
 

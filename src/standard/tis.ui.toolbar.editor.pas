@@ -13,6 +13,7 @@ uses
   Classes,
   SysUtils,
   LCLProc,
+  LCLType,
   LclIntf,
   Controls,
   Forms,
@@ -258,6 +259,7 @@ procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
   fTarget.RestoreSession;
   LoadButtons;
+  ButtonsListView.SetFocus;
 end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
@@ -661,6 +663,7 @@ var
   vAction: TAction;
   vData: TSharedData;
   vNode: TTreeNode;
+  vCaption: TTranslateString;
 begin
   vListItem := ButtonsListView.Items.Add;
   vAction := aButton.Action as TAction;
@@ -677,7 +680,11 @@ begin
     end
     else
     begin
-      vListItem.Caption := aButton.Caption;
+      if Assigned(vAction) then
+        vCaption := vAction.Caption
+      else
+        vCaption := aButton.Caption;
+      vListItem.Caption := vCaption;
       if Assigned(vAction) then
         vListItem.ImageIndex := vAction.ImageIndex
       else
