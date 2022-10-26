@@ -585,7 +585,7 @@ begin
   result := TToolButton.Create(self);
   with result do
   begin
-    // should be True, as the a (new) translated caption can be long
+    // should be True, as maybe a translated caption could be longer
     AutoSize := True;
     if Assigned(aAction) then
       Action := aAction
