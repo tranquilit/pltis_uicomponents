@@ -237,8 +237,10 @@ begin
             vSibling.Left + vSibling.Width,
             vSibling.Top, vButton.Width, vButton.Height);
         end;
-        vButton.AutoSize := True; // should be True, as the new caption can be long
-        vButton.Parent := fTarget; // show it in the target toolbar
+        // should be True, as the a (new) translated caption can be long
+        vButton.AutoSize := True;
+        // show it in the target toolbar
+        vButton.Parent := fTarget;
       end;
     finally
       fTarget.EndUpdate;

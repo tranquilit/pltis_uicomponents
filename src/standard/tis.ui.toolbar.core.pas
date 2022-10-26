@@ -585,7 +585,8 @@ begin
   result := TToolButton.Create(self);
   with result do
   begin
-    Parent := self;
+    // should be True, as the a (new) translated caption can be long
+    AutoSize := True;
     if Assigned(aAction) then
       Action := aAction
     else
@@ -594,9 +595,10 @@ begin
       ImageIndex := aImageIndex;
     end;
     Style := aStyle;
-    AutoSize := True;
-    Left := Parent.Width;
+    Left := self.Width;
     DropdownMenu := aPopupMenu;
+    // show it in the target toolbar
+    Parent := self;
   end;
 end;
 
