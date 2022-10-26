@@ -89,6 +89,7 @@ type
     procedure AddAutoActions;
     procedure LoadActions;
     procedure LoadButtons;
+    procedure LoadAll;
     function FindTreeViewNodeBy(aAction: TAction): TTreeNode;
   private
     const DividerListViewCaption = '---------------';
@@ -260,8 +261,7 @@ end;
 procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
   fTarget.RestoreSession;
-  LoadButtons;
-  ButtonsListView.SetFocus;
+  LoadAll;
 end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
@@ -622,6 +622,20 @@ begin
     AddListViewItem(fTarget.Buttons[v1]);
 end;
 
+procedure TTisToolBarEditor.LoadAll;
+begin
+  ActionsTreeView.Items.BeginUpdate;
+  try
+    ActionsTreeView.Items.Clear;
+    AddAutoPopups;
+    AddAutoActions;
+    LoadActions;
+  finally
+    ActionsTreeView.Items.EndUpdate;
+  end;
+  LoadButtons;
+end;
+
 function TTisToolBarEditor.FindTreeViewNodeBy(aAction: TAction): TTreeNode;
 begin
   if aAction = nil then
@@ -647,16 +661,7 @@ begin
   ActionsTreeView.Images := fTarget.Images;
   ButtonsListView.SmallImages := fTarget.Images;
   SetupCaptions;
-  ActionsTreeView.Items.BeginUpdate;
-  try
-    ActionsTreeView.Items.Clear;
-    AddAutoPopups;
-    AddAutoActions;
-    LoadActions;
-  finally
-    ActionsTreeView.Items.EndUpdate;
-  end;
-  LoadButtons;
+  LoadAll;
 end;
 
 procedure TTisToolBarEditor.AddListViewItem(aButton: TToolButton);
