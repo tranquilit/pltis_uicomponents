@@ -148,14 +148,18 @@ type
   TOnSessionVersionChange = procedure(aSender: TTisToolBar; aCurVersion, aNewVersion: Integer;
     var aHandled: Boolean) of object;
 
+  /// event that will trigger after SessionValues has changed
+  TOnAfterSessionValuesChange = procedure(aSender: TTisToolBar) of object;
+
   TTisToolBar = class(TToolBar)
   private
     fActions: TTisActionsCollection;
     fPopupMenus: TTisPopupMenusCollection;
     fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
-    fOnSessionVersionChange: TOnSessionVersionChange;
     fSessionVersion: Integer;
+    fOnSessionVersionChange: TOnSessionVersionChange;
+    fOnAfterSessionValuesChange: TOnAfterSessionValuesChange;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
     const DefaultSessionVersion = 3;
@@ -170,6 +174,7 @@ type
     procedure SetupPopupMenu; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
     function DoSessionVersionChange(aCurVersion, aNewVersion: Integer): Boolean;
+    procedure DoAfterSessionValuesChange;
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -203,12 +208,16 @@ type
     /// the SessionValues version
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
     /// event that will trigger when SessionVersion has changed
-    // - you can use it to fix/add/delete some buttons, popup, actions, or properties in general
+    // - it can be useful to fix/add/delete some actions and/or popusmenus collections
     // that maybe do not exist in the SessionValues user machine
     // - use aCurVersion to know the current version
     // - use aNewVersion to know the new version
     // - set aHandle=TRUE for the component do not automatically restore the buttons as it was designed
     property OnSessionVersionChange: TOnSessionVersionChange read fOnSessionVersionChange write fOnSessionVersionChange;
+    /// event that will trigger after SessionValues has changed
+    // - it can be useful to change buttons styles, assigned new Actions, etc
+    // after the Toolbar has read and recreates all the buttons from SessionValues
+    property OnAfterSessionValuesChange: TOnAfterSessionValuesChange read fOnAfterSessionValuesChange write fOnAfterSessionValuesChange;
   end;
 
 implementation
@@ -564,6 +573,7 @@ begin
   except
     RestoreSession;
   end;
+  DoAfterSessionValuesChange;
 end;
 
 procedure TTisToolBar.SetupDblClick;
@@ -604,6 +614,12 @@ begin
   result := False;
   if Assigned(fOnSessionVersionChange) then
     fOnSessionVersionChange(self, aCurVersion, aNewVersion, result);
+end;
+
+procedure TTisToolBar.DoAfterSessionValuesChange;
+begin
+  if Assigned(fOnAfterSessionValuesChange) then
+    fOnAfterSessionValuesChange(self);
 end;
 
 function TTisToolBar.AddButton(const aCaption: string;
