@@ -144,7 +144,8 @@ type
 
   TTisEditorOptions = set of TTisEditorOption;
 
-  /// event to manipulate SessionValues, if user machine is running a different version then the component instance
+  /// event that will be fired, if user machine is running a different version
+  // then the component instance
   TOnSessionVersionChange = procedure(aSender: TTisToolBar; aCurVersion, aNewVersion: Integer;
     var aHandled: Boolean) of object;
 
@@ -522,30 +523,37 @@ begin
       vSessionDoc.InitJson(StringToUtf8(fDefaultSessionValues), JSON_FAST_FLOAT);
     end;
     // checking if user session version is minor than design time version
-    // - if yes, we must restore for the default one, as some Action,
-    // Popups, etc may be missing in the user session
     if vSessionDoc.I['version'] < fSessionVersion then
     begin
+      // fire an event that allow developer to fix something that could be missing
+      // in user machine, as some Action, Popups, etc in the collections
       if not DoSessionVersionChange(vSessionDoc.I['version'], fSessionVersion) then
-        RestoreSession;
-    end
-    else
-      for vSessionButton in vSessionDoc.A_['buttons']^.Objects do
       begin
-        if vSessionButton^.GetAsPVariant('action', vSessionAction) then
-          vAction := Actions.LocateAction(vSessionAction^.owner, vSessionAction^.list, vSessionAction^.name)
-        else
-          vAction := nil;
-        if Assigned(vAction) then
-          vCaption := vAction.Caption
-        else
-          vCaption := vSessionButton^.S['caption'];
-        if vSessionButton^.GetAsPVariant('popup', vSessionPopup) then
-          vPopup := PopupMenus.LocatePopupMenu(vSessionPopup^.owner, vSessionPopup^.name)
-        else
-          vPopup := nil;
-        AddButton(vCaption, TToolButtonStyle(vSessionButton^.I['style']), vSessionButton^.I['imageindex'], vAction, vPopup);
+        // if it was not handled, it must restore for the default SessionValues
+        RestoreSession;
+        exit;
       end;
+    end;
+    // create buttons on the toolbar
+    for vSessionButton in vSessionDoc.A_['buttons']^.Objects do
+    begin
+      if vSessionButton^.GetAsPVariant('action', vSessionAction) then
+        vAction := Actions.LocateAction(vSessionAction^.owner, vSessionAction^.list, vSessionAction^.name)
+      else
+        vAction := nil;
+      if Assigned(vAction) then
+        vCaption := vAction.Caption
+      else
+        vCaption := vSessionButton^.S['caption'];
+      if vSessionButton^.GetAsPVariant('popup', vSessionPopup) then
+        vPopup := PopupMenus.LocatePopupMenu(vSessionPopup^.owner, vSessionPopup^.name)
+      else
+        vPopup := nil;
+      AddButton(
+        vCaption, TToolButtonStyle(vSessionButton^.I['style']),
+        vSessionButton^.I['imageindex'], vAction, vPopup
+      );
+    end;
   except
     RestoreSession;
   end;
