@@ -169,7 +169,7 @@ type
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
-    procedure DoSessionVersionChange(aCurVersion, aNewVersion: Integer; var aHandled: Boolean);
+    function DoSessionVersionChange(aCurVersion, aNewVersion: Integer): Boolean;
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -510,7 +510,6 @@ var
   vAction: TAction;
   vPopup: TPopupMenu;
   vCaption: TTranslateString;
-  vHandled: Boolean;
 begin
   if (csDesigning in ComponentState) or
    (GetSessionValues = aValue) then
@@ -527,8 +526,7 @@ begin
     // Popups, etc may be missing in the user session
     if vSessionDoc.I['version'] < fSessionVersion then
     begin
-      DoSessionVersionChange(vSessionDoc.I['version'], fSessionVersion, vHandled);
-      if not vHandled then
+      if not DoSessionVersionChange(vSessionDoc.I['version'], fSessionVersion) then
         RestoreSession;
     end
     else
@@ -586,12 +584,11 @@ begin
   ShowEditor;
 end;
 
-procedure TTisToolBar.DoSessionVersionChange(aCurVersion, aNewVersion: Integer;
-  var aHandled: Boolean);
+function TTisToolBar.DoSessionVersionChange(aCurVersion, aNewVersion: Integer): Boolean;
 begin
-  aHandled := False;
+  result := False;
   if Assigned(fOnSessionVersionChange) then
-    fOnSessionVersionChange(self, aCurVersion, aNewVersion, aHandled);
+    fOnSessionVersionChange(self, aCurVersion, aNewVersion, result);
 end;
 
 function TTisToolBar.AddButton(const aCaption: string;
