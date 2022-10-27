@@ -349,20 +349,18 @@ object TisToolBarEditor: TTisToolBarEditor
     ShowHint = True
     ParentShowHint = False
   end
-  object lblSelect: TLabel
+  object ButtonsListViewSelectLabel: TLabel
     AnchorSideRight.Control = ButtonsListView
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = FilterEdit
     AnchorSideBottom.Side = asrCenter
-    Left = 644
+    Left = 665
     Height = 15
     Top = 30
-    Width = 44
+    Width = 23
     Anchors = [akRight, akBottom]
     BorderSpacing.Bottom = 6
-    Caption = 'lblSelect'
-    Color = clDefault
-    ParentColor = False
+    Caption = '0 / 0'
     Transparent = False
   end
   object pnlButtons: TButtonPanel

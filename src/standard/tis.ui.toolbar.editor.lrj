@@ -3,6 +3,6 @@
 {"hash":203958661,"name":"ttistoolbareditor.lblmenutree.caption","sourcebytes":[108,98,108,77,101,110,117,84,114,101,101],"value":"lblMenuTree"},
 {"hash":191037842,"name":"ttistoolbareditor.lbltoolbar.caption","sourcebytes":[108,98,108,84,111,111,108,98,97,114],"value":"lblToolbar"},
 {"hash":346165,"name":"ttistoolbareditor.buttonslistview.columns[0].caption","sourcebytes":[78,97,109,101],"value":"Name"},
-{"hash":27023668,"name":"ttistoolbareditor.lblselect.caption","sourcebytes":[108,98,108,83,101,108,101,99,116],"value":"lblSelect"},
+{"hash":3289392,"name":"ttistoolbareditor.buttonslistviewselectlabel.caption","sourcebytes":[48,32,47,32,48],"value":"0 / 0"},
 {"hash":147502805,"name":"ttistoolbareditor.toolbarrestorebutton.caption","sourcebytes":[82,101,115,116,111,114,101],"value":"Restore"}
 ]}

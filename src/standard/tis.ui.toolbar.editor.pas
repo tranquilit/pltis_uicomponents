@@ -43,7 +43,7 @@ type
     FilterEdit: TTreeFilterEdit;
     lblMenuTree: TLabel;
     lblToolbar: TLabel;
-    lblSelect: TLabel;
+    ButtonsListViewSelectLabel: TLabel;
     ButtonsListView: TListView;
     miAll: TMenuItem;
     miCustom: TMenuItem;
@@ -91,6 +91,7 @@ type
     procedure LoadButtons;
     procedure LoadAll;
     function FindTreeViewNodeBy(aAction: TAction): TTreeNode;
+    procedure UpdateButtonsListViewSelectLabel;
   private
     const DividerListViewCaption = '---------------';
     const DividerButtonCaption = '-';
@@ -149,7 +150,7 @@ procedure TTisToolBarEditor.FormCreate(Sender: TObject);
 begin
   inherited;
   pnlButtons.Color := clBtnFace;
-  lblSelect.Caption := '';
+  ButtonsListViewSelectLabel.Caption := '';
   btnAddDivider.Caption := '---';
 end;
 
@@ -262,11 +263,13 @@ procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
   fTarget.RestoreSession;
   LoadAll;
+  UpdateButtonsListViewSelectLabel;
 end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
 begin
   ToolBarRestoreButton.Visible := not IsDesignTime;
+  UpdateButtonsListViewSelectLabel;
 end;
 
 procedure TTisToolBarEditor.InsertItem(aItem: TListItem);
@@ -419,7 +422,7 @@ procedure TTisToolBarEditor.ButtonsListViewSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 begin
   UpdateButtonsState;
-  lblSelect.Caption := Format('%d / %d', [ButtonsListView.ItemIndex+1, ButtonsListView.Items.Count])
+  UpdateButtonsListViewSelectLabel;
 end;
 
 procedure TTisToolBarEditor.MoveUpDown(aOffset: integer);
@@ -648,6 +651,13 @@ begin
     result.Visible := True;
     result.Selected := True;
   end;
+end;
+
+procedure TTisToolBarEditor.UpdateButtonsListViewSelectLabel;
+begin
+  ButtonsListViewSelectLabel.Caption := Format(
+    '%d / %d', [ButtonsListView.ItemIndex+1, ButtonsListView.Items.Count]
+  );
 end;
 
 function TTisToolBarEditor.IsDesignTime: Boolean;
