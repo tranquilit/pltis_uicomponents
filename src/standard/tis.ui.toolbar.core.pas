@@ -433,6 +433,7 @@ procedure TTisToolBar.Notification(aComponent: TComponent;
 var
   v1: Integer;
   vActionItem: TTisActionsItem;
+  vPopupItem: TTisPopupMenusItem;
 begin
   inherited Notification(aComponent, aOperation);
   if aOperation = opRemove then
@@ -442,6 +443,14 @@ begin
       vActionItem := Actions.Items[v1];
       if vActionItem.List = aComponent then
         vActionItem.List := nil;
+    end;
+    for v1 := 0 to PopupMenus.Count -1 do
+    begin
+      vPopupItem := PopupMenus.Items[v1];
+      if vPopupItem.Action = aComponent then
+        vPopupItem.Action := nil;
+      if vPopupItem.PopupMenu = aComponent then
+        vPopupItem.PopupMenu := nil;
     end;
   end;
 end;
