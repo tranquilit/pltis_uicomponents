@@ -144,8 +144,7 @@ type
 
   TTisEditorOptions = set of TTisEditorOption;
 
-  /// event that will be fired, if user machine is running a different version
-  // then the component instance
+  /// event that will trigger when SessionVersion has changed
   TOnSessionVersionChange = procedure(aSender: TTisToolBar; aCurVersion, aNewVersion: Integer;
     var aHandled: Boolean) of object;
 
@@ -203,13 +202,12 @@ type
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
     /// the SessionValues version
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
-    /// event that will fire if the session version has changed
-    // - you can use it to fix/add some buttons, popup, actions, or properties in general
+    /// event that will trigger when SessionVersion has changed
+    // - you can use it to fix/add/delete some buttons, popup, actions, or properties in general
     // that maybe do not exist in the SessionValues user machine
     // - use aCurVersion to know the current version
     // - use aNewVersion to know the new version
-    // - set aHandle=TRUE for manipulate the SessionValues manually or set as FALSE
-    // for let the component automatically restore the buttons as it was designed
+    // - set aHandle=TRUE for the component do not automatically restore the buttons as it was designed
     property OnSessionVersionChange: TOnSessionVersionChange read fOnSessionVersionChange write fOnSessionVersionChange;
   end;
 
