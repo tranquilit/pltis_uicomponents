@@ -144,10 +144,9 @@ type
 
   TTisEditorOptions = set of TTisEditorOption;
 
-  /// event to manipulate the user session, if it is using a different session
-  // version from component instance
-  // - the aVersion argument is the current user session version
-  TOnSessionChange = procedure(aSender: TTisToolBar; aVersion: Integer) of object;
+  /// event to manipulate SessionValues, if user machine is running a different version then the component instance
+  TOnSessionVersionChange = procedure(aSender: TTisToolBar; aCurVersion, aNewVersion: Integer;
+    var aHandled: Boolean) of object;
 
   TTisToolBar = class(TToolBar)
   private
@@ -155,7 +154,7 @@ type
     fPopupMenus: TTisPopupMenusCollection;
     fEditorOptions: TTisEditorOptions;
     fDefaultSessionValues: string;
-    fOnSessionChange: TOnSessionChange;
+    fOnSessionVersionChange: TOnSessionVersionChange;
     fSessionVersion: Integer;
   protected
     const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
@@ -170,7 +169,7 @@ type
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
-    procedure DoSessionChange(aVersion: Integer);
+    procedure DoSessionVersionChange(aCurVersion, aNewVersion: Integer; var aHandled: Boolean);
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -192,15 +191,25 @@ type
     property DefaultSessionValues: string read fDefaultSessionValues write fDefaultSessionValues;
   published
     // ------------------------------- new properties -------------------------------
+    /// actions collection
     property Actions: TTisActionsCollection read fActions write fActions;
+    /// action + popup collections
     property PopupMenus: TTisPopupMenusCollection read fPopupMenus write fPopupMenus;
+    /// editor options
+    // - use those options to setup how Editor will behave
     property EditorOptions: TTisEditorOptions read fEditorOptions write fEditorOptions default DefaultEditorOptions;
+    /// use it to save the layout of the buttons on toolbar
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
+    /// the SessionValues version
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
-    /// event that will fire after the session has changed
+    /// event that will fire if the session version has changed
     // - you can use it to fix/add some buttons, popup, actions, or properties in general
     // that maybe do not exist in the SessionValues user machine
-    property OnSessionChange: TOnSessionChange read fOnSessionChange write fOnSessionChange;
+    // - use aCurVersion to know the current version
+    // - use aNewVersion to know the new version
+    // - set aHandle=TRUE for manipulate the SessionValues manually or set as FALSE
+    // for let the component automatically restore the buttons as it was designed
+    property OnSessionVersionChange: TOnSessionVersionChange read fOnSessionVersionChange write fOnSessionVersionChange;
   end;
 
 implementation
@@ -501,6 +510,7 @@ var
   vAction: TAction;
   vPopup: TPopupMenu;
   vCaption: TTranslateString;
+  vHandled: Boolean;
 begin
   if (csDesigning in ComponentState) or
    (GetSessionValues = aValue) then
@@ -516,7 +526,11 @@ begin
     // - if yes, we must restore for the default one, as some Action,
     // Popups, etc may be missing in the user session
     if vSessionDoc.I['version'] < fSessionVersion then
-      RestoreSession
+    begin
+      DoSessionVersionChange(vSessionDoc.I['version'], fSessionVersion, vHandled);
+      if not vHandled then
+        RestoreSession;
+    end
     else
       for vSessionButton in vSessionDoc.A_['buttons']^.Objects do
       begin
@@ -534,7 +548,6 @@ begin
           vPopup := nil;
         AddButton(vCaption, TToolButtonStyle(vSessionButton^.I['style']), vSessionButton^.I['imageindex'], vAction, vPopup);
       end;
-    DoSessionChange(vSessionDoc.I['version']);
   except
     RestoreSession;
   end;
@@ -573,10 +586,12 @@ begin
   ShowEditor;
 end;
 
-procedure TTisToolBar.DoSessionChange(aVersion: Integer);
+procedure TTisToolBar.DoSessionVersionChange(aCurVersion, aNewVersion: Integer;
+  var aHandled: Boolean);
 begin
-  if Assigned(fOnSessionChange) then
-    fOnSessionChange(self, aVersion);
+  aHandled := False;
+  if Assigned(fOnSessionVersionChange) then
+    fOnSessionVersionChange(self, aCurVersion, aNewVersion, aHandled);
 end;
 
 function TTisToolBar.AddButton(const aCaption: string;
