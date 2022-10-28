@@ -826,12 +826,16 @@ begin
 end;
 
 procedure TTisToolBar.ShowEditor;
+var
+  vSessionValuesBackup: string;
 begin
+  vSessionValuesBackup := SessionValues;
   DoBeforeShowEditor;
   with TTisToolBarEditor.Create(Application) do
   try
     Target := self;
-    ShowModal;
+    if ShowModal <> mrOK then
+      SessionValues := vSessionValuesBackup;
   finally
     Free;
   end;
