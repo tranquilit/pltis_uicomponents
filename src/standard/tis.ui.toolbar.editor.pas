@@ -250,11 +250,13 @@ begin
       begin
         fDesigner.Modified;
         // get new default values
-        fTarget.DefaultSessionValues := fTarget.SessionValues;
-        // force to use new values from DefaultSessionValues
+        fTarget.DesigntimeSessionValues := fTarget.SessionValues;
+        // force to use new values from DesigntimeSessionValues
         fTarget.SessionValues := '';
         fTarget.Invalidate;
-      end;
+      end
+      else
+        fTarget.RuntimeSessionValues := fTarget.SessionValues;
     end;
   end;
 end;
@@ -315,34 +317,25 @@ function TTisToolBarEditor.NewButtonBy(aNode: TTreeNode): TToolButton;
 var
   vData: TSharedData;
 begin
-  result := TToolButton.Create(fTarget.Owner);
-  result.Style := tbsButton;
   vData := TSharedData(aNode.Data);
-  if vData <> nil then
+  result := fTarget.AddButton(
+    vData.Action.Caption, tbsButton, aNode.ImageIndex,
+    vData.Action, vData.PopupMenu
+  );
+  if Assigned(vData.PopupMenu) then
   begin
-    if Assigned(vData.Action) then
-    begin
-      result.Caption := vData.Action.Caption;
-      result.Action := vData.Action;
-    end
+    result.DropdownMenu := vData.PopupMenu;
+    if Assigned(result.Action) and Assigned(result.Action.OnExecute) then
+      result.Style := tbsDropDown
     else
-      result.ImageIndex := aNode.ImageIndex;
-    if Assigned(vData.PopupMenu) then
-    begin
-      result.DropdownMenu := vData.PopupMenu;
-      if Assigned(result.Action) and Assigned(result.Action.OnExecute) then
-        result.Style := tbsDropDown
-      else
-        result.Style := tbsButtonDrop
-    end;
+      result.Style := tbsButtonDrop
   end;
   CheckButtonDesigntime(result);
 end;
 
 function TTisToolBarEditor.NewButtonDivider: TToolButton;
 begin
-  result := TToolButton.Create(fTarget.Owner);
-  result.Style := tbsDivider;
+  result := fTarget.AddButton('', tbsDivider, -1, nil, nil);
   CheckButtonDesigntime(result);
 end;
 
@@ -357,8 +350,7 @@ begin
   if (vNode = nil) or (vNode.Data = nil) then
     exit;
   vData := TSharedData(vNode.Data);
-  if vData.Button = nil then
-    vData.Button := NewButtonBy(vNode);
+  vData.Button := NewButtonBy(vNode);
   if Assigned(vData.Action) then
     vCaption := vData.Action.Caption
   else
@@ -565,6 +557,8 @@ begin
     for v2 := 0 to vActions.ActionCount -1 do
     begin
       vAction := vActions.Actions[v2] as TAction;
+      if vAction = nil then
+        Continue;
       vCategory := vAction.Category;
       DeleteAmpersands(vCategory);
       // do not show if the action belongs to a hidden category
