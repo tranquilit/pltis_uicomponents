@@ -169,13 +169,15 @@ type
     fOnAfterSessionValuesChange: TOnAfterSessionValuesChange;
     fOnBeforeShowEditor: TOnBeforeShowEditor;
     fOnAfterCloseEditor: TOnAfterCloseEditor;
-  protected
-    const DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
-    const DefaultSessionVersion = 3;
-  protected
-    /// manage originals buttons from design time
-    // - these instances will be reused, when user restore actions from Editor (left panel)
-    type TDesigntimeButtonList = class
+  protected const
+    // ------------------------------- new constants --------------------------------
+    DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
+    DefaultSessionVersion = 3;
+  protected type
+    // ------------------------------- new types ------------------------------------
+    /// manage and saved originals buttons configurations from design time
+    // - these instances will be reused, when user choose Actions from Editor (left panel)
+    TDesigntimeButtons = class
     private
       fList: TList;
     public
@@ -186,7 +188,7 @@ type
       function Locate(aAction: TAction; aPopupMenu: TPopupMenu): TToolButton; overload;
     end;
   protected
-    fDesigntimeButtonList: TDesigntimeButtonList;
+    fDesigntimeButtons: TDesigntimeButtons;
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
@@ -218,7 +220,7 @@ type
     procedure RestoreSession;
     /// it refresh SessionValues to the same SessionValues when the program started
     // - it can be useful when the program changes some Actions dynamically
-    // but it should back to the original value
+    // but it should back to the original values
     procedure RefreshSession;
     /// it keeps SessionValues from original design time
     // - used by Editor, when in design time
@@ -465,29 +467,28 @@ end;
 
 { TTisToolBar }
 
-{ TTisToolBar.TDesigntimeButtonList }
+{ TTisToolBar.TDesigntimeButtons }
 
-constructor TTisToolBar.TDesigntimeButtonList.Create;
+constructor TTisToolBar.TDesigntimeButtons.Create;
 begin
   inherited Create;
   fList := TList.Create;
 end;
 
-destructor TTisToolBar.TDesigntimeButtonList.Destroy;
+destructor TTisToolBar.TDesigntimeButtons.Destroy;
 begin
   fList.Free;
   inherited Destroy;
 end;
 
-procedure TTisToolBar.TDesigntimeButtonList.Add(aButton: TToolButton);
+procedure TTisToolBar.TDesigntimeButtons.Add(aButton: TToolButton);
 begin
   fList.Add(aButton);
 end;
 
-function TTisToolBar.TDesigntimeButtonList.Locate(aButton: TToolButton): TToolButton;
+function TTisToolBar.TDesigntimeButtons.Locate(aButton: TToolButton): TToolButton;
 var
   v1: Integer;
-  vButton: TToolButton;
 begin
   result := nil;
   for v1 := 0 to fList.Count -1 do
@@ -500,7 +501,7 @@ begin
   end;
 end;
 
-function TTisToolBar.TDesigntimeButtonList.Locate(aAction: TAction;
+function TTisToolBar.TDesigntimeButtons.Locate(aAction: TAction;
   aPopupMenu: TPopupMenu): TToolButton;
 var
   v1: Integer;
@@ -527,7 +528,7 @@ var
 begin
   inherited Loaded;
   for v1 := 0 to ButtonCount-1 do
-    fDesigntimeButtonList.Add(Buttons[v1]);
+    fDesigntimeButtons.Add(Buttons[v1]);
   fDesigntimeSessionValues := SessionValues;
   if not (csDesigning in ComponentState) then
   begin
@@ -739,7 +740,7 @@ function TTisToolBar.AddButton(const aCaption: string;
 var
   v1: Integer;
 begin
-  result := fDesigntimeButtonList.Locate(aAction, aPopupMenu);
+  result := fDesigntimeButtons.Locate(aAction, aPopupMenu);
   if Assigned(result) then
   begin
     // change the position
@@ -772,7 +773,7 @@ end;
 
 procedure TTisToolBar.RemoveButton(aButton: TToolButton);
 begin
-  if Assigned(fDesigntimeButtonList.Locate(aButton)) then
+  if Assigned(fDesigntimeButtons.Locate(aButton)) then
   begin
     aButton.Visible := False;
     // removing it from the toolbar
@@ -797,7 +798,7 @@ end;
 constructor TTisToolBar.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fDesigntimeButtonList := TDesigntimeButtonList.Create;
+  fDesigntimeButtons := TDesigntimeButtons.Create;
   fActions := TTisActionsCollection.Create(self);
   fPopupMenus := TTisPopupMenusCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
@@ -806,7 +807,7 @@ end;
 
 destructor TTisToolBar.Destroy;
 begin
-  fDesigntimeButtonList.Free;
+  fDesigntimeButtons.Free;
   fActions.Free;
   fPopupMenus.Free;
   inherited Destroy;
