@@ -144,19 +144,21 @@ type
 
   TTisEditorOptions = set of TTisEditorOption;
 
-  /// event that will trigger when SessionVersion has changed
-  TOnSessionVersionChange = procedure(aSender: TTisToolBar; aCurVersion, aNewVersion: Integer;
+  /// event that will trigger before SessionValues has changed
+  TOnBeforeSessionValuesChange = procedure(aSender: TTisToolBar; aCurVersion, aNewVersion: Integer;
     var aHandled: Boolean) of object;
 
   /// event that will trigger after SessionValues has changed
   TOnAfterSessionValuesChange = procedure(aSender: TTisToolBar) of object;
 
   /// event that will trigger before show the Editor
-  TOnBeforeShowEditor = procedure(aSender: TTisToolBar) of object;
+  // - use aAbort argumento for do not open it
+  TOnBeforeShowEditor = procedure(aSender: TTisToolBar; var aAbort: Boolean) of object;
 
   /// event that will trigger after close the Editor
   TOnAfterCloseEditor = procedure(aSender: TTisToolBar) of object;
 
+  /// based on ToolBar, this is our version with steroids
   TTisToolBar = class(TToolBar)
   private
     fActions: TTisActionsCollection;
@@ -165,30 +167,15 @@ type
     fDesigntimeSessionValues: string;
     fRuntimeSessionValues: string;
     fSessionVersion: Integer;
-    fOnSessionVersionChange: TOnSessionVersionChange;
+    fOnBeforeSessionValuesChange: TOnBeforeSessionValuesChange;
     fOnAfterSessionValuesChange: TOnAfterSessionValuesChange;
     fOnBeforeShowEditor: TOnBeforeShowEditor;
     fOnAfterCloseEditor: TOnAfterCloseEditor;
   protected const
     // ------------------------------- new constants --------------------------------
     DefaultEditorOptions = [eoShowOnPopupMenu, eoAutoAddPopupMenus];
-    DefaultSessionVersion = 3;
-  protected type
-    // ------------------------------- new types ------------------------------------
-    /// manage and saved originals buttons configurations from design time
-    // - these instances will be reused, when user choose Actions from Editor (left panel)
-    TDesigntimeButtons = class
-    private
-      fList: TList;
-    public
-      constructor Create;
-      destructor Destroy; override;
-      procedure Add(aButton: TToolButton);
-      function Locate(aButton: TToolButton): TToolButton; overload;
-      function Locate(aAction: TAction; aPopupMenu: TPopupMenu): TToolButton; overload;
-    end;
+    DefaultSessionVersion = 1;
   protected
-    fDesigntimeButtons: TDesigntimeButtons;
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
@@ -198,9 +185,9 @@ type
     procedure SetupDblClick; virtual;
     procedure SetupPopupMenu; virtual;
     procedure ShowEditorCallback({%H-}aSender: TObject); virtual;
-    function DoSessionVersionChange(aCurVersion, aNewVersion: Integer): Boolean; virtual;
+    function DoBeforeSessionValuesChange(aCurVersion, aNewVersion: Integer): Boolean; virtual;
     procedure DoAfterSessionValuesChange; virtual;
-    procedure DoBeforeShowEditor; virtual;
+    function DoBeforeShowEditor: Boolean; virtual;
     procedure DoAfterCloseEditor; virtual;
   public
     // ------------------------------- inherited methods ----------------------------
@@ -209,8 +196,9 @@ type
     procedure Assign(aSource: TPersistent); override;
     // ------------------------------- new methods ----------------------------------
     /// add a new button related to an action
-    function AddButton(const aCaption: string; aStyle: TToolButtonStyle;
-      aImageIndex: Integer; aAction: TAction; aPopupMenu: TPopupMenu): TToolButton; overload;
+    function AddButton(aStyle: TToolButtonStyle;
+      const aCaption: TTranslateString = ''; aImageIndex: Integer = -1;
+      aAction: TAction = nil; aPopupMenu: TPopupMenu = nil): TToolButton; overload;
     procedure RemoveButton(aButton: TToolButton); overload; virtual;
     /// remove all buttons
     procedure RemoveButtons;
@@ -218,10 +206,11 @@ type
     procedure ShowEditor;
     /// it resets SessionValues to the original design
     procedure RestoreSession;
-    /// it refresh SessionValues to the same SessionValues when the program started
+    /// it resets SessionValues to the same SessionValues when the program started
     // - it can be useful when the program changes some Actions dynamically
-    // but it should back to the original values
-    procedure RefreshSession;
+    // but it should back to its original values
+    // - it will be call automatically before showing the Editor
+    procedure ResetSession;
     /// it keeps SessionValues from original design time
     // - used by Editor, when in design time
     property DesigntimeSessionValues: string read fDesigntimeSessionValues write fDesigntimeSessionValues;
@@ -241,23 +230,23 @@ type
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
     /// the SessionValues version
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
-    /// event that will trigger when SessionVersion has changed
+    /// event that will trigger before SessionValues has changed
     // - it can be useful to fix/add/delete some actions and/or popusmenus collections
     // that maybe do not exist in the SessionValues user machine
     // - use aCurVersion to know the current version
     // - use aNewVersion to know the new version
     // - set aHandle=TRUE for the component do not automatically restore the buttons as it was designed
-    property OnSessionVersionChange: TOnSessionVersionChange read fOnSessionVersionChange write fOnSessionVersionChange;
+    property OnBeforeSessionValuesChange: TOnBeforeSessionValuesChange read fOnBeforeSessionValuesChange write fOnBeforeSessionValuesChange;
     /// event that will trigger after SessionValues has changed
     // - it can be useful to change buttons styles, assigned new Actions, etc
     // after the Toolbar has read and recreates all the buttons from SessionValues
     property OnAfterSessionValuesChange: TOnAfterSessionValuesChange read fOnAfterSessionValuesChange write fOnAfterSessionValuesChange;
     /// event that will trigger before show the Editor
-    // - it can be useful return to original user session values, if something was changed dynamically
-    // - see RefreshSession
+    // - use aAbort argumento for do not open it
     property OnBeforeShowEditor: TOnBeforeShowEditor read fOnBeforeShowEditor write fOnBeforeShowEditor;
     /// event that will trigger after close the Editor
-    // - it can be useful return to a state that was different, changing some Action, Styles, etc dynamically
+    // - it can be useful return to a different state, if something was changed dynamically
+    // like Actions, Styles, etc
     property OnAfterCloseEditor: TOnAfterCloseEditor read fOnAfterCloseEditor write fOnAfterCloseEditor;
   end;
 
@@ -467,68 +456,11 @@ end;
 
 { TTisToolBar }
 
-{ TTisToolBar.TDesigntimeButtons }
-
-constructor TTisToolBar.TDesigntimeButtons.Create;
-begin
-  inherited Create;
-  fList := TList.Create;
-end;
-
-destructor TTisToolBar.TDesigntimeButtons.Destroy;
-begin
-  fList.Free;
-  inherited Destroy;
-end;
-
-procedure TTisToolBar.TDesigntimeButtons.Add(aButton: TToolButton);
-begin
-  fList.Add(aButton);
-end;
-
-function TTisToolBar.TDesigntimeButtons.Locate(aButton: TToolButton): TToolButton;
-var
-  v1: Integer;
-begin
-  result := nil;
-  for v1 := 0 to fList.Count -1 do
-  begin
-    if aButton = TToolButton(fList.Items[v1]) then
-    begin
-      result := aButton;
-      break;
-    end;
-  end;
-end;
-
-function TTisToolBar.TDesigntimeButtons.Locate(aAction: TAction;
-  aPopupMenu: TPopupMenu): TToolButton;
-var
-  v1: Integer;
-  vButton: TToolButton;
-begin
-  result := nil;
-  if not Assigned(aAction) then
-    exit;
-  for v1 := 0 to fList.Count -1 do
-  begin
-    vButton := TToolButton(fList.Items[v1]);
-    if (vButton.Action = aAction) and
-      (vButton.DropdownMenu = aPopupMenu) then
-    begin
-      result := vButton;
-      break;
-    end;
-  end;
-end;
-
 procedure TTisToolBar.Loaded;
 var
   v1: Integer;
 begin
   inherited Loaded;
-  for v1 := 0 to ButtonCount-1 do
-    fDesigntimeButtons.Add(Buttons[v1]);
   fDesigntimeSessionValues := SessionValues;
   if not (csDesigning in ComponentState) then
   begin
@@ -567,14 +499,14 @@ end;
 function TTisToolBar.GetSessionValues: string;
 var
   v1: Integer;
-  vDoc, vDocButtons: TDocVariantData;
+  vSessionDoc, vSessionButtons: TDocVariantData;
   vAction: TAction;
   vButton: TToolButton;
   vObj: Variant;
   vPopup: TPopupMenu;
   vCaption: TTranslateString;
 begin
-  vDocButtons.InitArray([], JSON_FAST_FLOAT);
+  vSessionButtons.InitArray([], JSON_FAST_FLOAT);
   for v1 := 0 to ButtonCount -1 do
   begin
     vButton := Buttons[v1];
@@ -584,6 +516,7 @@ begin
     else
       vCaption := vButton.Caption;
     vObj := _ObjFast([
+      'name', vButton.Name,
       'caption', vCaption,
       'left', vButton.Left,
       'style', vButton.Style,
@@ -608,48 +541,31 @@ begin
         'name', vPopup.Name
       ]);
     end;
-    vDocButtons.AddItem(vObj);
+    vSessionButtons.AddItem(vObj);
   end;
   // by default, the original list order is added by instance not by design
   // - session needs to save buttons by design order
-  vDocButtons.SortArrayByField('left');
-  vDoc.InitFast;
-  vDoc.I['version'] := fSessionVersion;
-  vDoc.A_['buttons']^ := vDocButtons;
-  result := Utf8ToString(vDoc.ToJson);
+  vSessionButtons.SortArrayByField('left');
+  vSessionDoc.InitFast;
+  vSessionDoc.I['version'] := fSessionVersion;
+  vSessionDoc.A_['buttons']^ := vSessionButtons;
+  result := Utf8ToString(vSessionDoc.ToJson);
 end;
 
 procedure TTisToolBar.SetSessionValues(const aValue: string);
 var
   vSessionDoc: TDocVariantData;
-  vSessionButton: PDocVariantData;
-  vSessionAction, vSessionPopup: PVariant;
-  vAction: TAction;
-  vPopup: TPopupMenu;
-  vCaption: TTranslateString;
-begin
-  if (csDesigning in ComponentState) or
-   (GetSessionValues = aValue) then
-    exit;
-  RemoveButtons;
-  try
-    if not vSessionDoc.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
-    begin
-      // use default values, if aValue is invalid
-      vSessionDoc.InitJson(StringToUtf8(fDesigntimeSessionValues), JSON_FAST_FLOAT);
-    end;
-    // checking if user session version is minor than design time version
-    if vSessionDoc.I['version'] < fSessionVersion then
-    begin
-      // fire an event that allow developer to fix something that could be missing
-      // in user machine, as some Action, Popups, etc in the collections
-      if not DoSessionVersionChange(vSessionDoc.I['version'], fSessionVersion) then
-      begin
-        // if it was not handled, it must restore for the default SessionValues
-        RestoreSession;
-        exit;
-      end;
-    end;
+
+  procedure _SetupButtons;
+  var
+    vSessionButton: PDocVariantData;
+    vSessionAction, vSessionPopup: PVariant;
+    vAction: TAction;
+    vPopup: TPopupMenu;
+    vCaption: TTranslateString;
+    vStyle: TToolButtonStyle;
+    vComponent: TComponent;
+  begin
     // create buttons on the toolbar
     for vSessionButton in vSessionDoc.A_['buttons']^.Objects do
     begin
@@ -665,16 +581,60 @@ begin
         vPopup := PopupMenus.LocatePopupMenu(vSessionPopup^.owner, vSessionPopup^.name)
       else
         vPopup := nil;
-      AddButton(
-        vCaption, TToolButtonStyle(vSessionButton^.I['style']),
-        vSessionButton^.I['imageindex'], vAction, vPopup
-      );
+      vStyle := TToolButtonStyle(vSessionButton^.I['style']);
+      vComponent := Owner.FindComponent(vSessionButton^.S['name']);
+      if Assigned(vComponent) and (vComponent is TToolButton) then
+      begin
+        with vComponent as TToolButton do
+        begin
+          // temporarily removed from the target to change its properties
+          Parent := nil;
+          Caption := vCaption;
+          Action := vAction;
+          DropdownMenu := vPopup;
+          Style := vStyle;
+          Left := vSessionButton^.I['left'];
+          Visible := True;
+          // show it in the target toolbar
+          Parent := self;
+        end;
+      end
+      else
+        AddButton(vStyle, vCaption, vSessionButton^.I['imageindex'], vAction, vPopup);
     end;
+  end;
+
+begin
+  if (csDesigning in ComponentState) then
+    exit;
+  RemoveButtons;
+  try
+    if not vSessionDoc.InitJson(StringToUtf8(aValue), JSON_FAST_FLOAT) then
+    begin
+      // use default values, if aValue is invalid
+      vSessionDoc.InitJson(StringToUtf8(fDesigntimeSessionValues), JSON_FAST_FLOAT);
+    end;
+    // if user session version is greater than design time version, do nothing,
+    // it means it was customized
+    if vSessionDoc.I['version'] < fSessionVersion then
+    begin
+      // fire an event that allow developer to fix something that could be missing
+      // in user machine, as some Action, Popups, etc in the collections
+      // - if it was not handled, it must restore for the default SessionValues
+      if not DoBeforeSessionValuesChange(vSessionDoc.I['version'], fSessionVersion) then
+      begin
+        RestoreSession;
+        exit;
+      end;
+      _SetupButtons;
+      DoAfterSessionValuesChange;
+    end
+    else
+      _SetupButtons;
+    fRuntimeSessionValues := SessionValues;
   except
     RestoreSession;
   end;
-  fRuntimeSessionValues := vSessionDoc.ToJson;
-  DoAfterSessionValuesChange;
 end;
 
 procedure TTisToolBar.SetupDblClick;
@@ -710,11 +670,11 @@ begin
   ShowEditor;
 end;
 
-function TTisToolBar.DoSessionVersionChange(aCurVersion, aNewVersion: Integer): Boolean;
+function TTisToolBar.DoBeforeSessionValuesChange(aCurVersion, aNewVersion: Integer): Boolean;
 begin
   result := False;
-  if Assigned(fOnSessionVersionChange) then
-    fOnSessionVersionChange(self, aCurVersion, aNewVersion, result);
+  if Assigned(fOnBeforeSessionValuesChange) then
+    fOnBeforeSessionValuesChange(self, aCurVersion, aNewVersion, result);
 end;
 
 procedure TTisToolBar.DoAfterSessionValuesChange;
@@ -723,10 +683,14 @@ begin
     fOnAfterSessionValuesChange(self);
 end;
 
-procedure TTisToolBar.DoBeforeShowEditor;
+function TTisToolBar.DoBeforeShowEditor: Boolean;
+var
+  vAbort: Boolean;
 begin
+  vAbort := False;
   if Assigned(fOnBeforeShowEditor) then
-    fOnBeforeShowEditor(self);
+    fOnBeforeShowEditor(self, vAbort);
+  result := not vAbort;
 end;
 
 procedure TTisToolBar.DoAfterCloseEditor;
@@ -735,21 +699,10 @@ begin
     fOnAfterCloseEditor(self);
 end;
 
-function TTisToolBar.AddButton(const aCaption: string;
-  aStyle: TToolButtonStyle; aImageIndex: Integer; aAction: TAction; aPopupMenu: TPopupMenu): TToolButton;
-var
-  v1: Integer;
+function TTisToolBar.AddButton(aStyle: TToolButtonStyle;
+  const aCaption: TTranslateString; aImageIndex: Integer;
+  aAction: TAction; aPopupMenu: TPopupMenu): TToolButton;
 begin
-  result := fDesigntimeButtons.Locate(aAction, aPopupMenu);
-  if Assigned(result) then
-  begin
-    // change the position
-    result.Left := self.Width;
-    // show it in the target toolbar
-    result.Parent := self;
-    result.Visible := True;
-    exit;
-  end;
   // if not located, creates a new one
   result := TToolButton.Create(self);
   with result do
@@ -773,12 +726,8 @@ end;
 
 procedure TTisToolBar.RemoveButton(aButton: TToolButton);
 begin
-  if Assigned(fDesigntimeButtons.Locate(aButton)) then
-  begin
-    aButton.Visible := False;
-    // removing it from the toolbar
-    aButton.Parent := nil;
-  end
+  if aButton.Name <> '' then
+    aButton.Visible := False
   else
   begin
     ButtonList.Remove(aButton);
@@ -798,7 +747,6 @@ end;
 constructor TTisToolBar.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fDesigntimeButtons := TDesigntimeButtons.Create;
   fActions := TTisActionsCollection.Create(self);
   fPopupMenus := TTisPopupMenusCollection.Create(self);
   fEditorOptions := DefaultEditorOptions;
@@ -807,7 +755,6 @@ end;
 
 destructor TTisToolBar.Destroy;
 begin
-  fDesigntimeButtons.Free;
   fActions.Free;
   fPopupMenus.Free;
   inherited Destroy;
@@ -819,7 +766,10 @@ begin
     with aSource as TTisToolBar do
     begin
       self.Actions.Assign(Actions);
+      self.PopupMenus.Assign(PopupMenus);
       self.SessionValues := SessionValues;
+      self.DesigntimeSessionValues := DesigntimeSessionValues;
+      self.RuntimeSessionValues := RuntimeSessionValues;
     end
   else
     inherited Assign(aSource);
@@ -829,17 +779,21 @@ procedure TTisToolBar.ShowEditor;
 var
   vSessionValuesBackup: string;
 begin
-  vSessionValuesBackup := SessionValues;
-  DoBeforeShowEditor;
-  with TTisToolBarEditor.Create(Application) do
-  try
-    Target := self;
-    if ShowModal <> mrOK then
-      SessionValues := vSessionValuesBackup;
-  finally
-    Free;
+  vSessionValuesBackup := fRuntimeSessionValues;
+  if DoBeforeShowEditor then
+  begin
+    // it is mandatory, as the program might change some actions, popups, etc, dynamically
+    ResetSession;
+    with TTisToolBarEditor.Create(Application) do
+    try
+      Target := self;
+      if ShowModal <> mrOK then
+        SessionValues := vSessionValuesBackup;
+      DoAfterCloseEditor;
+    finally
+      Free;
+    end;
   end;
-  DoAfterCloseEditor;
 end;
 
 procedure TTisToolBar.RestoreSession;
@@ -847,7 +801,7 @@ begin
   SessionValues := fDesigntimeSessionValues;
 end;
 
-procedure TTisToolBar.RefreshSession;
+procedure TTisToolBar.ResetSession;
 begin
   SessionValues := fRuntimeSessionValues;
 end;

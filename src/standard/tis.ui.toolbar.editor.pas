@@ -55,7 +55,6 @@ type
     ActionsTreeView: TTreeView;
     ToolBarRestoreButton: TSpeedButton;
     procedure FormCreate(Sender: TObject);
-    procedure ButtonsListViewDblClick(Sender: TObject);
     procedure lvToolbarEnterExit(Sender: TObject);
     procedure ActionsTreeViewDblClick(Sender: TObject);
     procedure UpdateButtonsState;
@@ -154,11 +153,6 @@ begin
   btnAddDivider.Caption := '---';
 end;
 
-procedure TTisToolBarEditor.ButtonsListViewDblClick(Sender: TObject);
-begin
-  RemoveCommand;
-end;
-
 procedure TTisToolBarEditor.lvToolbarEnterExit(Sender: TObject);
 begin
   UpdateButtonsState;
@@ -172,13 +166,20 @@ end;
 
 procedure TTisToolBarEditor.UpdateButtonsState;
 var
-  v1: Integer;
+  vIndex: Integer;
+  vData: TSharedData;
 begin
-  v1 := ButtonsListView.ItemIndex;
+  vIndex := ButtonsListView.ItemIndex;
+  if vIndex > -1 then
+    vData := TSharedData(ButtonsListView.Items[vIndex].Data)
+  else
+    vData := nil;
   btnAdd.Enabled := Assigned(ActionsTreeView.Selected) and Assigned(ActionsTreeView.Selected.Data);
-  btnRemove.Enabled := (v1 > -1) and (v1 <= ButtonsListView.Items.Count -1);
-  btnMoveUp.Enabled := (v1 > 0) and (v1 <= ButtonsListView.Items.Count -1);
-  btnMoveDown.Enabled := (v1 > -1) and (v1 < ButtonsListView.Items.Count -1);
+  btnRemove.Enabled := (vIndex > -1) and (vIndex <= ButtonsListView.Items.Count -1) and
+    // disallow removing design-time buttons
+    Assigned(vData) and (vData.Button.Name = '');
+  btnMoveUp.Enabled := (vIndex > 0) and (vIndex <= ButtonsListView.Items.Count -1);
+  btnMoveDown.Enabled := (vIndex > -1) and (vIndex < ButtonsListView.Items.Count -1);
   btnAddDivider.Enabled := True;
 end;
 
@@ -204,7 +205,8 @@ begin
       begin
         vFound := False;
         vButton := fTarget.Buttons[v1];
-        vButton.Parent := nil; // temporarily removed from the target to change its bound more below
+        // temporarily removed from the target to change its bound more below
+        vButton.Parent := nil;
         for v2 := 0 to ButtonsListView.Items.Count -1 do
         begin
           vListItem := ButtonsListView.Items[v2];
@@ -319,7 +321,7 @@ var
 begin
   vData := TSharedData(aNode.Data);
   result := fTarget.AddButton(
-    vData.Action.Caption, tbsButton, aNode.ImageIndex,
+    tbsButton, vData.Action.Caption, aNode.ImageIndex,
     vData.Action, vData.PopupMenu
   );
   if Assigned(vData.PopupMenu) then
@@ -335,7 +337,7 @@ end;
 
 function TTisToolBarEditor.NewButtonDivider: TToolButton;
 begin
-  result := fTarget.AddButton('', tbsDivider, -1, nil, nil);
+  result := fTarget.AddButton(tbsDivider);
   CheckButtonDesigntime(result);
 end;
 
@@ -407,7 +409,8 @@ end;
 
 procedure TTisToolBarEditor.btnRemoveClick(Sender: TObject);
 begin
-  RemoveCommand;
+  if btnRemove.Enabled then
+    RemoveCommand;
 end;
 
 procedure TTisToolBarEditor.ButtonsListViewSelectItem(Sender: TObject;

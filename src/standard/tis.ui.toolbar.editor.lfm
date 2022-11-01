@@ -328,7 +328,7 @@ object TisToolBarEditor: TTisToolBarEditor
     SortType = stData
     TabOrder = 3
     ViewStyle = vsReport
-    OnDblClick = ButtonsListViewDblClick
+    OnDblClick = btnRemoveClick
     OnEnter = lvToolbarEnterExit
     OnExit = lvToolbarEnterExit
     OnSelectItem = ButtonsListViewSelectItem
