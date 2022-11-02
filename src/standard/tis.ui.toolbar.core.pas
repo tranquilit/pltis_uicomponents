@@ -233,8 +233,9 @@ type
     /// use it to save the layout of the buttons on toolbar
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
     /// the SessionValues version
-    // - it must be increment when some changes in button names, actions, popups, etc could
-    // break the compatibility in users machines, if the program is storing the SessionValues customized by user
+    // - it must be incremented when the developer changes and/or removes button names, actions,
+    // popups, etc, which could break the compatibility in users machines - in case of the program
+    // is storing and restoring SessionValues customized by user
     // - if the user version is minor than SessionVersion, the component will call RestoreSession, unless
     // OnBeforeSessionValuesChange has be implemented and handled
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
