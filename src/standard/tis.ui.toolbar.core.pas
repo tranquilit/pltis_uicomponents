@@ -208,7 +208,7 @@ type
     procedure RemoveButtons;
     /// it shows the Editor to manage buttons/actions
     procedure ShowEditor;
-    /// it resets SessionValues to the original design
+    /// it restores SessionValues to the original design-time
     procedure RestoreSession;
     /// it resets SessionValues to the same SessionValues when the program started
     // - it can be useful when the program changes some Actions dynamically
@@ -233,6 +233,10 @@ type
     /// use it to save the layout of the buttons on toolbar
     property SessionValues: string read GetSessionValues write SetSessionValues stored False;
     /// the SessionValues version
+    // - it must be increment when some changes in button names, actions, popups, etc could
+    // break the compatibility in users machines, if the program is storing the SessionValues customized by user
+    // - if the user version is minor than SessionVersion, the component will call RestoreSession, unless
+    // OnBeforeSessionValuesChange has be implemented and handled
     property SessionVersion: Integer read fSessionVersion write fSessionVersion default DefaultSessionVersion;
     /// event that will trigger before SessionValues has changed
     // - it can be useful to fix/add/delete some actions and/or popusmenus collections
@@ -240,6 +244,7 @@ type
     // - use aCurVersion to know the current version
     // - use aNewVersion to know the new version
     // - set aHandle=TRUE for the component do not automatically restore the buttons as it was designed
+    // - see SessionVersion
     property OnBeforeSessionValuesChange: TOnBeforeSessionValuesChange read fOnBeforeSessionValuesChange write fOnBeforeSessionValuesChange;
     /// event that will trigger after SessionValues has changed
     // - it can be useful to change buttons styles, assigned new Actions, etc
