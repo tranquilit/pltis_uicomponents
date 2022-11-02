@@ -199,7 +199,11 @@ type
     function AddButton(aStyle: TToolButtonStyle; const aCaption: TTranslateString = '';
       aImageIndex: Integer = -1; const aName: TComponentName = ''): TToolButton; overload; virtual;
     /// add a new button related to an action
-    function AddButton(aAction: TAction; aPopupMenu: TPopupMenu;
+    // - the button Style will be defined by arguments: if aPopupMenu was assigned
+    // and the Action has OnExecute implemented, the style will be tbsDropDown,
+    // otherwise it will be tbsButtonDrop
+    // - if aPopupMenu was not assigned, the Style will be tbsButton
+    function AddButton(aAction: TAction; aPopupMenu: TPopupMenu = nil;
       const aName: TComponentName = ''): TToolButton; overload; virtual;
     /// remove a button
     // - if it is a design-time button, it will be set to invisible, otherwise it will be removed and disposed
