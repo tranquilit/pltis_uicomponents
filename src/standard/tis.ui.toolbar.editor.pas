@@ -198,7 +198,6 @@ begin
   fTarget.RestoreSession;
   LoadAll;
   UpdateButtonsListViewSelectLabel;
-  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
@@ -552,15 +551,8 @@ begin
 end;
 
 procedure TTisToolBarEditor.LoadButtons;
-var
-  v1: Integer;
 begin
-  if ButtonsListView.Items.Count > 0 then
-  begin
-    ButtonsListView.ItemIndex := 0; // point to the first for remove all items
-    for v1 := 0 to ButtonsListView.Items.Count -1 do
-      RemoveCommand;
-  end;
+  ButtonsListView.Clear;
   for v1 := 0 to fTarget.ButtonCount -1 do
     AddListViewItem(fTarget.Buttons[v1]);
 end;

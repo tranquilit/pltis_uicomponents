@@ -756,6 +756,8 @@ end;
 
 procedure TTisToolBar.RemoveButton(aButton: TToolButton);
 begin
+  if not Assigned(aButton) then
+    exit;
   if aButton.Name <> '' then
     aButton.Visible := False
   else
