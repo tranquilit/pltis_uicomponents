@@ -56,7 +56,6 @@ type
     ToolBarRestoreButton: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure lvToolbarEnterExit(Sender: TObject);
-    procedure ActionsTreeViewDblClick(Sender: TObject);
     procedure UpdateButtonsState;
     procedure btnAddClick(Sender: TObject);
     procedure btnAddDividerClick(Sender: TObject);
@@ -90,6 +89,7 @@ type
     procedure LoadAll;
     function FindTreeViewNodeBy(aAction: TAction): TTreeNode;
     procedure UpdateButtonsListViewSelectLabel;
+    procedure UpdateTarget;
   private
     const DividerListViewCaption = '---------------';
     const DividerButtonCaption = '-';
@@ -157,12 +157,6 @@ begin
   UpdateButtonsState;
 end;
 
-procedure TTisToolBarEditor.ActionsTreeViewDblClick(Sender: TObject);
-begin
-  if btnAdd.Enabled then
-    AddCommand;
-end;
-
 procedure TTisToolBarEditor.UpdateButtonsState;
 var
   vIndex: Integer;
@@ -175,8 +169,8 @@ begin
     vData := nil;
   btnAdd.Enabled := Assigned(ActionsTreeView.Selected) and Assigned(ActionsTreeView.Selected.Data);
   btnRemove.Enabled := (vIndex > -1) and (vIndex <= ButtonsListView.Items.Count -1) and
-    // disallow removing design-time buttons
-    Assigned(vData) and (vData.Button.Name = '');
+    // if in runtime, disallow removing design-time buttons
+    IsDesignTime or (Assigned(vData) and (vData.Button.Name = ''));
   btnMoveUp.Enabled := (vIndex > 0) and (vIndex <= ButtonsListView.Items.Count -1);
   btnMoveDown.Enabled := (vIndex > -1) and (vIndex < ButtonsListView.Items.Count -1);
   btnAddDivider.Enabled := True;
@@ -189,77 +183,14 @@ end;
 
 procedure TTisToolBarEditor.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
-var
-  v1, v2: Integer;
-  vButton, vSibling: TToolButton;
-  vListItem: TListItem;
-  vFound: Boolean;
 begin
-  if ModalResult = mrOK then
+  if ModalResult <> mrOK then
   begin
-    fTarget.BeginUpdate;
-    try
-      // cleaning the buttons that was removed by user
-      for v1 := fTarget.ButtonCount-1 downto 0 do
-      begin
-        vFound := False;
-        vButton := fTarget.Buttons[v1];
-        // temporarily removed from the target to change its bound more below
-        vButton.Parent := nil;
-        for v2 := 0 to ButtonsListView.Items.Count -1 do
-        begin
-          vListItem := ButtonsListView.Items[v2];
-          if vButton = TSharedData(vListItem.Data).Button then
-          begin
-            vFound := True;
-            Break;
-          end;
-        end;
-        if not vFound then
-        begin
-          if IsDesignTime then
-          begin
-            fDesigner.PropertyEditorHook.DeletePersistent(TPersistent(vButton));
-            fDesigner.Modified;
-          end
-          else
-            fTarget.RemoveButton(vButton);
-        end;
-      end;
-      // reorganizing buttons bounds on toolbar
-      for v2 := 0 to ButtonsListView.Items.Count -1 do
-      begin
-        vListItem := ButtonsListView.Items[v2];
-        vButton := TSharedData(vListItem.Data).Button;
-        if v2 = 0 then
-          vButton.Left := 1
-        else
-        begin
-          vSibling := fTarget.Buttons[v2-1];
-          vButton.SetBounds(
-            vSibling.Left + vSibling.Width,
-            vSibling.Top, vButton.Width, vButton.Height);
-        end;
-        // should be True, as maybe a translated caption could be longer
-        vButton.AutoSize := True;
-        // show it in the target toolbar
-        vButton.Parent := fTarget;
-      end;
-    finally
-      fTarget.EndUpdate;
-      if IsDesignTime then
-      begin
-        fDesigner.Modified;
-        // get new default values
-        fTarget.DesigntimeSessionValues := fTarget.SessionValues;
-        // force to use new values from DesigntimeSessionValues
-        fTarget.SessionValues := '';
-        fTarget.Invalidate;
-      end
-      else
-        fTarget.RuntimeSessionValues := fTarget.SessionValues;
-    end;
-  end;
+    if not IsDesignTime then
+      fTarget.ResetSession;
+  end
+  else
+    fTarget.RuntimeSessionValues := fTarget.SessionValues;
 end;
 
 procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
@@ -267,12 +198,17 @@ begin
   fTarget.RestoreSession;
   LoadAll;
   UpdateButtonsListViewSelectLabel;
+  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
 begin
+  LoadAll;
   ToolBarRestoreButton.Visible := not IsDesignTime;
+  if IsDesignTime then
+    pnlButtons.ShowButtons := [pbClose];
   UpdateButtonsListViewSelectLabel;
+  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.InsertItem(aItem: TListItem);
@@ -287,7 +223,12 @@ end;
 
 procedure TTisToolBarEditor.btnAddClick(Sender: TObject);
 begin
-  AddCommand;
+  if btnAdd.Enabled then
+  begin
+    AddCommand;
+    UpdateButtonsState;
+    UpdateTarget;
+  end;
 end;
 
 function TTisToolBarEditor.NewListViewItem(const aCaption: string): TListItem;
@@ -359,7 +300,6 @@ begin
   ActionsTreeView.Selected.Visible := False;
   if vNode <> nil then
     ActionsTreeView.Selected := vNode;
-  UpdateButtonsState;
 end;
 
 procedure TTisToolBarEditor.RemoveCommand;
@@ -380,7 +320,13 @@ begin
   // show the command as available again in TreeView
   if Assigned(vData) then
     FindTreeViewNodeBy(vData.Action);
-  UpdateButtonsState;
+  if IsDesignTime then
+  begin
+    fDesigner.PropertyEditorHook.DeletePersistent(TPersistent(vData.Button));
+    fDesigner.Modified;
+  end
+  else
+    fTarget.RemoveButton(vData.Button);
 end;
 
 procedure TTisToolBarEditor.btnAddDividerClick(Sender: TObject);
@@ -395,12 +341,17 @@ begin
   vData.Button := NewButtonDivider;
   vListItem.Data := vData;
   UpdateButtonsState;
+  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.btnRemoveClick(Sender: TObject);
 begin
   if btnRemove.Enabled then
+  begin
     RemoveCommand;
+    UpdateButtonsState;
+    UpdateTarget;
+  end;
 end;
 
 procedure TTisToolBarEditor.ButtonsListViewSelectItem(Sender: TObject;
@@ -430,6 +381,7 @@ begin
   if (ButtonsListView.ItemIndex < 0) or (ButtonsListView.ItemIndex = ButtonsListView.Items.Count-1) then
     exit;
   MoveUpDown(1);
+  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.btnMoveUpClick(Sender: TObject);
@@ -437,6 +389,7 @@ begin
   if (ButtonsListView.ItemIndex <= 0) then
     exit;
   MoveUpDown(-1);
+  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.SetupCaptions;
@@ -647,6 +600,41 @@ begin
   );
 end;
 
+procedure TTisToolBarEditor.UpdateTarget;
+var
+  v1, v2: Integer;
+  vButton, vSibling: TToolButton;
+  vListItem: TListItem;
+begin
+  fTarget.BeginUpdate;
+  try
+    // temporarily removing all buttons from the target, to be possible to change its bounds below
+    for v1 := fTarget.ButtonCount-1 downto 0 do
+      fTarget.Buttons[v1].Parent := nil;
+    // reorganizing buttons bounds on target
+    for v2 := 0 to ButtonsListView.Items.Count -1 do
+    begin
+      vListItem := ButtonsListView.Items[v2];
+      vButton := TSharedData(vListItem.Data).Button;
+      if v2 = 0 then
+        vButton.Left := 1
+      else
+      begin
+        vSibling := fTarget.Buttons[v2-1];
+        vButton.SetBounds(
+          vSibling.Left + vSibling.Width,
+          vSibling.Top, vButton.Width, vButton.Height);
+      end;
+      // should be True, as maybe a translated caption could be longer
+      vButton.AutoSize := True;
+      // show it in the target again
+      vButton.Parent := fTarget;
+    end;
+  finally
+    fTarget.EndUpdate;
+  end;
+end;
+
 function TTisToolBarEditor.IsDesignTime: Boolean;
 begin
   result := Assigned(fDesigner) and Assigned(fDesigner.PropertyEditorHook);
@@ -658,7 +646,6 @@ begin
   ActionsTreeView.Images := fTarget.Images;
   ButtonsListView.SmallImages := fTarget.Images;
   SetupCaptions;
-  LoadAll;
 end;
 
 procedure TTisToolBarEditor.AddListViewItem(aButton: TToolButton);

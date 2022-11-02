@@ -262,7 +262,7 @@ object TisToolBarEditor: TTisToolBarEditor
     ReadOnly = True
     ScrollBars = ssAutoBoth
     TabOrder = 1
-    OnDblClick = ActionsTreeViewDblClick
+    OnDblClick = btnAddClick
     OnSelectionChanged = ActionsTreeViewSelectionChanged
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
   end

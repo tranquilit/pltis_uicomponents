@@ -806,10 +806,7 @@ begin
 end;
 
 procedure TTisToolBar.ShowEditor;
-var
-  vSessionValuesBackup: string;
 begin
-  vSessionValuesBackup := fRuntimeSessionValues;
   if DoBeforeShowEditor then
   begin
     // it is mandatory, as the program might change some actions, popups, etc, dynamically
@@ -817,12 +814,11 @@ begin
     with TTisToolBarEditor.Create(Application) do
     try
       Target := self;
-      if ShowModal <> mrOK then
-        SessionValues := vSessionValuesBackup;
-      DoAfterCloseEditor;
+      ShowModal;
     finally
       Free;
     end;
+    DoAfterCloseEditor;
   end;
 end;
 
