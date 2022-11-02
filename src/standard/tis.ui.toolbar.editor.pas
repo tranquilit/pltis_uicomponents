@@ -551,6 +551,8 @@ begin
 end;
 
 procedure TTisToolBarEditor.LoadButtons;
+var
+  v1: Integer;
 begin
   ButtonsListView.Clear;
   for v1 := 0 to fTarget.ButtonCount -1 do
