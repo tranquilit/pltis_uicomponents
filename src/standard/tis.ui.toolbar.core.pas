@@ -195,10 +195,14 @@ type
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
     // ------------------------------- new methods ----------------------------------
+    /// add a new button
+    function AddButton(aStyle: TToolButtonStyle; const aCaption: TTranslateString = '';
+      aImageIndex: Integer = -1; const aName: TComponentName = ''): TToolButton; overload; virtual;
     /// add a new button related to an action
-    function AddButton(aStyle: TToolButtonStyle;
-      const aCaption: TTranslateString = ''; aImageIndex: Integer = -1;
-      aAction: TAction = nil; aPopupMenu: TPopupMenu = nil): TToolButton; overload;
+    function AddButton(aAction: TAction; aPopupMenu: TPopupMenu;
+      const aName: TComponentName = ''): TToolButton; overload; virtual;
+    /// remove a button
+    // - if it is a design-time button, it will be set to invisible, otherwise it will be removed and disposed
     procedure RemoveButton(aButton: TToolButton); overload; virtual;
     /// remove all buttons
     procedure RemoveButtons;
@@ -211,8 +215,8 @@ type
     // but it should back to its original values
     // - it will be call automatically before showing the Editor
     procedure ResetSession;
-    /// it keeps SessionValues from original design time
-    // - used by Editor, when in design time
+    /// it keeps SessionValues from original design-time
+    // - used by Editor, when in design-time
     property DesigntimeSessionValues: string read fDesigntimeSessionValues write fDesigntimeSessionValues;
     /// it saves SessionValues after changed
     // - used by Editor, after close it
@@ -600,7 +604,12 @@ var
         end;
       end
       else
-        AddButton(vStyle, vCaption, vSessionButton^.I['imageindex'], vAction, vPopup);
+      begin
+        if Assigned(vAction) then
+          AddButton(vAction, vPopup)
+        else
+          AddButton(vStyle, vCaption, vSessionButton^.I['imageindex']);
+      end;
     end;
   end;
 
@@ -614,7 +623,7 @@ begin
       // use default values, if aValue is invalid
       vSessionDoc.InitJson(StringToUtf8(fDesigntimeSessionValues), JSON_FAST_FLOAT);
     end;
-    // if user session version is greater than design time version, do nothing,
+    // if user session version is greater than design-time version, do nothing,
     // it means it was customized
     if vSessionDoc.I['version'] < fSessionVersion then
     begin
@@ -700,27 +709,38 @@ begin
 end;
 
 function TTisToolBar.AddButton(aStyle: TToolButtonStyle;
-  const aCaption: TTranslateString; aImageIndex: Integer;
-  aAction: TAction; aPopupMenu: TPopupMenu): TToolButton;
+  const aCaption: TTranslateString; aImageIndex: Integer; const aName: TComponentName): TToolButton;
 begin
-  // if not located, creates a new one
-  result := TToolButton.Create(self);
+  result := TToolButton.Create(self.Owner);
   with result do
   begin
+    Name := aName;
     // should be True, as maybe a translated caption could be longer
     AutoSize := True;
-    if Assigned(aAction) then
-      Action := aAction
-    else
-    begin
-      Caption := aCaption;
-      ImageIndex := aImageIndex;
-    end;
+    Caption := aCaption;
+    ImageIndex := aImageIndex;
     Style := aStyle;
     Left := self.Width;
-    DropdownMenu := aPopupMenu;
     // show it on the toolbar
     Parent := self;
+  end;
+end;
+
+function TTisToolBar.AddButton(aAction: TAction; aPopupMenu: TPopupMenu;
+  const aName: TComponentName): TToolButton;
+begin
+  result := AddButton(tbsButton, '', -1, aName);
+  with result do
+  begin
+    Action := aAction;
+    DropdownMenu := aPopupMenu;
+    if Assigned(DropdownMenu) then
+    begin
+      if Assigned(Action) and Assigned(Action.OnExecute) then
+        Style := tbsDropDown
+      else
+        Style := tbsButtonDrop
+    end;
   end;
 end;
 

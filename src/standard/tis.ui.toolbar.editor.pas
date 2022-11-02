@@ -79,7 +79,6 @@ type
     procedure InsertItem(aItem: TListItem);
     procedure MoveUpDown(aOffset: integer);
     function NewListViewItem(const aCaption: string): TListItem;
-    procedure CheckButtonDesigntime(aButton: TToolButton);
     function NewButtonBy(aNode: TTreeNode): TToolButton;
     function NewButtonDivider: TToolButton;
     procedure RemoveCommand;
@@ -305,40 +304,31 @@ begin
   result.Caption := aCaption;
 end;
 
-procedure TTisToolBarEditor.CheckButtonDesigntime(aButton: TToolButton);
-begin
-  if IsDesignTime then
-  begin
-    aButton.Name := fDesigner.CreateUniqueComponentName(aButton.ClassName);
-    fDesigner.PropertyEditorHook.PersistentAdded(aButton, True);
-    fDesigner.Modified;
-  end;
-end;
-
 function TTisToolBarEditor.NewButtonBy(aNode: TTreeNode): TToolButton;
-var
-  vData: TSharedData;
 begin
-  vData := TSharedData(aNode.Data);
-  result := fTarget.AddButton(
-    tbsButton, vData.Action.Caption, aNode.ImageIndex,
-    vData.Action, vData.PopupMenu
-  );
-  if Assigned(vData.PopupMenu) then
+  with TSharedData(aNode.Data) do
   begin
-    result.DropdownMenu := vData.PopupMenu;
-    if Assigned(result.Action) and Assigned(result.Action.OnExecute) then
-      result.Style := tbsDropDown
+    if IsDesignTime then
+    begin
+      result := fTarget.AddButton(Action, PopupMenu, fDesigner.CreateUniqueComponentName(TToolButton.ClassName));
+      fDesigner.PropertyEditorHook.PersistentAdded(result, False);
+      fDesigner.Modified;
+    end
     else
-      result.Style := tbsButtonDrop
+      result := fTarget.AddButton(Action, PopupMenu);
   end;
-  CheckButtonDesigntime(result);
 end;
 
 function TTisToolBarEditor.NewButtonDivider: TToolButton;
 begin
-  result := fTarget.AddButton(tbsDivider);
-  CheckButtonDesigntime(result);
+  if IsDesignTime then
+  begin
+    result := fTarget.AddButton(tbsDivider, '', -1, fDesigner.CreateUniqueComponentName(TToolButton.ClassName));
+    fDesigner.PropertyEditorHook.PersistentAdded(result, False);
+    fDesigner.Modified;
+  end
+  else
+    result := fTarget.AddButton(tbsDivider);
 end;
 
 procedure TTisToolBarEditor.AddCommand;
