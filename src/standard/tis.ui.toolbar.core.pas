@@ -759,7 +759,10 @@ begin
   if not Assigned(aButton) then
     exit;
   if aButton.Name <> '' then
-    aButton.Visible := False
+  begin
+    aButton.Visible := False;
+    aButton.Parent := nil;
+  end
   else
   begin
     ButtonList.Remove(aButton);
