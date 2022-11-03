@@ -196,16 +196,21 @@ end;
 procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
   fTarget.RestoreSession;
+  // after restore, it is not possible to cancel changes
+  pnlButtons.ShowButtons := [pbClose];
   LoadAll;
   UpdateButtonsListViewSelectLabel;
+  UpdateTarget;
 end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
 begin
-  LoadAll;
   ToolBarRestoreButton.Visible := not IsDesignTime;
   if IsDesignTime then
-    pnlButtons.ShowButtons := [pbClose];
+    pnlButtons.ShowButtons := [pbClose]
+  else
+    pnlButtons.ShowButtons := [pbOK, pbCancel];
+  LoadAll;
   UpdateButtonsListViewSelectLabel;
   UpdateTarget;
 end;
