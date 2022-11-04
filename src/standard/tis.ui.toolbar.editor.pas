@@ -70,6 +70,7 @@ type
     procedure FormShow(Sender: TObject);
   private
     fTarget: TTisToolBar;
+    fSessionValuesBackup: string;
     fDesigner: TComponentEditorDesigner;
     function IsDesignTime: Boolean;
     procedure SetTarget(aValue: TTisToolBar);
@@ -184,20 +185,18 @@ end;
 procedure TTisToolBarEditor.FormCloseQuery(Sender: TObject;
   var CanClose: boolean);
 begin
-  if ModalResult <> mrOK then
+  if not IsDesignTime then
   begin
-    if not IsDesignTime then
-      fTarget.ResetSession;
-  end
-  else
-    fTarget.RuntimeSessionValues := fTarget.SessionValues;
+    if ModalResult = mrOK then
+      fTarget.RuntimeSessionValues := fTarget.SessionValues
+    else
+      fTarget.SessionValues := fSessionValuesBackup;
+  end;
 end;
 
 procedure TTisToolBarEditor.ToolBarRestoreButtonClick(Sender: TObject);
 begin
   fTarget.RestoreSession;
-  // after restore, it is not possible to cancel changes
-  pnlButtons.ShowButtons := [pbClose];
   LoadAll;
   UpdateButtonsListViewSelectLabel;
   UpdateTarget;
@@ -642,6 +641,8 @@ end;
 procedure TTisToolBarEditor.SetTarget(aValue: TTisToolBar);
 begin
   fTarget := aValue;
+  if not IsDesignTime then
+    fSessionValuesBackup := fTarget.RuntimeSessionValues;
   ActionsTreeView.Images := fTarget.Images;
   ButtonsListView.SmallImages := fTarget.Images;
   SetupCaptions;
