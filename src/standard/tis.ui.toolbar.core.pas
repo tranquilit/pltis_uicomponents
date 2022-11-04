@@ -197,14 +197,14 @@ type
     // ------------------------------- new methods ----------------------------------
     /// add a new button
     function AddButton(aStyle: TToolButtonStyle; const aCaption: TTranslateString = '';
-      aImageIndex: Integer = -1; const aName: TComponentName = ''): TToolButton; overload; virtual;
+      aImageIndex: Integer = -1; const aName: TComponentName = ''; aLeft: Integer = -1): TToolButton; overload; virtual;
     /// add a new button related to an action
     // - the button Style will be defined by arguments: if aPopupMenu was assigned
     // and the Action has OnExecute implemented, the style will be tbsDropDown,
     // otherwise it will be tbsButtonDrop
     // - if aPopupMenu was not assigned, the Style will be tbsButton
     function AddButton(aAction: TAction; aPopupMenu: TPopupMenu = nil;
-      const aName: TComponentName = ''): TToolButton; overload; virtual;
+      const aName: TComponentName = ''; aLeft: Integer = -1): TToolButton; overload; virtual;
     /// remove a button
     // - if it is a design-time button, it will be set to invisible, otherwise it will be removed and disposed
     procedure RemoveButton(aButton: TToolButton); overload; virtual;
@@ -578,6 +578,8 @@ var
     vPopup: TPopupMenu;
     vCaption: TTranslateString;
     vStyle: TToolButtonStyle;
+    vLeft: Integer;
+    vName: string;
     vComponent: TComponent;
   begin
     // create buttons on the toolbar
@@ -596,7 +598,9 @@ var
       else
         vPopup := nil;
       vStyle := TToolButtonStyle(vSessionButton^.I['style']);
-      vComponent := Owner.FindComponent(vSessionButton^.S['name']);
+      vLeft := vSessionButton^.I['left'];
+      vName := vSessionButton^.S['name'];
+      vComponent := Owner.FindComponent(vName);
       if Assigned(vComponent) and (vComponent is TToolButton) then
       begin
         with vComponent as TToolButton do
@@ -607,7 +611,7 @@ var
           Action := vAction;
           DropdownMenu := vPopup;
           Style := vStyle;
-          Left := vSessionButton^.I['left'];
+          Left := vLeft;
           Visible := True;
           // show it in the target toolbar
           Parent := self;
@@ -616,9 +620,9 @@ var
       else
       begin
         if Assigned(vAction) then
-          AddButton(vAction, vPopup)
+          AddButton(vAction, vPopup, vName, vLeft)
         else
-          AddButton(vStyle, vCaption, vSessionButton^.I['imageindex']);
+          AddButton(vStyle, vCaption, vSessionButton^.I['imageindex'], vName, vLeft);
       end;
     end;
   end;
@@ -719,7 +723,8 @@ begin
 end;
 
 function TTisToolBar.AddButton(aStyle: TToolButtonStyle;
-  const aCaption: TTranslateString; aImageIndex: Integer; const aName: TComponentName): TToolButton;
+  const aCaption: TTranslateString; aImageIndex: Integer;
+  const aName: TComponentName; aLeft: Integer): TToolButton;
 begin
   result := TToolButton.Create(self.Owner);
   with result do
@@ -730,16 +735,19 @@ begin
     Caption := aCaption;
     ImageIndex := aImageIndex;
     Style := aStyle;
-    Left := self.Width;
+    if aLeft > -1 then
+      Left := aLeft
+    else
+      Left := self.Width;
     // show it on the toolbar
     Parent := self;
   end;
 end;
 
 function TTisToolBar.AddButton(aAction: TAction; aPopupMenu: TPopupMenu;
-  const aName: TComponentName): TToolButton;
+  const aName: TComponentName; aLeft: Integer): TToolButton;
 begin
-  result := AddButton(tbsButton, '', -1, aName);
+  result := AddButton(tbsButton, '', -1, aName, aLeft);
   with result do
   begin
     Action := aAction;
