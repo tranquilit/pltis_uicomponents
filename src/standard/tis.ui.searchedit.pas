@@ -99,8 +99,8 @@ type
     /// it triggers RefreshSearch if aKey=#13, even if AutoSearch=FALSE
     procedure KeyPress(var aKey: Char); override;
     // ------------------------------- new methods ----------------------------------
-    /// it triggers OnSearch event directly, if AutoSearch=TRUE
-    // - you might want to use RefreshSearch instead, for do not bypass AutoSearch flag
+    /// it triggers OnSearch event directly
+    // - you might want to call RefreshSearch instead, for using AutoSearch flag behavior
     procedure Search; virtual;
     /// refresh items using Data content
     // - you should call LoadData, if you change Data content directly
