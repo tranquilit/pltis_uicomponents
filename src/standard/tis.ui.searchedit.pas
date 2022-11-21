@@ -66,12 +66,14 @@ type
     const DefaultSearchMaxHistory = 8;
     const DefaultSearchInterval = 300;
   protected
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     procedure SetParent(aNewParent: TWinControl); override;
     procedure SetSorted(aValue: boolean); override;
     procedure SetItemIndex(const aValue: integer); override;
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
+    procedure Select; override;
+    procedure DoAutoCompleteSelect; override;
     // ------------------------------- new methods ----------------------------------
     /// it will add aText for each new typing, if Data.IsVoid = TRUE
     procedure AddHistory(const aText: string); virtual;
@@ -89,27 +91,26 @@ type
     /// callback to Popup menu to clear all
     procedure DoClearCallback(aSender: TObject);
   public
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
     /// it will clear Items, Data and everything else related
     procedure Clear; override;
-    /// it triggers RefreshSearch if aKey=#13, even if AutoSearch=TRUE
-    procedure KeyPress(var aKey: char); override;
+    /// it triggers RefreshSearch if aKey=#13, even if AutoSearch=FALSE
+    procedure KeyPress(var aKey: Char); override;
     // ------------------------------- new methods ----------------------------------
-    /// it triggers OnSearch event directly, even if AutoSearch=TRUE
+    /// it triggers OnSearch event directly, if AutoSearch=TRUE
     // - you might want to use RefreshSearch instead, for do not bypass AutoSearch flag
     procedure Search; virtual;
     /// refresh items using Data content
     // - you should call LoadData, if you change Data content directly
     procedure LoadData; virtual;
     /// it will refresh the search
-    // - if AutoSearch=TRUE it will enable the timer, otherwise it will call Search directly
-    // - if aForceDelayed=TRUE it will enable the timer even if AutoSearch=FALSE
-    procedure RefreshSearch(aForceDelayed : Boolean = False); virtual;
+    // - if AutoSearch or aForceDelayed is TRUE, it will enable the timer, otherwise it will call Search directly
+    procedure RefreshSearch(aForceDelayed: Boolean = False); virtual;
     /// it will sort Items and Data by LookupDisplayField
     procedure Sort; virtual;
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties -------------------------------
     /// direct access to the low-level internal data
     // - if you change its content directly, you should call LoadData for VirtualTree be aware about it
     property Data: TDocVariantData read fData write SetData;
@@ -117,7 +118,7 @@ type
     // - the ItemIndex will be use as index for Data array
     property KeyValue: Variant read GetKeyValue write SetKeyValue;
   published
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties -------------------------------
     /// if TRUE, it will start the Timer when user start typing
     property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
     /// a collection of buttons
@@ -128,7 +129,7 @@ type
     property SearchMaxHistory: Integer read fSearchMaxHistory write fSearchMaxHistory default DefaultSearchMaxHistory;
     /// the interval of the internal Timer
     property SearchInterval: Cardinal read GetSearchInterval write SetSearchInterval default DefaultSearchInterval;
-    // ------------------------------- new events ----------------------------------
+    // ------------------------------- new events -----------------------------------
     /// an event that will be trigger for bkCustom Kind buttons
     property OnButtonClick: TOnButtonClick read fOnButtonClick write fOnButtonClick;
     /// an event that will be trigger before start searching
@@ -249,6 +250,17 @@ begin
     fButtons.Invalidate;
 end;
 
+procedure TTisSearchEdit.Select;
+begin
+  inherited Select;
+  RefreshSearch;
+end;
+
+procedure TTisSearchEdit.DoAutoCompleteSelect;
+begin
+  // do nothing
+end;
+
 procedure TTisSearchEdit.AddHistory(const aText: string);
 begin
   if fData.IsVoid then
@@ -302,13 +314,13 @@ end;
 
 procedure TTisSearchEdit.SetupClearPopupMenu;
 var
-  i: Integer;
+  v1: Integer;
   vMenuItem: TMenuItem;
   vButton: TButtonItem;
 begin
-  for i := 0 to fButtons.Count -1 do
+  for v1 := 0 to fButtons.Count -1 do
   begin
-    vButton := fButtons[i];
+    vButton := fButtons[v1];
     if vButton.Kind = bkClear then
     begin
       if not Assigned(vButton.Button.PopupMenu) then
@@ -339,7 +351,6 @@ begin
   fTimer := TTimer.Create(nil);
   fTimer.Enabled := False;
   fTimer.OnTimer := @DoSearch;
-  OnSelect := @DoSearch;
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
   fSearchMaxHistory := DefaultSearchMaxHistory;
@@ -362,7 +373,7 @@ begin
   fData.InitArray([], JSON_FAST_FLOAT);
 end;
 
-procedure TTisSearchEdit.KeyPress(var aKey: char);
+procedure TTisSearchEdit.KeyPress(var aKey: Char);
 begin
   inherited KeyPress(aKey);
   fTimer.Enabled := False;
@@ -371,8 +382,7 @@ begin
     RefreshSearch;
     AddHistory(Text);
   end
-  else
-  if aKey <> #0 then
+  else if aKey <> #0 then
     fTimer.Enabled := fAutoSearch;
 end;
 
@@ -393,7 +403,7 @@ begin
     Items.Add(vObj^.S[StringToUtf8(fLookupDisplayField)]);
 end;
 
-procedure TTisSearchEdit.RefreshSearch(aForceDelayed : Boolean);
+procedure TTisSearchEdit.RefreshSearch(aForceDelayed: Boolean);
 begin
   fTimer.Enabled := False;
   if fAutoSearch or aForceDelayed then
