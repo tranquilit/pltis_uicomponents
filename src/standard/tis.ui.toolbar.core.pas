@@ -471,15 +471,17 @@ end;
 { TTisToolBar }
 
 procedure TTisToolBar.Loaded;
-var
-  v1: Integer;
 begin
   inherited Loaded;
   fDesigntimeSessionValues := SessionValues;
   if not (csDesigning in ComponentState) then
   begin
-    SetupDblClick;
-    SetupPopupMenu;
+    // do not setup options to show Editor, if there will be no Actions available
+    if (eoAutoAddActions in fEditorOptions) or (fActions.Count > 0) then
+    begin
+      SetupDblClick;
+      SetupPopupMenu;
+    end;
   end;
 end;
 
