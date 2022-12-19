@@ -112,9 +112,6 @@ type
     function GetVerbCount: Integer; override;
   end;
 
-const
-  rsPopupMenus = 'Popup Menus';
-
 implementation
 
 {$R *.lfm}
