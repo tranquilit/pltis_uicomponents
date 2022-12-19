@@ -29,7 +29,7 @@ uses
   Dialogs,
   ComponentEditors,
   TreeFilterEdit,
-  tis.ui.translator,
+  tis.ui.resourcestrings,
   tis.ui.toolbar.core;
 
 type

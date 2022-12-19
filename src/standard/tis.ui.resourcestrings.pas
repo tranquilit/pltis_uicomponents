@@ -3,7 +3,7 @@
 //    Copyright (C) 2012 - 2022  Tranquil IT https://www.tranquil.it
 //    All Rights Reserved.
 // ------------------------------------------------------------------
-unit tis.ui.translator;
+unit tis.ui.resourcestrings;
 
 {$i tis.ui.defines.inc}
 

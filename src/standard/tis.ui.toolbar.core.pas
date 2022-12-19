@@ -30,7 +30,7 @@ uses
   mormot.core.unicode,
   mormot.core.text,
   mormot.core.rtti,
-  tis.ui.translator;
+  tis.ui.resourcestrings;
 
 type
   // forward class declarations

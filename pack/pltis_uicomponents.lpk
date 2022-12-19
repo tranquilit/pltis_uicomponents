@@ -118,8 +118,8 @@
         <UnitName Value="tis.ui.grid.copyspecial"/>
       </Item22>
       <Item23>
-        <Filename Value="..\src\standard\tis.ui.translator.pas"/>
-        <UnitName Value="tis.ui.translator"/>
+        <Filename Value="..\src\standard\tis.ui.resourcestrings.pas"/>
+        <UnitName Value="tis.ui.resourcestrings"/>
       </Item23>
     </Files>
     <CompatibilityMode Value="True"/>

@@ -23,7 +23,7 @@ uses
   Menus,
   mormot.core.variants,
   mormot.core.unicode,
-  tis.ui.translator,
+  tis.ui.resourcestrings,
   tis.ui.parts.buttons;
 
 type

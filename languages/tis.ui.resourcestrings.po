@@ -1,0 +1,176 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: tis.ui.resourcestrings.rsgridadvancedcustomizecolumns
+msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
+msgid "Advanced customize of table..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridcollapseall
+msgctxt "tis.ui.resourcestrings.rsgridcollapseall"
+msgid "Collapse all"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridconfdeleterow
+#, object-pascal-format
+msgctxt "tis.ui.resourcestrings.rsgridconfdeleterow"
+msgid "Confirm the deletion of the %d selected rows ?"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridconfirmation
+msgctxt "tis.ui.resourcestrings.rsgridconfirmation"
+msgid "Confirm"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridcopy
+msgctxt "tis.ui.resourcestrings.rsgridcopy"
+msgid "Copy"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridcopycell
+msgctxt "tis.ui.resourcestrings.rsgridcopycell"
+msgid "Copy cell"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridcopyspecial
+msgctxt "tis.ui.resourcestrings.rsgridcopyspecial"
+msgid "Copy special..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridcustomizecolumns
+msgctxt "tis.ui.resourcestrings.rsgridcustomizecolumns"
+msgid "Customize columns..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridcut
+msgctxt "tis.ui.resourcestrings.rsgridcut"
+msgid "Cut"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgriddelete
+msgctxt "tis.ui.resourcestrings.rsgriddelete"
+msgid "Delete"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgriddeleterows
+msgctxt "tis.ui.resourcestrings.rsgriddeleterows"
+msgid "Delete selected rows"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridexpandall
+msgctxt "tis.ui.resourcestrings.rsgridexpandall"
+msgid "Expand all"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridexportall
+msgctxt "tis.ui.resourcestrings.rsgridexportall"
+msgid "Export all rows to file..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridexportselected
+msgctxt "tis.ui.resourcestrings.rsgridexportselected"
+msgid "Export selected rows to file..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridfind
+msgctxt "tis.ui.resourcestrings.rsgridfind"
+msgid "Search..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridfindnext
+msgctxt "tis.ui.resourcestrings.rsgridfindnext"
+msgid "Find next"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridfindreplace
+msgctxt "tis.ui.resourcestrings.rsgridfindreplace"
+msgid "Find and replace..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridhideallcolumns
+msgctxt "tis.ui.resourcestrings.rsgridhideallcolumns"
+msgid "Hide all columns"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridinsert
+msgctxt "tis.ui.resourcestrings.rsgridinsert"
+msgid "Insert"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridnorecordfind
+#, object-pascal-format
+msgctxt "tis.ui.resourcestrings.rsgridnorecordfind"
+msgid "No more record found for \"%s\""
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridpage
+msgctxt "tis.ui.resourcestrings.rsgridpage"
+msgid "Page"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridpaste
+msgctxt "tis.ui.resourcestrings.rsgridpaste"
+msgid "Paste"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridprint
+msgctxt "tis.ui.resourcestrings.rsgridprint"
+msgid "Print..."
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridprinton
+msgctxt "tis.ui.resourcestrings.rsgridprinton"
+msgid "Printed on"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridrestoredefaultcolumns
+msgctxt "tis.ui.resourcestrings.rsgridrestoredefaultcolumns"
+msgid "Restore default columns"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridrevertrecord
+msgctxt "tis.ui.resourcestrings.rsgridrevertrecord"
+msgid "Revert to initial record"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridselectall
+msgctxt "tis.ui.resourcestrings.rsgridselectall"
+msgid "Select all rows"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridshowallcolumns
+msgctxt "tis.ui.resourcestrings.rsgridshowallcolumns"
+msgid "Show all columns"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridundolastupdate
+msgctxt "tis.ui.resourcestrings.rsgridundolastupdate"
+msgid "Undo last change"
+msgstr ""
+
+#: tis.ui.resourcestrings.rssearcheditclearall
+msgctxt "tis.ui.resourcestrings.rssearcheditclearall"
+msgid "Clear all"
+msgstr ""
+
+#: tis.ui.resourcestrings.rstoolbaravailablecommands
+msgid "Available commands"
+msgstr ""
+
+#: tis.ui.resourcestrings.rstoolbarcommands
+msgid "Toolbar commands"
+msgstr ""
+
+#: tis.ui.resourcestrings.rstoolbarconfiguration
+msgid "Toolbar Configuration"
+msgstr ""
+
+#: tis.ui.resourcestrings.rstoolbarcustomizetoolbar
+msgctxt "tis.ui.resourcestrings.rstoolbarcustomizetoolbar"
+msgid "Customize the toolbar"
+msgstr ""
+
+#: tis.ui.resourcestrings.rstoolbarrestore
+msgid "Restore"
+msgstr ""
+

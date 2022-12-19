@@ -42,7 +42,7 @@ uses
   tisstrings,
   tis.core.os,
   tis.core.utils,
-  tis.ui.translator,
+  tis.ui.resourcestrings,
   tis.ui.searchedit,
   tis.ui.grid.controls;
 
