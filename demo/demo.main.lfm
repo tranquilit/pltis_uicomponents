@@ -276,6 +276,10 @@ object MainForm: TMainForm
         Caption = 'fr'
         OnClick = LangEnMenuItemClick
       end
+      object LangDeMenuItem: TMenuItem
+        Caption = 'de'
+        OnClick = LangEnMenuItemClick
+      end
     end
   end
 end

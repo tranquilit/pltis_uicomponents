@@ -39,6 +39,7 @@ type
     LangMenuItem: TMenuItem;
     LangEnMenuItem: TMenuItem;
     LangFrMenuItem: TMenuItem;
+    LangDeMenuItem: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure LangEnMenuItemClick(Sender: TObject);
   end;

@@ -1,0 +1,176 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: tis.ui.resourcestrings.rsgridadvancedcustomizecolumns
+msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
+msgid "Advanced customize of table..."
+msgstr "Erweitertes Anpassen der Tabelle ..."
+
+#: tis.ui.resourcestrings.rsgridcollapseall
+msgctxt "tis.ui.resourcestrings.rsgridcollapseall"
+msgid "Collapse all"
+msgstr "Alles zusammenklappen"
+
+#: tis.ui.resourcestrings.rsgridconfdeleterow
+#, object-pascal-format
+msgctxt "tis.ui.resourcestrings.rsgridconfdeleterow"
+msgid "Confirm the deletion of the %d selected rows ?"
+msgstr "Löschen der %d ausgewählten Zeilen bestätigen?"
+
+#: tis.ui.resourcestrings.rsgridconfirmation
+msgctxt "tis.ui.resourcestrings.rsgridconfirmation"
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: tis.ui.resourcestrings.rsgridcopy
+msgctxt "tis.ui.resourcestrings.rsgridcopy"
+msgid "Copy"
+msgstr "Kopieren"
+
+#: tis.ui.resourcestrings.rsgridcopycell
+msgctxt "tis.ui.resourcestrings.rsgridcopycell"
+msgid "Copy cell"
+msgstr "Zelle kopieren"
+
+#: tis.ui.resourcestrings.rsgridcopyspecial
+msgctxt "tis.ui.resourcestrings.rsgridcopyspecial"
+msgid "Copy special..."
+msgstr "Speziell kopieren..."
+
+#: tis.ui.resourcestrings.rsgridcustomizecolumns
+msgctxt "tis.ui.resourcestrings.rsgridcustomizecolumns"
+msgid "Customize columns..."
+msgstr "Spalten anpassen..."
+
+#: tis.ui.resourcestrings.rsgridcut
+msgctxt "tis.ui.resourcestrings.rsgridcut"
+msgid "Cut"
+msgstr "Schnitt"
+
+#: tis.ui.resourcestrings.rsgriddelete
+msgctxt "tis.ui.resourcestrings.rsgriddelete"
+msgid "Delete"
+msgstr "Löschen"
+
+#: tis.ui.resourcestrings.rsgriddeleterows
+msgctxt "tis.ui.resourcestrings.rsgriddeleterows"
+msgid "Delete selected rows"
+msgstr "Ausgewählte Zeilen löschen"
+
+#: tis.ui.resourcestrings.rsgridexpandall
+msgctxt "tis.ui.resourcestrings.rsgridexpandall"
+msgid "Expand all"
+msgstr "Alle erweitern"
+
+#: tis.ui.resourcestrings.rsgridexportall
+msgctxt "tis.ui.resourcestrings.rsgridexportall"
+msgid "Export all rows to file..."
+msgstr "Alle Zeilen in Datei exportieren..."
+
+#: tis.ui.resourcestrings.rsgridexportselected
+msgctxt "tis.ui.resourcestrings.rsgridexportselected"
+msgid "Export selected rows to file..."
+msgstr "Ausgewählte Zeilen in Datei exportieren..."
+
+#: tis.ui.resourcestrings.rsgridfind
+msgctxt "tis.ui.resourcestrings.rsgridfind"
+msgid "Search..."
+msgstr "Suche..."
+
+#: tis.ui.resourcestrings.rsgridfindnext
+msgctxt "tis.ui.resourcestrings.rsgridfindnext"
+msgid "Find next"
+msgstr "Nächstes finden"
+
+#: tis.ui.resourcestrings.rsgridfindreplace
+msgctxt "tis.ui.resourcestrings.rsgridfindreplace"
+msgid "Find and replace..."
+msgstr "Suchen und Ersetzen..."
+
+#: tis.ui.resourcestrings.rsgridhideallcolumns
+msgctxt "tis.ui.resourcestrings.rsgridhideallcolumns"
+msgid "Hide all columns"
+msgstr "Alle Spalten ausblenden"
+
+#: tis.ui.resourcestrings.rsgridinsert
+msgctxt "tis.ui.resourcestrings.rsgridinsert"
+msgid "Insert"
+msgstr "Einfügung"
+
+#: tis.ui.resourcestrings.rsgridnorecordfind
+#, object-pascal-format
+msgctxt "tis.ui.resourcestrings.rsgridnorecordfind"
+msgid "No more record found for \"%s\""
+msgstr "Kein weiterer Datensatz für \"%s\" gefunden"
+
+#: tis.ui.resourcestrings.rsgridpage
+msgctxt "tis.ui.resourcestrings.rsgridpage"
+msgid "Page"
+msgstr "Buchseite"
+
+#: tis.ui.resourcestrings.rsgridpaste
+msgctxt "tis.ui.resourcestrings.rsgridpaste"
+msgid "Paste"
+msgstr Paste""
+
+#: tis.ui.resourcestrings.rsgridprint
+msgctxt "tis.ui.resourcestrings.rsgridprint"
+msgid "Print..."
+msgstr "Drucken..."
+
+#: tis.ui.resourcestrings.rsgridprinton
+msgctxt "tis.ui.resourcestrings.rsgridprinton"
+msgid "Printed on"
+msgstr "Gedruckt auf"
+
+#: tis.ui.resourcestrings.rsgridrestoredefaultcolumns
+msgctxt "tis.ui.resourcestrings.rsgridrestoredefaultcolumns"
+msgid "Restore default columns"
+msgstr "Standardspalten wiederherstellen"
+
+#: tis.ui.resourcestrings.rsgridrevertrecord
+msgctxt "tis.ui.resourcestrings.rsgridrevertrecord"
+msgid "Revert to initial record"
+msgstr "Zurück zum ursprünglichen Datensatz"
+
+#: tis.ui.resourcestrings.rsgridselectall
+msgctxt "tis.ui.resourcestrings.rsgridselectall"
+msgid "Select all rows"
+msgstr "Wählen Sie alle Zeilen aus"
+
+#: tis.ui.resourcestrings.rsgridshowallcolumns
+msgctxt "tis.ui.resourcestrings.rsgridshowallcolumns"
+msgid "Show all columns"
+msgstr "Alle Spalten anzeigen"
+
+#: tis.ui.resourcestrings.rsgridundolastupdate
+msgctxt "tis.ui.resourcestrings.rsgridundolastupdate"
+msgid "Undo last change"
+msgstr "Letzte Änderung rückgängig machen"
+
+#: tis.ui.resourcestrings.rssearcheditclearall
+msgctxt "tis.ui.resourcestrings.rssearcheditclearall"
+msgid "Clear all"
+msgstr "Alles löschen"
+
+#: tis.ui.resourcestrings.rstoolbaravailablecommands
+msgid "Available commands"
+msgstr "Verfügbare Befehle"
+
+#: tis.ui.resourcestrings.rstoolbarcommands
+msgid "Toolbar commands"
+msgstr "Befehle der Symbolleiste"
+
+#: tis.ui.resourcestrings.rstoolbarconfiguration
+msgid "Toolbar Configuration"
+msgstr "Symbolleistenkonfiguration"
+
+#: tis.ui.resourcestrings.rstoolbarcustomizetoolbar
+msgctxt "tis.ui.resourcestrings.rstoolbarcustomizetoolbar"
+msgid "Customize the toolbar"
+msgstr "Passen Sie die Symbolleiste an"
+
+#: tis.ui.resourcestrings.rstoolbarrestore
+msgid "Restore"
+msgstr "Wiederherstellen"
+

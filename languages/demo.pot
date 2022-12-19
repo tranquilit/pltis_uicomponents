@@ -9,6 +9,10 @@ msgstr ""
 msgid "Grid"
 msgstr ""
 
+#: tmainform.langdemenuitem.caption
+msgid "de"
+msgstr ""
+
 #: tmainform.langenmenuitem.caption
 msgid "en"
 msgstr ""
