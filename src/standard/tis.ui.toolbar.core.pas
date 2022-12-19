@@ -181,7 +181,7 @@ type
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
-    procedure DoContextPopup(MousePos: TPoint; var Handled: Boolean); override;
+    procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
     // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
     procedure SetSessionValues(const aValue: string); virtual;
@@ -512,9 +512,9 @@ begin
   end;
 end;
 
-procedure TTisToolBar.DoContextPopup(MousePos: TPoint; var Handled: Boolean);
+procedure TTisToolBar.DoContextPopup(aMousePos: TPoint; var aHandled: Boolean);
 begin
-  inherited DoContextPopup(MousePos, Handled);
+  inherited DoContextPopup(aMousePos, aHandled);
   fCustomizeMenuItem.Caption := rsToolBarCustomizeToolbar;
 end;
 

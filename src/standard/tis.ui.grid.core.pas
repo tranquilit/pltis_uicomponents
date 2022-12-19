@@ -508,6 +508,8 @@ type
     procedure DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
       const aXProportion, aYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
+    procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
+    procedure DoExit; override;
     function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
@@ -555,8 +557,6 @@ type
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
       var aNewValue: Variant; var aAbort: Boolean); virtual;
-    procedure DoEnter; override;
-    procedure DoExit; override;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -2419,6 +2419,20 @@ begin
   UpdateSelectedAndTotalLabel;
 end;
 
+procedure TTisGrid.DoContextPopup(aMousePos: TPoint; var aHandled: Boolean);
+begin
+  CleanPopupMenu;
+  inherited DoContextPopup(aMousePos, aHandled);
+  if not aHandled then
+    FillPopupMenu;
+end;
+
+procedure TTisGrid.DoExit;
+begin
+  CleanPopupMenu;
+  inherited DoExit;
+end;
+
 function TTisGrid.GetHeaderClass: TVTHeaderClass;
 begin
   result := TTisGridHeader;
@@ -2976,18 +2990,6 @@ procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
 begin
   if Assigned(fOnEditValidated) then
     fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
-end;
-
-procedure TTisGrid.DoEnter;
-begin
-  inherited DoEnter;
-  FillPopupMenu;
-end;
-
-procedure TTisGrid.DoExit;
-begin
-  CleanPopupMenu;
-  inherited DoExit;
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
