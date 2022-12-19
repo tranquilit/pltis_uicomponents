@@ -1,0 +1,10 @@
+{"version":1,"strings":[
+{"hash":162835567,"name":"tmainform.caption","sourcebytes":[85,73,32,68,101,109,111],"value":"UI Demo"},
+{"hash":321780,"name":"tmainform.gridtab.caption","sourcebytes":[71,114,105,100],"value":"Grid"},
+{"hash":196825362,"name":"tmainform.tageditortab.caption","sourcebytes":[84,97,103,69,100,105,116,111,114],"value":"TagEditor"},
+{"hash":144253572,"name":"tmainform.searchedittab.caption","sourcebytes":[83,101,97,114,99,104,69,100,105,116],"value":"SearchEdit"},
+{"hash":191236306,"name":"tmainform.toolbartab.caption","sourcebytes":[84,111,111,108,66,97,114],"value":"ToolBar"},
+{"hash":82521923,"name":"tmainform.langmenuitem.caption","sourcebytes":[76,97,110,103,117,97,103,101,115],"value":"Languages"},
+{"hash":1726,"name":"tmainform.langenmenuitem.caption","sourcebytes":[101,110],"value":"en"},
+{"hash":1746,"name":"tmainform.langfrmenuitem.caption","sourcebytes":[102,114],"value":"fr"}
+]}

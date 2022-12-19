@@ -4,14 +4,15 @@ object MainForm: TMainForm
   Top = 77
   Width = 894
   Caption = 'UI Demo'
-  ClientHeight = 583
+  ClientHeight = 563
   ClientWidth = 894
+  Menu = MainMenu
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '2.3.0.0'
   object PageControl: TPageControl
     Left = 0
-    Height = 551
+    Height = 563
     Top = 0
     Width = 894
     ActivePage = GridTab
@@ -21,47 +22,250 @@ object MainForm: TMainForm
     TabOrder = 0
     object GridTab: TTabSheet
       Caption = 'Grid'
-      ClientHeight = 523
+      ClientHeight = 535
       ClientWidth = 886
       ParentFont = False
       inline freGrid: TGridFrame
-        Height = 523
+        Height = 535
         Width = 886
         Align = alClient
-        ClientHeight = 523
+        ClientHeight = 535
         ClientWidth = 886
+        inherited Panel4: TPanel
+          Height = 326
+          Width = 540
+          ClientHeight = 326
+          ClientWidth = 540
+          inherited Grid: TTisGrid
+            Height = 221
+            Width = 519
+          end
+          inherited GroupBox1: TGroupBox
+            Width = 519
+            ClientWidth = 515
+            inherited FunctionSettingsLabel: TLabel
+              Left = 447
+            end
+          end
+        end
+        inherited Panel1: TPanel
+          Top = 338
+          Width = 886
+          ClientWidth = 886
+          inherited InOutputEdit: TSynEdit
+            Width = 856
+          end
+          inherited GridTotalLabel: TLabel
+            Left = 769
+          end
+        end
+        inherited Splitter: TSplitter
+          Top = 326
+          Width = 886
+        end
+        inherited Panel2: TPanel
+          Left = 552
+          Height = 326
+          ClientHeight = 326
+          inherited EventsPageControl: TPageControl
+            Height = 274
+            inherited TabSheet2: TTabSheet
+              ClientHeight = 246
+              inherited JsonMemo: TMemo
+                Height = 93
+                Lines.Strings = (
+                  '['
+                  '  {"id": 1, "text": "Windows"},'
+                  '  {"id": 2, "text": "Linux"},'
+                  '  {"id": 3, "text": "Mac"}'
+                  ']'
+                )
+              end
+              inherited AsynchCheckBox: TCheckBox
+                Top = 211
+              end
+            end
+            inherited TabSheet1: TTabSheet
+              ClientHeight = 246
+            end
+            inherited TabSheet3: TTabSheet
+              ClientHeight = 246
+            end
+          end
+        end
+        inherited Splitter1: TSplitter
+          Left = 540
+          Height = 326
+        end
       end
     end
     object TagEditorTab: TTabSheet
       Caption = 'TagEditor'
-      ClientHeight = 523
-      ClientWidth = 743
+      ClientHeight = 535
+      ClientWidth = 886
       ParentFont = False
       inline freTagEditor: TTagEditorFrame
-        Height = 523
-        Width = 743
+        Height = 535
+        Width = 886
         Align = alClient
-        ClientHeight = 523
-        ClientWidth = 743
+        ClientHeight = 535
+        ClientWidth = 886
+        inherited PageControl1: TPageControl
+          Height = 535
+          Width = 886
+          inherited TabSheet1: TTabSheet
+            ClientHeight = 507
+            ClientWidth = 878
+            inherited GroupBox1: TGroupBox
+              inherited AutoHeightCheckBox: TCheckBox
+                Width = 83
+              end
+              inherited AllowDuplicatesCheckBox: TCheckBox
+                Width = 106
+              end
+              inherited MultiLinesCheckBox: TCheckBox
+                Width = 76
+              end
+              inherited ItemsMemo: TMemo
+                Lines.Strings = (
+                  'Windows'
+                  'Linux'
+                  'Mac'
+                  'FreeBSD'
+                  'DOS'
+                  'OS/2'
+                  'AIX'
+                  'Android'
+                  'Haiku'
+                  'Nintendo'
+                  'AmigaOS'
+                  'MorphOS'
+                  'AROS'
+                  'Atari'
+                )
+              end
+              inherited DropDownCheckBox: TCheckBox
+                Width = 75
+              end
+              inherited AutoCompleteCheckBox: TCheckBox
+                Width = 99
+              end
+              inherited EnabledCheckBox: TCheckBox
+                Width = 60
+              end
+            end
+            inherited GroupBox2: TGroupBox
+              inherited TagClickCheckBox: TCheckBox
+                Width = 79
+              end
+              inherited TagBeforeAddCheckBox: TCheckBox
+                Width = 109
+              end
+              inherited TagBeforeDeleteCheckBox: TCheckBox
+                Width = 120
+              end
+              inherited TagAfterDragCheckBox: TCheckBox
+                Width = 104
+              end
+              inherited TagAfterAddCheckBox: TCheckBox
+                Width = 101
+              end
+            end
+          end
+          inherited TabSheet2: TTabSheet
+            ClientHeight = 507
+            ClientWidth = 878
+            inherited RttiItemsMemo: TMemo
+              Lines.Strings = (
+                'Windows'
+                'Linux'
+                'Mac'
+              )
+            end
+            inherited RttiLinkToMemoRadioButton: TRadioButton
+              Width = 92
+            end
+            inherited RttiLinkToEditRadioButton: TRadioButton
+              Width = 77
+            end
+            inherited RttiLinkToTPersistentRadioButton: TRadioButton
+              Width = 161
+            end
+          end
+        end
       end
     end
     object SearchEditTab: TTabSheet
       Caption = 'SearchEdit'
-      ClientHeight = 523
-      ClientWidth = 743
+      ClientHeight = 535
+      ClientWidth = 886
       inline freSearchEdit: TSearchEditFrame
         Height = 523
         Width = 743
-	  end
-	end
+        ClientHeight = 523
+        ClientWidth = 743
+        inherited GroupBox2: TGroupBox
+          inherited AutoSearchCheckBox: TCheckBox
+            Width = 82
+          end
+          inherited SearchButtonCheckBox: TCheckBox
+            Width = 92
+          end
+          inherited ClearButtonCheckBox: TCheckBox
+            Width = 84
+          end
+          inherited CustomClickCheckBox: TCheckBox
+            Width = 105
+          end
+          inherited SortedCheckBox: TCheckBox
+            Width = 52
+          end
+        end
+        inherited GroupBox1: TGroupBox
+          inherited JsonMemo: TMemo
+            Lines.Strings = (
+              '['
+              '  {"id": 1, "text": "Windows"},'
+              '  {"id": 2, "text": "Linux"},'
+              '  {"id": 3, "text": "Mac"}'
+              ']'
+            )
+          end
+        end
+      end
+    end
     object ToolBarTab: TTabSheet
       Caption = 'ToolBar'
-      ClientHeight = 555
+      ClientHeight = 535
       ClientWidth = 886
       inline freToolBar: TToolBarFrame
-        Height = 555
+        Height = 535
         Width = 886
         Align = alClient
+        ClientHeight = 535
+        ClientWidth = 886
+        inherited Memo1: TMemo
+          Height = 446
+          Width = 847
+        end
+        inherited TisToolBar1: TTisToolBar
+          Width = 886
+        end
+      end
+    end
+  end
+  object MainMenu: TMainMenu
+    Left = 328
+    Top = 40
+    object LangMenuItem: TMenuItem
+      Caption = 'Languages'
+      object LangEnMenuItem: TMenuItem
+        Caption = 'en'
+        OnClick = LangEnMenuItemClick
+      end
+      object LangFrMenuItem: TMenuItem
+        Caption = 'fr'
+        OnClick = LangEnMenuItemClick
       end
     end
   end

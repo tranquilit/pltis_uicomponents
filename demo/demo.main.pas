@@ -10,13 +10,14 @@ unit demo.main;
 interface
 
 uses
-  classes,
-  sysutils,
-  forms,
-  controls,
-  stdctrls,
-  buttons,
-  comctrls,
+  Classes,
+  SysUtils,
+  Forms,
+  Controls,
+  StdCtrls,
+  Buttons,
+  ComCtrls,
+  Dialogs,
   Menus,
   demo.grid.frame,
   demo.tageditor.frame,
@@ -34,13 +35,20 @@ type
     freSearchEdit: TSearchEditFrame;
     ToolBarTab: TTabSheet;
     freToolBar: TToolBarFrame;
+    MainMenu: TMainMenu;
+    LangMenuItem: TMenuItem;
+    LangEnMenuItem: TMenuItem;
+    LangFrMenuItem: TMenuItem;
     procedure FormCreate(Sender: TObject);
+    procedure LangEnMenuItemClick(Sender: TObject);
   end;
 
 var
   MainForm: TMainForm;
 
 implementation
+
+uses LCLTranslator;
 
 {$R *.lfm}
 
@@ -54,6 +62,11 @@ begin
     BgColorBox.Selected := TagEditor.TagBgColor;
     TextColorBox.Selected := TagEditor.TagTextColor;
   end;
+end;
+
+procedure TMainForm.LangEnMenuItemClick(Sender: TObject);
+begin
+  ShowMessage('Changed to ' + SetDefaultLang((Sender as TMenuItem).Caption, '..\languages'));
 end;
 
 end.

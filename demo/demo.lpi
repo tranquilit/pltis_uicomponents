@@ -17,6 +17,10 @@
       </XPManifest>
       <Icon Value="0"/>
     </General>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="..\languages"/>
+    </i18n>
     <BuildModes Count="6">
       <Item1 Name="Debug" Default="True"/>
       <Item2 Name="win32">

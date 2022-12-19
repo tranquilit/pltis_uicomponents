@@ -1,0 +1,35 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: tmainform.caption
+msgid "UI Demo"
+msgstr ""
+
+#: tmainform.gridtab.caption
+msgid "Grid"
+msgstr ""
+
+#: tmainform.langenmenuitem.caption
+msgid "en"
+msgstr ""
+
+#: tmainform.langfrmenuitem.caption
+msgid "fr"
+msgstr ""
+
+#: tmainform.langmenuitem.caption
+msgid "Languages"
+msgstr ""
+
+#: tmainform.searchedittab.caption
+msgid "SearchEdit"
+msgstr ""
+
+#: tmainform.tageditortab.caption
+msgid "TagEditor"
+msgstr ""
+
+#: tmainform.toolbartab.caption
+msgid "ToolBar"
+msgstr ""
+

@@ -10,6 +10,7 @@ program demo;
 uses
   interfaces, // this includes the LCL widgetset
   forms,
+  tis.ui.toolbar.editor,
   demo.main,
   demo.grid.frame,
   demo.tageditor.frame,
