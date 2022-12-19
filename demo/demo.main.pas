@@ -14,11 +14,13 @@ uses
   SysUtils,
   Forms,
   Controls,
-  StdCtrls,
   Buttons,
   ComCtrls,
   Dialogs,
+  LCLType,
+  Graphics,
   Menus,
+  DefaultTranslator,
   demo.grid.frame,
   demo.tageditor.frame,
   demo.searchedit.frame,
@@ -48,7 +50,8 @@ var
 
 implementation
 
-uses LCLTranslator;
+uses
+  Translations;
 
 {$R *.lfm}
 
@@ -65,8 +68,15 @@ begin
 end;
 
 procedure TMainForm.LangEnMenuItemClick(Sender: TObject);
+var
+  vMenu: TMenuItem;
 begin
-  ShowMessage('Changed to ' + SetDefaultLang((Sender as TMenuItem).Caption, '..\languages'));
+  if Sender is TMenuItem then
+  begin
+    vMenu := Sender as TMenuItem;
+    Translations.TranslateResourceStrings(
+      '..\languages\tis.ui.resourcestrings.%s.po', vMenu.Caption, '');
+  end;
 end;
 
 end.

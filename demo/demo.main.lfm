@@ -250,6 +250,15 @@ object MainForm: TMainForm
         end
         inherited TisToolBar1: TTisToolBar
           Width = 886
+          inherited ToolButton4: TToolButton
+            Height = 22
+          end
+          inherited ToolButton6: TToolButton
+            Height = 22
+          end
+          inherited ToolButton9: TToolButton
+            Height = 22
+          end
         end
       end
     end
