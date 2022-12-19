@@ -29,7 +29,8 @@ uses
   mormot.core.variants,
   mormot.core.unicode,
   mormot.core.text,
-  mormot.core.rtti;
+  mormot.core.rtti,
+  tis.ui.translator;
 
 type
   // forward class declarations
@@ -164,6 +165,7 @@ type
     fActions: TTisActionsCollection;
     fPopupMenus: TTisPopupMenusCollection;
     fEditorOptions: TTisEditorOptions;
+    fCustomizeMenuItem: TMenuItem; // created at runtime to access the Editor
     fDesigntimeSessionValues: string;
     fRuntimeSessionValues: string;
     fSessionVersion: Integer;
@@ -179,6 +181,7 @@ type
     // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
+    procedure DoContextPopup(MousePos: TPoint; var Handled: Boolean); override;
     // ------------------------------- new methods ----------------------------------
     function GetSessionValues: string; virtual;
     procedure SetSessionValues(const aValue: string); virtual;
@@ -509,6 +512,12 @@ begin
   end;
 end;
 
+procedure TTisToolBar.DoContextPopup(MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited DoContextPopup(MousePos, Handled);
+  fCustomizeMenuItem.Caption := rsToolBarCustomizeToolbar;
+end;
+
 function TTisToolBar.GetSessionValues: string;
 var
   v1: Integer;
@@ -679,11 +688,11 @@ begin
       vMenuItem.Caption := '-';
       PopupMenu.Items.Add(vMenuItem);
     end;
-    vMenuItem := TMenuItem.Create(self);
-    vMenuItem.Tag := -1;
-    vMenuItem.Caption := rsCustomizeToolbar;
-    vMenuItem.OnClick := @ShowEditorCallback;
-    PopupMenu.Items.Add(vMenuItem);
+    fCustomizeMenuItem := TMenuItem.Create(self);
+    fCustomizeMenuItem.Tag := -1;
+    fCustomizeMenuItem.OnClick := @ShowEditorCallback;
+    fCustomizeMenuItem.Caption := rsToolBarCustomizeToolbar;
+    PopupMenu.Items.Add(fCustomizeMenuItem);
   end;
 end;
 
