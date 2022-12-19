@@ -72,7 +72,7 @@ begin
   if Sender is TMenuItem then
   begin
     vMenu := Sender as TMenuItem;
-    tis.ui.resourcestrings.Translate(vMenu.Caption);
+    tis.ui.resourcestrings.Translate('..\languages', vMenu.Caption);
   end;
 end;
 

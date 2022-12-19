@@ -9,7 +9,7 @@ unit tis.ui.resourcestrings;
 
 interface
 
-procedure Translate(const aLang: string);
+procedure Translate(const aDirectory, aLang: string);
 
 resourcestring
   /// grid
@@ -56,12 +56,12 @@ resourcestring
 implementation
 
 uses
-  Translations;
+  SysUtils, Translations;
 
-procedure Translate(const aLang: string);
+procedure Translate(const aDirectory, aLang: string);
 begin
   Translations.TranslateResourceStrings(
-    '..\languages\tis.ui.resourcestrings.%s.po', aLang, '');
+    IncludeTrailingPathDelimiter(aDirectory) + 'tis.ui.resourcestrings.%s.po', aLang, '');
 end;
 
 end.
