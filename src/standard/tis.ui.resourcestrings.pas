@@ -9,6 +9,8 @@ unit tis.ui.resourcestrings;
 
 interface
 
+procedure Translate(const aLang: string);
+
 resourcestring
   /// grid
   rsGridNoRecordFind = 'No more record found for "%s"';
@@ -52,6 +54,15 @@ resourcestring
   rsToolBarRestore = 'Restore';
 
 implementation
+
+uses
+  Translations;
+
+procedure Translate(const aLang: string);
+begin
+  Translations.TranslateResourceStrings(
+    '..\languages\tis.ui.resourcestrings.%s.po', aLang, '');
+end;
 
 end.
 

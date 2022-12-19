@@ -18,9 +18,7 @@ uses
   ComCtrls,
   Dialogs,
   LCLType,
-  Graphics,
   Menus,
-  DefaultTranslator,
   demo.grid.frame,
   demo.tageditor.frame,
   demo.searchedit.frame,
@@ -51,7 +49,7 @@ var
 implementation
 
 uses
-  Translations;
+  tis.ui.resourcestrings;
 
 {$R *.lfm}
 
@@ -74,8 +72,7 @@ begin
   if Sender is TMenuItem then
   begin
     vMenu := Sender as TMenuItem;
-    Translations.TranslateResourceStrings(
-      '..\languages\tis.ui.resourcestrings.%s.po', vMenu.Caption, '');
+    tis.ui.resourcestrings.Translate(vMenu.Caption);
   end;
 end;
 
