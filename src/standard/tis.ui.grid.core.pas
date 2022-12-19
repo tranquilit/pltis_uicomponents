@@ -42,6 +42,7 @@ uses
   tisstrings,
   tis.core.os,
   tis.core.utils,
+  tis.ui.translator,
   tis.ui.searchedit,
   tis.ui.grid.controls;
 
@@ -934,37 +935,6 @@ type
       read fOnGridExportCustomContent write fOnGridExportCustomContent;
   end;
 
-resourcestring
-  rsNoRecordFind = 'No more record found for "%s"';
-  rsPrintOn = 'Printed on';
-  rsPage = 'Page';
-  rsConfirmation = 'Confirm';
-  rsUndoLastUpdate = 'Undo last change';
-  rsRevertRecord = 'Revert to initial record';
-  rsFind = 'Search...';
-  rsFindNext = 'Find next';
-  rsFindReplace = 'Find and replace...';
-  rsCopy = 'Copy';
-  rsCopyCell = 'Copy cell';
-  rsCopySpecial = 'Copy special...';
-  rsCut = 'Cut';
-  rsPaste = 'Paste';
-  rsInsert = 'Insert';
-  rsDelete = 'Delete';
-  rsDeleteRows = 'Delete selected rows';
-  rsConfDeleteRow = 'Confirm the deletion of the %d selected rows ?';
-  rsSelectAll = 'Select all rows';
-  rsExportSelected = 'Export selected rows to file...';
-  rsExportAll = 'Export all rows to file...';
-  rsPrint = 'Print...';
-  rsExpandAll = 'Expand all';
-  rsCollapseAll = 'Collapse all';
-  rsCustomizeColumns = 'Customize columns...';
-  rsAdvancedCustomizeColumns = 'Advanced customize of table...';
-  rsShowAllColumns = 'Show all columns';
-  rsHideAllColumns = 'Hide all columns';
-  rsRestoreDefaultColumns = 'Restore default columns';
-
 implementation
 
 uses
@@ -1599,19 +1569,19 @@ begin
       // show all columns
       vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
       vNewMenuItem.Tag := -1;
-      vNewMenuItem.Caption := rsShowAllColumns;
+      vNewMenuItem.Caption := rsGridShowAllColumns;
       vNewMenuItem.OnClick := @OnMenuShowAllClick;
       Items.Add(vNewMenuItem);
       // hide all columns
       vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
       vNewMenuItem.Tag := -2;
-      vNewMenuItem.Caption := rsHideAllColumns;
+      vNewMenuItem.Caption := rsGridHideAllColumns;
       vNewMenuItem.OnClick := @OnMenuHideAllClick;
       Items.Add(vNewMenuItem);
       // restore default columns
       vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
       vNewMenuItem.Tag := -3;
-      vNewMenuItem.Caption := rsRestoreDefaultColumns;
+      vNewMenuItem.Caption := rsGridRestoreDefaultColumns;
       vNewMenuItem.OnClick := @OnMenuRestoreClick;
       Items.Add(vNewMenuItem);
       // conditionally disable menu item of last enabled column
@@ -2486,34 +2456,34 @@ begin
   if PopupMenu.Items.Count > 0 then
     _AddItem('-', 0, nil);
   if pmoShowFind in fPopupMenuOptions then
-    _AddItem(rsFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
+    _AddItem(rsGridFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
   if pmoShowFindNext in fPopupMenuOptions then
-    _AddItem(rsFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
+    _AddItem(rsGridFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
   {_AddItem(rsFindReplace, ShortCut(Ord('H'), [ssCtrl]), @DoFindReplace);}
   _AddItem('-', 0, nil);
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipboard) then
-    _AddItem(rsCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
+    _AddItem(rsGridCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
   if pmoShowCopy in fPopupMenuOptions then
-    _AddItem(rsCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
+    _AddItem(rsGridCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
   if pmoShowCopyCell in fPopupMenuOptions then
-    _AddItem(rsCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
+    _AddItem(rsGridCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
   if pmoShowCopySpecial in fPopupMenuOptions then
-    _AddItem(rsCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
+    _AddItem(rsGridCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste))  then
-    _AddItem(rsPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
+    _AddItem(rsGridPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
   _AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) then
-    _AddItem(rsDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
+    _AddItem(rsGridDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
-    _AddItem(rsSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
+    _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
   _AddItem('-', 0, nil);
   if pmoShowExport in fPopupMenuOptions then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
-      _AddItem(rsExportSelected, 0, @DoExport, not fData.IsVoid)
+      _AddItem(rsGridExportSelected, 0, @DoExport, not fData.IsVoid)
     else
-      _AddItem(rsExportAll, 0, @DoExport, not fData.IsVoid);
+      _AddItem(rsGridExportAll, 0, @DoExport, not fData.IsVoid);
   end;
   {if (HMPrint = 0) then
     _AddItem(rsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
@@ -2524,9 +2494,9 @@ begin
     @DoCollapseAll);}
   _AddItem('-', 0, nil);
   if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
-    _AddItem(rsCustomizeColumns, 0, @DoCustomizeColumns);
+    _AddItem(rsGridCustomizeColumns, 0, @DoCustomizeColumns);
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
-    _AddItem(rsAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
+    _AddItem(rsGridAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;
@@ -2740,7 +2710,7 @@ begin
       end;
     end;
     fStartSearchNode := nil;
-    ShowMessageFmt(RsNoRecordFind, [TextToFind]);
+    ShowMessageFmt(rsGridNoRecordFind, [TextToFind]);
     SetFocusSafe;
   end;
 end;
@@ -2907,7 +2877,7 @@ var
   function UserConfirmed: Boolean;
   begin
     result := Dialogs.MessageDlg(
-      RsConfirmation, Format(RsConfDeleteRow, [SelectedCount]),
+      rsGridConfirmation, Format(rsGridConfDeleteRow, [SelectedCount]),
       mtConfirmation, mbYesNoCancel, 0) = mrYes;
   end;
 

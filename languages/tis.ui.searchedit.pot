@@ -1,7 +1,0 @@
-msgid ""
-msgstr "Content-Type: text/plain; charset=UTF-8"
-
-#: tis.ui.searchedit.rsclearall
-msgid "Clear all"
-msgstr ""
-

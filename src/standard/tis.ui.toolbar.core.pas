@@ -269,9 +269,6 @@ implementation
 uses
   tis.ui.toolbar.editor;
 
-resourcestring
-  rsCustomizeToolbar = 'Customize the toolbar';
-
 { TTisActionsItem }
 
 procedure TTisActionsItem.SetHiddenCategories(aValue: TStrings);

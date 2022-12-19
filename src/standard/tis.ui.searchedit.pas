@@ -23,6 +23,7 @@ uses
   Menus,
   mormot.core.variants,
   mormot.core.unicode,
+  tis.ui.translator,
   tis.ui.parts.buttons;
 
 type
@@ -142,9 +143,6 @@ type
     /// an event that will be trigger when the Timer stops
     property OnStopSearch: TNotifyEvent read GetOnStopSearch write SetOnStopSearch;
   end;
-
-resourcestring
-  rsClearAll = 'Clear all';
 
 implementation
 
@@ -333,7 +331,7 @@ begin
       end;
       vMenuItem := TMenuItem.Create(self);
       vMenuItem.Tag := -1;
-      vMenuItem.Caption := rsClearAll;
+      vMenuItem.Caption := rsSearchEditClearAll;
       vMenuItem.OnClick := @DoClearCallback;
       vButton.Button.PopupMenu.Items.Add(vMenuItem);
     end;

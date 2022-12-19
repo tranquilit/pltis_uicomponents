@@ -12,7 +12,8 @@ uses
   tis.ui.grid.editor, tis.ui.lvlgraphcontrol, tis.ui.parts.buttons, 
   tis.ui.registry, tis.ui.searchedit, tis.ui.syncontroledit, 
   tis.ui.tageditor.core, tis.ui.togglebutton, tis.ui.toolbar.core, 
-  tis.ui.toolbar.editor, tis.ui.grid.copyspecial, LazarusPackageIntf;
+  tis.ui.toolbar.editor, tis.ui.grid.copyspecial, tis.ui.translator, 
+  LazarusPackageIntf;
 
 implementation
 

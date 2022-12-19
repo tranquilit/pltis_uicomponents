@@ -29,6 +29,7 @@ uses
   Dialogs,
   ComponentEditors,
   TreeFilterEdit,
+  tis.ui.translator,
   tis.ui.toolbar.core;
 
 type
@@ -110,12 +111,6 @@ type
     function GetVerb(Index: Integer): string; override;
     function GetVerbCount: Integer; override;
   end;
-
-resourcestring
-  rsToolBarConfiguration = 'Toolbar Configuration';
-  rsToolBarAvailableCommands = 'Available commands';
-  rsToolBarCommands = 'Toolbar commands';
-  rsToolBarRestore = 'Restore';
 
 const
   rsPopupMenus = 'Popup Menus';

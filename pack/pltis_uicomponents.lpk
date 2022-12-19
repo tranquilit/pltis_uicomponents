@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="22">
+    <Files Count="23">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -117,6 +117,10 @@
         <Filename Value="..\src\standard\tis.ui.grid.copyspecial.pas"/>
         <UnitName Value="tis.ui.grid.copyspecial"/>
       </Item22>
+      <Item23>
+        <Filename Value="..\src\standard\tis.ui.translator.pas"/>
+        <UnitName Value="tis.ui.translator"/>
+      </Item23>
     </Files>
     <CompatibilityMode Value="True"/>
     <i18n>
