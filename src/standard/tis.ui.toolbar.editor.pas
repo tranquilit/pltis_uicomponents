@@ -15,6 +15,7 @@ uses
   LCLProc,
   LCLType,
   LclIntf,
+  LCLTranslator,
   Controls,
   Forms,
   Graphics,
@@ -204,6 +205,7 @@ end;
 
 procedure TTisToolBarEditor.FormShow(Sender: TObject);
 begin
+  SetupCaptions;
   ToolBarRestoreButton.Visible := not IsDesignTime;
   if IsDesignTime then
     pnlButtons.ShowButtons := [pbClose]
@@ -645,7 +647,6 @@ begin
     fSessionValuesBackup := fTarget.RuntimeSessionValues;
   ActionsTreeView.Images := fTarget.Images;
   ButtonsListView.SmallImages := fTarget.Images;
-  SetupCaptions;
 end;
 
 procedure TTisToolBarEditor.AddListViewItem(aButton: TToolButton);
