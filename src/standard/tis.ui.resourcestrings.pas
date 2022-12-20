@@ -56,12 +56,17 @@ resourcestring
 implementation
 
 uses
-  SysUtils, Translations;
+  SysUtils, LCLTranslator;
 
 procedure Translate(const aDirectory, aLang: string);
+var
+  vDir: TFileName;
 begin
-  Translations.TranslateResourceStrings(
-    IncludeTrailingPathDelimiter(aDirectory) + 'tis.ui.resourcestrings.%s.po', aLang, '');
+  vDir := IncludeTrailingPathDelimiter(aDirectory);
+  TranslateUnitResourceStringsEx(
+    aLang, vDir, 'tis.ui.resourcestrings.po', 'tis.ui.resourcestrings');
+  TranslateUnitResourceStringsEx(
+    aLang, vDir, 'lclstrconsts.po', 'lclstrconsts');
 end;
 
 end.
