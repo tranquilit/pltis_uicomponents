@@ -1,178 +1,178 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: tis.ui.translator.rsgridadvancedcustomizecolumns
-msgctxt "tis.ui.translator.rsgridadvancedcustomizecolumns"
+#: tis.ui.resourcestrings.rsgridadvancedcustomizecolumns
+msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
 msgid "Advanced customize of table..."
 msgstr "Personnalisation avancée du tableau..."
 
-#: tis.ui.translator.rsgridcollapseall
-msgctxt "tis.ui.translator.rsgridcollapseall"
+#: tis.ui.resourcestrings.rsgridcollapseall
+msgctxt "tis.ui.resourcestrings.rsgridcollapseall"
 msgid "Collapse all"
 msgstr "Réduire tout"
 
-#: tis.ui.translator.rsgridconfdeleterow
+#: tis.ui.resourcestrings.rsgridconfdeleterow
 #, object-pascal-format
 msgid "Confirm the deletion of the %d selected rows ?"
 msgstr ""
 
-#: tis.ui.translator.rsgridconfirmation
-msgctxt "tis.ui.translator.rsgridconfirmation"
+#: tis.ui.resourcestrings.rsgridconfirmation
+msgctxt "tis.ui.resourcestrings.rsgridconfirmation"
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: tis.ui.translator.rsgridcopy
-msgctxt "tis.ui.translator.rsgridcopy"
+#: tis.ui.resourcestrings.rsgridcopy
+msgctxt "tis.ui.resourcestrings.rsgridcopy"
 msgid "Copy"
 msgstr "Copie"
 
-#: tis.ui.translator.rsgridcopycell
-msgctxt "tis.ui.translator.rsgridcopycell"
+#: tis.ui.resourcestrings.rsgridcopycell
+msgctxt "tis.ui.resourcestrings.rsgridcopycell"
 msgid "Copy cell"
 msgstr "Copier la cellule"
 
-#: tis.ui.translator.rsgridcopyspecial
-msgctxt "tis.ui.translator.rsgridcopyspecial"
+#: tis.ui.resourcestrings.rsgridcopyspecial
+msgctxt "tis.ui.resourcestrings.rsgridcopyspecial"
 msgid "Copy special..."
 msgstr "Copie spéciale..."
 
-#: tis.ui.translator.rsgridcustomizecolumns
-msgctxt "tis.ui.translator.rsgridcustomizecolumns"
+#: tis.ui.resourcestrings.rsgridcustomizecolumns
+msgctxt "tis.ui.resourcestrings.rsgridcustomizecolumns"
 msgid "Customize columns..."
 msgstr "Personnaliser les colonnes..."
 
-#: tis.ui.translator.rsgridcut
-msgctxt "tis.ui.translator.rsgridcut"
+#: tis.ui.resourcestrings.rsgridcut
+msgctxt "tis.ui.resourcestrings.rsgridcut"
 msgid "Cut"
 msgstr "Couper"
 
-#: tis.ui.translator.rsgriddelete
-msgctxt "tis.ui.translator.rsgriddelete"
+#: tis.ui.resourcestrings.rsgriddelete
+msgctxt "tis.ui.resourcestrings.rsgriddelete"
 msgid "Delete"
 msgstr "Effacer"
 
-#: tis.ui.translator.rsgriddeleterows
-msgctxt "tis.ui.translator.rsgriddeleterows"
+#: tis.ui.resourcestrings.rsgriddeleterows
+msgctxt "tis.ui.resourcestrings.rsgriddeleterows"
 msgid "Delete selected rows"
 msgstr "Supprimer les lignes sélectionnées"
 
-#: tis.ui.translator.rsgridexpandall
-msgctxt "tis.ui.translator.rsgridexpandall"
+#: tis.ui.resourcestrings.rsgridexpandall
+msgctxt "tis.ui.resourcestrings.rsgridexpandall"
 msgid "Expand all"
 msgstr "Développer tout"
 
-#: tis.ui.translator.rsgridexportall
-msgctxt "tis.ui.translator.rsgridexportall"
+#: tis.ui.resourcestrings.rsgridexportall
+msgctxt "tis.ui.resourcestrings.rsgridexportall"
 msgid "Export all rows to file..."
 msgstr "Exporter toutes les lignes vers le fichier..."
 
-#: tis.ui.translator.rsgridexportselected
-msgctxt "tis.ui.translator.rsgridexportselected"
+#: tis.ui.resourcestrings.rsgridexportselected
+msgctxt "tis.ui.resourcestrings.rsgridexportselected"
 msgid "Export selected rows to file..."
 msgstr "Exporter les lignes sélectionnées vers le fichier..."
 
-#: tis.ui.translator.rsgridfind
-msgctxt "tis.ui.translator.rsgridfind"
+#: tis.ui.resourcestrings.rsgridfind
+msgctxt "tis.ui.resourcestrings.rsgridfind"
 msgid "Search..."
 msgstr "Chercher..."
 
-#: tis.ui.translator.rsgridfindnext
-msgctxt "tis.ui.translator.rsgridfindnext"
+#: tis.ui.resourcestrings.rsgridfindnext
+msgctxt "tis.ui.resourcestrings.rsgridfindnext"
 msgid "Find next"
 msgstr "Rechercher suivant"
 
-#: tis.ui.translator.rsgridfindreplace
-msgctxt "tis.ui.translator.rsgridfindreplace"
+#: tis.ui.resourcestrings.rsgridfindreplace
+msgctxt "tis.ui.resourcestrings.rsgridfindreplace"
 msgid "Find and replace..."
 msgstr "Trouver et remplacer..."
 
-#: tis.ui.translator.rsgridhideallcolumns
-msgctxt "tis.ui.translator.rsgridhideallcolumns"
+#: tis.ui.resourcestrings.rsgridhideallcolumns
+msgctxt "tis.ui.resourcestrings.rsgridhideallcolumns"
 msgid "Hide all columns"
 msgstr "Masquer toutes les colonnes"
 
-#: tis.ui.translator.rsgridinsert
-msgctxt "tis.ui.translator.rsgridinsert"
+#: tis.ui.resourcestrings.rsgridinsert
+msgctxt "tis.ui.resourcestrings.rsgridinsert"
 msgid "Insert"
 msgstr "Insérer"
 
-#: tis.ui.translator.rsgridnorecordfind
+#: tis.ui.resourcestrings.rsgridnorecordfind
 #, object-pascal-format
-msgctxt "tis.ui.translator.rsgridnorecordfind"
+msgctxt "tis.ui.resourcestrings.rsgridnorecordfind"
 msgid "No more record found for \"%s\""
 msgstr "InsérerAucun autre enregistrement trouvé pour \"%s\""
 
-#: tis.ui.translator.rsgridpage
-msgctxt "tis.ui.translator.rsgridpage"
+#: tis.ui.resourcestrings.rsgridpage
+msgctxt "tis.ui.resourcestrings.rsgridpage"
 msgid "Page"
 msgstr "Page"
 
-#: tis.ui.translator.rsgridpaste
-msgctxt "tis.ui.translator.rsgridpaste"
+#: tis.ui.resourcestrings.rsgridpaste
+msgctxt "tis.ui.resourcestrings.rsgridpaste"
 msgid "Paste"
 msgstr "Pâte"
 
-#: tis.ui.translator.rsgridprint
-msgctxt "tis.ui.translator.rsgridprint"
+#: tis.ui.resourcestrings.rsgridprint
+msgctxt "tis.ui.resourcestrings.rsgridprint"
 msgid "Print..."
 msgstr "Imprimer..."
 
-#: tis.ui.translator.rsgridprinton
-msgctxt "tis.ui.translator.rsgridprinton"
+#: tis.ui.resourcestrings.rsgridprinton
+msgctxt "tis.ui.resourcestrings.rsgridprinton"
 msgid "Printed on"
 msgstr "Imprimé sur"
 
-#: tis.ui.translator.rsgridrestoredefaultcolumns
-msgctxt "tis.ui.translator.rsgridrestoredefaultcolumns"
+#: tis.ui.resourcestrings.rsgridrestoredefaultcolumns
+msgctxt "tis.ui.resourcestrings.rsgridrestoredefaultcolumns"
 msgid "Restore default columns"
 msgstr "Restaurer les colonnes par défaut"
 
-#: tis.ui.translator.rsgridrevertrecord
-msgctxt "tis.ui.translator.rsgridrevertrecord"
+#: tis.ui.resourcestrings.rsgridrevertrecord
+msgctxt "tis.ui.resourcestrings.rsgridrevertrecord"
 msgid "Revert to initial record"
 msgstr "Revenir à l'enregistrement initial"
 
-#: tis.ui.translator.rsgridselectall
-msgctxt "tis.ui.translator.rsgridselectall"
+#: tis.ui.resourcestrings.rsgridselectall
+msgctxt "tis.ui.resourcestrings.rsgridselectall"
 msgid "Select all rows"
 msgstr "Sélectionner toutes les lignes"
 
-#: tis.ui.translator.rsgridshowallcolumns
-msgctxt "tis.ui.translator.rsgridshowallcolumns"
+#: tis.ui.resourcestrings.rsgridshowallcolumns
+msgctxt "tis.ui.resourcestrings.rsgridshowallcolumns"
 msgid "Show all columns"
 msgstr "Afficher toutes les colonnes"
 
-#: tis.ui.translator.rsgridundolastupdate
-msgctxt "tis.ui.translator.rsgridundolastupdate"
+#: tis.ui.resourcestrings.rsgridundolastupdate
+msgctxt "tis.ui.resourcestrings.rsgridundolastupdate"
 msgid "Undo last change"
 msgstr "Annuler la dernière modification"
 
-#: tis.ui.translator.rssearcheditclearall
-msgctxt "tis.ui.translator.rssearcheditclearall"
+#: tis.ui.resourcestrings.rssearcheditclearall
+msgctxt "tis.ui.resourcestrings.rssearcheditclearall"
 msgid "Clear all"
 msgstr "Tout effacer"
 
-#: tis.ui.translator.rstoolbaravailablecommands
-msgctxt "tis.ui.translator.rstoolbaravailablecommands"
+#: tis.ui.resourcestrings.rstoolbaravailablecommands
+msgctxt "tis.ui.resourcestrings.rstoolbaravailablecommands"
 msgid "Available commands"
 msgstr "Commandes disponibles"
 
-#: tis.ui.translator.rstoolbarcommands
-msgctxt "tis.ui.translator.rstoolbarcommands"
+#: tis.ui.resourcestrings.rstoolbarcommands
+msgctxt "tis.ui.resourcestrings.rstoolbarcommands"
 msgid "Toolbar commands"
 msgstr "Commandes de la barre d'outils"
 
-#: tis.ui.translator.rstoolbarconfiguration
-msgctxt "tis.ui.translator.rstoolbarconfiguration"
+#: tis.ui.resourcestrings.rstoolbarconfiguration
+msgctxt "tis.ui.resourcestrings.rstoolbarconfiguration"
 msgid "Toolbar Configuration"
 msgstr "Configuration de la barre d'outils"
 
-#: tis.ui.translator.rstoolbarcustomizetoolbar
-msgctxt "tis.ui.translator.rstoolbarcustomizetoolbar"
+#: tis.ui.resourcestrings.rstoolbarcustomizetoolbar
+msgctxt "tis.ui.resourcestrings.rstoolbarcustomizetoolbar"
 msgid "Customize the toolbar"
 msgstr "Personnaliser la barre d'outils"
 
-#: tis.ui.translator.rstoolbarrestore
-msgctxt "tis.ui.translator.rstoolbarrestore"
+#: tis.ui.resourcestrings.rstoolbarrestore
+msgctxt "tis.ui.resourcestrings.rstoolbarrestore"
 msgid "Restore"
 msgstr "Restaurer"
