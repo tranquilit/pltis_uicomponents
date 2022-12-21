@@ -29,7 +29,6 @@ uses
   Dialogs,
   Buttons,
   EditBtn,
-  DefaultTranslator,
   VirtualTrees,
   mormot.core.base,
   mormot.core.data, // for dvoNameCaseSensitive

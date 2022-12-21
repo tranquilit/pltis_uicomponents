@@ -16,7 +16,6 @@ uses
   Controls,
   Buttons,
   ComCtrls,
-  Dialogs,
   LCLType,
   Menus,
   demo.grid.frame,

@@ -15,7 +15,6 @@ uses
   LCLProc,
   LCLType,
   LclIntf,
-  LCLTranslator,
   Controls,
   Forms,
   Graphics,
