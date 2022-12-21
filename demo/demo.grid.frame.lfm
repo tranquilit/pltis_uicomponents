@@ -5,6 +5,7 @@ object GridFrame: TGridFrame
   Width = 877
   ClientHeight = 589
   ClientWidth = 877
+  LCLVersion = '2.3.0.0'
   TabOrder = 0
   DesignLeft = 224
   DesignTop = 147
@@ -70,7 +71,6 @@ object GridFrame: TGridFrame
         Top = 8
         Width = 22
         Caption = 'Grid'
-        Color = clDefault
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
         Font.Height = -12
@@ -94,7 +94,6 @@ object GridFrame: TGridFrame
         Width = 42
         Anchors = [akTop, akRight]
         Caption = 'Settings'
-        Color = clDefault
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
         Font.Height = -12
@@ -117,7 +116,6 @@ object GridFrame: TGridFrame
         Top = 8
         Width = 28
         Caption = 'Input'
-        Color = clDefault
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
         Font.Height = -12
@@ -140,7 +138,6 @@ object GridFrame: TGridFrame
         Top = 8
         Width = 75
         Caption = 'Selected Rows'
-        Color = clDefault
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
         Font.Height = -12
@@ -163,7 +160,6 @@ object GridFrame: TGridFrame
         Top = 8
         Width = 51
         Caption = 'MetaData'
-        Color = clDefault
         Font.CharSet = ANSI_CHARSET
         Font.Color = clBlue
         Font.Height = -12
@@ -267,6 +263,7 @@ object GridFrame: TGridFrame
           Kind = bkClear
           Name = 'Clear1'
         end>
+      SearchInterval = 1000
       OnSearch = GridSearchEditSearch
     end
   end
@@ -784,7 +781,6 @@ object GridFrame: TGridFrame
       Top = 3
       Width = 74
       Caption = 'Input/Output:'
-      Color = clDefault
       ParentColor = False
       ParentFont = False
     end
@@ -795,7 +791,6 @@ object GridFrame: TGridFrame
       Top = 3
       Width = 79
       Caption = 'from clipboard'
-      Color = clDefault
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
       Font.Height = -12
@@ -814,7 +809,6 @@ object GridFrame: TGridFrame
       Top = 3
       Width = 76
       Caption = 'from grid data'
-      Color = clDefault
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
       Font.Height = -12
@@ -833,7 +827,6 @@ object GridFrame: TGridFrame
       Top = 3
       Width = 25
       Caption = 'clear'
-      Color = clDefault
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
       Font.Height = -12
@@ -852,7 +845,6 @@ object GridFrame: TGridFrame
       Width = 91
       Anchors = [akTop, akRight]
       Caption = 'Total : 0 elements'
-      Color = clDefault
       ParentColor = False
       ParentFont = False
     end
@@ -863,7 +855,6 @@ object GridFrame: TGridFrame
       Top = 3
       Width = 95
       Caption = 'from selected row'
-      Color = clDefault
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
       Font.Height = -12
@@ -882,7 +873,6 @@ object GridFrame: TGridFrame
       Top = 3
       Width = 138
       Caption = 'from selected rows as CSV'
-      Color = clDefault
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
       Font.Height = -12
@@ -932,7 +922,6 @@ object GridFrame: TGridFrame
           Top = 16
           Width = 43
           Caption = 'Column'
-          Color = clDefault
           ParentColor = False
           ParentFont = False
         end
@@ -949,7 +938,6 @@ object GridFrame: TGridFrame
           Top = 56
           Width = 47
           Caption = 'Key Field'
-          Color = clDefault
           ParentColor = False
         end
         object KeyFieldEdit: TEdit
@@ -974,7 +962,6 @@ object GridFrame: TGridFrame
           Top = 56
           Width = 66
           Caption = 'Display Field'
-          Color = clDefault
           ParentColor = False
         end
         object JsonMemo: TMemo
@@ -1014,7 +1001,6 @@ object GridFrame: TGridFrame
           Top = 104
           Width = 72
           Caption = 'If Data Type is'
-          Color = clDefault
           ParentColor = False
           ParentFont = False
         end
@@ -1047,7 +1033,6 @@ object GridFrame: TGridFrame
           Top = 160
           Width = 79
           Caption = 'Then use Color'
-          Color = clDefault
           ParentColor = False
         end
         object PrepareReadOnlyCheckBox: TCheckBox
@@ -1071,7 +1056,6 @@ object GridFrame: TGridFrame
           Top = 18
           Width = 43
           Caption = 'Column'
-          Color = clDefault
           ParentColor = False
           ParentFont = False
         end
@@ -1095,7 +1079,6 @@ object GridFrame: TGridFrame
             Top = 8
             Width = 182
             Caption = 'For column name (PropertyName)'
-            Color = clDefault
             ParentColor = False
           end
           object ValidColumnNameEdit: TEdit
@@ -1111,7 +1094,6 @@ object GridFrame: TGridFrame
             Top = 48
             Width = 85
             Caption = 'If edited value is'
-            Color = clDefault
             ParentColor = False
           end
           object ValidEditedValueEdit: TEdit
@@ -1127,7 +1109,6 @@ object GridFrame: TGridFrame
             Top = 88
             Width = 26
             Caption = 'Then'
-            Color = clDefault
             ParentColor = False
           end
           object ValidAbortCheckBox: TCheckBox
@@ -1146,7 +1127,6 @@ object GridFrame: TGridFrame
             Top = 128
             Width = 102
             Caption = 'And show message'
-            Color = clDefault
             ParentColor = False
           end
           object ValidMsgEdit: TEdit

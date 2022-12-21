@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit demo.main;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 interface
 

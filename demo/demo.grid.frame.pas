@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit demo.grid.frame;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 interface
 
@@ -212,7 +212,7 @@ begin
     aSearchEdit.LookupKeyField := KeyFieldEdit.Text;
     aSearchEdit.LookupDisplayField := DisplayFieldEdit.Text;
     if AsynchCheckBox.Checked then
-      aSearchEdit.OnSearch := DoAsyncSearch
+      aSearchEdit.OnSearch := @DoAsyncSearch
     else
     begin
       aSearchEdit.Data.InitJson(StringToUtf8(JsonMemo.Lines.Text), JSON_FAST_FLOAT);
@@ -280,7 +280,7 @@ begin
     exit;
   for i := 0 to high(Grid.SelectedObjects) do
   begin
-    Grid.SelectedObjects[i].S[a[0]] := a[1];
+    Grid.SelectedObjects[i]^.S[a[0]] := a[1];
     Grid.LoadData;
   end;
 end;

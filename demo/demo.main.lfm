@@ -4,7 +4,7 @@ object MainForm: TMainForm
   Top = 77
   Width = 894
   Caption = 'UI Demo'
-  ClientHeight = 563
+  ClientHeight = 583
   ClientWidth = 894
   Menu = MainMenu
   OnCreate = FormCreate
@@ -12,7 +12,7 @@ object MainForm: TMainForm
   LCLVersion = '2.3.0.0'
   object PageControl: TPageControl
     Left = 0
-    Height = 563
+    Height = 583
     Top = 0
     Width = 894
     ActivePage = GridTab
@@ -22,22 +22,22 @@ object MainForm: TMainForm
     TabOrder = 0
     object GridTab: TTabSheet
       Caption = 'Grid'
-      ClientHeight = 535
+      ClientHeight = 555
       ClientWidth = 886
       ParentFont = False
       inline freGrid: TGridFrame
-        Height = 535
+        Height = 555
         Width = 886
         Align = alClient
-        ClientHeight = 535
+        ClientHeight = 555
         ClientWidth = 886
         inherited Panel4: TPanel
-          Height = 326
+          Height = 346
           Width = 540
-          ClientHeight = 326
+          ClientHeight = 346
           ClientWidth = 540
           inherited Grid: TTisGrid
-            Height = 221
+            Height = 241
             Width = 519
           end
           inherited GroupBox1: TGroupBox
@@ -49,7 +49,7 @@ object MainForm: TMainForm
           end
         end
         inherited Panel1: TPanel
-          Top = 338
+          Top = 358
           Width = 886
           ClientWidth = 886
           inherited InOutputEdit: TSynEdit
@@ -60,19 +60,19 @@ object MainForm: TMainForm
           end
         end
         inherited Splitter: TSplitter
-          Top = 326
+          Top = 346
           Width = 886
         end
         inherited Panel2: TPanel
           Left = 552
-          Height = 326
-          ClientHeight = 326
+          Height = 346
+          ClientHeight = 346
           inherited EventsPageControl: TPageControl
-            Height = 274
+            Height = 294
             inherited TabSheet2: TTabSheet
-              ClientHeight = 246
+              ClientHeight = 266
               inherited JsonMemo: TMemo
-                Height = 93
+                Height = 113
                 Lines.Strings = (
                   '['
                   '  {"id": 1, "text": "Windows"},'
@@ -82,39 +82,39 @@ object MainForm: TMainForm
                 )
               end
               inherited AsynchCheckBox: TCheckBox
-                Top = 211
+                Top = 231
               end
             end
             inherited TabSheet1: TTabSheet
-              ClientHeight = 246
+              ClientHeight = 266
             end
             inherited TabSheet3: TTabSheet
-              ClientHeight = 246
+              ClientHeight = 266
             end
           end
         end
         inherited Splitter1: TSplitter
           Left = 540
-          Height = 326
+          Height = 346
         end
       end
     end
     object TagEditorTab: TTabSheet
       Caption = 'TagEditor'
-      ClientHeight = 535
+      ClientHeight = 555
       ClientWidth = 886
       ParentFont = False
       inline freTagEditor: TTagEditorFrame
-        Height = 535
+        Height = 555
         Width = 886
         Align = alClient
-        ClientHeight = 535
+        ClientHeight = 555
         ClientWidth = 886
         inherited PageControl1: TPageControl
-          Height = 535
+          Height = 555
           Width = 886
           inherited TabSheet1: TTabSheet
-            ClientHeight = 507
+            ClientHeight = 527
             ClientWidth = 878
             inherited GroupBox1: TGroupBox
               inherited AutoHeightCheckBox: TCheckBox
@@ -173,7 +173,7 @@ object MainForm: TMainForm
             end
           end
           inherited TabSheet2: TTabSheet
-            ClientHeight = 507
+            ClientHeight = 527
             ClientWidth = 878
             inherited RttiItemsMemo: TMemo
               Lines.Strings = (
@@ -197,7 +197,7 @@ object MainForm: TMainForm
     end
     object SearchEditTab: TTabSheet
       Caption = 'SearchEdit'
-      ClientHeight = 535
+      ClientHeight = 555
       ClientWidth = 886
       inline freSearchEdit: TSearchEditFrame
         Height = 523
@@ -236,16 +236,16 @@ object MainForm: TMainForm
     end
     object ToolBarTab: TTabSheet
       Caption = 'ToolBar'
-      ClientHeight = 535
+      ClientHeight = 555
       ClientWidth = 886
       inline freToolBar: TToolBarFrame
-        Height = 535
+        Height = 555
         Width = 886
         Align = alClient
-        ClientHeight = 535
+        ClientHeight = 555
         ClientWidth = 886
         inherited Memo1: TMemo
-          Height = 446
+          Height = 466
           Width = 847
         end
         inherited TisToolBar1: TTisToolBar

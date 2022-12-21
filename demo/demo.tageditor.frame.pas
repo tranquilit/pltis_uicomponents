@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit demo.tageditor.frame;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 interface
 

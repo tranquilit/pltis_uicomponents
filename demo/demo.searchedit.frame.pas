@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------
 unit demo.searchedit.frame;
 
-{$i mormot.defines.inc}
+{$i tis.ui.defines.inc}
 
 interface
 
@@ -102,7 +102,7 @@ end;
 procedure TSearchEditFrame.CustomClickCheckBoxChange(Sender: TObject);
 begin
   if CustomClickCheckBox.Checked then
-    SearchEdit.OnButtonClick := SearchEditButtonClick
+    SearchEdit.OnButtonClick := @SearchEditButtonClick
   else
     SearchEdit.OnButtonClick := nil;
   SearchEdit.Buttons.Invalidate; // refresh all properties and events

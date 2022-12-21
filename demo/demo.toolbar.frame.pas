@@ -1,6 +1,6 @@
 unit demo.toolbar.frame;
 
-{$mode objfpc}{$H+}
+{$i tis.ui.defines.inc}
 
 interface
 

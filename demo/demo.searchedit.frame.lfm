@@ -5,6 +5,7 @@ object SearchEditFrame: TSearchEditFrame
   Width = 409
   ClientHeight = 457
   ClientWidth = 409
+  LCLVersion = '2.3.0.0'
   TabOrder = 0
   DesignLeft = 409
   DesignTop = 123
@@ -231,6 +232,7 @@ object SearchEditFrame: TSearchEditFrame
         }
         Name = 'Custom'
       end>
+    SearchInterval = 1000
     OnButtonClick = SearchEditButtonClick
     OnStartSearch = SearchEditStartSearch
     OnSearch = SearchEditSearch

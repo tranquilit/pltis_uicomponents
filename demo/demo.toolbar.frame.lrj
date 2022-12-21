@@ -1,0 +1,21 @@
+{"version":1,"strings":[
+{"hash":102465761,"name":"ttoolbarframe.tistoolbar1.caption","sourcebytes":[84,105,115,84,111,111,108,66,97,114,49],"value":"TisToolBar1"},
+{"hash":160486420,"name":"ttoolbarframe.toolbutton4.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,52],"value":"ToolButton4"},
+{"hash":160486422,"name":"ttoolbarframe.toolbutton6.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,54],"value":"ToolButton6"},
+{"hash":108714830,"name":"ttoolbarframe.toolbutton8.caption","sourcebytes":[110,111,32,97,99,116,105,111,110],"value":"no action"},
+{"hash":160486425,"name":"ttoolbarframe.toolbutton9.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,57],"value":"ToolButton9"},
+{"hash":158218835,"name":"ttoolbarframe.label1.caption","sourcebytes":[83,101,115,115,105,111,110,32,86,97,108,117,101,115],"value":"Session Values"},
+{"hash":229874259,"name":"ttoolbarframe.getsessionvaluesaction.caption","sourcebytes":[71,101,116,32,83,101,115,115,105,111,110,32,86,97,108,117,101,115],"value":"Get Session Values"},
+{"hash":217291347,"name":"ttoolbarframe.setsessionvaluesaction.caption","sourcebytes":[83,101,116,32,83,101,115,115,105,111,110,32,86,97,108,117,101,115],"value":"Set Session Values"},
+{"hash":5161775,"name":"ttoolbarframe.helloaction.caption","sourcebytes":[72,101,108,108,111],"value":"Hello"},
+{"hash":243599346,"name":"ttoolbarframe.nohandleraction.caption","sourcebytes":[78,111,72,97,110,100,108,101,114],"value":"NoHandler"},
+{"hash":128648789,"name":"ttoolbarframe.action5.caption","sourcebytes":[65,99,116,105,111,110,53],"value":"Action5"},
+{"hash":128648790,"name":"ttoolbarframe.action6.caption","sourcebytes":[65,99,116,105,111,110,54],"value":"Action6"},
+{"hash":147502805,"name":"ttoolbarframe.restoreaction.caption","sourcebytes":[82,101,115,116,111,114,101],"value":"Restore"},
+{"hash":128648786,"name":"ttoolbarframe.action2.caption","sourcebytes":[65,99,116,105,111,110,50],"value":"Action2"},
+{"hash":5728192,"name":"ttoolbarframe.popupaction.caption","sourcebytes":[80,111,112,117,112],"value":"Popup"},
+{"hash":60978587,"name":"ttoolbarframe.autocheckaction.caption","sourcebytes":[67,104,101,99,107,47,85,110,99,104,101,99,107],"value":"Check/Uncheck"},
+{"hash":82116082,"name":"ttoolbarframe.showeditoraction.caption","sourcebytes":[83,104,111,119,32,69,100,105,116,111,114],"value":"Show Editor"},
+{"hash":128648785,"name":"ttoolbarframe.action1.caption","sourcebytes":[65,99,116,105,111,110,49],"value":"Action1"},
+{"hash":91119415,"name":"ttoolbarframe.menuitem1.caption","sourcebytes":[68,111,32,110,111,116,104,105,110,103],"value":"Do nothing"}
+]}

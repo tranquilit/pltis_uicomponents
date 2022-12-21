@@ -5,6 +5,7 @@ object ToolBarFrame: TToolBarFrame
   Width = 700
   ClientHeight = 292
   ClientWidth = 700
+  LCLVersion = '2.3.0.0'
   TabOrder = 0
   DesignLeft = 438
   DesignTop = 127
@@ -59,7 +60,7 @@ object ToolBarFrame: TToolBarFrame
     end
     object ToolButton4: TToolButton
       Left = 209
-      Height = 22
+      Height = 5
       Top = 2
       AutoSize = True
       Caption = 'ToolButton4'
@@ -73,7 +74,7 @@ object ToolBarFrame: TToolBarFrame
     end
     object ToolButton6: TToolButton
       Left = 263
-      Height = 22
+      Height = 5
       Top = 2
       AutoSize = True
       Caption = 'ToolButton6'
@@ -95,7 +96,7 @@ object ToolBarFrame: TToolBarFrame
     end
     object ToolButton9: TToolButton
       Left = 404
-      Height = 22
+      Height = 5
       Top = 2
       AutoSize = True
       Caption = 'ToolButton9'
@@ -125,7 +126,6 @@ object ToolBarFrame: TToolBarFrame
     Top = 38
     Width = 75
     Caption = 'Session Values'
-    Color = clDefault
     ParentColor = False
   end
   object ActionList: TActionList

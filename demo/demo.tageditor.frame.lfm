@@ -5,6 +5,7 @@ object TagEditorFrame: TTagEditorFrame
   Width = 565
   ClientHeight = 553
   ClientWidth = 565
+  LCLVersion = '2.3.0.0'
   ParentFont = False
   TabOrder = 0
   DesignLeft = 326

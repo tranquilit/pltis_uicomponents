@@ -1,11 +1,230 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: tgridframe.asynchcheckbox.caption
+msgid "asynchronous"
+msgstr ""
+
+#: tgridframe.asynchcheckbox.hint
+msgid "Get items asynchronously, using OnSearch event"
+msgstr ""
+
+#: tgridframe.clipboardgriddatalabel.caption
+msgid "from grid data"
+msgstr ""
+
+#: tgridframe.clipboardlabel.caption
+msgid "from clipboard"
+msgstr ""
+
+#: tgridframe.clipboardlabel1.caption
+msgid "clear"
+msgstr ""
+
+#: tgridframe.clipboardselectedrowlabel.caption
+msgid "from selected row"
+msgstr ""
+
+#: tgridframe.clipboardselectedrowlabel1.caption
+msgid "from selected rows as CSV"
+msgstr ""
+
+#: tgridframe.displayfieldedit.text
+msgctxt "tgridframe.displayfieldedit.text"
+msgid "text"
+msgstr ""
+
+#: tgridframe.eddatatype.caption
+msgid "If Data Type is"
+msgstr ""
+
+#: tgridframe.eddatatype1.caption
+msgctxt "tgridframe.eddatatype1.caption"
+msgid "Column"
+msgstr ""
+
+#: tgridframe.eddatatype2.caption
+msgctxt "tgridframe.eddatatype2.caption"
+msgid "Column"
+msgstr ""
+
+#: tgridframe.functiondatalabel.caption
+msgctxt "tgridframe.functiondatalabel.caption"
+msgid "Grid"
+msgstr ""
+
+#: tgridframe.functiondatalabel.hint
+msgid "Grid properties"
+msgstr ""
+
+#: tgridframe.functiondatalabel1.caption
+msgid "Input"
+msgstr ""
+
+#: tgridframe.functiondatalabel1.hint
+msgid "Work with Grid Data"
+msgstr ""
+
+#: tgridframe.functionselrowslabel.caption
+msgid "Selected Rows"
+msgstr ""
+
+#: tgridframe.functionselrowslabel.hint
+msgid "Selected rows"
+msgstr ""
+
+#: tgridframe.functionselrowslabel1.caption
+msgctxt "tgridframe.functionselrowslabel1.caption"
+msgid "MetaData"
+msgstr ""
+
+#: tgridframe.functionselrowslabel1.hint
+msgctxt "tgridframe.functionselrowslabel1.hint"
+msgid "MetaData"
+msgstr ""
+
+#: tgridframe.functionsettingslabel.caption
+msgid "Settings"
+msgstr ""
+
+#: tgridframe.functionsettingslabel.hint
+msgid "Grid Settings"
+msgstr ""
+
+#: tgridframe.griddataaddrowsmenuitem.caption
+msgid "Add Rows"
+msgstr ""
+
+#: tgridframe.griddataaddrowsmenuitem.hint
+msgid "Add rows from Input JSON"
+msgstr ""
+
+#: tgridframe.griddatacustomizemenuitem1.caption
+msgid "Customize"
+msgstr ""
+
+#: tgridframe.griddatacustomizemenuitem1.hint
+msgid "Open Grid Editor"
+msgstr ""
+
+#: tgridframe.gridinputdeleterowsmenuitem.caption
+msgid "Delete Rows"
+msgstr ""
+
+#: tgridframe.gridinputdeleterowsmenuitem.hint
+msgid "Delete rows from Input JSON"
+msgstr ""
+
+#: tgridframe.gridmetadatagetmenuitem.caption
+msgid "Get"
+msgstr ""
+
+#: tgridframe.gridmetadatasetmenuitem.caption
+msgid "Set"
+msgstr ""
+
+#: tgridframe.gridselrowsmenuitem.caption
+msgid "Update Columns"
+msgstr ""
+
+#: tgridframe.gridsettingsloadmenuitem.caption
+msgctxt "tgridframe.gridsettingsloadmenuitem.caption"
+msgid "Load"
+msgstr ""
+
+#: tgridframe.gridsettingssavemenuitem.caption
+msgid "Save"
+msgstr ""
+
+#: tgridframe.gridtotallabel.caption
+msgid "Total : 0 elements"
+msgstr ""
+
+#: tgridframe.groupbox1.caption
+msgid " Functions "
+msgstr ""
+
+#: tgridframe.groupbox2.caption
+msgid "Simple"
+msgstr ""
+
+#: tgridframe.keyfieldedit.text
+msgctxt "tgridframe.keyfieldedit.text"
+msgid "id"
+msgstr ""
+
+#: tgridframe.label1.caption
+msgid "Input/Output:"
+msgstr ""
+
+#: tgridframe.label2.caption
+msgid "Then use Color"
+msgstr ""
+
+#: tgridframe.label3.caption
+msgctxt "tgridframe.label3.caption"
+msgid "Key Field"
+msgstr ""
+
+#: tgridframe.label4.caption
+msgctxt "tgridframe.label4.caption"
+msgid "Display Field"
+msgstr ""
+
+#: tgridframe.label5.caption
+msgid "For column name (PropertyName)"
+msgstr ""
+
+#: tgridframe.label6.caption
+msgid "If edited value is"
+msgstr ""
+
+#: tgridframe.label7.caption
+msgid "Then"
+msgstr ""
+
+#: tgridframe.label8.caption
+msgid "And show message"
+msgstr ""
+
+#: tgridframe.menuitem1.caption
+msgid "Test User Menu Item"
+msgstr ""
+
+#: tgridframe.panel3.caption
+msgid "Events"
+msgstr ""
+
+#: tgridframe.preparereadonlycheckbox.caption
+msgid "Read Only"
+msgstr ""
+
+#: tgridframe.tabsheet1.caption
+msgid "OnPrepareEditor"
+msgstr ""
+
+#: tgridframe.tabsheet2.caption
+msgid "OnEditorLookup"
+msgstr ""
+
+#: tgridframe.tabsheet3.caption
+msgid "OnEditValidated"
+msgstr ""
+
+#: tgridframe.validabortcheckbox.caption
+msgid "Abort"
+msgstr ""
+
+#: tgridframe.validmsgedit.text
+msgid "Invalid value for this column"
+msgstr ""
+
 #: tmainform.caption
 msgid "UI Demo"
 msgstr ""
 
 #: tmainform.gridtab.caption
+msgctxt "tmainform.gridtab.caption"
 msgid "Grid"
 msgstr ""
 
@@ -35,5 +254,330 @@ msgstr ""
 
 #: tmainform.toolbartab.caption
 msgid "ToolBar"
+msgstr ""
+
+#: tsearcheditframe.autosearchcheckbox.caption
+msgid "Auto Search"
+msgstr ""
+
+#: tsearcheditframe.clearbuttoncheckbox.caption
+msgid "Clear Button"
+msgstr ""
+
+#: tsearcheditframe.customclickcheckbox.caption
+msgid "Custom OnClick"
+msgstr ""
+
+#: tsearcheditframe.displayfieldedit.text
+msgctxt "tsearcheditframe.displayfieldedit.text"
+msgid "text"
+msgstr ""
+
+#: tsearcheditframe.donelabel.caption
+msgid "Done."
+msgstr ""
+
+#: tsearcheditframe.groupbox1.caption
+msgid " JSON "
+msgstr ""
+
+#: tsearcheditframe.groupbox2.caption
+msgctxt "tsearcheditframe.groupbox2.caption"
+msgid " Options "
+msgstr ""
+
+#: tsearcheditframe.jsonloadbutton.caption
+msgctxt "tsearcheditframe.jsonloadbutton.caption"
+msgid "Load"
+msgstr ""
+
+#: tsearcheditframe.jsonloadbutton.hint
+msgid "It will use JSON to fill Items"
+msgstr ""
+
+#: tsearcheditframe.keyfieldedit.text
+msgctxt "tsearcheditframe.keyfieldedit.text"
+msgid "id"
+msgstr ""
+
+#: tsearcheditframe.keyvaluelabel.caption
+msgid "KeyValueLabel:"
+msgstr ""
+
+#: tsearcheditframe.label1.caption
+msgid "Search"
+msgstr ""
+
+#: tsearcheditframe.label2.caption
+msgctxt "tsearcheditframe.label2.caption"
+msgid "Key Field"
+msgstr ""
+
+#: tsearcheditframe.label3.caption
+msgctxt "tsearcheditframe.label3.caption"
+msgid "Display Field"
+msgstr ""
+
+#: tsearcheditframe.label4.caption
+msgid "Interval"
+msgstr ""
+
+#: tsearcheditframe.label5.caption
+msgid "ms"
+msgstr ""
+
+#: tsearcheditframe.searchbuttoncheckbox.caption
+msgid "Search Button"
+msgstr ""
+
+#: tsearcheditframe.searchinglabel.caption
+msgid "Searching for... "
+msgstr ""
+
+#: tsearcheditframe.sortedcheckbox.caption
+msgid "Sorted"
+msgstr ""
+
+#: ttageditorframe.allowduplicatescheckbox.caption
+msgid "Allow Duplicates"
+msgstr ""
+
+#: ttageditorframe.autocompletecheckbox.caption
+msgid "Auto Complete"
+msgstr ""
+
+#: ttageditorframe.autoheightcheckbox.caption
+msgid "Auto Height"
+msgstr ""
+
+#: ttageditorframe.dropdowncheckbox.caption
+msgid "DropDown"
+msgstr ""
+
+#: ttageditorframe.enabledcheckbox.caption
+msgid "Enabled"
+msgstr ""
+
+#: ttageditorframe.groupbox1.caption
+msgctxt "ttageditorframe.groupbox1.caption"
+msgid " Options "
+msgstr ""
+
+#: ttageditorframe.groupbox2.caption
+msgid " Test Events "
+msgstr ""
+
+#: ttageditorframe.inputtagsasarraylabel.caption
+msgid "input tags as delimited text"
+msgstr ""
+
+#: ttageditorframe.inputtagsasarraylabel.hint
+msgid "you can use any char from TagInput.DelimiterChars"
+msgstr ""
+
+#: ttageditorframe.itemsupdatebutton.caption
+msgid "update"
+msgstr ""
+
+#: ttageditorframe.label1.caption
+msgid "Max Tags"
+msgstr ""
+
+#: ttageditorframe.label10.caption
+msgctxt "ttageditorframe.label10.caption"
+msgid "Tag Editor"
+msgstr ""
+
+#: ttageditorframe.label11.caption
+msgid "Tags: "
+msgstr ""
+
+#: ttageditorframe.label2.caption
+msgid "Bg Color"
+msgstr ""
+
+#: ttageditorframe.label3.caption
+msgid "Text Color"
+msgstr ""
+
+#: ttageditorframe.label4.caption
+msgid "Combo Items"
+msgstr ""
+
+#: ttageditorframe.label5.caption
+msgctxt "ttageditorframe.label5.caption"
+msgid "Tag Editor"
+msgstr ""
+
+#: ttageditorframe.label6.caption
+msgid "invalid tag name"
+msgstr ""
+
+#: ttageditorframe.label7.caption
+msgid "don't delete, if tag name"
+msgstr ""
+
+#: ttageditorframe.label8.caption
+msgid "prefix"
+msgstr ""
+
+#: ttageditorframe.label9.caption
+msgid "Tag Disabled"
+msgstr ""
+
+#: ttageditorframe.multilinescheckbox.caption
+msgid "Multi Lines"
+msgstr ""
+
+#: ttageditorframe.rttiitemsedit.text
+msgid "Android, Haiku, Nintendo"
+msgstr ""
+
+#: ttageditorframe.rttilinktoeditradiobutton.caption
+msgid "Link to Edit"
+msgstr ""
+
+#: ttageditorframe.rttilinktomemoradiobutton.caption
+msgid "Link to Memo"
+msgstr ""
+
+#: ttageditorframe.rttilinktotpersistentradiobutton.caption
+msgid "Link to TPersistent instance"
+msgstr ""
+
+#: ttageditorframe.rttipersistentaddbutton.caption
+msgid "add"
+msgstr ""
+
+#: ttageditorframe.rttipersistentlabel.caption
+msgid "        "
+msgstr ""
+
+#: ttageditorframe.showtagsasarraylabel.caption
+msgid "show tags as array"
+msgstr ""
+
+#: ttageditorframe.speedbutton1.hint
+msgid "set clDefault"
+msgstr ""
+
+#: ttageditorframe.tabsheet1.caption
+msgid "Standard"
+msgstr ""
+
+#: ttageditorframe.tabsheet2.caption
+msgid "RTTI"
+msgstr ""
+
+#: ttageditorframe.tagafteraddcheckbox.caption
+msgid "OnTagAfterAdd"
+msgstr ""
+
+#: ttageditorframe.tagafteraddedit.text
+msgid "#"
+msgstr ""
+
+#: ttageditorframe.tagafterdragcheckbox.caption
+msgid "OnTagAfterDrag"
+msgstr ""
+
+#: ttageditorframe.tagbeforeaddcheckbox.caption
+msgid "OnTagBeforeAdd"
+msgstr ""
+
+#: ttageditorframe.tagbeforeaddedit.text
+msgid "abc"
+msgstr ""
+
+#: ttageditorframe.tagbeforedeletecheckbox.caption
+msgid "OnTagBeforeDelete"
+msgstr ""
+
+#: ttageditorframe.tagbeforedeleteedit.text
+msgid "windows"
+msgstr ""
+
+#: ttageditorframe.tagclearalllabel.caption
+msgid "clear all"
+msgstr ""
+
+#: ttageditorframe.tagclickcheckbox.caption
+msgid "OnTagClick"
+msgstr ""
+
+#: ttoolbarframe.action1.caption
+msgid "Action1"
+msgstr ""
+
+#: ttoolbarframe.action2.caption
+msgid "Action2"
+msgstr ""
+
+#: ttoolbarframe.action5.caption
+msgid "Action5"
+msgstr ""
+
+#: ttoolbarframe.action6.caption
+msgid "Action6"
+msgstr ""
+
+#: ttoolbarframe.autocheckaction.caption
+msgid "Check/Uncheck"
+msgstr ""
+
+#: ttoolbarframe.getsessionvaluesaction.caption
+msgid "Get Session Values"
+msgstr ""
+
+#: ttoolbarframe.helloaction.caption
+msgid "Hello"
+msgstr ""
+
+#: ttoolbarframe.label1.caption
+msgid "Session Values"
+msgstr ""
+
+#: ttoolbarframe.menuitem1.caption
+msgid "Do nothing"
+msgstr ""
+
+#: ttoolbarframe.nohandleraction.caption
+msgid "NoHandler"
+msgstr ""
+
+#: ttoolbarframe.popupaction.caption
+msgid "Popup"
+msgstr ""
+
+#: ttoolbarframe.restoreaction.caption
+msgid "Restore"
+msgstr ""
+
+#: ttoolbarframe.setsessionvaluesaction.caption
+msgid "Set Session Values"
+msgstr ""
+
+#: ttoolbarframe.showeditoraction.caption
+msgid "Show Editor"
+msgstr ""
+
+#: ttoolbarframe.tistoolbar1.caption
+msgid "TisToolBar1"
+msgstr ""
+
+#: ttoolbarframe.toolbutton4.caption
+msgid "ToolButton4"
+msgstr ""
+
+#: ttoolbarframe.toolbutton6.caption
+msgid "ToolButton6"
+msgstr ""
+
+#: ttoolbarframe.toolbutton8.caption
+msgid "no action"
+msgstr ""
+
+#: ttoolbarframe.toolbutton9.caption
+msgid "ToolButton9"
 msgstr ""
 

@@ -1,0 +1,21 @@
+{"version":1,"strings":[
+{"hash":94079128,"name":"tsearcheditframe.label1.caption","sourcebytes":[83,101,97,114,99,104],"value":"Search"},
+{"hash":129007664,"name":"tsearcheditframe.groupbox2.caption","sourcebytes":[32,79,112,116,105,111,110,115,32],"value":" Options "},
+{"hash":95197564,"name":"tsearcheditframe.label4.caption","sourcebytes":[73,110,116,101,114,118,97,108],"value":"Interval"},
+{"hash":1859,"name":"tsearcheditframe.label5.caption","sourcebytes":[109,115],"value":"ms"},
+{"hash":97731464,"name":"tsearcheditframe.autosearchcheckbox.caption","sourcebytes":[65,117,116,111,32,83,101,97,114,99,104],"value":"Auto Search"},
+{"hash":220476590,"name":"tsearcheditframe.searchbuttoncheckbox.caption","sourcebytes":[83,101,97,114,99,104,32,66,117,116,116,111,110],"value":"Search Button"},
+{"hash":4064030,"name":"tsearcheditframe.clearbuttoncheckbox.caption","sourcebytes":[67,108,101,97,114,32,66,117,116,116,111,110],"value":"Clear Button"},
+{"hash":176387179,"name":"tsearcheditframe.customclickcheckbox.caption","sourcebytes":[67,117,115,116,111,109,32,79,110,67,108,105,99,107],"value":"Custom OnClick"},
+{"hash":94804660,"name":"tsearcheditframe.sortedcheckbox.caption","sourcebytes":[83,111,114,116,101,100],"value":"Sorted"},
+{"hash":114623200,"name":"tsearcheditframe.searchinglabel.caption","sourcebytes":[83,101,97,114,99,104,105,110,103,32,102,111,114,46,46,46,32],"value":"Searching for... "},
+{"hash":4940926,"name":"tsearcheditframe.donelabel.caption","sourcebytes":[68,111,110,101,46],"value":"Done."},
+{"hash":38765568,"name":"tsearcheditframe.groupbox1.caption","sourcebytes":[32,74,83,79,78,32],"value":" JSON "},
+{"hash":72479587,"name":"tsearcheditframe.jsonloadbutton.hint","sourcebytes":[73,116,32,119,105,108,108,32,117,115,101,32,74,83,79,78,32,116,111,32,102,105,108,108,32,73,116,101,109,115],"value":"It will use JSON to fill Items"},
+{"hash":341364,"name":"tsearcheditframe.jsonloadbutton.caption","sourcebytes":[76,111,97,100],"value":"Load"},
+{"hash":1780,"name":"tsearcheditframe.keyfieldedit.text","sourcebytes":[105,100],"value":"id"},
+{"hash":503028,"name":"tsearcheditframe.displayfieldedit.text","sourcebytes":[116,101,120,116],"value":"text"},
+{"hash":189574116,"name":"tsearcheditframe.label2.caption","sourcebytes":[75,101,121,32,70,105,101,108,100],"value":"Key Field"},
+{"hash":4623076,"name":"tsearcheditframe.label3.caption","sourcebytes":[68,105,115,112,108,97,121,32,70,105,101,108,100],"value":"Display Field"},
+{"hash":113970522,"name":"tsearcheditframe.keyvaluelabel.caption","sourcebytes":[75,101,121,86,97,108,117,101,76,97,98,101,108,58],"value":"KeyValueLabel:"}
+]}
