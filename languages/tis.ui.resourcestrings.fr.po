@@ -100,7 +100,7 @@ msgstr "Insérer"
 #, object-pascal-format
 msgctxt "tis.ui.resourcestrings.rsgridnorecordfind"
 msgid "No more record found for \"%s\""
-msgstr "InsérerAucun autre enregistrement trouvé pour \"%s\""
+msgstr "Aucun autre enregistrement trouvé pour \"%s\""
 
 #: tis.ui.resourcestrings.rsgridpage
 msgctxt "tis.ui.resourcestrings.rsgridpage"
@@ -110,7 +110,7 @@ msgstr "Page"
 #: tis.ui.resourcestrings.rsgridpaste
 msgctxt "tis.ui.resourcestrings.rsgridpaste"
 msgid "Paste"
-msgstr "Pâte"
+msgstr "Coller"
 
 #: tis.ui.resourcestrings.rsgridprint
 msgctxt "tis.ui.resourcestrings.rsgridprint"
