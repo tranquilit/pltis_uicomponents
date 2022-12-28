@@ -514,9 +514,9 @@ end;
 
 procedure TTisToolBar.DoContextPopup(aMousePos: TPoint; var aHandled: Boolean);
 begin
-  inherited DoContextPopup(aMousePos, aHandled);
   if Assigned(fCustomizeMenuItem) then
     fCustomizeMenuItem.Caption := rsToolBarCustomizeToolbar;
+  inherited DoContextPopup(aMousePos, aHandled);
 end;
 
 function TTisToolBar.GetSessionValues: string;
