@@ -121,8 +121,11 @@ Main Features:
 
 ## Compiler targets
 
-Tries to stay compatible with Lazarus 2.2.5 and FPC 3.2.0 stable versions and up.
-Is currently validated against Lazarus 2.3.0 (rev main-2_3-2542-gd115ec0399) and FPC 3.2.3.
+The source code:
+
+- tries to stay compatible with Lazarus 2.2.5 and FPC 3.2.0 stable versions and up.
+- is currently validated against Lazarus 2.3.0 (rev main-2_3-2542-gd115ec0399) and FPC 3.2.3.
+
 Please submit pull requests for non-validated versions.
 
 ## Dependencies
