@@ -10,12 +10,12 @@ unit tis.core.os;
 interface
 
 uses
-  classes,
-  sysutils,
-  dialogs,
-  clipbrd,
-  lcltype,
-  lclintf,
+  Classes,
+  SysUtils,
+  Dialogs,
+  Clipbrd,
+  LCLType,
+  LCLIntf,
   mormot.core.base,
   mormot.core.unicode;
 
