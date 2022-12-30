@@ -507,6 +507,8 @@ type
     procedure DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
       const aXProportion, aYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
+    /// called before open a context menu
+    // - it will call Clean/FillPopupMenu, as some Captions translation should be done before show up
     procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
     procedure DoEnter; override;
     procedure DoExit; override;
@@ -515,11 +517,11 @@ type
     // ----------------------------------- new methods -----------------------------
     /// fill the popup menu with items in runtime when grid gets focus, for deal with the data and grid itself
     // - each item will use the POPUP_ITEM_TAG public constant as its Tag value
-    // - it is called in DoEnter
+    // - it is called in DoEnter and DoContextPopup
     procedure FillPopupMenu; virtual;
     /// clean the popup when lost focus, removing items inserted before
     // - each item that has the POPUP_ITEM_TAG public constant as its Tag value, will be removed
-    // - it is called in DoExit
+    // - it is called in DoExit and DoContextPopup
     procedure CleanPopupMenu; virtual;
     function FindText(const aText: string): PVirtualNode;
     procedure FindDlgFind(aSender: TObject);
@@ -2421,21 +2423,22 @@ end;
 
 procedure TTisGrid.DoContextPopup(aMousePos: TPoint; var aHandled: Boolean);
 begin
+  // - it is needed to Clean/FillPopupMenu first/again,
+  // as some Captions translation should be done before show up
   CleanPopupMenu;
+  FillPopupMenu;
   inherited DoContextPopup(aMousePos, aHandled);
-  if not aHandled then
-    FillPopupMenu;
 end;
 
 procedure TTisGrid.DoEnter;
 begin
   inherited DoEnter;
-  FillPopupMenu;
+  FillPopupMenu; // activate shortcuts
 end;
 
 procedure TTisGrid.DoExit;
 begin
-  CleanPopupMenu;
+  CleanPopupMenu; // deactivate all shortcuts
   inherited DoExit;
 end;
 
