@@ -508,6 +508,7 @@ type
       const aXProportion, aYProportion: Double); override;
     procedure DoChange(Node: PVirtualNode); override;
     procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
+    procedure DoEnter; override;
     procedure DoExit; override;
     function GetHeaderClass: TVTHeaderClass; override;
     property RootNodeCount stored False;
@@ -2424,6 +2425,12 @@ begin
   inherited DoContextPopup(aMousePos, aHandled);
   if not aHandled then
     FillPopupMenu;
+end;
+
+procedure TTisGrid.DoEnter;
+begin
+  inherited DoEnter;
+  FillPopupMenu;
 end;
 
 procedure TTisGrid.DoExit;
