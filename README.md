@@ -119,18 +119,18 @@ Main Features:
 
 <img src="./images/tistoolbar.png">
 
+## Compiler targets
+
+Tries to stay compatible with Lazarus 2.2.5 and FPC 3.2.0 stable versions and up.
+Is currently validated against Lazarus 2.3.0 (rev main-2_3-2542-gd115ec0399) and FPC 3.2.3.
+Please submit pull requests for non-validated versions.
 
 ## Dependencies
 
 First of all, you should have these libraries installed in your environment:
 - [mORMot 2](https://github.com/synopse/mORMot2) — An Open Source Client-Server ORM/SOA framework in modern Object Pascal
-- [pltis_utils](https://github.com/tranquilit/pltis_utils) — utilities 
-- [virtualtreeview_package](https://gitlab.com/freepascal.org/lazarus/lazarus/-/tree/main/components/virtualtreeview)
-
-On Lazarus it has been tested using these versions:
-
-- FPC 3.2.0 win32/win64
-- Lazarus 2.0.12 r64642
+- [pltis_utils](https://github.com/tranquilit/pltis_utils) — Tranquil IT utilities 
+- [pltis_virtualtrees](https://github.com/tranquilit/pltis_virtualtrees) — Tranquil IT modified version of [virtualtreeview_package](https://gitlab.com/freepascal.org/lazarus/lazarus/-/tree/main/components/virtualtreeview), which is compilable on Lazarus stable and trunk.
 
 ## Demo
 
