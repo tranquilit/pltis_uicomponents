@@ -411,6 +411,7 @@ type
     fFindDlg: TFindDialog;
     fZebraColor: TColor;
     fZebraPaint: Boolean;
+    fZebraDelta: Byte;
     fReplaceDialog: TReplaceDialog;
     fColumnToFind: integer;
     fStartSearchNode: PVirtualNode;
@@ -464,6 +465,7 @@ type
     procedure SetSelectedRow(aValue: TDocVariantData);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
+    procedure SetZebraDelta(aValue: Byte);
   protected
     // ------------------------------- new constants -------------------------------
     const DefaultPopupMenuOptions = [
@@ -471,6 +473,7 @@ type
       pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
     const DefaultExportFormatOptions = [efoCsv, efoJson];
     const DefaultWantTabs = True;
+    const DefaultZebraDelta = 240;
     // ------------------------------- new fields ----------------------------------
   protected
     DefaultCsvSeparator: string;
@@ -574,7 +577,7 @@ type
     const POPUP_ITEM_TAG = 250;
   public
     /// primary construtor
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(aOwner: TComponent); override;
     /// destructor
     destructor Destroy; override;
     // ------------------------------- inherited methods ---------------------------
@@ -778,6 +781,8 @@ type
       read fZebraColor write fZebraColor;
     property ZebraPaint: Boolean
       read fZebraPaint write fZebraPaint stored True default False;
+    property ZebraDelta: Byte
+      read fZebraDelta write SetZebraDelta stored True default DefaultZebraDelta;
     property NodeOptions: TTisNodeOptions
       read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions
@@ -940,6 +945,7 @@ type
 implementation
 
 uses
+  GraphUtil,
   IniFiles,
   Variants,
   tis.ui.grid.editor,
@@ -2132,6 +2138,14 @@ begin
   end;
 end;
 
+procedure TTisGrid.SetZebraDelta(aValue: Byte);
+begin
+  if fZebraDelta = aValue then
+    exit;
+  fZebraDelta := aValue;
+  Invalidate;
+end;
+
 procedure TTisGrid.Loaded;
 begin
   inherited Loaded;
@@ -2373,15 +2387,32 @@ end;
 
 procedure TTisGrid.DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
   const aItemRect: TRect; var aColor: TColor; var EraseAction: TItemEraseAction);
+
+  function _IsDark(aValue: TColor): Boolean;
+  begin
+    result := ((GetRValue(longword(aValue)) * 2) +
+      (GetGValue(longword(aValue)) * 3) +
+      (GetBValue(longword(aValue)) * 2)) < 1000;
+  end;
+
+  function _AdjustColor(aValue: TColor): TColor;
+  var
+    h, s, l: Byte;
+  begin
+    ColorToHLS(aColor, h, l, s);
+    if _IsDark(aValue) then
+      result := HLStoColor(h, fZebraDelta, s)
+    else
+      result := HLStoColor(h, l, fZebraDelta);
+  end;
+
 begin
-  inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, EraseAction);
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
-    {$ifdef windows}
-    aColor := fZebraColor;
+    aColor := _AdjustColor(aColor);
     EraseAction := eaColor;
-    {$endif}
   end;
+  inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, EraseAction);
 end;
 
 function TTisGrid.DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean;
@@ -3025,7 +3056,7 @@ begin
   Settings := fDefaultSettings;
 end;
 
-constructor TTisGrid.Create(AOwner: TComponent);
+constructor TTisGrid.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
   fInternalData.Init(self);
@@ -3035,6 +3066,7 @@ begin
   DefaultText := '';
   DefaultCsvSeparator := ',';
   fZebraColor := $00EDF0F1;
+  fZebraDelta := DefaultZebraDelta;
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
