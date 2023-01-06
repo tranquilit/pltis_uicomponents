@@ -157,6 +157,10 @@ msgstr ""
 msgid "Input/Output:"
 msgstr ""
 
+#: tgridframe.label10.caption
+msgid "Zebra Delta"
+msgstr ""
+
 #: tgridframe.label2.caption
 msgid "Then use Color"
 msgstr ""
@@ -185,6 +189,11 @@ msgstr ""
 
 #: tgridframe.label8.caption
 msgid "And show message"
+msgstr ""
+
+#: tgridframe.label9.caption
+msgctxt "tgridframe.label9.caption"
+msgid "Bg Color"
 msgstr ""
 
 #: tgridframe.menuitem1.caption
@@ -393,6 +402,7 @@ msgid "Tags: "
 msgstr ""
 
 #: ttageditorframe.label2.caption
+msgctxt "ttageditorframe.label2.caption"
 msgid "Bg Color"
 msgstr ""
 

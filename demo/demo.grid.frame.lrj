@@ -10,6 +10,8 @@
 {"hash":44518419,"name":"tgridframe.functionselrowslabel.caption","sourcebytes":[83,101,108,101,99,116,101,100,32,82,111,119,115],"value":"Selected Rows"},
 {"hash":212184465,"name":"tgridframe.functionselrowslabel1.hint","sourcebytes":[77,101,116,97,68,97,116,97],"value":"MetaData"},
 {"hash":212184465,"name":"tgridframe.functionselrowslabel1.caption","sourcebytes":[77,101,116,97,68,97,116,97],"value":"MetaData"},
+{"hash":155871202,"name":"tgridframe.label9.caption","sourcebytes":[66,103,32,67,111,108,111,114],"value":"Bg Color"},
+{"hash":53090849,"name":"tgridframe.label10.caption","sourcebytes":[90,101,98,114,97,32,68,101,108,116,97],"value":"Zebra Delta"},
 {"hash":110934794,"name":"tgridframe.label1.caption","sourcebytes":[73,110,112,117,116,47,79,117,116,112,117,116,58],"value":"Input/Output:"},
 {"hash":154675588,"name":"tgridframe.clipboardlabel.caption","sourcebytes":[102,114,111,109,32,99,108,105,112,98,111,97,114,100],"value":"from clipboard"},
 {"hash":104448241,"name":"tgridframe.clipboardgriddatalabel.caption","sourcebytes":[102,114,111,109,32,103,114,105,100,32,100,97,116,97],"value":"from grid data"},

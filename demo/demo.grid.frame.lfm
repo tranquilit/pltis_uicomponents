@@ -5,7 +5,6 @@ object GridFrame: TGridFrame
   Width = 877
   ClientHeight = 589
   ClientWidth = 877
-  LCLVersion = '2.3.0.0'
   TabOrder = 0
   DesignLeft = 224
   DesignTop = 147
@@ -21,11 +20,11 @@ object GridFrame: TGridFrame
     TabOrder = 0
     object Grid: TTisGrid
       Left = 8
-      Height = 275
-      Top = 88
+      Height = 267
+      Top = 96
       Width = 510
       Anchors = [akTop, akLeft, akRight, akBottom]
-      Color = clWhite
+      Color = clWindow
       Colors.UnfocusedColor = clMedGray
       DefaultNodeHeight = 25
       EditDelay = 200
@@ -45,6 +44,7 @@ object GridFrame: TGridFrame
       TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
       TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
       ZebraColor = 15593713
+      ZebraPaint = True
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
       OnInitNode = GridInitNode
@@ -265,6 +265,42 @@ object GridFrame: TGridFrame
         end>
       SearchInterval = 1000
       OnSearch = GridSearchEditSearch
+    end
+    object BgColorBox: TColorBox
+      Left = 408
+      Height = 26
+      Top = 61
+      Width = 110
+      ItemHeight = 20
+      OnChange = BgColorBoxChange
+      TabOrder = 3
+    end
+    object Label9: TLabel
+      Left = 360
+      Height = 15
+      Top = 68
+      Width = 46
+      Caption = 'Bg Color'
+      ParentColor = False
+    end
+    object ZebraDeltaEdit: TSpinEdit
+      Left = 296
+      Height = 23
+      Top = 64
+      Width = 49
+      MaxValue = 255
+      MinValue = 1
+      OnChange = ZebraDeltaEditChange
+      TabOrder = 4
+      Value = 1
+    end
+    object Label10: TLabel
+      Left = 232
+      Height = 15
+      Top = 68
+      Width = 60
+      Caption = 'Zebra Delta'
+      ParentColor = False
     end
   end
   object Panel1: TPanel

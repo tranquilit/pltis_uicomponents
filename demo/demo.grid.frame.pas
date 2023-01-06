@@ -20,7 +20,7 @@ uses
   Dialogs,
   Menus,
   ColorBox,
-  ComCtrls,
+  ComCtrls, Spin,
   SynEdit,
   Variants,
   VirtualTrees,
@@ -102,6 +102,10 @@ type
     GridMetaDataSetMenuItem: TMenuItem;
     GridMetaDataGetMenuItem: TMenuItem;
     GridSearchEdit: TTisSearchEdit;
+    BgColorBox: TColorBox;
+    Label9: TLabel;
+    ZebraDeltaEdit: TSpinEdit;
+    Label10: TLabel;
     function GridCompareByRow(aSender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -129,8 +133,12 @@ type
     procedure GridMetaDataGetMenuItemClick(Sender: TObject);
     procedure GridMetaDataSetMenuItemClick(Sender: TObject);
     procedure GridSearchEditSearch(Sender: TObject; const aText: string);
+    procedure BgColorBoxChange(Sender: TObject);
+    procedure ZebraDeltaEditChange(Sender: TObject);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
+  public
+    constructor Create(aOwner: TComponent); override;
   end;
 
 implementation
@@ -321,6 +329,16 @@ begin
   Grid.Search(aText);
 end;
 
+procedure TGridFrame.BgColorBoxChange(Sender: TObject);
+begin
+  Grid.Color := BgColorBox.Selected;
+end;
+
+procedure TGridFrame.ZebraDeltaEditChange(Sender: TObject);
+begin
+  Grid.ZebraDelta := ZebraDeltaEdit.Value;
+end;
+
 procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);
 begin
   with aSender as TTisSearchEdit do
@@ -329,6 +347,13 @@ begin
     LoadData;
     DroppedDown := True;
   end;
+end;
+
+constructor TGridFrame.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  BgColorBox.Selected := Grid.Color;
+  ZebraDeltaEdit.Value := Grid.ZebraDelta;
 end;
 
 end.
