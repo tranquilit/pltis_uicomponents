@@ -2377,8 +2377,10 @@ begin
   inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, EraseAction);
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
+    {$ifdef windows}
     aColor := fZebraColor;
     EraseAction := eaColor;
+    {$endif}
   end;
 end;
 
