@@ -497,11 +497,11 @@ type
     procedure PrepareCell(var PaintInfo: TVTPaintInfo;
       WindowOrgX, MaxWidth: integer); override;
     /// multiselection display management
-    procedure DoBeforeCellPaint(ACanvas: TCanvas; Node: PVirtualNode;
-      Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-      var ContentRect: TRect); override;
-    procedure DoTextDrawing(var PaintInfo: TVTPaintInfo; const AText: string;
-      CellRect: TRect; DrawFormat: cardinal); override;
+    procedure DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
+      aColumn: TColumnIndex; aCellPaintMode: TVTCellPaintMode; aCellRect: TRect;
+      var aContentRect: TRect); override;
+    procedure DoTextDrawing(var aPaintInfo: TVTPaintInfo; const aText: string;
+      aCellRect: TRect; aDrawFormat: cardinal); override;
     procedure DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
       const aItemRect: TRect; var aColor: TColor;
       var EraseAction: TItemEraseAction); override;
@@ -2347,42 +2347,55 @@ begin
   inherited PrepareCell(PaintInfo, WindowOrgX, MaxWidth);
 end;
 
-procedure TTisGrid.DoBeforeCellPaint(ACanvas: TCanvas; Node: PVirtualNode;
-  Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect;
-  var ContentRect: TRect);
+procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
+  aColumn: TColumnIndex; aCellPaintMode: TVTCellPaintMode; aCellRect: TRect;
+  var aContentRect: TRect);
 begin
-  if CellPaintMode = cpmPaint then
+  if aCellPaintMode = cpmPaint then
   begin
-    if focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions) then
+    if Focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions) then
     begin
-      if (vsSelected in Node^.States) then
+      if (vsSelected in aNode^.States) then
       begin
-        if (column <> FocusedColumn) or (Node <> FocusedNode) then
+        if (aColumn <> FocusedColumn) or (aNode <> FocusedNode) then
         begin
-          ACanvas.Brush.Color := Colors.UnfocusedSelectionColor;
-          ACanvas.FillRect(CellRect);
+          aCanvas.Brush.Color := Colors.UnfocusedSelectionColor;
+          aCanvas.FillRect(aCellRect);
         end
         else
-        if (Column = FocusedColumn) and (Node = FocusedNode)  then
+        if (aColumn = FocusedColumn) and (aNode = FocusedNode)  then
         begin
-          ACanvas.Brush.Color := Colors.FocusedSelectionColor;
-          ACanvas.FillRect(CellRect);
+          aCanvas.Brush.Color := Colors.FocusedSelectionColor;
+          aCanvas.FillRect(aCellRect);
         end;
       end;
     end;
   end;
-  inherited DoBeforeCellPaint(ACanvas, Node, Column, CellPaintMode, CellRect, ContentRect);
+  inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
 
-procedure TTisGrid.DoTextDrawing(var PaintInfo: TVTPaintInfo;
-  const AText: string; CellRect: TRect; DrawFormat: cardinal);
+procedure TTisGrid.DoTextDrawing(var aPaintInfo: TVTPaintInfo;
+  const aText: string; aCellRect: TRect; aDrawFormat: cardinal);
+var
+  h, s, l: Byte;
+  vColor: TColor;
 begin
   // pour affichage lignes multiselect en gris clair avec cellule focused en bleu
-  if (focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions))  and
-    (vsSelected in PaintInfo.Node^.States) and (PaintInfo.Node = FocusedNode) and
-    (PaintInfo.column = FocusedColumn) then
-    PaintInfo.Canvas.Font.Color := Colors.SelectionTextColor;
-  inherited;
+  if (Focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions))  and
+    (vsSelected in aPaintInfo.Node^.States) and
+    (aPaintInfo.Node = FocusedNode) and
+    (aPaintInfo.Column = FocusedColumn) then
+    aPaintInfo.Canvas.Font.Color := Colors.SelectionTextColor
+  else
+  begin
+    ColorToHLS(Color, h, l, s);
+    if fZebraPaint and (aPaintInfo.Node <> nil) and Odd(aPaintInfo.Node^.Index) then
+      vColor := HLStoColor(h, l-255, s)
+    else
+      vColor := HLStoColor(h, 255-l, s);
+    aPaintInfo.Canvas.Font.Color := vColor;
+  end;
+  inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
 end;
 
 procedure TTisGrid.DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
@@ -2395,21 +2408,16 @@ procedure TTisGrid.DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
       (GetBValue(longword(aValue)) * 2)) < 1000;
   end;
 
-  function _AdjustColor(aValue: TColor): TColor;
-  var
-    h, s, l: Byte;
-  begin
-    ColorToHLS(aColor, h, l, s);
-    if _IsDark(aValue) then
-      result := HLStoColor(h, fZebraDelta, s)
-    else
-      result := HLStoColor(h, l, fZebraDelta);
-  end;
-
+var
+  h, s, l: Byte;
 begin
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
-    aColor := _AdjustColor(aColor);
+    ColorToHLS(aColor, h, l, s);
+    if _IsDark(aColor) then
+      aColor := HLStoColor(h, fZebraDelta, s)
+    else
+      aColor := HLStoColor(h, l, fZebraDelta);
     EraseAction := eaColor;
   end;
   inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, EraseAction);
