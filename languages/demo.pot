@@ -148,6 +148,14 @@ msgstr ""
 msgid "Simple"
 msgstr ""
 
+#: tgridframe.groupbox3.caption
+msgid " Search "
+msgstr ""
+
+#: tgridframe.groupbox4.caption
+msgid " Colors "
+msgstr ""
+
 #: tgridframe.keyfieldedit.text
 msgctxt "tgridframe.keyfieldedit.text"
 msgid "id"
@@ -155,10 +163,6 @@ msgstr ""
 
 #: tgridframe.label1.caption
 msgid "Input/Output:"
-msgstr ""
-
-#: tgridframe.label10.caption
-msgid "Zebra Delta"
 msgstr ""
 
 #: tgridframe.label2.caption
@@ -226,6 +230,15 @@ msgstr ""
 
 #: tgridframe.validmsgedit.text
 msgid "Invalid value for this column"
+msgstr ""
+
+#: tgridframe.zebradarknesslabel.caption
+msgid "Zebra Darkness"
+msgstr ""
+
+#: tgridframe.zebralightnesslabel.caption
+msgctxt "tgridframe.zebralightnesslabel.caption"
+msgid "Zebra Lightness"
 msgstr ""
 
 #: tmainform.caption

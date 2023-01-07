@@ -6,303 +6,8 @@ object GridFrame: TGridFrame
   ClientHeight = 589
   ClientWidth = 877
   TabOrder = 0
-  DesignLeft = 224
+  DesignLeft = 324
   DesignTop = 147
-  object Panel4: TPanel
-    Left = 0
-    Height = 380
-    Top = 0
-    Width = 531
-    Align = alClient
-    ClientHeight = 380
-    ClientWidth = 531
-    ParentFont = False
-    TabOrder = 0
-    object Grid: TTisGrid
-      Left = 8
-      Height = 267
-      Top = 96
-      Width = 510
-      Anchors = [akTop, akLeft, akRight, akBottom]
-      Color = clWindow
-      Colors.UnfocusedColor = clMedGray
-      DefaultNodeHeight = 25
-      EditDelay = 200
-      Header.AutoSizeIndex = -1
-      Header.Columns = <>
-      Header.DefaultHeight = 20
-      Header.Height = 20
-      Header.MainColumn = -1
-      Header.MaxHeight = 151
-      Header.MinHeight = 19
-      Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoHeaderClickAutoSort]
-      Header.Style = hsFlatButtons
-      PopupMenu = UserPopupMenu
-      TabOrder = 0
-      SelectedAndTotalLabel = GridTotalLabel
-      TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
-      TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
-      TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
-      ZebraColor = 15593713
-      ZebraPaint = True
-      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
-      ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
-      OnInitNode = GridInitNode
-      OnCompareByRow = GridCompareByRow
-      OnEditorLookup = GridEditorLookup
-      OnPrepareEditor = GridPrepareEditor
-      OnEditValidated = GridEditValidated
-    end
-    object GroupBox1: TGroupBox
-      Left = 8
-      Height = 58
-      Top = 1
-      Width = 510
-      Anchors = [akTop, akLeft, akRight]
-      Caption = ' Functions '
-      ClientHeight = 38
-      ClientWidth = 506
-      TabOrder = 1
-      object FunctionDataLabel: TLabel
-        Cursor = crHandPoint
-        Left = 24
-        Height = 15
-        Hint = 'Grid properties'
-        Top = 8
-        Width = 22
-        Caption = 'Grid'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlue
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        Font.Style = [fsUnderline]
-        ParentColor = False
-        ParentFont = False
-        ParentShowHint = False
-        PopupMenu = GridPropsPopupMenu
-        ShowHint = True
-        OnClick = FunctionDataLabelClick
-      end
-      object FunctionSettingsLabel: TLabel
-        Cursor = crHandPoint
-        Left = 438
-        Height = 15
-        Hint = 'Grid Settings'
-        Top = 8
-        Width = 42
-        Anchors = [akTop, akRight]
-        Caption = 'Settings'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlue
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        Font.Style = [fsUnderline]
-        ParentColor = False
-        ParentFont = False
-        ParentShowHint = False
-        PopupMenu = GridSettingsPopupMenu
-        ShowHint = True
-        OnClick = FunctionDataLabelClick
-      end
-      object FunctionDataLabel1: TLabel
-        Cursor = crHandPoint
-        Left = 72
-        Height = 15
-        Hint = 'Work with Grid Data'
-        Top = 8
-        Width = 28
-        Caption = 'Input'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlue
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        Font.Style = [fsUnderline]
-        ParentColor = False
-        ParentFont = False
-        ParentShowHint = False
-        PopupMenu = GridInputPopupMenu
-        ShowHint = True
-        OnClick = FunctionDataLabelClick
-      end
-      object FunctionSelRowsLabel: TLabel
-        Cursor = crHandPoint
-        Left = 125
-        Height = 15
-        Hint = 'Selected rows'
-        Top = 8
-        Width = 75
-        Caption = 'Selected Rows'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlue
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        Font.Style = [fsUnderline]
-        ParentColor = False
-        ParentFont = False
-        ParentShowHint = False
-        PopupMenu = GridSelRowsPopupMenu
-        ShowHint = True
-        OnClick = FunctionDataLabelClick
-      end
-      object FunctionSelRowsLabel1: TLabel
-        Cursor = crHandPoint
-        Left = 224
-        Height = 15
-        Hint = 'MetaData'
-        Top = 8
-        Width = 51
-        Caption = 'MetaData'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlue
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        Font.Style = [fsUnderline]
-        ParentColor = False
-        ParentFont = False
-        ParentShowHint = False
-        PopupMenu = GridMetaDataPopupMenu
-        ShowHint = True
-        OnClick = FunctionDataLabelClick
-      end
-    end
-    object GridSearchEdit: TTisSearchEdit
-      Left = 8
-      Height = 23
-      Top = 64
-      Width = 150
-      AutoSize = False
-      Constraints.MinWidth = 150
-      ItemHeight = 15
-      ParentFont = False
-      TabOrder = 2
-      AutoSearch = False
-      Buttons = <      
-        item
-          Glyph.Data = {
-            BA030000424DBA0300000000000036000000280000000F0000000F0000000100
-            2000000000008403000064000000640000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            000000000000000000002F2E2A0B444541393738350400000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            00002D2C270B636662A98C908EFB757A77690000000000000000000000000000
-            00000000000000000000000000000000000000000000000000002E2C280B6265
-            62A98C918FFE9EA4A0F37479774B000000000000000000000000000000007E83
-            8105898E8C298E939142888C8B2E7A7F7D0833322D0861635FA48C908EFE9EA3
-            A0F3777C795400000000000000000000000000000000A1A6A44AC2C7C5CBCDD0
-            CEF7CFD0CDFBD1D3D1F8C9CCCBD37D807EB6747775FE989D9AF3767B79540000
-            0000000000000000000000000000ADB1B05FCCCFCDF6BCAEA0ECB88F6DB7BB8B
-            629CB88E6AADC0AE9FE3D5D6D3FE919493F7666B685600000000000000000000
-            000000000000A0A5A323C9CDCBEDB59D8AE4C8976A8ECF9F726ACF9F7256CF9F
-            7259CA986B76BA9D86D4D5D7D5F69DA19F370000000000000000000000000000
-            0000BBBFBE80BFBCB4FBC5966CB1D9B4938DDCBA9D73D6AE8A4DCF9F724ACF9F
-            7267C7956891C7BDB5F5C0C3C29C000000000000000000000000959C9A02C8CC
-            CBB4B4A293F0DDBDA1BBECDAC9BDF0E0D2B0F0E1D39EE3C7AF79CFA07370CF9E
-            718CB9A08DE3CCD0CFCD858D890300000000000000009AA19E02CBD0CEB7B19F
-            8FEFE3CAB3C9F1E2D4D2F3E6DBCCF3E6DBC3F0E0D2BADBB89896CF9F729BB69C
-            87E5CCD1CFCF8A928E04000000000000000000000000C8CDCB89BAB4ACF9D8B9
-            A0CFF4E8DEE3F6ECE4E2F4EAE0DBF1E3D5D2E6CDB7C1CA996CB1BAAEA3F5C7CB
-            CAA600000000000000000000000000000000BABFBD2ECFD3D1F4AF9179E6EAD9
-            C9DBF7F0E9ECF5EBE1E6F0E1D4DDE1C6ADC8B18C6DDCCCCFCCF9B4B9B7440000
-            0000000000000000000000000000A9AFAD01CCD1CF76CCCECBFAAD9582ECCAAC
-            94DBD7BBA5D6C8A68AD4AD917AE7C6C7C3FCC6CAC98EA4ABA803000000000000
-            0000000000000000000000000000B1BAB502CACFCD64D2D7D5E0C6C8C4FDBFBE
-            B8FCC4C5C1FDCED3D1E7C5CAC874AFB5B2050000000000000000000000000000
-            000000000000000000000000000000000000B8BFBC0FC1C7C441C4CAC85CC1C7
-            C446B9BFBC13000000000000000000000000000000000000000000000000
-          }
-          Kind = bkSearch
-          Name = 'Search0'
-        end      
-        item
-          Glyph.Data = {
-            36040000424D3604000000000000360000002800000010000000100000000100
-            2000000000000004000064000000640000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000500B6690500B669000000000000000000000000000000000000
-            0000000000000500B6690500B669000000000000000000000000000000000000
-            00000200B5680C00CFE90D00D0EB0500B66D0000000000000000000000000000
-            00000200B56B0C00CFE90D00D0EB0500B86B0000000000000000000000000000
-            00000200B5680C00CFE91400E6FF0D00D0EB0500B66D00000000000000000200
-            B56B0C00CFE91400E6FF0D00D0EB0500B86B0000000000000000000000000000
-            0000000000000300B7660C00CFE91400E6FF0D00D1EB0500B66D0300B6650C00
-            CFE91400E6FF0D00D1EB0500B66D000000000000000000000000000000000000
-            000000000000000000000500B66C0C00CFEA1400E6FF0C00D0EA0C00D0EA1400
-            E6FF0C00CFEA0500B66C00000000000000000000000000000000000000000000
-            00000000000000000000000000000200B56B0C00D0E81400E6FF1400E6FF0D00
-            D0EB0500B66D0000000000000000000000000000000000000000000000000000
-            00000000000000000000000000000200B56B0C00D0E81400E6FF1400E6FF0D00
-            D0EB0500B66D0000000000000000000000000000000000000000000000000000
-            000000000000000000000500B66C0C00CFEA1400E6FF0C00D0EA0C00D0EA1400
-            E6FF0C00CFEA0500B66C00000000000000000000000000000000000000000000
-            0000000000000300B6650C00CFE91400E6FF0D00D1EB0500B66D0300B7660C00
-            CFE91400E6FF0D00D1EB0500B66D000000000000000000000000000000000000
-            00000200B5680C00CFE91400E6FF0D00D0EB0500B66D00000000000000000200
-            B56B0C00CFE91400E6FF0D00D0EB0500B86B0000000000000000000000000000
-            00000200B5680C00CFE90D00D0EB0500B66D0000000000000000000000000000
-            00000200B56B0C00CFE90D00D0EB0500B86B0000000000000000000000000000
-            0000000000000500B66C0500B66C000000000000000000000000000000000000
-            0000000000000500B6690500B669000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000000000000000
-            0000000000000000000000000000000000000000000000000000
-          }
-          Kind = bkClear
-          Name = 'Clear1'
-        end>
-      SearchInterval = 1000
-      OnSearch = GridSearchEditSearch
-    end
-    object BgColorBox: TColorBox
-      Left = 408
-      Height = 26
-      Top = 61
-      Width = 110
-      ItemHeight = 20
-      OnChange = BgColorBoxChange
-      TabOrder = 3
-    end
-    object Label9: TLabel
-      Left = 360
-      Height = 15
-      Top = 68
-      Width = 46
-      Caption = 'Bg Color'
-      ParentColor = False
-    end
-    object ZebraDeltaEdit: TSpinEdit
-      Left = 296
-      Height = 23
-      Top = 64
-      Width = 49
-      MaxValue = 255
-      MinValue = 1
-      OnChange = ZebraDeltaEditChange
-      TabOrder = 4
-      Value = 1
-    end
-    object Label10: TLabel
-      Left = 232
-      Height = 15
-      Top = 68
-      Width = 60
-      Caption = 'Zebra Delta'
-      ParentColor = False
-    end
-  end
   object Panel1: TPanel
     Left = 0
     Height = 197
@@ -313,7 +18,7 @@ object GridFrame: TGridFrame
     ClientHeight = 197
     ClientWidth = 877
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 0
     inline InOutputEdit: TSynEdit
       Left = 12
       Height = 151
@@ -938,7 +643,7 @@ object GridFrame: TGridFrame
     Align = alRight
     ClientHeight = 380
     ClientWidth = 334
-    TabOrder = 3
+    TabOrder = 2
     object EventsPageControl: TPageControl
       Left = 1
       Height = 328
@@ -1195,20 +900,385 @@ object GridFrame: TGridFrame
     Align = alRight
     ResizeAnchor = akRight
   end
-  object UserPopupMenu: TPopupMenu
-    Left = 312
-    Top = 208
-    object MenuItem1: TMenuItem
-      Caption = 'Test User Menu Item'
-      OnClick = MenuItem1Click
+  object Panel4: TPanel
+    Left = 0
+    Height = 380
+    Top = 0
+    Width = 531
+    Align = alClient
+    ClientHeight = 380
+    ClientWidth = 531
+    ParentFont = False
+    TabOrder = 4
+    object Grid: TTisGrid
+      Left = 8
+      Height = 216
+      Top = 152
+      Width = 510
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      Color = clWindow
+      Colors.UnfocusedColor = clMedGray
+      DefaultNodeHeight = 25
+      EditDelay = 200
+      Header.AutoSizeIndex = -1
+      Header.Columns = <>
+      Header.DefaultHeight = 20
+      Header.Height = 20
+      Header.MainColumn = -1
+      Header.MaxHeight = 151
+      Header.MinHeight = 19
+      Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible, hoHeaderClickAutoSort]
+      Header.Style = hsFlatButtons
+      PopupMenu = UserPopupMenu
+      TabOrder = 0
+      SelectedAndTotalLabel = GridTotalLabel
+      TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
+      TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
+      TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
+      ZebraColor = 15593713
+      ZebraPaint = True
+      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
+      ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
+      OnInitNode = GridInitNode
+      OnCompareByRow = GridCompareByRow
+      OnEditorLookup = GridEditorLookup
+      OnPrepareEditor = GridPrepareEditor
+      OnEditValidated = GridEditValidated
+    end
+    object GroupBox1: TGroupBox
+      Left = 8
+      Height = 43
+      Top = 1
+      Width = 510
+      Anchors = [akTop, akLeft, akRight]
+      Caption = ' Functions '
+      ClientHeight = 23
+      ClientWidth = 506
+      TabOrder = 1
+      object FunctionDataLabel: TLabel
+        Cursor = crHandPoint
+        Left = 24
+        Height = 15
+        Hint = 'Grid properties'
+        Top = 3
+        Width = 22
+        Caption = 'Grid'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridPropsPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
+      end
+      object FunctionSettingsLabel: TLabel
+        Cursor = crHandPoint
+        Left = 438
+        Height = 15
+        Hint = 'Grid Settings'
+        Top = 3
+        Width = 42
+        Anchors = [akTop, akRight]
+        Caption = 'Settings'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridSettingsPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
+      end
+      object FunctionDataLabel1: TLabel
+        Cursor = crHandPoint
+        Left = 72
+        Height = 15
+        Hint = 'Work with Grid Data'
+        Top = 3
+        Width = 28
+        Caption = 'Input'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridInputPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
+      end
+      object FunctionSelRowsLabel: TLabel
+        Cursor = crHandPoint
+        Left = 125
+        Height = 15
+        Hint = 'Selected rows'
+        Top = 3
+        Width = 75
+        Caption = 'Selected Rows'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridSelRowsPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
+      end
+      object FunctionSelRowsLabel1: TLabel
+        Cursor = crHandPoint
+        Left = 224
+        Height = 15
+        Hint = 'MetaData'
+        Top = 3
+        Width = 51
+        Caption = 'MetaData'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridMetaDataPopupMenu
+        ShowHint = True
+        OnClick = FunctionDataLabelClick
+      end
+    end
+    object GroupBox3: TGroupBox
+      Left = 8
+      Height = 53
+      Top = 43
+      Width = 510
+      Anchors = [akTop, akLeft, akRight]
+      Caption = ' Search '
+      ClientHeight = 33
+      ClientWidth = 506
+      TabOrder = 2
+      object GridSearchEdit: TTisSearchEdit
+        AnchorSideLeft.Control = GroupBox1
+        AnchorSideTop.Control = GroupBox1
+        AnchorSideTop.Side = asrBottom
+        Left = 24
+        Height = 23
+        Top = 1
+        Width = 150
+        Anchors = []
+        AutoSize = False
+        BorderSpacing.Top = 5
+        Constraints.MinWidth = 150
+        ItemHeight = 15
+        ParentFont = False
+        TabOrder = 0
+        AutoSearch = False
+        Buttons = <        
+          item
+            Glyph.Data = {
+              BA030000424DBA0300000000000036000000280000000F0000000F0000000100
+              2000000000008403000064000000640000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              000000000000000000002F2E2A0B444541393738350400000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              00002D2C270B636662A98C908EFB757A77690000000000000000000000000000
+              00000000000000000000000000000000000000000000000000002E2C280B6265
+              62A98C918FFE9EA4A0F37479774B000000000000000000000000000000007E83
+              8105898E8C298E939142888C8B2E7A7F7D0833322D0861635FA48C908EFE9EA3
+              A0F3777C795400000000000000000000000000000000A1A6A44AC2C7C5CBCDD0
+              CEF7CFD0CDFBD1D3D1F8C9CCCBD37D807EB6747775FE989D9AF3767B79540000
+              0000000000000000000000000000ADB1B05FCCCFCDF6BCAEA0ECB88F6DB7BB8B
+              629CB88E6AADC0AE9FE3D5D6D3FE919493F7666B685600000000000000000000
+              000000000000A0A5A323C9CDCBEDB59D8AE4C8976A8ECF9F726ACF9F7256CF9F
+              7259CA986B76BA9D86D4D5D7D5F69DA19F370000000000000000000000000000
+              0000BBBFBE80BFBCB4FBC5966CB1D9B4938DDCBA9D73D6AE8A4DCF9F724ACF9F
+              7267C7956891C7BDB5F5C0C3C29C000000000000000000000000959C9A02C8CC
+              CBB4B4A293F0DDBDA1BBECDAC9BDF0E0D2B0F0E1D39EE3C7AF79CFA07370CF9E
+              718CB9A08DE3CCD0CFCD858D890300000000000000009AA19E02CBD0CEB7B19F
+              8FEFE3CAB3C9F1E2D4D2F3E6DBCCF3E6DBC3F0E0D2BADBB89896CF9F729BB69C
+              87E5CCD1CFCF8A928E04000000000000000000000000C8CDCB89BAB4ACF9D8B9
+              A0CFF4E8DEE3F6ECE4E2F4EAE0DBF1E3D5D2E6CDB7C1CA996CB1BAAEA3F5C7CB
+              CAA600000000000000000000000000000000BABFBD2ECFD3D1F4AF9179E6EAD9
+              C9DBF7F0E9ECF5EBE1E6F0E1D4DDE1C6ADC8B18C6DDCCCCFCCF9B4B9B7440000
+              0000000000000000000000000000A9AFAD01CCD1CF76CCCECBFAAD9582ECCAAC
+              94DBD7BBA5D6C8A68AD4AD917AE7C6C7C3FCC6CAC98EA4ABA803000000000000
+              0000000000000000000000000000B1BAB502CACFCD64D2D7D5E0C6C8C4FDBFBE
+              B8FCC4C5C1FDCED3D1E7C5CAC874AFB5B2050000000000000000000000000000
+              000000000000000000000000000000000000B8BFBC0FC1C7C441C4CAC85CC1C7
+              C446B9BFBC13000000000000000000000000000000000000000000000000
+            }
+            Kind = bkSearch
+            Name = 'Search0'
+          end        
+          item
+            Glyph.Data = {
+              36040000424D3604000000000000360000002800000010000000100000000100
+              2000000000000004000064000000640000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000500B6690500B669000000000000000000000000000000000000
+              0000000000000500B6690500B669000000000000000000000000000000000000
+              00000200B5680C00CFE90D00D0EB0500B66D0000000000000000000000000000
+              00000200B56B0C00CFE90D00D0EB0500B86B0000000000000000000000000000
+              00000200B5680C00CFE91400E6FF0D00D0EB0500B66D00000000000000000200
+              B56B0C00CFE91400E6FF0D00D0EB0500B86B0000000000000000000000000000
+              0000000000000300B7660C00CFE91400E6FF0D00D1EB0500B66D0300B6650C00
+              CFE91400E6FF0D00D1EB0500B66D000000000000000000000000000000000000
+              000000000000000000000500B66C0C00CFEA1400E6FF0C00D0EA0C00D0EA1400
+              E6FF0C00CFEA0500B66C00000000000000000000000000000000000000000000
+              00000000000000000000000000000200B56B0C00D0E81400E6FF1400E6FF0D00
+              D0EB0500B66D0000000000000000000000000000000000000000000000000000
+              00000000000000000000000000000200B56B0C00D0E81400E6FF1400E6FF0D00
+              D0EB0500B66D0000000000000000000000000000000000000000000000000000
+              000000000000000000000500B66C0C00CFEA1400E6FF0C00D0EA0C00D0EA1400
+              E6FF0C00CFEA0500B66C00000000000000000000000000000000000000000000
+              0000000000000300B6650C00CFE91400E6FF0D00D1EB0500B66D0300B7660C00
+              CFE91400E6FF0D00D1EB0500B66D000000000000000000000000000000000000
+              00000200B5680C00CFE91400E6FF0D00D0EB0500B66D00000000000000000200
+              B56B0C00CFE91400E6FF0D00D0EB0500B86B0000000000000000000000000000
+              00000200B5680C00CFE90D00D0EB0500B66D0000000000000000000000000000
+              00000200B56B0C00CFE90D00D0EB0500B86B0000000000000000000000000000
+              0000000000000500B66C0500B66C000000000000000000000000000000000000
+              0000000000000500B6690500B669000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000000000000000000000000000
+            }
+            Kind = bkClear
+            Name = 'Clear1'
+          end>
+        SearchInterval = 1000
+        OnSearch = GridSearchEditSearch
+      end
+    end
+    object GroupBox4: TGroupBox
+      Left = 8
+      Height = 51
+      Top = 95
+      Width = 510
+      Anchors = [akTop, akLeft, akRight]
+      Caption = ' Colors '
+      ClientHeight = 31
+      ClientWidth = 506
+      TabOrder = 3
+      object Label9: TLabel
+        AnchorSideLeft.Control = Grid
+        AnchorSideTop.Control = Grid
+        AnchorSideTop.Side = asrBottom
+        Left = 16
+        Height = 15
+        Top = 4
+        Width = 46
+        Anchors = []
+        BorderSpacing.Top = 10
+        Caption = 'Bg Color'
+        ParentColor = False
+      end
+      object BgColorBox: TColorBox
+        AnchorSideLeft.Control = Label9
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = Label9
+        AnchorSideTop.Side = asrCenter
+        Left = 66
+        Height = 26
+        Top = -2
+        Width = 110
+        Anchors = []
+        AutoComplete = True
+        AutoCompleteText = [cbactEnabled, cbactEndOfLineComplete, cbactSearchAscending]
+        AutoDropDown = True
+        BorderSpacing.Left = 4
+        ItemHeight = 20
+        OnChange = BgColorBoxChange
+        TabOrder = 0
+      end
+      object ZebraLightnessLabel: TLabel
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = Label9
+        AnchorSideTop.Side = asrCenter
+        Left = 192
+        Height = 15
+        Top = 4
+        Width = 83
+        Anchors = []
+        Caption = 'Zebra Lightness'
+        ParentColor = False
+      end
+      object ZebraLightnessEdit: TSpinEdit
+        AnchorSideLeft.Control = ZebraLightnessLabel
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = Label9
+        AnchorSideTop.Side = asrCenter
+        Left = 279
+        Height = 23
+        Top = 0
+        Width = 49
+        Anchors = []
+        MaxValue = 255
+        MinValue = 1
+        OnChange = ZebraLightnessEditChange
+        TabOrder = 1
+        Value = 1
+      end
+      object ZebraDarknessLabel: TLabel
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = Label9
+        AnchorSideTop.Side = asrCenter
+        Left = 337
+        Height = 15
+        Top = 4
+        Width = 80
+        Anchors = []
+        Caption = 'Zebra Darkness'
+        ParentColor = False
+      end
+      object ZebraDarknessEdit: TSpinEdit
+        AnchorSideLeft.Control = ZebraDarknessLabel
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = Label9
+        AnchorSideTop.Side = asrCenter
+        Left = 423
+        Height = 23
+        Top = 0
+        Width = 49
+        Anchors = []
+        MaxValue = 255
+        MinValue = 1
+        OnChange = ZebraDarknessEditChange
+        TabOrder = 2
+        Value = 1
+      end
     end
   end
   object OpenDialog: TOpenDialog
     DefaultExt = '.ini'
     FileName = 'settings.ini'
     Filter = 'Ini Files|*.ini'
-    Left = 312
-    Top = 96
+    Left = 344
+    Top = 224
   end
   object SaveDialog: TSaveDialog
     DefaultExt = '.ini'
@@ -1244,8 +1314,8 @@ object GridFrame: TGridFrame
     end
   end
   object GridPropsPopupMenu: TPopupMenu
-    Left = 80
-    Top = 80
+    Left = 112
+    Top = 208
     object GridDataCustomizeMenuItem1: TMenuItem
       Caption = 'Customize'
       Hint = 'Open Grid Editor'
@@ -1270,6 +1340,14 @@ object GridFrame: TGridFrame
     object GridMetaDataSetMenuItem: TMenuItem
       Caption = 'Set'
       OnClick = GridMetaDataSetMenuItemClick
+    end
+  end
+  object UserPopupMenu: TPopupMenu
+    Left = 312
+    Top = 208
+    object MenuItem1: TMenuItem
+      Caption = 'Test User Menu Item'
+      OnClick = MenuItem1Click
     end
   end
 end

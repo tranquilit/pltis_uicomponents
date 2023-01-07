@@ -37,16 +37,12 @@ type
   TGridFrame = class(TFrame)
     ClipboardLabel: TLabel;
     ClipboardLabel1: TLabel;
-    Grid: TTisGrid;
     ClipboardGridDataLabel: TLabel;
     InOutputEdit: TSynEdit;
     Label1: TLabel;
     Panel1: TPanel;
-    Panel4: TPanel;
     Splitter: TSplitter;
-    UserPopupMenu: TPopupMenu;
     MenuItem1: TMenuItem;
-    GroupBox1: TGroupBox;
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
     GridTotalLabel: TLabel;
@@ -57,12 +53,8 @@ type
     GridSettingsPopupMenu: TPopupMenu;
     GridSettingsSaveMenuItem: TMenuItem;
     GridSettingsLoadMenuItem: TMenuItem;
-    FunctionDataLabel: TLabel;
-    FunctionSettingsLabel: TLabel;
-    FunctionDataLabel1: TLabel;
     GridPropsPopupMenu: TPopupMenu;
     GridDataCustomizeMenuItem1: TMenuItem;
-    FunctionSelRowsLabel: TLabel;
     GridSelRowsPopupMenu: TPopupMenu;
     GridSelRowsMenuItem: TMenuItem;
     ClipboardSelectedRowLabel1: TLabel;
@@ -97,15 +89,27 @@ type
     PrepareReadOnlyCheckBox: TCheckBox;
     PrepareColumnNameEdid: TEdit;
     EdDataType2: TLabel;
-    FunctionSelRowsLabel1: TLabel;
     GridMetaDataPopupMenu: TPopupMenu;
     GridMetaDataSetMenuItem: TMenuItem;
     GridMetaDataGetMenuItem: TMenuItem;
+    UserPopupMenu: TPopupMenu;
+    Panel4: TPanel;
+    Grid: TTisGrid;
+    GroupBox1: TGroupBox;
+    FunctionDataLabel: TLabel;
+    FunctionSettingsLabel: TLabel;
+    FunctionDataLabel1: TLabel;
+    FunctionSelRowsLabel: TLabel;
+    FunctionSelRowsLabel1: TLabel;
+    GroupBox3: TGroupBox;
     GridSearchEdit: TTisSearchEdit;
-    BgColorBox: TColorBox;
+    GroupBox4: TGroupBox;
     Label9: TLabel;
-    ZebraDeltaEdit: TSpinEdit;
-    Label10: TLabel;
+    BgColorBox: TColorBox;
+    ZebraLightnessLabel: TLabel;
+    ZebraLightnessEdit: TSpinEdit;
+    ZebraDarknessLabel: TLabel;
+    ZebraDarknessEdit: TSpinEdit;
     function GridCompareByRow(aSender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -134,7 +138,8 @@ type
     procedure GridMetaDataSetMenuItemClick(Sender: TObject);
     procedure GridSearchEditSearch(Sender: TObject; const aText: string);
     procedure BgColorBoxChange(Sender: TObject);
-    procedure ZebraDeltaEditChange(Sender: TObject);
+    procedure ZebraLightnessEditChange(Sender: TObject);
+    procedure ZebraDarknessEditChange(Sender: TObject);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
   public
@@ -334,9 +339,14 @@ begin
   Grid.Color := BgColorBox.Selected;
 end;
 
-procedure TGridFrame.ZebraDeltaEditChange(Sender: TObject);
+procedure TGridFrame.ZebraLightnessEditChange(Sender: TObject);
 begin
-  Grid.ZebraDelta := ZebraDeltaEdit.Value;
+  Grid.ZebraLightness := ZebraLightnessEdit.Value;
+end;
+
+procedure TGridFrame.ZebraDarknessEditChange(Sender: TObject);
+begin
+  Grid.ZebraDarkness := ZebraDarknessEdit.Value;
 end;
 
 procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);
@@ -353,7 +363,8 @@ constructor TGridFrame.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   BgColorBox.Selected := Grid.Color;
-  ZebraDeltaEdit.Value := Grid.ZebraDelta;
+  ZebraLightnessEdit.Value := Grid.ZebraLightness;
+  ZebraDarknessEdit.Value := Grid.ZebraDarkness;
 end;
 
 end.
