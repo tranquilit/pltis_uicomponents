@@ -2388,7 +2388,7 @@ begin
     aPaintInfo.Canvas.Font.Color := Colors.SelectionTextColor
   else
   begin
-    ColorToHLS(Color, vHue, vLightness, vSaturation);
+    ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
     aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
   end;
   inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
