@@ -411,7 +411,8 @@ type
     fFindDlg: TFindDialog;
     fZebraColor: TColor;
     fZebraPaint: Boolean;
-    fZebraDelta: Byte;
+    fZebraLightness: Byte;
+    fZebraDarkness: Byte;
     fReplaceDialog: TReplaceDialog;
     fColumnToFind: integer;
     fStartSearchNode: PVirtualNode;
@@ -465,7 +466,8 @@ type
     procedure SetSelectedRow(aValue: TDocVariantData);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
-    procedure SetZebraDelta(aValue: Byte);
+    procedure SetZebraLightness(aValue: Byte);
+    procedure SetZebraDarkness(aValue: Byte);
   protected
     // ------------------------------- new constants -------------------------------
     const DefaultPopupMenuOptions = [
@@ -473,7 +475,8 @@ type
       pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
     const DefaultExportFormatOptions = [efoCsv, efoJson];
     const DefaultWantTabs = True;
-    const DefaultZebraDelta = 240;
+    const DefaultZebraLightness = 240;
+    const DefaultZebraDarkness = 150;
     // ------------------------------- new fields ----------------------------------
   protected
     DefaultCsvSeparator: string;
@@ -781,8 +784,10 @@ type
       read fZebraColor write fZebraColor;
     property ZebraPaint: Boolean
       read fZebraPaint write fZebraPaint stored True default False;
-    property ZebraDelta: Byte
-      read fZebraDelta write SetZebraDelta stored True default DefaultZebraDelta;
+    property ZebraLightness: Byte
+      read fZebraLightness write SetZebraLightness stored True default DefaultZebraLightness;
+    property ZebraDarkness: Byte
+      read fZebraDarkness write SetZebraDarkness stored True default DefaultZebraDarkness;
     property NodeOptions: TTisNodeOptions
       read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions
@@ -2138,11 +2143,19 @@ begin
   end;
 end;
 
-procedure TTisGrid.SetZebraDelta(aValue: Byte);
+procedure TTisGrid.SetZebraLightness(aValue: Byte);
 begin
-  if fZebraDelta = aValue then
+  if fZebraLightness = aValue then
     exit;
-  fZebraDelta := aValue;
+  fZebraLightness := aValue;
+  Invalidate;
+end;
+
+procedure TTisGrid.SetZebraDarkness(aValue: Byte);
+begin
+  if fZebraDarkness = aValue then
+    exit;
+  fZebraDarkness := aValue;
   Invalidate;
 end;
 
@@ -2377,10 +2390,9 @@ end;
 procedure TTisGrid.DoTextDrawing(var aPaintInfo: TVTPaintInfo;
   const aText: string; aCellRect: TRect; aDrawFormat: cardinal);
 var
-  h, s, l: Byte;
-  vColor: TColor;
+  vHue, vSaturation, vLightness: Byte;
 begin
-  // pour affichage lignes multiselect en gris clair avec cellule focused en bleu
+  // to display multiselect rows in light gray with focused cell in blue
   if (Focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions))  and
     (vsSelected in aPaintInfo.Node^.States) and
     (aPaintInfo.Node = FocusedNode) and
@@ -2388,36 +2400,31 @@ begin
     aPaintInfo.Canvas.Font.Color := Colors.SelectionTextColor
   else
   begin
-    ColorToHLS(Color, h, l, s);
+    ColorToHLS(Color, vHue, vLightness, vSaturation);
     if fZebraPaint and (aPaintInfo.Node <> nil) and Odd(aPaintInfo.Node^.Index) then
-      vColor := HLStoColor(h, l-255, s)
-    else
-      vColor := HLStoColor(h, 255-l, s);
-    aPaintInfo.Canvas.Font.Color := vColor;
+    begin
+      if vLightness < (fZebraDarkness - fZebraLightness) then
+        vLightness := vLightness - fZebraLightness
+      else
+        vLightness := vLightness + fZebraLightness
+    end;
+    aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, 255 - vLightness, vSaturation);
   end;
   inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
 end;
 
 procedure TTisGrid.DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
   const aItemRect: TRect; var aColor: TColor; var EraseAction: TItemEraseAction);
-
-  function _IsDark(aValue: TColor): Boolean;
-  begin
-    result := ((GetRValue(longword(aValue)) * 2) +
-      (GetGValue(longword(aValue)) * 3) +
-      (GetBValue(longword(aValue)) * 2)) < 1000;
-  end;
-
 var
-  h, s, l: Byte;
+  vHue, vSaturation, vLightness: Byte;
 begin
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
-    ColorToHLS(aColor, h, l, s);
-    if _IsDark(aColor) then
-      aColor := HLStoColor(h, fZebraDelta, s)
+    ColorToHLS(aColor, vHue, vLightness, vSaturation);
+    if vLightness < (fZebraDarkness - fZebraLightness) then
+      aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
     else
-      aColor := HLStoColor(h, l, fZebraDelta);
+      aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
     EraseAction := eaColor;
   end;
   inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, EraseAction);
@@ -3074,7 +3081,8 @@ begin
   DefaultText := '';
   DefaultCsvSeparator := ',';
   fZebraColor := $00EDF0F1;
-  fZebraDelta := DefaultZebraDelta;
+  fZebraLightness := DefaultZebraLightness;
+  fZebraDarkness := DefaultZebraDarkness;
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
