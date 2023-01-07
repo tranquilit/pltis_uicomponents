@@ -232,10 +232,6 @@ msgstr ""
 msgid "Invalid value for this column"
 msgstr ""
 
-#: tgridframe.zebradarknesslabel.caption
-msgid "Zebra Darkness"
-msgstr ""
-
 #: tgridframe.zebralightnesslabel.caption
 msgctxt "tgridframe.zebralightnesslabel.caption"
 msgid "Zebra Lightness"

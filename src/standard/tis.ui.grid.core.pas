@@ -412,7 +412,6 @@ type
     fZebraColor: TColor;
     fZebraPaint: Boolean;
     fZebraLightness: Byte;
-    fZebraDarkness: Byte;
     fReplaceDialog: TReplaceDialog;
     fColumnToFind: integer;
     fStartSearchNode: PVirtualNode;
@@ -467,7 +466,6 @@ type
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     procedure SetZebraLightness(aValue: Byte);
-    procedure SetZebraDarkness(aValue: Byte);
   protected
     // ------------------------------- new constants -------------------------------
     const DefaultPopupMenuOptions = [
@@ -475,8 +473,7 @@ type
       pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
     const DefaultExportFormatOptions = [efoCsv, efoJson];
     const DefaultWantTabs = True;
-    const DefaultZebraLightness = 240;
-    const DefaultZebraDarkness = 150;
+    const DefaultZebraLightness = 225;
     // ------------------------------- new fields ----------------------------------
   protected
     DefaultCsvSeparator: string;
@@ -506,8 +503,7 @@ type
     procedure DoTextDrawing(var aPaintInfo: TVTPaintInfo; const aText: string;
       aCellRect: TRect; aDrawFormat: cardinal); override;
     procedure DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
-      const aItemRect: TRect; var aColor: TColor;
-      var EraseAction: TItemEraseAction); override;
+      const aItemRect: TRect; var aColor: TColor; var aEraseAction: TItemEraseAction); override;
     function DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean; override;
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
     procedure DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
@@ -786,8 +782,6 @@ type
       read fZebraPaint write fZebraPaint stored True default False;
     property ZebraLightness: Byte
       read fZebraLightness write SetZebraLightness stored True default DefaultZebraLightness;
-    property ZebraDarkness: Byte
-      read fZebraDarkness write SetZebraDarkness stored True default DefaultZebraDarkness;
     property NodeOptions: TTisNodeOptions
       read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions
@@ -2151,14 +2145,6 @@ begin
   Invalidate;
 end;
 
-procedure TTisGrid.SetZebraDarkness(aValue: Byte);
-begin
-  if fZebraDarkness = aValue then
-    exit;
-  fZebraDarkness := aValue;
-  Invalidate;
-end;
-
 procedure TTisGrid.Loaded;
 begin
   inherited Loaded;
@@ -2389,6 +2375,8 @@ end;
 
 procedure TTisGrid.DoTextDrawing(var aPaintInfo: TVTPaintInfo;
   const aText: string; aCellRect: TRect; aDrawFormat: cardinal);
+const
+  cDark = 255;
 var
   vHue, vSaturation, vLightness: Byte;
 begin
@@ -2401,33 +2389,26 @@ begin
   else
   begin
     ColorToHLS(Color, vHue, vLightness, vSaturation);
-    if fZebraPaint and (aPaintInfo.Node <> nil) and Odd(aPaintInfo.Node^.Index) then
-    begin
-      if vLightness < (fZebraDarkness - fZebraLightness) then
-        vLightness := vLightness - fZebraLightness
-      else
-        vLightness := vLightness + fZebraLightness
-    end;
-    aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, 255 - vLightness, vSaturation);
+    aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
   end;
   inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
 end;
 
 procedure TTisGrid.DoBeforeItemErase(aCanvas: TCanvas; aNode: PVirtualNode;
-  const aItemRect: TRect; var aColor: TColor; var EraseAction: TItemEraseAction);
+  const aItemRect: TRect; var aColor: TColor; var aEraseAction: TItemEraseAction);
 var
   vHue, vSaturation, vLightness: Byte;
 begin
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
     ColorToHLS(aColor, vHue, vLightness, vSaturation);
-    if vLightness < (fZebraDarkness - fZebraLightness) then
+    if vLightness < fZebraLightness then
       aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
     else
       aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
-    EraseAction := eaColor;
+    aEraseAction := eaColor;
   end;
-  inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, EraseAction);
+  inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, aEraseAction);
 end;
 
 function TTisGrid.DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean;
@@ -3082,7 +3063,6 @@ begin
   DefaultCsvSeparator := ',';
   fZebraColor := $00EDF0F1;
   fZebraLightness := DefaultZebraLightness;
-  fZebraDarkness := DefaultZebraDarkness;
   SetLength(fKeyFieldsList, 0);
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;

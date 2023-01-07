@@ -6,8 +6,8 @@ object GridFrame: TGridFrame
   ClientHeight = 589
   ClientWidth = 877
   TabOrder = 0
-  DesignLeft = 324
-  DesignTop = 147
+  DesignLeft = 263
+  DesignTop = 110
   object Panel1: TPanel
     Left = 0
     Height = 197
@@ -1192,7 +1192,6 @@ object GridFrame: TGridFrame
         Height = 15
         Top = 4
         Width = 46
-        Anchors = []
         BorderSpacing.Top = 10
         Caption = 'Bg Color'
         ParentColor = False
@@ -1202,14 +1201,12 @@ object GridFrame: TGridFrame
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = Label9
         AnchorSideTop.Side = asrCenter
-        Left = 66
+        Left = 69
         Height = 26
         Top = -2
-        Width = 110
-        Anchors = []
+        Width = 131
         AutoComplete = True
         AutoCompleteText = [cbactEnabled, cbactEndOfLineComplete, cbactSearchAscending]
-        AutoDropDown = True
         BorderSpacing.Left = 4
         ItemHeight = 20
         OnChange = BgColorBoxChange
@@ -1219,11 +1216,10 @@ object GridFrame: TGridFrame
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = Label9
         AnchorSideTop.Side = asrCenter
-        Left = 192
+        Left = 216
         Height = 15
         Top = 4
         Width = 83
-        Anchors = []
         Caption = 'Zebra Lightness'
         ParentColor = False
       end
@@ -1232,43 +1228,14 @@ object GridFrame: TGridFrame
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = Label9
         AnchorSideTop.Side = asrCenter
-        Left = 279
+        Left = 299
         Height = 23
         Top = 0
         Width = 49
-        Anchors = []
         MaxValue = 255
         MinValue = 1
         OnChange = ZebraLightnessEditChange
         TabOrder = 1
-        Value = 1
-      end
-      object ZebraDarknessLabel: TLabel
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = Label9
-        AnchorSideTop.Side = asrCenter
-        Left = 337
-        Height = 15
-        Top = 4
-        Width = 80
-        Anchors = []
-        Caption = 'Zebra Darkness'
-        ParentColor = False
-      end
-      object ZebraDarknessEdit: TSpinEdit
-        AnchorSideLeft.Control = ZebraDarknessLabel
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = Label9
-        AnchorSideTop.Side = asrCenter
-        Left = 423
-        Height = 23
-        Top = 0
-        Width = 49
-        Anchors = []
-        MaxValue = 255
-        MinValue = 1
-        OnChange = ZebraDarknessEditChange
-        TabOrder = 2
         Value = 1
       end
     end

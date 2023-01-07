@@ -108,8 +108,6 @@ type
     BgColorBox: TColorBox;
     ZebraLightnessLabel: TLabel;
     ZebraLightnessEdit: TSpinEdit;
-    ZebraDarknessLabel: TLabel;
-    ZebraDarknessEdit: TSpinEdit;
     function GridCompareByRow(aSender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -139,7 +137,6 @@ type
     procedure GridSearchEditSearch(Sender: TObject; const aText: string);
     procedure BgColorBoxChange(Sender: TObject);
     procedure ZebraLightnessEditChange(Sender: TObject);
-    procedure ZebraDarknessEditChange(Sender: TObject);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
   public
@@ -344,11 +341,6 @@ begin
   Grid.ZebraLightness := ZebraLightnessEdit.Value;
 end;
 
-procedure TGridFrame.ZebraDarknessEditChange(Sender: TObject);
-begin
-  Grid.ZebraDarkness := ZebraDarknessEdit.Value;
-end;
-
 procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);
 begin
   with aSender as TTisSearchEdit do
@@ -364,7 +356,6 @@ begin
   inherited Create(aOwner);
   BgColorBox.Selected := Grid.Color;
   ZebraLightnessEdit.Value := Grid.ZebraLightness;
-  ZebraDarknessEdit.Value := Grid.ZebraDarkness;
 end;
 
 end.

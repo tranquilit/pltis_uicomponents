@@ -43,7 +43,6 @@
 {"hash":174287632,"name":"tgridframe.groupbox4.caption","sourcebytes":[32,67,111,108,111,114,115,32],"value":" Colors "},
 {"hash":155871202,"name":"tgridframe.label9.caption","sourcebytes":[66,103,32,67,111,108,111,114],"value":"Bg Color"},
 {"hash":75136739,"name":"tgridframe.zebralightnesslabel.caption","sourcebytes":[90,101,98,114,97,32,76,105,103,104,116,110,101,115,115],"value":"Zebra Lightness"},
-{"hash":53116419,"name":"tgridframe.zebradarknesslabel.caption","sourcebytes":[90,101,98,114,97,32,68,97,114,107,110,101,115,115],"value":"Zebra Darkness"},
 {"hash":174428819,"name":"tgridframe.griddataaddrowsmenuitem.caption","sourcebytes":[65,100,100,32,82,111,119,115],"value":"Add Rows"},
 {"hash":185137518,"name":"tgridframe.griddataaddrowsmenuitem.hint","sourcebytes":[65,100,100,32,114,111,119,115,32,102,114,111,109,32,73,110,112,117,116,32,74,83,79,78],"value":"Add rows from Input JSON"},
 {"hash":171922467,"name":"tgridframe.gridinputdeleterowsmenuitem.caption","sourcebytes":[68,101,108,101,116,101,32,82,111,119,115],"value":"Delete Rows"},
