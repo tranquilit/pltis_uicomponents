@@ -2386,11 +2386,12 @@ begin
     (aPaintInfo.Node = FocusedNode) and
     (aPaintInfo.Column = FocusedColumn) then
     aPaintInfo.Canvas.Font.Color := Colors.SelectionTextColor
-  else
-  begin
-    ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
-    aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
-  end;
+  //else
+  //begin
+  //  ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
+  //  aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
+  //end
+  ;
   inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
 end;
 
@@ -2401,12 +2402,15 @@ var
 begin
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
-    ColorToHLS(aColor, vHue, vLightness, vSaturation);
-    if vLightness < fZebraLightness then
-      aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
-    else
-      aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
+    {$ifdef windows}
+    //ColorToHLS(aColor, vHue, vLightness, vSaturation);
+    //if vLightness < fZebraLightness then
+    //  aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
+    //else
+    //  aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
+    aColor := fZebraColor;
     aEraseAction := eaColor;
+    {$endif}
   end;
   inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, aEraseAction);
 end;
