@@ -580,6 +580,7 @@ type
     /// destructor
     destructor Destroy; override;
     // ------------------------------- inherited methods ---------------------------
+    procedure Assign(aSource: TPersistent); override;
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
     /// it will clear Data and everything else related
@@ -3106,6 +3107,18 @@ begin
   inherited Destroy;
 end;
 
+procedure TTisGrid.Assign(aSource: TPersistent);
+begin
+  inherited Assign(aSource);
+  if aSource is TTisGrid then
+    with TTisGrid(aSource) do
+    begin
+      self.ZebraColor := ZebraColor;
+      self.ZebraLightness := ZebraLightness;
+      self.ZebraPaint := ZebraPaint;
+    end
+end;
+
 procedure TTisGrid.FixDesignFontsPPI(const ADesignTimePPI: Integer);
 begin
   inherited FixDesignFontsPPI(ADesignTimePPI);
@@ -3587,6 +3600,7 @@ begin
     try
       vTarget := self;
       Grid.ClearAll;
+      Grid.Assign(vTarget);
       Grid.Header.Assign(vTarget.Header);
       Grid.TreeOptions.Assign(vTarget.TreeOptions);
       Grid.NodeOptions.Assign(vTarget.NodeOptions);
