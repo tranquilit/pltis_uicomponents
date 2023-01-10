@@ -2351,24 +2351,35 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
   aColumn: TColumnIndex; aCellPaintMode: TVTCellPaintMode; aCellRect: TRect;
   var aContentRect: TRect);
 begin
-  if aCellPaintMode = cpmPaint then
+  //Pour affichage lignes multiselect en gris clair avec cellule focused en bleu
+  if (aCellPaintMode = cpmPaint) and (toMultiSelect in TreeOptions.SelectionOptions) and
+    (vsSelected in aNode^.States) then
   begin
-    if Focused or not (toHideSelection in TreeOptions.PaintOptions) or (toPopupMode in TreeOptions.PaintOptions) then
+    if not Focused or (aColumn <> FocusedColumn) or (aNode <> FocusedNode) then
     begin
-      if (vsSelected in aNode^.States) then
-      begin
-        if (aColumn <> FocusedColumn) or (aNode <> FocusedNode) then
-        begin
-          aCanvas.Brush.Color := Colors.UnfocusedSelectionColor;
-          aCanvas.FillRect(aCellRect);
-        end
-        else
-        if (aColumn = FocusedColumn) and (aNode = FocusedNode)  then
-        begin
-          aCanvas.Brush.Color := Colors.FocusedSelectionColor;
-          aCanvas.FillRect(aCellRect);
-        end;
-      end;
+      aCanvas.Brush.Color := clLtGray;
+      aCanvas.FillRect(aCellRect);
+    end
+    else
+    if (aColumn = FocusedColumn) and (aNode = FocusedNode) and Focused then
+    begin
+      aCanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
+      aCanvas.FillRect(aCellRect);
+    end;
+  end
+  else
+  if (aCellPaintMode = cpmPaint) and not (toMultiSelect in TreeOptions.SelectionOptions) and
+     (aNode = FocusedNode) then
+  begin
+    if (aColumn <> FocusedColumn) then
+    begin
+      aCanvas.Brush.Color := clLtGray;
+      aCanvas.FillRect(aCellRect);
+    end
+    else
+    begin
+      aCanvas.Brush.Color := Colors.SelectionRectangleBlendColor;
+      aCanvas.FillRect(aCellRect);
     end;
   end;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
@@ -2387,12 +2398,11 @@ begin
     (aPaintInfo.Node = FocusedNode) and
     (aPaintInfo.Column = FocusedColumn) then
     aPaintInfo.Canvas.Font.Color := Colors.SelectionTextColor
-  //else
-  //begin
-  //  ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
-  //  aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
-  //end
-  ;
+  else
+  begin
+    ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
+    aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
+  end;
   inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
 end;
 
@@ -2403,15 +2413,12 @@ var
 begin
   if fZebraPaint and (aNode <> nil) and Odd(aNode^.Index) then
   begin
-    {$ifdef windows}
-    //ColorToHLS(aColor, vHue, vLightness, vSaturation);
-    //if vLightness < fZebraLightness then
-    //  aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
-    //else
-    //  aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
-    aColor := fZebraColor;
+    ColorToHLS(aColor, vHue, vLightness, vSaturation);
+    if vLightness < fZebraLightness then
+      aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
+    else
+      aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
     aEraseAction := eaColor;
-    {$endif}
   end;
   inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, aEraseAction);
 end;
