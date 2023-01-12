@@ -473,7 +473,7 @@ type
       pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
     const DefaultExportFormatOptions = [efoCsv, efoJson];
     const DefaultWantTabs = True;
-    const DefaultZebraLightness = 225;
+    const DefaultZebraLightness = 250;
     // ------------------------------- new fields ----------------------------------
   protected
     DefaultCsvSeparator: string;
