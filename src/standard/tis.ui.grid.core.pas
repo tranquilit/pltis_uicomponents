@@ -274,9 +274,9 @@ type
     const DefaultPaintOptions = VirtualTrees.DefaultPaintOptions -
       [toShowRoot] + [toAlwaysHideSelection, toShowHorzGridLines, toShowVertGridLines, toHideFocusRect];
     const DefaultSelectionOptions = VirtualTrees.DefaultSelectionOptions +
-      [toExtendedFocus, toSimpleDrawSelection, toRightClickSelect];
+      [toExtendedFocus, toSimpleDrawSelection, toRightClickSelect, toDisableDrawSelection];
     const DefaultMiscOptions = VirtualTrees.DefaultMiscOptions +
-      [toGridExtensions, toFullRowDrag] - [toWheelPanning,toEditOnClick,toEditOnDblClick];
+      [toGridExtensions, toFullRowDrag] - [toWheelPanning,toEditOnClick,toEditOnDblClick,toToggleOnDblClick];
     const DefaultAutoOptions = VirtualTrees.DefaultAutoOptions +
       [toAutoSort, toAutoChangeScale];
   public
@@ -2401,7 +2401,10 @@ begin
   else
   begin
     ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
-    aPaintInfo.Canvas.Font.Color := HLStoColor(vHue, cDark - vLightness, vSaturation);
+    if vLightness>128 then
+      aPaintInfo.Canvas.Font.Color := clBlack
+    else
+      aPaintInfo.Canvas.Font.Color := clWhite;
   end;
   inherited DoTextDrawing(aPaintInfo, aText, aCellRect, aDrawFormat);
 end;
