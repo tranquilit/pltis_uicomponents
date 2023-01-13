@@ -270,14 +270,14 @@ type
 
   /// a custom implementation for String Tree Options
   TTisStringTreeOptions = class(TStringTreeOptions)
-  protected
-    const DefaultPaintOptions = VirtualTrees.DefaultPaintOptions -
+  protected const
+    DefaultPaintOptions = VirtualTrees.DefaultPaintOptions -
       [toShowRoot] + [toAlwaysHideSelection, toShowHorzGridLines, toShowVertGridLines, toHideFocusRect];
-    const DefaultSelectionOptions = VirtualTrees.DefaultSelectionOptions +
+    DefaultSelectionOptions = VirtualTrees.DefaultSelectionOptions +
       [toExtendedFocus, toSimpleDrawSelection, toRightClickSelect, toDisableDrawSelection];
-    const DefaultMiscOptions = VirtualTrees.DefaultMiscOptions +
-      [toGridExtensions, toFullRowDrag] - [toWheelPanning,toEditOnClick,toEditOnDblClick,toToggleOnDblClick];
-    const DefaultAutoOptions = VirtualTrees.DefaultAutoOptions +
+    DefaultMiscOptions = VirtualTrees.DefaultMiscOptions +
+      [toGridExtensions, toFullRowDrag] - [toWheelPanning, toEditOnClick, toEditOnDblClick, toToggleOnDblClick];
+    DefaultAutoOptions = VirtualTrees.DefaultAutoOptions +
       [toAutoSort, toAutoChangeScale];
   public
     constructor Create(aOwner: TBaseVirtualTree); override;
@@ -328,9 +328,9 @@ type
     fMultiLineHeight: Integer;
     procedure SetMultiLine(aValue: Boolean);
     procedure SetMultiLineHeight(aValue: Integer);
-  protected
-    const DefaultMultiLine = False;
-    const DefaultMultiLineHeight = 4;
+  protected const
+    DefaultMultiLine = False;
+    DefaultMultiLineHeight = 4;
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
@@ -466,14 +466,14 @@ type
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     procedure SetZebraLightness(aValue: Byte);
-  protected
+  protected const
     // ------------------------------- new constants -------------------------------
-    const DefaultPopupMenuOptions = [
+    DefaultPopupMenuOptions = [
       pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell,
       pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
-    const DefaultExportFormatOptions = [efoCsv, efoJson];
-    const DefaultWantTabs = True;
-    const DefaultZebraLightness = 250;
+    DefaultExportFormatOptions = [efoCsv, efoJson];
+    DefaultWantTabs = True;
+    DefaultZebraLightness = 250;
     // ------------------------------- new fields ----------------------------------
   protected
     DefaultCsvSeparator: string;
@@ -515,7 +515,6 @@ type
     procedure DoEnter; override;
     procedure DoExit; override;
     function GetHeaderClass: TVTHeaderClass; override;
-    property RootNodeCount stored False;
     // ----------------------------------- new methods -----------------------------
     /// fill the popup menu with items in runtime when grid gets focus, for deal with the data and grid itself
     // - each item will use the POPUP_ITEM_TAG public constant as its Tag value
@@ -531,8 +530,7 @@ type
     // - will test if it is an array or object
     // - returns TRUE if something has been added
     function Add(aData: PDocVariantData): Boolean;
-    function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1,
-      aRow2: PDocVariantData): PtrInt; virtual;
+    function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1, aRow2: PDocVariantData): PtrInt; virtual;
     procedure DoFindText(aSender: TObject);
     procedure DoFindNext(aSender: TObject);
     procedure DoFindReplace(aSender: TObject);
@@ -555,8 +553,7 @@ type
     /// performs OnCustonEditor event, if it was assigned
     procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl); virtual;
     /// performs OnEditorLookup event, if it was assigned
-    procedure DoEditorLookup(const aColumn: TTisGridColumn; out
-      aControl: TTisGridControl; var aHandled: Boolean); virtual;
+    procedure DoEditorLookup(const aColumn: TTisGridColumn; out aControl: TTisGridControl; var aHandled: Boolean); virtual;
     /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
@@ -567,13 +564,15 @@ type
     function GetExportDialogFilter: string; virtual;
     /// it restore original settings from original design
     procedure RestoreSettings;
+    // ------------------------------- inherited properties ------------------------
+    property RootNodeCount stored False;
     // ------------------------------- new properties ------------------------------
     property ColumnToFind: integer read fColumnToFind write SetColumnToFind;
     property TextToFind: string read fTextToFind write fTextToFind;
     property TextFound: boolean read fTextFound write fTextFound;
-  public
-    const TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
-    const POPUP_ITEM_TAG = 250;
+  public const
+    TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
+    POPUP_ITEM_TAG = 250;
   public
     /// primary construtor
     constructor Create(aOwner: TComponent); override;
@@ -2387,8 +2386,6 @@ end;
 
 procedure TTisGrid.DoTextDrawing(var aPaintInfo: TVTPaintInfo;
   const aText: string; aCellRect: TRect; aDrawFormat: cardinal);
-const
-  cDark = 255;
 var
   vHue, vSaturation, vLightness: Byte;
 begin
@@ -2401,7 +2398,7 @@ begin
   else
   begin
     ColorToHLS(aPaintInfo.Canvas.Brush.Color, vHue, vLightness, vSaturation);
-    if vLightness>128 then
+    if vLightness > 128 then
       aPaintInfo.Canvas.Font.Color := clBlack
     else
       aPaintInfo.Canvas.Font.Color := clWhite;
@@ -2941,7 +2938,7 @@ var
   vDoc: TDocVariantData;
   vAsk, vAborted: Boolean;
 
-  function UserConfirmed: Boolean;
+  function _UserConfirmed: Boolean;
   begin
     result := Dialogs.MessageDlg(
       rsGridConfirmation, Format(rsGridConfDeleteRow, [SelectedCount]),
@@ -2959,12 +2956,12 @@ begin
     fOnBeforeDeleteRows(self, @vDoc, vAsk, vAborted);
     if vAborted then
       exit;
-    if vAsk and (not UserConfirmed) then
+    if vAsk and (not _UserConfirmed) then
       exit;
     DeleteRows(@vDoc);
   end
   else
-    if UserConfirmed then
+    if _UserConfirmed then
       DeleteRows(@vDoc);
 end;
 
