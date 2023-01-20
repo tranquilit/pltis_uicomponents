@@ -38,7 +38,6 @@ type
 
   /// component that allow user searching a typed text in asynchronous mode
   // - it will use an internal TTimer instance
-
   TTisSearchEdit = class(TComboBox, IButtonProperties)
   private
     fTimer: TTimer;
@@ -351,7 +350,6 @@ begin
   fTimer.Interval := DefaultSearchInterval;
   fTimer.Enabled := False;
   fTimer.OnTimer := @DoSearch;
-
   fButtons := TButtonCollection.Create(self);
   fAutoSearch := True;
   fSearchMaxHistory := DefaultSearchMaxHistory;

@@ -69,8 +69,7 @@ type
   published
     property CanDelete: Boolean read fCanDelete write SetCanDelete;
     property BgColor: TColor read fBgColor write SetBgColor;
-    property BorderColor: TColor read fBorderColor
-      write SetBorderColor;
+    property BorderColor: TColor read fBorderColor write SetBorderColor;
     property Value: Variant read fValue write fValue;
     property Text: string read fText write SetText;
     property TextColor: TColor read fTextColor write SetTextColor;
@@ -148,7 +147,7 @@ type
     constructor Create;
     destructor Destroy; override;
   published
-    // ------- properties compatible with TComboBox properties-------------------------
+    // ------- properties compatible with TComboBox properties-----------------
     property AutoDropDown: Boolean read fAutoDropDown write fAutoDropDown default False;
     property AutoComplete: TComboBoxAutoCompleteText
       read fAutoComplete write fAutoComplete default DefaultAutoComplete;
@@ -177,11 +176,11 @@ type
     fOptions: TInputOptions;
     procedure SetDeleteIcon(aValue: TIcon);
     procedure SetDelimiterChars(const aValue: string);
-  protected
-    const DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?`¨''';
-    const DefaultDelimiterChars = ',;';
-    const DefaultOptions = [ioAllowDragging, ioShowDeleteButton, ioTrimText];
-    const DefaultMaxTags = 0;
+  protected const
+    DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?`¨''';
+    DefaultDelimiterChars = ',;';
+    DefaultOptions = [ioAllowDragging, ioShowDeleteButton, ioTrimText];
+    DefaultMaxTags = 0;
   public
     constructor Create;
     destructor Destroy; override;
@@ -284,13 +283,13 @@ type
     procedure FixPosAndScrollWindow;
     procedure UpdateMetrics;
     procedure UpdateScrollBars;
-  protected
-    const DefaultSpacing = 8;
-    const DefaultMaxHeight = 512;
-    const DefaultTagHeight = 32;
+  protected const
+    DefaultSpacing = 8;
+    DefaultMaxHeight = 512;
+    DefaultTagHeight = 32;
   protected
     fComboBox: TComboBox;
-    // ------------------------------- inherited methods ----------------------------------
+    // ------------------------------- inherited methods ----------------------------
     procedure Loaded; override;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure KeyDown(var Key: word; Shift: TShiftState); override;
@@ -302,7 +301,7 @@ type
       Y: Integer); override;
     procedure Paint; override;
     procedure WndProc(var Message: TMessage); override;
-    // ----------------------------------- new methods --------------------------------------
+    // ------------------------------- new methods ----------------------------------
     procedure ComboBoxEnter(Sender: TObject); virtual;
     procedure ComboBoxExit(Sender: TObject); virtual;
     procedure ComboBoxKeyPress(Sender: TObject; var Key: Char); virtual;
@@ -324,9 +323,9 @@ type
     procedure DoChange; virtual;
     /// event implementation for OnTagAfterDrag
     procedure DoAfterDrag(aPreIndex, aNewIndex: Integer); virtual;
-  public
-    const clBgColorDisabled = $00F0F0F0;
-    const clBorderColorDisabled = clSilver;
+  public const
+    clBgColorDisabled = $00F0F0F0;
+    clBorderColorDisabled = clSilver;
   public
     constructor Create(aOwner: TComponent); override;
     procedure Assign(aSource: TPersistent); override;
@@ -335,7 +334,7 @@ type
     // - it will not perform any event, such as OnTagBeforeAdd, OnTagBeforeDelete
     procedure Clear; virtual;
   published
-    // ------------------------------- inherited properties ----------------------------------
+    // ------------------------------- inherited properties ------------------------
     property Anchors;
     property Align;
     property BorderSpacing;
@@ -344,7 +343,7 @@ type
     property TabOrder;
     property TabStop;
     property Tag;
-    // ------------------------------- new properties ----------------------------------
+    // ------------------------------- new properties ------------------------------
     /// use this property to get/set tags as array
     // - if you change its value, it will trigger all events related with adding and deleting tags
     property AsArray: TStringArray read GetAsArray write SetAsArray;
