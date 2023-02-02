@@ -153,9 +153,6 @@ type
   end;
 
   /// a custom implementation for Grid Columns
-
-  { TTisGridColumns }
-
   TTisGridColumns = class(TVirtualTreeColumns)
   protected
     /// it implements a tri-state sorting click
@@ -163,12 +160,14 @@ type
     procedure HandleClick(P: TPoint; aButton: TMouseButton; aForce,
       aDblClick: Boolean); override;
   public
-    // overriding for circumvent original Assign, which freezes Lazarus when having invisible columns
+    /// overriding for circumvent original Assign, which freezes Lazarus when having invisible columns
     procedure Assign(aSource: TPersistent); override;
-    // return the column index from property name (-1 if not found)
-    function GetColumnIdxFromPropertyName(const aPropertyName : RawUtf8) : Integer;
-    // delete the column by property name. Return the columns count
-    function DeleteByPropertyName(const aPropertyName : RawUtf8) : Integer;
+    /// return the column index by property name
+    // - if not found, it will return NoColumn value
+    function GetColumnIndexByPropertyName(const aPropertyName: RawUtf8): Integer;
+    /// delete the column by property name
+    // - return the columns count
+    function DeleteColumnByPropertyName(const aPropertyName: RawUtf8): Integer;
   end;
 
   TTisGridHeaderPopupOption = (
@@ -1327,12 +1326,12 @@ begin
     inherited Assign(aSource);
 end;
 
-function TTisGridColumns.GetColumnIdxFromPropertyName(
+function TTisGridColumns.GetColumnIndexByPropertyName(
   const aPropertyName: RawUtf8): Integer;
 var
   v1 : Integer;
 begin
-  Result := -1;
+  result := -1;
   for v1 := 0 to Header.Columns.Count-1 do
     if (Header.Columns[v1] as TTisGridColumn).PropertyName = aPropertyName then
     begin
@@ -1341,15 +1340,14 @@ begin
     end;
 end;
 
-function TTisGridColumns.DeleteByPropertyName(const aPropertyName: RawUtf8
-  ): Integer;
+function TTisGridColumns.DeleteColumnByPropertyName(const aPropertyName: RawUtf8): Integer;
 var
-  Idx : Integer;
+  vIdx : Integer;
 begin
-  Idx := Self.GetColumnIdxFromPropertyName(aPropertyName);
-  if Idx > -1 then
-    Header.Columns.Delete(Idx);
-  Result := Header.Columns.Count;
+  vIdx := Self.GetColumnIndexByPropertyName(aPropertyName);
+  if vIdx > -1 then
+    Header.Columns.Delete(vIdx);
+  result := Header.Columns.Count;
 end;
 
 { TTisGridExportFormatOptionAdapter }
