@@ -141,8 +141,8 @@ type
     fOnDrawItem: TDrawItemEvent;
     fOnMeasureItem: TMeasureItemEvent;
     procedure SetItems(aValue: TStrings);
-  protected
-    const DefaultAutoComplete = StdCtrls.DefaultComboBoxAutoCompleteText;
+  protected const
+    DefaultAutoComplete = StdCtrls.DefaultComboBoxAutoCompleteText;
   public
     constructor Create;
     destructor Destroy; override;
