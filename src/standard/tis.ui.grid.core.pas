@@ -1329,14 +1329,14 @@ end;
 function TTisGridColumns.GetColumnIndexByPropertyName(
   const aPropertyName: RawUtf8): Integer;
 var
-  v1 : Integer;
+  v1: Integer;
 begin
-  result := -1;
+  result := NoColumn;
   for v1 := 0 to Header.Columns.Count-1 do
     if (Header.Columns[v1] as TTisGridColumn).PropertyName = aPropertyName then
     begin
-      Result := v1;
-      Break;
+      result := v1;
+      break;
     end;
 end;
 
@@ -1345,7 +1345,7 @@ var
   vIdx : Integer;
 begin
   vIdx := Self.GetColumnIndexByPropertyName(aPropertyName);
-  if vIdx > -1 then
+  if vIdx > NoColumn then
     Header.Columns.Delete(vIdx);
   result := Header.Columns.Count;
 end;
