@@ -105,6 +105,8 @@ type
     /// an action related to the button
     // - if the action has OnExecute implemented, the button style will be tbsDropDown,
     // otherwise tbsButtonDrop
+    // - if the Action has no OnExecute implemented, you should set DisableIfNoHandler property to False,
+    // to enable the butto(s) that is(are) using this Action
     property Action: TAction read fAction write SetAction;
     /// the PopupMenu available to assign to a button
     property PopupMenu: TPopupMenu read fPopupMenu write SetPopupMenu;
@@ -205,6 +207,8 @@ type
     // - the button Style will be defined by arguments: if aPopupMenu was assigned
     // and the Action has OnExecute implemented, the style will be tbsDropDown,
     // otherwise it will be tbsButtonDrop
+    // - if the Action has no OnExecute implemented, you should set DisableIfNoHandler property to False,
+    // to enable the butto(s) that is(are) using this Action
     // - if aPopupMenu was not assigned, the Style will be tbsButton
     function AddButton(aAction: TAction; aPopupMenu: TPopupMenu = nil;
       const aName: TComponentName = ''; aLeft: Integer = -1): TToolButton; overload; virtual;
