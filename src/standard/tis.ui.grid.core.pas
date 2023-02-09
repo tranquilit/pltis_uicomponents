@@ -681,25 +681,20 @@ type
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ------------------------------
     /// direct access to the low-level internal data
-    // - if you change its content directly, you should call Invalidate or LoadData for VirtualTree be aware about it
-    property Data: TDocVariantData
-      read fData write SetData;
+    // - if you change its content directly, you should call Invalidate or
+    // LoadData for VirtualTree be aware about it
+    property Data: TDocVariantData read fData write SetData;
     property MetaData: RawUtf8 read GetMetaData write SetMetaData;
     /// returns a copy of the object from the main selected row
     // - do not use this to edit Data values, instead use SelectedObjects
-    property SelectedRow: TDocVariantData
-      read GetSelectedRow write SetSelectedRow;
+    property SelectedRow: TDocVariantData read GetSelectedRow write SetSelectedRow;
     /// returns a copy of objects from selected rows
     // - do not use this to edit Data values, instead use SelectedObjects
-    property SelectedRows: TDocVariantData
-      read GetSelectedRows write SetSelectedRows;
+    property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
     /// returns objects from selected rows
-    property SelectedObjects: PDocVariantDataDynArray
-      read GetSelectedObjects;
-    property FocusedRow: PDocVariantData
-      read GetFocusedRow write SetFocusedRow;
-    property FocusedColumnObject: TTisGridColumn
-      read GetFocusedColumnObject write SetFocusedColumnObject;
+    property SelectedObjects: PDocVariantDataDynArray read GetSelectedObjects;
+    property FocusedRow: PDocVariantData read GetFocusedRow write SetFocusedRow;
+    property FocusedColumnObject: TTisGridColumn read GetFocusedColumnObject write SetFocusedColumnObject;
     /// saving and restoring user customizations
     property Settings: Variant read GetSettings write SetSettings;
   published
@@ -771,30 +766,18 @@ type
     property Visible;
     property WantTabs default DefaultWantTabs;
     // ------------------------------- new properties ------------------------------
-    property SelectedAndTotalLabel: TLabel
-      read fSelectedAndTotalLabel write SetSelectedAndTotalLabel;
-    property TreeOptions: TTisStringTreeOptions
-      read GetTreeOptions write SetTreeOptions;
-    property KeyFieldsList: TStringDynArray
-      read fKeyFieldsList;
-    property KeyFieldsNames: string
-      read GetKeyFieldsNames write SetKeyFieldsNames;
-    property ParentKeyFieldsNames: string
-      read GetParentKeyFieldsNames write SetParentKeyFieldsNames;
-    property GridSettings: string
-      read GetGridSettings write SetGridSettings stored False;
-    property ZebraColor: TColor
-      read fZebraColor write fZebraColor;
-    property ZebraPaint: Boolean
-      read fZebraPaint write fZebraPaint stored True default False;
-    property ZebraLightness: Byte
-      read fZebraLightness write SetZebraLightness stored True default DefaultZebraLightness;
-    property NodeOptions: TTisNodeOptions
-      read fNodeOptions write fNodeOptions;
-    property PopupMenuOptions: TTisPopupMenuOptions
-      read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
-    property ExportFormatOptions: TTisGridExportFormatOptions
-      read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
+    property SelectedAndTotalLabel: TLabel read fSelectedAndTotalLabel write SetSelectedAndTotalLabel;
+    property TreeOptions: TTisStringTreeOptions read GetTreeOptions write SetTreeOptions;
+    property KeyFieldsList: TStringDynArray read fKeyFieldsList;
+    property KeyFieldsNames: string read GetKeyFieldsNames write SetKeyFieldsNames;
+    property ParentKeyFieldsNames: string read GetParentKeyFieldsNames write SetParentKeyFieldsNames;
+    property GridSettings: string read GetGridSettings write SetGridSettings stored False;
+    property ZebraColor: TColor read fZebraColor write fZebraColor;
+    property ZebraPaint: Boolean read fZebraPaint write fZebraPaint stored True default False;
+    property ZebraLightness: Byte read fZebraLightness write SetZebraLightness stored True default DefaultZebraLightness;
+    property NodeOptions: TTisNodeOptions read fNodeOptions write fNodeOptions;
+    property PopupMenuOptions: TTisPopupMenuOptions read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
+    property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
     // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumns;
@@ -895,27 +878,21 @@ type
     property OnStructureChange;
     property OnUpdating;
     // ------------------------------- new events ----------------------------------
-    property OnGetText: TOnGridGetText
-      read fOnGetText write fOnGetText;
-    property OnCutToClipboard: TNotifyEvent
-      read fOnCutToClipboard write SetOnCutToClipboard;
+    property OnGetText: TOnGridGetText read fOnGetText write fOnGetText;
+    property OnCutToClipboard: TNotifyEvent read fOnCutToClipboard write SetOnCutToClipboard;
     /// event to manipulate data before change the internal Data
     // - use it for check/change the aData argument, before assign it, and/or abort the process
-    property OnBeforeDataChange: TOnGridBeforeDataChange
-      read fOnBeforeDataChange write fOnBeforeDataChange;
+    property OnBeforeDataChange: TOnGridBeforeDataChange read fOnBeforeDataChange write fOnBeforeDataChange;
     /// event to manipulate data after the internal Data changed
     // - as used by TTisGrid.OnAfterDataChage
-    property OnAfterDataChange: TOnGridAfterDataChange
-      read fOnAfterDataChange write fOnAfterDataChange;
-    property OnBeforePaste: TOnGridPaste
-      read fOnBeforePaste write fOnBeforePaste;
+    property OnAfterDataChange: TOnGridAfterDataChange read fOnAfterDataChange write fOnAfterDataChange;
+    property OnBeforePaste: TOnGridPaste read fOnBeforePaste write fOnBeforePaste;
     /// event to manipulate rows before deleting them
     // - use it for change the rows or abort the process by assign True to aAbort
     // - if you do not use this event, by default it will ask user about deletion
     // and, if the answer was yes, selected rows will be deleted
     // - you can also supress the user dialog, asking it should continue, by assign False to aAskUser
-    property OnBeforeDeleteRows: TOnGridBeforeDeleteRows
-      read fOnBeforeDeleteRows write fOnBeforeDeleteRows;
+    property OnBeforeDeleteRows: TOnGridBeforeDeleteRows read fOnBeforeDeleteRows write fOnBeforeDeleteRows;
     /// comparing rows of objects
     // - aPropertyName is the header column that was clicked
     // - aRow1, aRow2 are the whole lines that should be compared
@@ -924,28 +901,21 @@ type
     // - on user callback, the compararison could be like this:
     // !aRow1.CompareObject([aPropertyName], aRow2); // you can use other columns together too
     // !aHandled := True;
-    property OnCompareByRow: TOnGridCompareByRow
-      read fOnCompareByRow write fOnCompareByRow;
+    property OnCompareByRow: TOnGridCompareByRow read fOnCompareByRow write fOnCompareByRow;
     /// event to manipulate Popup items after they being inserted
     // - see FillPopupMenu
-    property OnAfterFillPopupMenu: TNotifyEvent
-      read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
+    property OnAfterFillPopupMenu: TNotifyEvent read fOnAfterFillPopupMenu write fOnAfterFillPopupMenu;
     /// event that allows users customize the edit control instance, creating a new one,
     // - you should return an instance in aControl
     // - you can use OnPrepareEditor to customize some properties
-    property OnCustomEditor: TOnGridCustomEditor
-      read fOnCustomEditor write fOnCustomEditor;
+    property OnCustomEditor: TOnGridCustomEditor read fOnCustomEditor write fOnCustomEditor;
     /// event that simplifies the use of a TisSearchEdit as Edit Control
     // - you may want to use this event instead OnCustomEditor for TisSearchEdit
-    property OnEditorLookup: TOnGridEditorLookup
-      read fOnEditorLookup write fOnEditorLookup;
+    property OnEditorLookup: TOnGridEditorLookup read fOnEditorLookup write fOnEditorLookup;
     /// event that allows users to change some edit control properties, before it shows up
-    property OnPrepareEditor: TOnGridPrepareEditor
-      read fOnPrepareEditor write fOnPrepareEditor;
-    property OnEditValidated: TOnGridEditValidated
-      read fOnEditValidated write fOnEditValidated;
-    property OnGridExportCustomContent: TOnGridExportCustomContent
-      read fOnGridExportCustomContent write fOnGridExportCustomContent;
+    property OnPrepareEditor: TOnGridPrepareEditor read fOnPrepareEditor write fOnPrepareEditor;
+    property OnEditValidated: TOnGridEditValidated read fOnEditValidated write fOnEditValidated;
+    property OnGridExportCustomContent: TOnGridExportCustomContent read fOnGridExportCustomContent write fOnGridExportCustomContent;
   end;
 
 implementation
@@ -1912,24 +1882,22 @@ function TTisGrid.GetMetaData: RawUtf8;
 var
   v1: Integer;
   vDoc: TDocVariantData;
-  vCol: record
-    cur: TTisGridColumn;
-    items: PDocVariantData;
-    adapt: TTisColumnDataTypeAdapter;
-  end;
+  vCol: TTisGridColumn;
+  vColumns: PDocVariantData;
+  vColAdapter: TTisColumnDataTypeAdapter;
 begin
   vDoc.InitFast;
-  vCol.items := vDoc.A_['columns'];
+  vColumns := vDoc.A_['columns'];
   for v1 := 0 to Header.Columns.Count -1 do
   begin
-    vCol.cur := Header.Columns[v1] as TTisGridColumn;
-    vCol.items^.AddItem(
+    vCol := Header.Columns[v1] as TTisGridColumn;
+    vColumns^.AddItem(
       _ObjFast([
-        'propertyname', vCol.cur.PropertyName,
-        'datatype', vCol.adapt.EnumToRawUtf8(vCol.cur.DataType),
-        'required', vCol.cur.Required,
-        'readonly', vCol.cur.ReadOnly,
-        'width',vCol.cur.Width
+        'propertyname', vCol.PropertyName,
+        'datatype', vColAdapter.EnumToRawUtf8(vCol.DataType),
+        'required', vCol.Required,
+        'readonly', vCol.ReadOnly,
+        'width',vCol.Width
       ])
     );
   end;
@@ -1939,25 +1907,23 @@ end;
 procedure TTisGrid.SetMetaData(const aValue: RawUtf8);
 var
   vDoc: TDocVariantData;
-  vCol: record
-    Curr: PDocVariantData;
-    Adapter: TTisColumnDataTypeAdapter;
-    ItSelf: TTisGridColumn;
-  end;
+  vCol: TTisGridColumn;
+  vColAdapter: TTisColumnDataTypeAdapter;
+  vObj: PDocVariantData;
 begin
   vDoc.InitJson(aValue, JSON_FAST_FLOAT);
   if vDoc.IsVoid then
     exit;
-  for vCol.Curr in vDoc.A_['columns']^.Objects do
+  for vObj in vDoc.A_['columns']^.Objects do
   begin
-    vCol.ItSelf := FindColumnByPropertyName(vCol.Curr^.U['propertyname']);
-    if vCol.ItSelf <> nil then
+    vCol := FindColumnByPropertyName(vObj^.U['propertyname']);
+    if vCol <> nil then
     begin
-      vCol.ItSelf.DataType := vCol.Adapter.RawUtf8ToEnum(vCol.Curr^.U['datatype']);
-      vCol.ItSelf.Required := vCol.Curr^.B['required'];
-      vCol.ItSelf.ReadOnly := vCol.Curr^.B['readonly'];
-      if vCol.Curr^.GetValueIndex('width')>=0 then
-        vCol.ItSelf.Width := vCol.Curr^.I['width'];
+      vCol.DataType := vColAdapter.RawUtf8ToEnum(vObj^.U['datatype']);
+      vCol.Required := vObj^.B['required'];
+      vCol.ReadOnly := vObj^.B['readonly'];
+      if vObj^.GetValueIndex('width') >= 0 then
+        vCol.Width := vObj^.I['width'];
     end
   end;
 end;
