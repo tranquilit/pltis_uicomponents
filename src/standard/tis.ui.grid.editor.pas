@@ -112,12 +112,13 @@ type
     ActMetaDataPaste: TAction;
     Bevel5: TBevel;
     TreeModeCheckBox: TCheckBox;
-    KeyNamesEdit: TEdit;
-    KeyNamesLabel: TLabel;
-    ParentNamesLabel: TLabel;
-    ParentNamesEdit: TEdit;
     LoadDataButton: TButton;
     ActLoadData: TAction;
+    KeyNamesLabel: TLabel;
+    KeyNamesEdit: TEdit;
+    ParentNamesLabel: TLabel;
+    ParentNamesEdit: TEdit;
+    Bevel6: TBevel;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
