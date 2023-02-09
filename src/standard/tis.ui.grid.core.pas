@@ -3210,6 +3210,8 @@ procedure TTisGrid.LoadData;
     vParents: TRawUtf8DynArray;
     vEqual: Boolean;
   begin
+    DynArrayFakeLength(@vKeys, 1);
+    DynArrayFakeLength(@vParents, 1);
     StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vKeys);
     StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, vParents);
     vNode := GetFirst(True);
