@@ -610,6 +610,8 @@ type
     procedure ExportData(const aFileName: TFileName; const aSelection: TVSTTextSourceType = tstAll);
     /// get all checked rows
     function CheckedRows: TDocVariantData;
+    /// it will focus in a row it which is matching exactly to aValue,
+    // but it will not clear the current selection
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
     /// returns the cell value
     // - return the supplied default if aColName is not found
@@ -621,17 +623,21 @@ type
       const aDefault: string = ''): string;
     /// returns a list of nodes which is matching exactly to aData
     // - use aUseKeyFieldsList for search only into fields from KeyFieldsList
-    // but if KeyFieldsList is empty, it will be the same as passing FALSE
+    // - if KeyFieldsList is empty, it will be the same as passing aUseKeyFieldsList = FALSE
     function GetNodesBy(aData: PDocVariantData; aUseKeyFieldsList: Boolean = False): TNodeArray; overload;
     /// returns the first node which is matching to aData
     // - use aUseKeyFieldsList for search only into fields from KeyFieldsList
-    // but if KeyFieldsList is empty, it will be the same as passing FALSE
-    // - use aRowPosition to get a specific row, in case of returning more than one
+    // - if KeyFieldsList is empty, it will be the same as passing aUseKeyFieldsList = FALSE
+    // - use aRowPosition to get a specific row, if you know that it will return more than one
     function GetNodeBy(aData: PDocVariantData; aUseKeyFieldsList: Boolean = False;
       aRowPosition: PtrInt = 0): PVirtualNode; overload;
     /// returns a list of nodes which is matching to key and value
     function GetNodesBy(const aKey, aValue: RawUtf8): TNodeArray; overload;
+    /// find a column by its property name
+    // - if not found, it will return NIL
     function FindColumnByPropertyName(const aPropertyName: RawUtf8): TTisGridColumn;
+    /// find a column by its index
+    // - if not found, it will return NIL
     function FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
     /// append a list of rows to the Grid
     // - use aAllowDuplicates=TRUE for allow duplicate rows
