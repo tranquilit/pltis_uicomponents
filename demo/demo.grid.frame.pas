@@ -137,6 +137,8 @@ type
     procedure GridSearchEditSearch(Sender: TObject; const aText: string);
     procedure BgColorBoxChange(Sender: TObject);
     procedure ZebraLightnessEditChange(Sender: TObject);
+    procedure GridEdited(Sender: TBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
   public
@@ -285,6 +287,7 @@ var
   a: array of string;
   i: Integer;
 begin
+  a := [];
   SetLength(a, 2);
   if not InputQuery('Update Column', ['Name', 'Value'], a) then
     exit;
@@ -339,6 +342,13 @@ end;
 procedure TGridFrame.ZebraLightnessEditChange(Sender: TObject);
 begin
   Grid.ZebraLightness := ZebraLightnessEdit.Value;
+end;
+
+procedure TGridFrame.GridEdited(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex);
+begin
+  if Grid.IsTreeMode then
+    Grid.LoadData;
 end;
 
 procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);

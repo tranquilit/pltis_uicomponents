@@ -939,6 +939,7 @@ object GridFrame: TGridFrame
       ZebraPaint = True
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
+      OnEdited = GridEdited
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
       OnEditorLookup = GridEditorLookup

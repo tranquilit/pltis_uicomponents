@@ -28,7 +28,6 @@ uses
   Forms,
   Dialogs,
   Buttons,
-  EditBtn,
   VirtualTrees,
   mormot.core.base,
   mormot.core.data, // for dvoNameCaseSensitive
@@ -403,14 +402,18 @@ type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
   private type
-    TInternalData = object
+    TNodeData = record
+      Data: PDocVariantData;
+    end;
+    PNodeData = ^TNodeData;
+    TNodeDataAdapter = object
       Offset: Cardinal;
       procedure Init(aGrid: TTisGrid);
-      function Data(aNode: PVirtualNode): Pointer;
+      function NodeAsPointer(aValue: PVirtualNode): Pointer;
     end;
   private
     // ------------------------------- new fields ----------------------------------
-    fInternalData: TInternalData;
+    fNodeDataAdapter: TNodeDataAdapter;
     fKeyFieldsList, fParentKeyFieldsList: array of string;
     fSelectedAndTotalLabel: TLabel;
     fTextFound: boolean;
@@ -493,6 +496,8 @@ type
       aTextType: TVSTTextType; var aText: string); override;
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
+    function DoInitChildren(aNode: PVirtualNode; var aChildCount: Cardinal): Boolean; override;
+    procedure DoFreeNode(aNode: PVirtualNode); override;
     procedure DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode; var aNodeHeight: Integer); override;
     function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
@@ -591,9 +596,8 @@ type
     /// it will clear Data and everything else related
     procedure Clear; override;
     // ----------------------------------- new methods -----------------------------
-    /// cast aNode in PDocVariantData
-    // - will get the same aNode.Index in Data
-    // - if aNode is nil, it will use FocusedNode as default
+    /// it will return aNode as PDocVariantData
+    // - if aNode is NIL, it will use FocusedNode value
     function GetNodeDataAsDocVariant(aNode: PVirtualNode = nil): PDocVariantData;
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
@@ -1713,19 +1717,19 @@ begin
     inherited AssignTo(aDest);
 end;
 
-{ TTisGrid.TInternalData }
+{ TTisGrid.TNodeDataAdapter }
 
-procedure TTisGrid.TInternalData.Init(aGrid: TTisGrid);
+procedure TTisGrid.TNodeDataAdapter.Init(aGrid: TTisGrid);
 begin
-  Offset := aGrid.AllocateInternalDataArea(SizeOf(Cardinal));
+  Offset := aGrid.AllocateInternalDataArea(SizeOf(TNodeData));
 end;
 
-function TTisGrid.TInternalData.Data(aNode: PVirtualNode): Pointer;
+function TTisGrid.TNodeDataAdapter.NodeAsPointer(aValue: PVirtualNode): Pointer;
 begin
-  if (aNode = nil) or (Offset <= 0) then
+  if (aValue = nil) or (Offset <= 0) then
     result := nil
   else
-    result := PByte(aNode) + Offset;
+    result := PByte(aValue) + Offset;
 end;
 
 { TTisGrid }
@@ -1776,6 +1780,8 @@ var
 begin
   if aValue <> '' then
   begin
+    DynArrayFakeLength(@vKeys, 1);
+    DynArrayFakeLength(@vParents, 1);
     StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vKeys);
     StringDynArrayToRawUtf8DynArray(fParentKeyFieldsList, vParents);
     if high(vParents) > high(vKeys) then
@@ -1892,6 +1898,7 @@ var
   vColumns: PDocVariantData;
   vColAdapter: TTisColumnDataTypeAdapter;
 begin
+  vDoc.Clear;
   vDoc.InitFast;
   vColumns := vDoc.A_['columns'];
   for v1 := 0 to Header.Columns.Count -1 do
@@ -2039,6 +2046,7 @@ function TTisGrid.GetSelectedRow: TDocVariantData;
 var
   vRow: PDocVariantData;
 begin
+  result.Clear;
   result.InitFast;
   vRow := FocusedRow;
   if vRow <> nil then
@@ -2272,18 +2280,56 @@ end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
-var
-  vData: PCardinal;
-begin
-  vData := fInternalData.Data(aNode);
-  if (vData <> nil ) and (not fData.IsVoid) and (aNode^.Index < fData.Count) then
+
+  function _GetData: PDocVariantData;
+  var
+    vNodeData: PNodeData;
   begin
-    vData^ := aNode^.Index;
-    aNode^.CheckType := ctCheckBox;
-    if fNodeOptions.MultiLine then
-      aNode^.States := aNode^.States + [vsMultiline];
+    result := @fData;
+    if aParentNode <> nil then
+    begin
+      vNodeData := fNodeDataAdapter.NodeAsPointer(aParentNode);
+      if vNodeData <> nil then
+        result := vNodeData^.Data;
+    end;
+    result := _Safe(result^.Values[aNode^.Index]);
+  end;
+
+var
+  vNodeData: PNodeData;
+begin
+  if not fData.IsVoid then
+  begin
+    vNodeData := fNodeDataAdapter.NodeAsPointer(aNode);
+    if vNodeData <> nil then
+    begin
+      vNodeData^.Data := _GetData;
+      aNode^.CheckType := ctCheckBox;
+      if fNodeOptions.MultiLine then
+        aNode^.States := aNode^.States + [vsMultiline];
+      { #todo : check if there are child nodes }
+      //aInitStates := aInitStates + [ivsHasChildren];
+    end;
   end;
   inherited DoInitNode(aParentNode, aNode, aInitStates);
+end;
+
+function TTisGrid.DoInitChildren(aNode: PVirtualNode; var aChildCount: Cardinal): Boolean;
+begin
+  result := inherited DoInitChildren(aNode, aChildCount);
+  if not result then
+  begin
+    result := True; { #todo : count child nodes }
+  end;
+end;
+
+procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
+var
+  vNodeData: PNodeData;
+begin
+  vNodeData := fNodeDataAdapter.NodeAsPointer(aNode);
+  vNodeData^.Data := nil;
+  inherited DoFreeNode(aNode);
 end;
 
 procedure TTisGrid.DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode;
@@ -3069,7 +3115,7 @@ end;
 constructor TTisGrid.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
-  fInternalData.Init(self);
+  fNodeDataAdapter.Init(self);
   Clear;
   fSelectedData.Clear;
   fSelectedData.InitArray([], JSON_FAST_FLOAT);
@@ -3155,19 +3201,16 @@ end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
 var
-  vData: PCardinal;
+  vNodeData: PNodeData;
 begin
   result := nil;
   if aNode = nil then
     aNode := FocusedNode;
   if aNode <> nil then
   begin
-    if aNode^.Index < Cardinal(fData.Count) then
-    begin
-      vData := fInternalData.Data(aNode);
-      if vData <> nil then
-        result := _Safe(fData.Values[vData^]);
-    end;
+    vNodeData := fNodeDataAdapter.NodeAsPointer(aNode);
+    if vNodeData <> nil then
+      result := vNodeData^.Data;
   end;
 end;
 
@@ -3437,6 +3480,7 @@ begin
   SetLength(result, 0);
   if not assigned(aData) or aData^.IsVoid then
     exit;
+  DynArrayFakeLength(@vArray, 1);
   vUseArray := aUseKeyFieldsList and (Length(fKeyFieldsList) > 0);
   if vUseArray then
     StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vArray);
