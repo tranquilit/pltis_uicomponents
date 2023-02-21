@@ -1135,7 +1135,6 @@ var
 begin
   result := True;
   DisableControlEvents;
-  vDoc := fGrid.GetNodeDataAsDocVariant(fNode, False);
   vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
   vAborted := False;
