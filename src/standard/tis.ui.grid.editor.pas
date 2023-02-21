@@ -518,7 +518,7 @@ begin
   MultilineCheckBox.Checked := Grid.NodeOptions.MultiLine;
   MultilineHeightEdit.Value := Grid.NodeOptions.MultiLineHeight;
   VariableNodeHeightCheckBox.Checked := toVariableNodeHeight in Grid.TreeOptions.MiscOptions;
-  TreeModeCheckBox.Checked := Grid.IsTreeMode;
+  TreeModeCheckBox.Checked := Grid.TREEMODE_OPTIONS <= Grid.TreeOptions.PaintOptions;
   KeyNamesEdit.Text := Grid.KeyFieldsNames;
   ParentNamesEdit.Text := Grid.ParentKeyFieldsNames;
 end;

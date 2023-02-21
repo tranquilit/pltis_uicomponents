@@ -2301,7 +2301,7 @@ begin
       aNode^.CheckType := ctCheckBox;
       if fNodeOptions.MultiLine then
         Include(aNode^.States, vsMultiline);
-      if False { #todo : implement fNodeOptions.IncludeChildren } and (vNodeData^.Data^.Capacity > 0) then
+      if False { #todo : implement fNodeOptions.ShowChildren } and (vNodeData^.Data^.Capacity > 0) then
         Include(aInitStates, ivsHasChildren);
     end;
   end;
