@@ -465,7 +465,7 @@ object TisGridEditor: TTisGridEditor
         AnchorSideTop.Side = asrBottom
         Left = 24
         Height = 19
-        Hint = 'Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions'#13#10'- you should define KeyNames and ParentNames as well'
+        Hint = 'Check this option to use toShowRoot, toShowButtons, and toShowTreeLines in TreeOptions.PaintOptions'#13#10'- use KeyNames and ParentNames to define a relationship using column name(s)'
         Top = 174
         Width = 74
         Caption = 'Tree Mode'

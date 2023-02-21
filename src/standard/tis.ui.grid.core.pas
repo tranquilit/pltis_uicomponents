@@ -409,7 +409,7 @@ type
     TNodeDataAdapter = object
       Offset: Cardinal;
       procedure Init(aGrid: TTisGrid);
-      function NodeAsPointer(aValue: PVirtualNode): Pointer;
+      function GetNodeAsPointer(aValue: PVirtualNode): Pointer;
     end;
   private
     // ------------------------------- new fields ----------------------------------
@@ -1724,7 +1724,7 @@ begin
   Offset := aGrid.AllocateInternalDataArea(SizeOf(TNodeData));
 end;
 
-function TTisGrid.TNodeDataAdapter.NodeAsPointer(aValue: PVirtualNode): Pointer;
+function TTisGrid.TNodeDataAdapter.GetNodeAsPointer(aValue: PVirtualNode): Pointer;
 begin
   if (aValue = nil) or (Offset <= 0) then
     result := nil
@@ -2256,7 +2256,7 @@ begin
     vDoc := GetNodeDataAsDocVariant(aNode);
     if vDoc <> nil then
     begin
-      if (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
+      if Header.Columns.IsValidColumn(aColumn) then
         aText := vDoc^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
       else if DefaultText <> '' then
         aText := vDoc^.S[DefaultText];
@@ -2268,7 +2268,7 @@ begin
   end
   else
     aText := '';
-  if Assigned(fOnGetText) and (aColumn >= 0) and Header.Columns.IsValidColumn(aColumn) then
+  if Assigned(fOnGetText) and Header.Columns.IsValidColumn(aColumn) then
     fOnGetText(self, aNode, vDoc^, aColumn, aTextType, aText);
   vCol := FindColumnByIndex(aColumn);
   if vCol <> nil then
@@ -2288,7 +2288,7 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
     result := @fData;
     if aParentNode <> nil then
     begin
-      vNodeData := fNodeDataAdapter.NodeAsPointer(aParentNode);
+      vNodeData := fNodeDataAdapter.GetNodeAsPointer(aParentNode);
       if vNodeData <> nil then
         result := vNodeData^.Data;
     end;
@@ -2300,7 +2300,7 @@ var
 begin
   if not fData.IsVoid then
   begin
-    vNodeData := fNodeDataAdapter.NodeAsPointer(aNode);
+    vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
     if vNodeData <> nil then
     begin
       vNodeData^.Data := _GetData;
@@ -2327,7 +2327,7 @@ procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
 var
   vNodeData: PNodeData;
 begin
-  vNodeData := fNodeDataAdapter.NodeAsPointer(aNode);
+  vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
   vNodeData^.Data := nil;
   inherited DoFreeNode(aNode);
 end;
@@ -3208,7 +3208,7 @@ begin
     aNode := FocusedNode;
   if aNode <> nil then
   begin
-    vNodeData := fNodeDataAdapter.NodeAsPointer(aNode);
+    vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
     if vNodeData <> nil then
       result := vNodeData^.Data;
   end;
@@ -3330,7 +3330,7 @@ begin
     begin
       if vDoc.Kind = dvArray then
       begin
-        for vItem1 in vDoc.Items do // using .Items to get all kind of data, eg: [1,2,3]
+        for vItem1 in vDoc.Items do
         begin
           vData := PDocVariantData(vItem1);
           case vData^.Kind of
