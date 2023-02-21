@@ -353,7 +353,7 @@ object TisGridEditor: TTisGridEditor
         AnchorSideTop.Side = asrBottom
         Left = 24
         Height = 19
-        Hint = 'Check this option to used in InitNode to indicate states a node shall initially have.'#13#10'- you better check "Variable Node Height" too'
+        Hint = 'Check this option to used in DoInitNode method, indicating how the node state should be initiated'#13#10'- you better check "Variable Node Height" too'
         Top = 109
         Width = 71
         Caption = 'Multi Line'
@@ -496,7 +496,7 @@ object TisGridEditor: TTisGridEditor
         Top = 194
         Width = 160
         BorderSpacing.Left = 20
-        TabOrder = 7
+        TabOrder = 8
       end
       object ParentNamesLabel: TLabel
         AnchorSideTop.Control = KeyNamesLabel
@@ -519,7 +519,7 @@ object TisGridEditor: TTisGridEditor
         Top = 224
         Width = 160
         BorderSpacing.Left = 5
-        TabOrder = 8
+        TabOrder = 9
       end
       object Bevel6: TBevel
         AnchorSideTop.Control = TreeModeCheckBox
@@ -530,6 +530,25 @@ object TisGridEditor: TTisGridEditor
         Width = 256
         BorderSpacing.Top = 60
         Shape = bsTopLine
+      end
+      object ShowChildrenCheckBox: TCheckBox
+        AnchorSideLeft.Control = TreeModeCheckBox
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = Bevel5
+        AnchorSideTop.Side = asrBottom
+        Left = 108
+        Height = 19
+        Hint = 'Check this option to show node children in Tree Mode'
+        Top = 174
+        Width = 95
+        BorderSpacing.Left = 10
+        Caption = 'Show Children'
+        Enabled = False
+        OnChange = ShowChildrenCheckBoxChange
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 7
       end
     end
     object TabSheet1: TTabSheet

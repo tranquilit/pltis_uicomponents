@@ -331,17 +331,20 @@ type
     fGrid: TTisGrid;
     fMultiLine: Boolean;
     fMultiLineHeight: Integer;
+    fShowChildren: Boolean;
     procedure SetMultiLine(aValue: Boolean);
     procedure SetMultiLineHeight(aValue: Integer);
   protected const
     DefaultMultiLine = False;
     DefaultMultiLineHeight = 4;
+    DefaultShowChildren = False;
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
   published
     property MultiLine: Boolean read fMultiLine write SetMultiLine default DefaultMultiLine;
     property MultiLineHeight: Integer read fMultiLineHeight write SetMultiLineHeight default DefaultMultiLineHeight;
+    property ShowChildren: Boolean read fShowChildren write fShowChildren default DefaultShowChildren;
   end;
 
   TOnGridGetText = procedure(aSender: TBaseVirtualTree; aNode: PVirtualNode;
@@ -1706,6 +1709,7 @@ begin
   fGrid := aGrid;
   fMultiLine := DefaultMultiLine;
   fMultiLineHeight := DefaultMultiLineHeight;
+  fShowChildren := DefaultShowChildren;
 end;
 
 procedure TTisNodeOptions.AssignTo(aDest: TPersistent);
@@ -1716,6 +1720,7 @@ begin
     begin
       MultiLine := self.MultiLine;
       MultiLineHeight := self.MultiLineHeight;
+      ShowChildren := self.ShowChildren;
     end;
   end
   else
@@ -2301,7 +2306,7 @@ begin
       aNode^.CheckType := ctCheckBox;
       if fNodeOptions.MultiLine then
         Include(aNode^.States, vsMultiline);
-      if False { #todo : implement fNodeOptions.ShowChildren } and (vNodeData^.Data^.Capacity > 0) then
+      if fNodeOptions.ShowChildren and (vNodeData^.Data^.Capacity > 0) then
         Include(aInitStates, ivsHasChildren);
     end;
   end;
