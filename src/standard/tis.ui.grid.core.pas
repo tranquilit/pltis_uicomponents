@@ -404,6 +404,7 @@ type
   private type
     TNodeData = record
       Data: PDocVariantData;
+      IsChild: Boolean;
     end;
     PNodeData = ^TNodeData;
     TNodeDataAdapter = object
@@ -496,6 +497,7 @@ type
       aTextType: TVSTTextType; var aText: string); override;
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
+    procedure InitChildren(aNode: PVirtualNode); override;
     function DoInitChildren(aNode: PVirtualNode; var aChildCount: Cardinal): Boolean; override;
     procedure DoFreeNode(aNode: PVirtualNode); override;
     procedure DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode; var aNodeHeight: Integer); override;
@@ -597,8 +599,8 @@ type
     procedure Clear; override;
     // ----------------------------------- new methods -----------------------------
     /// it will return aNode as PDocVariantData
-    // - if aNode is NIL, it will use FocusedNode value
-    function GetNodeDataAsDocVariant(aNode: PVirtualNode = nil): PDocVariantData;
+    // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
+    function GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
     procedure LoadData;
@@ -1133,6 +1135,7 @@ var
 begin
   result := True;
   DisableControlEvents;
+  vDoc := fGrid.GetNodeDataAsDocVariant(fNode, False);
   vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
   vAborted := False;
@@ -1753,7 +1756,7 @@ var
 begin
   vNode := FocusedNode;
   if vNode <> nil then
-    result := GetNodeDataAsDocVariant(vNode)
+    result := GetNodeDataAsDocVariant(vNode, False)
   else
     result := nil;
 end;
@@ -2224,7 +2227,7 @@ var
 begin
   if aNode = nil then
     exit;
-  vRowData := GetNodeDataAsDocVariant(aNode);
+  vRowData := GetNodeDataAsDocVariant(aNode, False);
   if vRowData <> nil then
   begin
     if aColumn >= 0 then
@@ -2280,46 +2283,60 @@ end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
-
-  function _GetData: PDocVariantData;
-  var
-    vNodeData: PNodeData;
-  begin
-    result := @fData;
-    if aParentNode <> nil then
-    begin
-      vNodeData := fNodeDataAdapter.GetNodeAsPointer(aParentNode);
-      if vNodeData <> nil then
-        result := vNodeData^.Data;
-    end;
-    result := _Safe(result^.Values[aNode^.Index]);
-  end;
-
 var
+  vData: PDocVariantData;
   vNodeData: PNodeData;
 begin
   if not fData.IsVoid then
   begin
+    vData := GetNodeDataAsDocVariant(aParentNode, False);
+    if vData = nil then
+      vData := @fData;
     vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
     if vNodeData <> nil then
     begin
-      vNodeData^.Data := _GetData;
+      vNodeData^.Data := _Safe(vData^.Values[aNode^.Index]);
+      vNodeData^.IsChild := False;
       aNode^.CheckType := ctCheckBox;
       if fNodeOptions.MultiLine then
-        aNode^.States := aNode^.States + [vsMultiline];
-      { #todo : check if there are child nodes }
-      //aInitStates := aInitStates + [ivsHasChildren];
+        Include(aNode^.States, vsMultiline);
+      if False { #todo : implement fNodeOptions.IncludeChildren } and (vNodeData^.Data^.Capacity > 0) then
+        Include(aInitStates, ivsHasChildren);
     end;
   end;
   inherited DoInitNode(aParentNode, aNode, aInitStates);
 end;
 
+procedure TTisGrid.InitChildren(aNode: PVirtualNode);
+var
+  vChild: PVirtualNode;
+  vNodeData: PNodeData;
+begin
+  inherited InitChildren(aNode);
+  if aNode^.ChildCount = 0 then
+    exit;
+  vChild := aNode^.FirstChild;
+  while Assigned(vChild) do
+  begin
+    vNodeData := fNodeDataAdapter.GetNodeAsPointer(vChild);
+    vNodeData^.Data := GetNodeDataAsDocVariant(aNode, False);
+    vNodeData^.IsChild := True;
+    Include(vChild^.States, vsInitialized);
+    vChild := vChild^.NextSibling;
+  end;
+end;
+
 function TTisGrid.DoInitChildren(aNode: PVirtualNode; var aChildCount: Cardinal): Boolean;
+var
+  vNodeData: PNodeData;
 begin
   result := inherited DoInitChildren(aNode, aChildCount);
   if not result then
   begin
-    result := True; { #todo : count child nodes }
+    vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
+    if not vNodeData^.IsChild then
+      aChildCount := GetNodeDataAsDocVariant(aNode, False)^.Capacity;
+    result := True;
   end;
 end;
 
@@ -2367,7 +2384,7 @@ begin
     exit;
   result := DoCompareByRow(
     TTisGridColumn(Header.Columns[aColumn]).PropertyName,
-    GetNodeDataAsDocVariant(aNode1), GetNodeDataAsDocVariant(aNode2));
+    GetNodeDataAsDocVariant(aNode1, False), GetNodeDataAsDocVariant(aNode2, False));
 end;
 
 function TTisGrid.GetColumnClass: TVirtualTreeColumnClass;
@@ -3199,12 +3216,12 @@ begin
   fData.InitArray([], JSON_FAST_FLOAT);
 end;
 
-function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode): PDocVariantData;
+function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
 var
   vNodeData: PNodeData;
 begin
   result := nil;
-  if aNode = nil then
+  if (aNode = nil) and aUseFocusedNodeAsDefault then
     aNode := FocusedNode;
   if aNode <> nil then
   begin
@@ -3487,7 +3504,7 @@ begin
   vNode := GetFirst(True);
   while vNode <> nil do
   begin
-    vData := GetNodeDataAsDocVariant(vNode);
+    vData := GetNodeDataAsDocVariant(vNode, False);
     if vData <> nil then
     begin
       if vUseArray then
@@ -3527,7 +3544,7 @@ begin
   vNode := GetFirst(True);
   while vNode <> nil do
   begin
-    vData := GetNodeDataAsDocVariant(vNode);
+    vData := GetNodeDataAsDocVariant(vNode, False);
     if (vData <> nil) and (not vData^.IsVoid) and (vData^.U[aKey] = aValue) then
     begin
       SetLength(result, Length(result) + 1);
