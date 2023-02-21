@@ -571,6 +571,8 @@ type
     procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
       var aNewValue: Variant; var aAbort: Boolean); virtual;
+    procedure DoBeforeDataChange(aData: PDocVariantData; var aAbort: Boolean); virtual;
+    procedure DoAfterDataChange; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -605,8 +607,8 @@ type
     // - call LoadData, if you change Data content directly
     procedure LoadData;
     /// it will try load aJson into Data and create Columns from it
-    // - it will not clean previous columns, if they exists
-    // - return TRUE if success, otherwise FALSE, with a Dialog error if aShowError is TRUE
+    // - it will not clean previous columns or data, if they exists
+    // - return TRUE if success, otherwise FALSE with a Dialog error if aShowError is TRUE
     function TryLoadAllFrom(const aJson: string; aShowError: Boolean = True): Boolean;
     /// export data
     // - it will export using the format that matchs to aFileName extension
@@ -1011,7 +1013,8 @@ end;
 
 procedure TTisGridEditLink.DisableControlEvents;
 begin
-  fControl.SetOnExit(nil);
+  if Assigned(fControl) then
+    fControl.SetOnExit(nil);
 end;
 
 procedure TTisGridEditLink.EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState);
@@ -1881,15 +1884,14 @@ begin
   if fData.Equals(aValue) then
     exit;
   vAborted := False;
-  if Assigned(fOnBeforeDataChange) then
-    fOnBeforeDataChange(self, @aValue, vAborted);
-  if vAborted then
-    exit;
-  fData := aValue;
-  LoadData;
-  UpdateSelectedAndTotalLabel;
-  if Assigned(fOnAfterDataChange) then
-    fOnAfterDataChange(self);
+  DoBeforeDataChange(@aValue, vAborted);
+  if not vAborted then
+  begin
+    fData := aValue;
+    LoadData;
+    UpdateSelectedAndTotalLabel;
+    DoAfterDataChange;
+  end;
 end;
 
 function TTisGrid.GetMetaData: RawUtf8;
@@ -3104,6 +3106,19 @@ procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
 begin
   if Assigned(fOnEditValidated) then
     fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
+end;
+
+procedure TTisGrid.DoBeforeDataChange(aData: PDocVariantData;
+  var aAbort: Boolean);
+begin
+  if Assigned(fOnBeforeDataChange) then
+    fOnBeforeDataChange(self, aData, aAbort);
+end;
+
+procedure TTisGrid.DoAfterDataChange;
+begin
+  if Assigned(fOnAfterDataChange) then
+    fOnAfterDataChange(self);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
