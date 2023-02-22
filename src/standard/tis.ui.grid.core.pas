@@ -2308,38 +2308,42 @@ end;
 
 procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
   aTextType: TVSTTextType; var aText: string);
+
+  procedure _DoGetTextCallback(aData: PDocVariantData);
+  begin
+    if Assigned(fOnGetText) then
+      fOnGetText(self, aNode, aData^, aColumn, aTextType, aText);
+  end;
+
 var
-  vDoc: PDocVariantData;
+  vData: PDocVariantData;
   vCol: TTisGridColumn;
 begin
-  vDoc := nil;
   if Assigned(aNode) then
   begin
+    vData := fNodeAdapter.GetData(aNode)^.Data;
     // if it should show children nodes, then only at the first column
     if fNodeOptions.ShowChildren and (aColumn = 0) then
     begin
       aText := fNodeAdapter.GetCaption(aNode);
+      _DoGetTextCallback(vData);
     end
     else
     begin
-      vDoc := fNodeAdapter.GetData(aNode)^.Data;
-      if vDoc <> nil then
-      begin
-        if Header.Columns.IsValidColumn(aColumn) then
-          aText := vDoc^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
-        else if DefaultText <> '' then
-          aText := vDoc^.S[DefaultText];
-        if aText = '' then
-          aText := DefaultText;
-      end
-      else
-        aText := 'uninitialized';
-    end
+      if Header.Columns.IsValidColumn(aColumn) then
+        aText := vData^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
+      else if DefaultText <> '' then
+        aText := vData^.S[DefaultText];
+      if aText = '' then
+        aText := DefaultText;
+      if Header.Columns.IsValidColumn(aColumn) then
+        _DoGetTextCallback(vData);
+    end;
+    if vData = nil then
+      aText := 'uninitialized';
   end
   else
     aText := '';
-  if Assigned(fOnGetText) and Header.Columns.IsValidColumn(aColumn) then
-    fOnGetText(self, aNode, vDoc^, aColumn, aTextType, aText);
   vCol := FindColumnByIndex(aColumn);
   if vCol <> nil then
   begin
