@@ -2313,20 +2313,28 @@ var
   vCol: TTisGridColumn;
 begin
   vDoc := nil;
-  if aNode <> nil then
+  if Assigned(aNode) then
   begin
-    vDoc := GetNodeAsPDocVariantData(aNode);
-    if vDoc <> nil then
+    // if it should show children nodes, then only at the first column
+    if fNodeOptions.ShowChildren and (aColumn = 0) then
     begin
-      if Header.Columns.IsValidColumn(aColumn) then
-        aText := vDoc^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
-      else if DefaultText <> '' then
-        aText := vDoc^.S[DefaultText];
-      if aText = '' then
-        aText := DefaultText;
+      aText := fNodeAdapter.GetCaption(aNode);
     end
     else
-      aText := 'uninitialized';
+    begin
+      vDoc := fNodeAdapter.GetData(aNode)^.Data;
+      if vDoc <> nil then
+      begin
+        if Header.Columns.IsValidColumn(aColumn) then
+          aText := vDoc^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
+        else if DefaultText <> '' then
+          aText := vDoc^.S[DefaultText];
+        if aText = '' then
+          aText := DefaultText;
+      end
+      else
+        aText := 'uninitialized';
+    end
   end
   else
     aText := '';
