@@ -413,11 +413,12 @@ type
     TNodeDataAdapter = object
       Offset: Cardinal;
       procedure Init(aGrid: TTisGrid);
-      function GetNodeAsPointer(aValue: PVirtualNode): Pointer;
+      function AsPointer(aValue: PVirtualNode): Pointer;
+      function AsData(aValue: PVirtualNode): PNodeData;
     end;
   private
     // ------------------------------- new fields ----------------------------------
-    fNodeDataAdapter: TNodeDataAdapter;
+    fNodeAdapter: TNodeDataAdapter;
     fKeyFieldsList, fParentKeyFieldsList: array of string;
     fSelectedAndTotalLabel: TLabel;
     fTextFound: boolean;
@@ -1734,12 +1735,17 @@ begin
   Offset := aGrid.AllocateInternalDataArea(SizeOf(TNodeData));
 end;
 
-function TTisGrid.TNodeDataAdapter.GetNodeAsPointer(aValue: PVirtualNode): Pointer;
+function TTisGrid.TNodeDataAdapter.AsPointer(aValue: PVirtualNode): Pointer;
 begin
   if (aValue = nil) or (Offset <= 0) then
     result := nil
   else
     result := PByte(aValue) + Offset;
+end;
+
+function TTisGrid.TNodeDataAdapter.AsData(aValue: PVirtualNode): PNodeData;
+begin
+  result := AsPointer(aValue);
 end;
 
 { TTisGrid }
@@ -2298,7 +2304,7 @@ begin
     vData := GetNodeDataAsDocVariant(aParentNode, False);
     if vData = nil then
       vData := @fData;
-    vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
+    vNodeData := fNodeAdapter.AsPointer(aNode);
     if vNodeData <> nil then
     begin
       vNodeData^.Data := _Safe(vData^.Values[aNode^.Index]);
@@ -2347,11 +2353,9 @@ begin
 end;
 
 procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
-var
-  vNodeData: PNodeData;
 begin
-  vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
-  vNodeData^.Data := nil;
+  with fNodeAdapter.AsData(aNode)^ do
+    Data := nil;
   inherited DoFreeNode(aNode);
 end;
 
@@ -3151,7 +3155,7 @@ end;
 constructor TTisGrid.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
-  fNodeDataAdapter.Init(self);
+  fNodeAdapter.Init(self);
   Clear;
   fSelectedData.Clear;
   fSelectedData.InitArray([], JSON_FAST_FLOAT);
@@ -3236,18 +3240,12 @@ begin
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
-var
-  vNodeData: PNodeData;
 begin
   result := nil;
   if (aNode = nil) and aUseFocusedNodeAsDefault then
     aNode := FocusedNode;
   if aNode <> nil then
-  begin
-    vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
-    if vNodeData <> nil then
-      result := vNodeData^.Data;
-  end;
+    result := fNodeAdapter.AsData(aNode)^.Data;
 end;
 
 procedure TTisGrid.LoadData;
