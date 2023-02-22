@@ -3317,6 +3317,8 @@ begin
         RootNodeCount := fData.Count;
         if IsTreeMode then
           _ViewInTreeMode;
+        if NodeOptions.ShowChildren then
+          ExpandAllNodes;
       finally
         if vIsReadOnly then
           TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
