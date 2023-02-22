@@ -2362,8 +2362,41 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
     end;
   end;
 
-  procedure _CreateChildren(aParent: PVirtualNode);
+  /// just one only place to setup a default configuration for all nodes, when in Tree Mode
+  procedure _SetNodeDefaultsForTreeMode(aNode: PVirtualNode);
   begin
+    if Assigned(aNode) then
+    begin
+      Include(aNode^.States, vsInitialized); // for do not call DoInitNode again
+      Include(aNode^.States, vsExpanded);    // it's better show all at first
+    end;
+  end;
+
+  /// just one only place to create all children recursively
+  // - in this way, we do not need to override/implement InitChildren and DoInitChildren
+  procedure _CreateChildrenFor(aParent: PVirtualNode);
+  var
+    vChild: PVirtualNode;
+    vDoc, vData: PDocVariantData;
+    vPair: TDocVariantFields;
+  begin
+    vDoc := fNodeAdapter.GetData(aParent)^.Data;
+    for vPair in vDoc^ do
+    begin
+      _SetNodeDefaultsForTreeMode(aParent);
+      if _Safe(vPair.Value^, vData) then
+      begin
+        vChild := AddChild(aParent);
+        _SetNodeDefaults(vChild);
+        _SetNodeDefaultsForTreeMode(vChild);
+        with fNodeAdapter.GetData(vChild)^ do
+        begin
+          Data := vData;
+          IsChild := True;
+        end;
+        _CreateChildrenFor(vChild);
+      end;
+    end;
   end;
 
 var
@@ -2372,16 +2405,12 @@ begin
   if not fData.IsVoid then
   begin
     _SetNodeDefaults(aNode);
-    vNodeData := fNodeAdapter.AsPointer(aNode);
+    vNodeData := fNodeAdapter.GetDataPointer(aNode);
     vNodeData^.Data := _Safe(fData.Values[aNode^.Index]);
     vNodeData^.IsChild := False;
     _SetNodeDefaults(aNode);
-    if fNodeOptions.ShowChildren and (vNodeData^.Data^.Count > 0) then
-    begin
-      Include(aNode^.States, vsInitialized);
-      Include(aNode^.States, vsExpanded);
-      _CreateChildren(aNode);
-    end;
+    if fNodeOptions.ShowChildren then
+      _CreateChildrenFor(aNode);
   end;
   inherited DoInitNode(aParentNode, aNode, aInitStates);
 end;
