@@ -405,25 +405,39 @@ type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
   private type
+    /// as known as "user data"
     TNodeData = record
       Data: PDocVariantData;
       /// it will be TRUE only if NodeOptions.ShowChildren is TRUE
       IsChild: Boolean;
     end;
     PNodeData = ^TNodeData;
-    TNodeDataAdapter = object
+    /// adapter to convert a node in other data type
+    TNodeAdapter = object
       Offset: Cardinal;
       procedure Init(aGrid: TTisGrid);
-      /// convert aNode in Pointer
-      // - use this method if you need a PNodeData local variable
-      function AsPointer(aNode: PVirtualNode): Pointer;
-      /// convert aNode in PNodeData
-      // - convenient way to convert aNode for do not use a local variable
-      function AsData(aNode: PVirtualNode): PNodeData;
+      /// return aNode Data pointer
+      // - use this method if you need a PNodeData local variable,
+      // as it will be a little faster then AsData
+      function GetDataPointer(aNode: PVirtualNode): Pointer;
+      /// return aNode Data pointer
+      // - convenient way to access Data but without using a local variable
+      function GetData(aNode: PVirtualNode): PNodeData;
+      /// return aNode Data as string
+      // - convenient way to access Data but without using a local variable
+      function GetDataAsString(aNode: PVirtualNode): string;
+      /// return aNode as caption
+      // - if aNode represents an object, it will return its Name
+      // - if aNode represents an object nameless, it will return "{}"
+      // - if aNode represents an array, it will return its value
+      // - you coud use to read Child nodes values in DoGetText
+      function GetCaption(aNode: PVirtualNode): string;
+      /// return TRUE if aNode is child
+      function IsChild(aNode: PVirtualNode): Boolean;
     end;
   private
     // ------------------------------- new fields ----------------------------------
-    fNodeAdapter: TNodeDataAdapter;
+    fNodeAdapter: TNodeAdapter;
     fKeyFieldsList, fParentKeyFieldsList: array of string;
     fSelectedAndTotalLabel: TLabel;
     fTextFound: boolean;
@@ -1735,14 +1749,14 @@ begin
     inherited AssignTo(aDest);
 end;
 
-{ TTisGrid.TNodeDataAdapter }
+{ TTisGrid.TNodeAdapter }
 
-procedure TTisGrid.TNodeDataAdapter.Init(aGrid: TTisGrid);
+procedure TTisGrid.TNodeAdapter.Init(aGrid: TTisGrid);
 begin
   Offset := aGrid.AllocateInternalDataArea(SizeOf(TNodeData));
 end;
 
-function TTisGrid.TNodeDataAdapter.AsPointer(aNode: PVirtualNode): Pointer;
+function TTisGrid.TNodeAdapter.GetDataPointer(aNode: PVirtualNode): Pointer;
 begin
   if (aNode = nil) or (Offset <= 0) then
     result := nil
@@ -1750,9 +1764,35 @@ begin
     result := PByte(aNode) + Offset;
 end;
 
-function TTisGrid.TNodeDataAdapter.AsData(aNode: PVirtualNode): PNodeData;
+function TTisGrid.TNodeAdapter.GetData(aNode: PVirtualNode): PNodeData;
 begin
-  result := AsPointer(aNode);
+  result := GetDataPointer(aNode);
+end;
+
+function TTisGrid.TNodeAdapter.GetDataAsString(aNode: PVirtualNode): string;
+begin
+  result := Utf8ToString(GetData(aNode)^.Data^.ToJson);
+end;
+
+function TTisGrid.TNodeAdapter.GetCaption(aNode: PVirtualNode): string;
+var
+  vDoc: PDocVariantData;
+begin
+  vDoc := GetData(aNode)^.Data;
+  if vDoc^.Kind = dvObject then
+  begin
+    if Length(vDoc^.GetNames) > 1 then // nameless
+      result := '{}'
+    else
+      result := vDoc^.GetNames[0];
+  end
+  else
+    result := GetDataAsString(aNode); { #todo : read array }
+end;
+
+function TTisGrid.TNodeAdapter.IsChild(aNode: PVirtualNode): Boolean;
+begin
+  result := GetData(aNode)^.IsChild;
 end;
 
 { TTisGrid }
@@ -2303,6 +2343,7 @@ end;
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
 
+  /// just one only place to setup a default configuration for all nodes
   procedure _SetNodeDefaults(aNode: PVirtualNode);
   begin
     if Assigned(aNode) then
@@ -2339,7 +2380,7 @@ end;
 
 procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
 begin
-  with fNodeAdapter.AsData(aNode)^ do
+  with fNodeAdapter.GetData(aNode)^ do
     Data := nil;
   inherited DoFreeNode(aNode);
 end;
@@ -3231,7 +3272,7 @@ begin
   if (aNode = nil) and aUseFocusedNodeAsDefault then
     aNode := FocusedNode;
   if aNode <> nil then
-    result := fNodeAdapter.AsData(aNode)^.Data;
+    result := fNodeAdapter.GetData(aNode)^.Data;
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode;
