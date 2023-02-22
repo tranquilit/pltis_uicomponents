@@ -407,14 +407,19 @@ type
   private type
     TNodeData = record
       Data: PDocVariantData;
+      /// it will be TRUE only if NodeOptions.ShowChildren is TRUE
       IsChild: Boolean;
     end;
     PNodeData = ^TNodeData;
     TNodeDataAdapter = object
       Offset: Cardinal;
       procedure Init(aGrid: TTisGrid);
-      function AsPointer(aValue: PVirtualNode): Pointer;
-      function AsData(aValue: PVirtualNode): PNodeData;
+      /// convert aNode in Pointer
+      // - use this method if you need a PNodeData local variable
+      function AsPointer(aNode: PVirtualNode): Pointer;
+      /// convert aNode in PNodeData
+      // - convenient way to convert aNode for do not use a local variable
+      function AsData(aNode: PVirtualNode): PNodeData;
     end;
   private
     // ------------------------------- new fields ----------------------------------
@@ -501,8 +506,6 @@ type
       aTextType: TVSTTextType; var aText: string); override;
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
-    procedure InitChildren(aNode: PVirtualNode); override;
-    function DoInitChildren(aNode: PVirtualNode; var aChildCount: Cardinal): Boolean; override;
     procedure DoFreeNode(aNode: PVirtualNode); override;
     procedure DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode; var aNodeHeight: Integer); override;
     function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
@@ -1735,17 +1738,17 @@ begin
   Offset := aGrid.AllocateInternalDataArea(SizeOf(TNodeData));
 end;
 
-function TTisGrid.TNodeDataAdapter.AsPointer(aValue: PVirtualNode): Pointer;
+function TTisGrid.TNodeDataAdapter.AsPointer(aNode: PVirtualNode): Pointer;
 begin
-  if (aValue = nil) or (Offset <= 0) then
+  if (aNode = nil) or (Offset <= 0) then
     result := nil
   else
-    result := PByte(aValue) + Offset;
+    result := PByte(aNode) + Offset;
 end;
 
-function TTisGrid.TNodeDataAdapter.AsData(aValue: PVirtualNode): PNodeData;
+function TTisGrid.TNodeDataAdapter.AsData(aNode: PVirtualNode): PNodeData;
 begin
-  result := AsPointer(aValue);
+  result := AsPointer(aNode);
 end;
 
 { TTisGrid }
@@ -2295,61 +2298,39 @@ end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
+
+  procedure _SetNodeDefaults(aNode: PVirtualNode);
+  begin
+    if Assigned(aNode) then
+    begin
+      aNode^.CheckType := ctCheckBox;
+      if fNodeOptions.MultiLine then
+        Include(aNode^.States, vsMultiline);
+    end;
+  end;
+
+  procedure _CreateChildren(aParent: PVirtualNode);
+  begin
+  end;
+
 var
-  vData: PDocVariantData;
   vNodeData: PNodeData;
 begin
   if not fData.IsVoid then
   begin
-    vData := GetNodeDataAsDocVariant(aParentNode, False);
-    if vData = nil then
-      vData := @fData;
+    _SetNodeDefaults(aNode);
     vNodeData := fNodeAdapter.AsPointer(aNode);
-    if vNodeData <> nil then
+    vNodeData^.Data := _Safe(fData.Values[aNode^.Index]);
+    vNodeData^.IsChild := False;
+    _SetNodeDefaults(aNode);
+    if fNodeOptions.ShowChildren and (vNodeData^.Data^.Count > 0) then
     begin
-      vNodeData^.Data := _Safe(vData^.Values[aNode^.Index]);
-      vNodeData^.IsChild := False;
-      aNode^.CheckType := ctCheckBox;
-      if fNodeOptions.MultiLine then
-        Include(aNode^.States, vsMultiline);
-      if fNodeOptions.ShowChildren and (vNodeData^.Data^.Capacity > 0) then
-        Include(aInitStates, ivsHasChildren);
+      Include(aNode^.States, vsInitialized);
+      Include(aNode^.States, vsExpanded);
+      _CreateChildren(aNode);
     end;
   end;
   inherited DoInitNode(aParentNode, aNode, aInitStates);
-end;
-
-procedure TTisGrid.InitChildren(aNode: PVirtualNode);
-var
-  vChild: PVirtualNode;
-  vNodeData: PNodeData;
-begin
-  inherited InitChildren(aNode);
-  if aNode^.ChildCount = 0 then
-    exit;
-  vChild := aNode^.FirstChild;
-  while Assigned(vChild) do
-  begin
-    vNodeData := fNodeDataAdapter.GetNodeAsPointer(vChild);
-    vNodeData^.Data := GetNodeDataAsDocVariant(aNode, False);
-    vNodeData^.IsChild := True;
-    Include(vChild^.States, vsInitialized);
-    vChild := vChild^.NextSibling;
-  end;
-end;
-
-function TTisGrid.DoInitChildren(aNode: PVirtualNode; var aChildCount: Cardinal): Boolean;
-var
-  vNodeData: PNodeData;
-begin
-  result := inherited DoInitChildren(aNode, aChildCount);
-  if not result then
-  begin
-    vNodeData := fNodeDataAdapter.GetNodeAsPointer(aNode);
-    if not vNodeData^.IsChild then
-      aChildCount := GetNodeDataAsDocVariant(aNode, False)^.Capacity;
-    result := True;
-  end;
 end;
 
 procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
