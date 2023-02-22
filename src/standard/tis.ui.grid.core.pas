@@ -609,7 +609,11 @@ type
     // ----------------------------------- new methods -----------------------------
     /// it will return aNode as PDocVariantData
     // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
+    function GetNodeAsPDocVariantData(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
+    /// it will return aNode as PDocVariantData
+    // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
     function GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
+      deprecated 'Use GetNodeAsPDocVariantData instead';
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
     procedure LoadData;
@@ -1145,7 +1149,7 @@ var
 begin
   result := True;
   DisableControlEvents;
-  vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
+  vDoc := fGrid.GetNodeAsPDocVariantData(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
   vAborted := False;
   vCur := vDoc^.GetValueOrNull(vCol.PropertyName);
@@ -1197,7 +1201,7 @@ begin
   fNode := aNode;
   fColumn := aColumn;
   FreeAndNil(fControl);
-  vDoc := fGrid.GetNodeDataAsDocVariant(fNode);
+  vDoc := fGrid.GetNodeAsPDocVariantData(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(vCol);
   fControl.ReadOnly := vCol.ReadOnly;
@@ -1772,7 +1776,7 @@ var
 begin
   vNode := FocusedNode;
   if vNode <> nil then
-    result := GetNodeDataAsDocVariant(vNode, False)
+    result := GetNodeAsPDocVariantData(vNode, False)
   else
     result := nil;
 end;
@@ -1995,7 +1999,7 @@ begin
   result.InitArray([], JSON_FAST);
   while vNode <> nil do
   begin
-    vDoc := GetNodeDataAsDocVariant(vNode);
+    vDoc := GetNodeAsPDocVariantData(vNode);
     result.AddItem(variant(vDoc^));
     vNode := GetNextSelected(vNode, True);
   end;
@@ -2054,7 +2058,7 @@ begin
   result := nil;
   while vNode <> nil do
   begin
-    PtrArrayAdd(result, GetNodeDataAsDocVariant(vNode), vCount);
+    PtrArrayAdd(result, GetNodeAsPDocVariantData(vNode), vCount);
     vNode := GetNextSelected(vNode, True);
   end;
   SetLength(result, vCount);
@@ -2242,7 +2246,7 @@ var
 begin
   if aNode = nil then
     exit;
-  vRowData := GetNodeDataAsDocVariant(aNode, False);
+  vRowData := GetNodeAsPDocVariantData(aNode, False);
   if vRowData <> nil then
   begin
     if aColumn >= 0 then
@@ -2271,7 +2275,7 @@ begin
   vDoc := nil;
   if aNode <> nil then
   begin
-    vDoc := GetNodeDataAsDocVariant(aNode);
+    vDoc := GetNodeAsPDocVariantData(aNode);
     if vDoc <> nil then
     begin
       if Header.Columns.IsValidColumn(aColumn) then
@@ -2375,7 +2379,7 @@ begin
     exit;
   result := DoCompareByRow(
     TTisGridColumn(Header.Columns[aColumn]).PropertyName,
-    GetNodeDataAsDocVariant(aNode1, False), GetNodeDataAsDocVariant(aNode2, False));
+    GetNodeAsPDocVariantData(aNode1, False), GetNodeAsPDocVariantData(aNode2, False));
 end;
 
 function TTisGrid.GetColumnClass: TVirtualTreeColumnClass;
@@ -2921,7 +2925,7 @@ begin
     try
       vAdapter.Clear;
       SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, vRow);
-      vStr := VariantToUtf8(GetNodeDataAsDocVariant(FocusedNode)^.GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
+      vStr := VariantToUtf8(GetNodeAsPDocVariantData(FocusedNode)^.GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
       vAdapter.Add(cbkText, vStr[1], Length(vStr)+1);
       vStr := vRow.ToJson;
       vAdapter.Add(cbkJson, vStr[1], Length(vStr));
@@ -3220,13 +3224,20 @@ begin
   fData.InitArray([], JSON_FAST_FLOAT);
 end;
 
-function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
+function TTisGrid.GetNodeAsPDocVariantData(aNode: PVirtualNode;
+  aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
 begin
   result := nil;
   if (aNode = nil) and aUseFocusedNodeAsDefault then
     aNode := FocusedNode;
   if aNode <> nil then
     result := fNodeAdapter.AsData(aNode)^.Data;
+end;
+
+function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode;
+  aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
+begin
+  result := GetNodeAsPDocVariantData(aNode, aUseFocusedNodeAsDefault);
 end;
 
 procedure TTisGrid.LoadData;
@@ -3247,7 +3258,7 @@ procedure TTisGrid.LoadData;
     vNode := GetFirst(True);
     while vNode <> nil do
     begin
-      vDoc := GetNodeDataAsDocVariant(vNode);
+      vDoc := GetNodeAsPDocVariantData(vNode);
       if vDoc <> nil then
       begin
         for vObj in fData.Objects do
@@ -3289,7 +3300,7 @@ begin
     BeginUpdate;
     try
       vFocusedRow := FocusedRow;
-      vTopRow := GetNodeDataAsDocVariant(TopNode);
+      vTopRow := GetNodeAsPDocVariantData(TopNode);
       SetLength(vNodeArray, 0);
       vIsReadOnly := toReadOnly in TreeOptions.MiscOptions;
       TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
@@ -3426,7 +3437,7 @@ begin
   result.InitArray([]);
   while vNode <> nil do
   begin
-    result.AddFrom(variant(GetNodeDataAsDocVariant(vNode)^));
+    result.AddFrom(variant(GetNodeAsPDocVariantData(vNode)^));
     vNode := GetNextChecked(vNode, csCheckedNormal, True);
   end;
 end;
@@ -3455,7 +3466,7 @@ begin
   result := aDefault;
   if aNode <> nil then
   begin
-    result := GetNodeDataAsDocVariant(aNode);
+    result := GetNodeAsPDocVariantData(aNode);
     if result <> nil then
     begin
       if result^.GetValueIndex(aColName) = -1 then
@@ -3504,7 +3515,7 @@ begin
   vNode := GetFirst(True);
   while vNode <> nil do
   begin
-    vData := GetNodeDataAsDocVariant(vNode, False);
+    vData := GetNodeAsPDocVariantData(vNode, False);
     if vData <> nil then
     begin
       if vUseArray then
@@ -3544,7 +3555,7 @@ begin
   vNode := GetFirst(True);
   while vNode <> nil do
   begin
-    vData := GetNodeDataAsDocVariant(vNode, False);
+    vData := GetNodeAsPDocVariantData(vNode, False);
     if (vData <> nil) and (not vData^.IsVoid) and (vData^.U[aKey] = aValue) then
     begin
       SetLength(result, Length(result) + 1);
@@ -3595,7 +3606,7 @@ begin
     LoadData;
     // go to the last (new) row, if user has deleted latest ones
     if FocusedRow = nil then
-      FocusedRow := GetNodeDataAsDocVariant(GetLast);
+      FocusedRow := GetNodeAsPDocVariantData(GetLast);
   end;
 end;
 
@@ -3613,7 +3624,7 @@ begin
   vNode := GetFirst(True);
   while vNode <> nil do
   begin
-    if GetNodeDataAsDocVariant(vNode) = aData then
+    if GetNodeAsPDocVariantData(vNode) = aData then
       InvalidateNode(vNode);
     vNode := GetNext(vNode, True);
   end;
