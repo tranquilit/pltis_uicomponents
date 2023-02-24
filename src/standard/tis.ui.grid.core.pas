@@ -3399,9 +3399,9 @@ begin
     if fNodeAdapter.IsChild(aNode) then
     begin
       // get the node parent that is not child type, to return the original PDocVariantData
-      vNode := aNode.Parent;
+      vNode := aNode^.Parent;
       while not fNodeAdapter.IsChild(vNode) do
-        vNode := vNode.Parent;
+        vNode := vNode^.Parent;
       result := fNodeAdapter.GetData(vNode)^.Data;
     end
     else
