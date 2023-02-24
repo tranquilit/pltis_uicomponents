@@ -505,8 +505,9 @@ begin
         AddColumn('Property', 'Property');
         AddColumn('Value', 'Value');
       end;
-      mrNo: ;
+      mrNo: {just continue};
     else
+      ShowChildrenNodesCheckBox.Checked := False;
       exit;
     end;
   end;
