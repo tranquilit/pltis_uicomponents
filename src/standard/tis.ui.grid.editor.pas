@@ -119,7 +119,7 @@ type
     ParentNamesLabel: TLabel;
     ParentNamesEdit: TEdit;
     Bevel6: TBevel;
-    ShowChildrenCheckBox: TCheckBox;
+    ShowChildrenNodesCheckBox: TCheckBox;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -157,7 +157,7 @@ type
     procedure ActMetaDataPasteExecute(Sender: TObject);
     procedure TreeModeCheckBoxChange(Sender: TObject);
     procedure ActLoadDataExecute(Sender: TObject);
-    procedure ShowChildrenCheckBoxChange(Sender: TObject);
+    procedure ShowChildrenNodesCheckBoxChange(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -482,8 +482,8 @@ begin
       PaintOptions := PaintOptions + Grid.TREEMODE_OPTIONS
     else
       PaintOptions := PaintOptions - Grid.TREEMODE_OPTIONS;
-  ShowChildrenCheckBox.Enabled := TreeModeCheckBox.Checked;
-  ShowChildrenCheckBox.Checked := ShowChildrenCheckBox.Enabled;
+  ShowChildrenNodesCheckBox.Enabled := TreeModeCheckBox.Checked;
+  ShowChildrenNodesCheckBox.Checked := ShowChildrenNodesCheckBox.Enabled;
   Grid.LoadData;
 end;
 
@@ -494,9 +494,9 @@ begin
   Grid.LoadData;
 end;
 
-procedure TTisGridEditor.ShowChildrenCheckBoxChange(Sender: TObject);
+procedure TTisGridEditor.ShowChildrenNodesCheckBoxChange(Sender: TObject);
 begin
-  Grid.NodeOptions.ShowChildren := ShowChildrenCheckBox.Checked;
+  Grid.NodeOptions.ShowChildren := ShowChildrenNodesCheckBox.Checked;
   Grid.LoadData;
 end;
 
@@ -529,7 +529,7 @@ begin
   MultilineHeightEdit.Value := Grid.NodeOptions.MultiLineHeight;
   VariableNodeHeightCheckBox.Checked := toVariableNodeHeight in Grid.TreeOptions.MiscOptions;
   TreeModeCheckBox.Checked := Grid.TREEMODE_OPTIONS <= Grid.TreeOptions.PaintOptions;
-  ShowChildrenCheckBox.Checked := Grid.NodeOptions.ShowChildren;
+  ShowChildrenNodesCheckBox.Checked := Grid.NodeOptions.ShowChildren;
   KeyNamesEdit.Text := Grid.KeyFieldsNames;
   ParentNamesEdit.Text := Grid.ParentKeyFieldsNames;
 end;

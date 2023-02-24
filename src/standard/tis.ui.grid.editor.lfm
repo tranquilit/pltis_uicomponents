@@ -531,20 +531,20 @@ object TisGridEditor: TTisGridEditor
         BorderSpacing.Top = 60
         Shape = bsTopLine
       end
-      object ShowChildrenCheckBox: TCheckBox
+      object ShowChildrenNodesCheckBox: TCheckBox
         AnchorSideLeft.Control = TreeModeCheckBox
         AnchorSideLeft.Side = asrBottom
         AnchorSideTop.Control = Bevel5
         AnchorSideTop.Side = asrBottom
         Left = 108
         Height = 19
-        Hint = 'Check this option to show node children in Tree Mode'
+        Hint = 'Check this option to show children nodes when in Tree Mode'
         Top = 174
-        Width = 95
+        Width = 132
         BorderSpacing.Left = 10
-        Caption = 'Show Children'
+        Caption = 'Show Children Nodes'
         Enabled = False
-        OnChange = ShowChildrenCheckBoxChange
+        OnChange = ShowChildrenNodesCheckBoxChange
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
