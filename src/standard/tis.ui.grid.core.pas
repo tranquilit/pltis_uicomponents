@@ -635,9 +635,10 @@ type
     // ----------------------------------- new methods -----------------------------
     /// it will return aNode as PDocVariantData
     // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
+    // - if aNode is child type, it will lookup and return its Parent non-child with the original PDocVariantData
     function GetNodeAsPDocVariantData(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
     /// it will return aNode as PDocVariantData
-    // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
+    // - see GetNodeAsPDocVariantData
     function GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
       deprecated 'Use GetNodeAsPDocVariantData instead';
     /// refresh the grid using Data content
@@ -3387,12 +3388,25 @@ end;
 
 function TTisGrid.GetNodeAsPDocVariantData(aNode: PVirtualNode;
   aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
+var
+  vNode: PVirtualNode;
 begin
   result := nil;
   if (aNode = nil) and aUseFocusedNodeAsDefault then
     aNode := FocusedNode;
   if aNode <> nil then
-    result := fNodeAdapter.GetData(aNode)^.Data;
+  begin
+    if fNodeAdapter.IsChild(aNode) then
+    begin
+      // get the node parent that is not child type, to return the original PDocVariantData
+      vNode := aNode.Parent;
+      while not fNodeAdapter.IsChild(vNode) do
+        vNode := vNode.Parent;
+      result := fNodeAdapter.GetData(vNode)^.Data;
+    end
+    else
+      result := fNodeAdapter.GetData(aNode)^.Data;
+  end;
 end;
 
 function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode;
