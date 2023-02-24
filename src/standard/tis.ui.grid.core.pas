@@ -441,6 +441,8 @@ type
       function GetName(aNode: PVirtualNode): string;
       /// return aNode value
       function GetValue(aNode: PVirtualNode): PVariant;
+      /// return aNode value
+      function GetValueAsString(aNode: PVirtualNode; const aDefault: string = ''): string;
       /// return TRUE if aNode is child
       function IsChild(aNode: PVirtualNode): Boolean;
     end;
@@ -1787,31 +1789,53 @@ function TTisGrid.TNodeAdapter.GetName(aNode: PVirtualNode): string;
 var
   vNodeData: PNodeData;
 begin
+  result := '';
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
   begin
     if Assigned(vNodeData^.Name) then
       result := Utf8ToString(vNodeData^.Name^)
     else
-    begin
       result := aNode^.Index.ToString;
-      //if vNodeData^.Data^.Kind = dvObject then
-      //  result := '{}'
-      //else
-      //  result := '[]'; { #todo : read array }
-    end;
   end
   else
-    result := Utf8ToString(vNodeData^.Data^.ToJson);
+  begin
+    if Length(vNodeData^.Data^.GetNames) = 1 then
+      result := Utf8ToString(vNodeData^.Data^.Names[0])
+    else
+    begin
+      if vNodeData^.Data^.Kind = dvObject then
+        result := '{}'
+      else
+        result := '[]';
+    end;
+  end;
 end;
 
 function TTisGrid.TNodeAdapter.GetValue(aNode: PVirtualNode): PVariant;
 var
   vNodeData: PNodeData;
+  vData: PDocVariantData;
 begin
+  result := nil;
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
-    result := vNodeData^.Value;
+  begin
+    if not _Safe(vNodeData^.Value^, vData) then
+      result := vNodeData^.Value
+  end;
+end;
+
+function TTisGrid.TNodeAdapter.GetValueAsString(aNode: PVirtualNode;
+  const aDefault: string): string;
+var
+  vValue: PVariant;
+begin
+  vValue := GetValue(aNode);
+  if Assigned(vValue) then
+    result := VarToStr(vValue^)
+  else
+    result := aDefault;
 end;
 
 function TTisGrid.TNodeAdapter.IsChild(aNode: PVirtualNode): Boolean;
@@ -2344,7 +2368,7 @@ begin
       { #todo : to implement and get Property/Value columns names from fNodeOptions }
       case aColumn of
         0: aText := fNodeAdapter.GetName(aNode);
-        1: aText := VarToStr(fNodeAdapter.GetValue(aNode)^);
+        1: aText := fNodeAdapter.GetValueAsString(aNode);
       end;
     end
     else
@@ -2439,17 +2463,19 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
 
 var
   vNodeData: PNodeData;
+  vData: PDocVariantData;
 begin
   if not fData.IsVoid then
   begin
     _SetNodeDefaults(aNode);
+    vData := _Safe(fData.Values[aNode^.Index]);
     vNodeData := fNodeAdapter.GetDataPointer(aNode);
     with vNodeData^ do
     begin
       IsChild := False;
       Name := nil;
-      Value := nil;
-      Data := _Safe(fData.Values[aNode^.Index]);
+      Value := PVariant(vData);
+      Data := vData;
     end;
     _SetNodeDefaults(aNode);
     if fNodeOptions.ShowChildren then
