@@ -164,6 +164,7 @@ type
       aColRequired, aColReadOnly: Boolean);
     procedure ClearPropertiesPanel;
     procedure LoadGridCommonProps;
+    procedure AddColumn(const aPropertyName: string = ''; const aTitle: string = '');
     procedure AddFakeDataIfNeedIt;
   end;
 
@@ -197,14 +198,8 @@ begin
 end;
 
 procedure TTisGridEditor.ActAddColumnExecute(Sender: TObject);
-var
-  vCol : TTisGridColumn;
 begin
-  vCol :=  TTisGridColumn(Grid.Header.Columns.Add);
-  vCol.Text := 'Col ' + IntToStr(vCol.Index);
-  vCol.PropertyName := 'column' + IntToStr(vCol.Index);
-  Grid.FocusedColumn := vCol.Index;
-  AddFakeDataIfNeedIt;
+  AddColumn;
 end;
 
 procedure TTisGridEditor.ActAddColumnsExecute(Sender: TObject);
@@ -495,7 +490,26 @@ begin
 end;
 
 procedure TTisGridEditor.ShowChildrenNodesCheckBoxChange(Sender: TObject);
+const
+  cMsg = 'Would you like to delete all previous columns and create only Property and Value ones?';
+var
+  vResult: Integer;
 begin
+  if ShowChildrenNodesCheckBox.Checked then
+  begin
+    vResult := MessageDlg(cMsg, mtConfirmation, [mbYes, mbNo, mbCancel], 0);
+    case vResult of
+      mrYes:
+      begin
+        Grid.Header.Columns.Clear;
+        AddColumn('Property', 'Property');
+        AddColumn('Value', 'Value');
+      end;
+      mrNo: ;
+    else
+      exit;
+    end;
+  end;
   Grid.NodeOptions.ShowChildren := ShowChildrenNodesCheckBox.Checked;
   Grid.LoadData;
 end;
@@ -532,6 +546,24 @@ begin
   ShowChildrenNodesCheckBox.Checked := Grid.NodeOptions.ShowChildren;
   KeyNamesEdit.Text := Grid.KeyFieldsNames;
   ParentNamesEdit.Text := Grid.ParentKeyFieldsNames;
+end;
+
+procedure TTisGridEditor.AddColumn(const aPropertyName: string;
+  const aTitle: string);
+var
+  vCol : TTisGridColumn;
+begin
+  vCol :=  TTisGridColumn(Grid.Header.Columns.Add);
+  if aTitle = '' then
+    vCol.Text := 'Col ' + IntToStr(vCol.Index)
+  else
+    vCol.Text := aTitle;
+  if aPropertyName = '' then
+    vCol.PropertyName := 'column' + IntToStr(vCol.Index)
+  else
+    vCol.PropertyName := aPropertyName;
+  Grid.FocusedColumn := vCol.Index;
+  AddFakeDataIfNeedIt;
 end;
 
 procedure TTisGridEditor.AddFakeDataIfNeedIt;
