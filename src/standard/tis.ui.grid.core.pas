@@ -534,6 +534,7 @@ type
     procedure DoFreeNode(aNode: PVirtualNode); override;
     procedure DoMeasureItem(aTargetCanvas: TCanvas; aNode: PVirtualNode; var aNodeHeight: Integer); override;
     function DoCompare(aNode1, aNode2: PVirtualNode; aColumn: TColumnIndex): Integer; override;
+    procedure DoCanEdit(aNode: PVirtualNode; aColumn: TColumnIndex; var aAllowed: Boolean); override;
     function GetColumnClass: TVirtualTreeColumnClass; override;
     function GetOptionsClass: TTreeOptionsClass; override;
     /// it will check if OnCreateEditor was implemented first
@@ -2531,6 +2532,15 @@ begin
   result := DoCompareByRow(
     TTisGridColumn(Header.Columns[aColumn]).PropertyName,
     GetNodeAsPDocVariantData(aNode1, False), GetNodeAsPDocVariantData(aNode2, False));
+end;
+
+procedure TTisGrid.DoCanEdit(aNode: PVirtualNode; aColumn: TColumnIndex;
+  var aAllowed: Boolean);
+begin
+  if fNodeOptions.ShowChildren then
+    aAllowed := aColumn = 1
+  else
+    inherited DoCanEdit(aNode, aColumn, aAllowed);
 end;
 
 function TTisGrid.GetColumnClass: TVirtualTreeColumnClass;
