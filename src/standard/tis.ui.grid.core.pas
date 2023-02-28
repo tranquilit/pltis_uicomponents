@@ -1884,7 +1884,10 @@ end;
 
 function TTisNodeAdapter.IsChild(aNode: PVirtualNode): Boolean;
 begin
-  result := GetData(aNode)^.IsChild;
+  if Assigned(aNode) then
+    result := GetData(aNode)^.IsChild
+  else
+    result := False;
 end;
 
 { TTisGrid }
