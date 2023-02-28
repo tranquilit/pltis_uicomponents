@@ -29,6 +29,7 @@ uses
   Spin,
   CheckBoxThemed,
   VirtualTrees,
+  mormot.core.base,
   mormot.core.datetime,
   mormot.core.variants,
   mormot.core.unicode,
@@ -289,7 +290,7 @@ end;
 
 procedure TTisGridDateEditControl.SetValue(const aValue: Variant);
 begin
-  Edit.Date := VarToDateTime(aValue);
+  Edit.Date := Iso8601ToDateTime(VarToStrDef(aValue, ''));
 end;
 
 function TTisGridDateEditControl.Edit: TDateTimePicker;
@@ -315,7 +316,7 @@ end;
 
 procedure TTisGridTimeEditControl.SetValue(const aValue: Variant);
 begin
-  Edit.Time := VarToDateTime(aValue);
+  Edit.Time := Iso8601ToDateTime(VarToStrDef(aValue, ''));
 end;
 
 { TTisGridDateTimeEditControl }
@@ -336,7 +337,7 @@ end;
 
 procedure TTisGridDateTimeEditControl.SetValue(const aValue: Variant);
 begin
-  Edit.DateTime := VarToDateTime(aValue);
+  Edit.DateTime := Iso8601ToDateTime(VarToStrDef(aValue, ''));
 end;
 
 { TTisGridIntegerEditControl }
@@ -367,8 +368,12 @@ begin
 end;
 
 procedure TTisGridIntegerEditControl.SetValue(const aValue: Variant);
+var
+  vValue: Int64;
 begin
-  Edit.Value := aValue;
+  vValue := 0;
+  VariantToInt64(aValue, vValue);
+  Edit.Value := vValue;
 end;
 
 { TTisGridFloatEditControl }
@@ -424,8 +429,12 @@ begin
 end;
 
 procedure TTisGridBooleanEditControl.SetValue(const aValue: Variant);
+var
+  vValue: Boolean;
 begin
-  Edit.Checked := aValue;
+  vValue := False;
+  VariantToBoolean(aValue, vValue);
+  Edit.Checked := vValue;
 end;
 
 function TTisGridBooleanEditControl.Edit: TCheckBoxThemed;

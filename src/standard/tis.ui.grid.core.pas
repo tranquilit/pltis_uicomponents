@@ -390,6 +390,8 @@ type
     /// return aNode value
     function GetValueAsString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn;
       const aDefault: string = ''): string;
+    /// set a value to aNode
+    procedure SetValue(aNode: PVirtualNode; const aValue: Variant; aColumn: TColumnIndex = NoColumn);
     /// return TRUE if aNode is child
     function IsChild(aNode: PVirtualNode): Boolean;
   end;
@@ -1180,10 +1182,10 @@ end;
 
 function TTisGridEditLink.EndEdit: Boolean; stdcall;
 var
-  vDoc: PDocVariantData;
   vCol: TTisGridColumn;
   vAborted: Boolean;
-  vCur, vNew: Variant;
+  vCur: PVariant;
+  vNew: Variant;
 begin
   result := True;
   if fAbortAll then
@@ -1192,35 +1194,15 @@ begin
     exit;
   end;
   DisableControlEvents;
-  vDoc := fGrid.GetNodeAsPDocVariantData(fNode);
-  vCol := fGrid.FindColumnByIndex(fColumn);
   vAborted := False;
-  vCur := vDoc^.GetValueOrNull(vCol.PropertyName);
+  vCur := fGrid.fNodeAdapter.GetValue(fNode, fColumn);
   vNew := fControl.GetValue;
-  fGrid.DoEditValidated(vCol, vCur, vNew, vAborted);
+  vCol := fGrid.FindColumnByIndex(fColumn);
+  fGrid.DoEditValidated(vCol, vCur^, vNew, vAborted);
   try
     if vAborted then
       exit;
-    if VarIsNull(vNew) then
-    begin
-      if not vCol.Required then
-        vDoc^.Value[vCol.PropertyName] := NULL;
-    end
-    else
-      case vCol.DataType of
-        cdtString, cdtMemo:
-          vDoc^.S[vCol.PropertyName] := VarToStr(vNew);
-        cdtDate, cdtTime, cdtDateTime:
-          vDoc^.U[vCol.PropertyName] := DateTimeToIso8601Text(vNew);
-        cdtInteger:
-          vDoc^.I[vCol.PropertyName] := vNew;
-        cdtFloat:
-          vDoc^.D[vCol.PropertyName] := vNew;
-        cdtBoolean:
-          vDoc^.B[vCol.PropertyName] := vNew;
-      else
-        vDoc^.S[vCol.PropertyName] := VarToStr(vNew);
-      end;
+    fGrid.fNodeAdapter.SetValue(fNode, vNew, fColumn);
   finally
     FreeAndNil(fControl); // for do not perform any event from it
     fGrid.InvalidateNode(fNode);
@@ -1236,7 +1218,6 @@ end;
 function TTisGridEditLink.PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNode;
   aColumn: TColumnIndex): Boolean; stdcall;
 var
-  vDoc: PDocVariantData;
   vCol: TTisGridColumn;
   vValue: PVariant;
 begin
@@ -1246,35 +1227,21 @@ begin
   fNode := aNode;
   fColumn := aColumn;
   FreeAndNil(fControl);
-  vDoc := fGrid.GetNodeAsPDocVariantData(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(vCol);
   fControl.ReadOnly := vCol.ReadOnly;
   vValue := fGrid.fNodeAdapter.GetValue(aNode, aColumn);
-  if Assigned(vValue) and (not fGrid.fNodeAdapter.IsChild(aNode)) then
-    fControl.SetValue(vValue^)
+  if Assigned(vValue) then
+  begin
+    fControl.SetValue(vValue^);
+    fGrid.DoPrepareEditor(vCol, fControl);
+  end
   else
   begin
     result := False;
-    DisableControlEvents;
     fAbortAll := True;
-    exit;
+    DisableControlEvents;
   end;
-  case vCol.DataType of
-    cdtString, cdtMemo:
-      fControl.SetValue(vDoc^.S[vCol.PropertyName]);
-    cdtDate, cdtTime, cdtDateTime:
-      fControl.SetValue(Iso8601ToDateTime(vDoc^.U[vCol.PropertyName]));
-    cdtInteger:
-      fControl.SetValue(vDoc^.I[vCol.PropertyName]);
-    cdtFloat:
-      fControl.SetValue(vDoc^.D[vCol.PropertyName]);
-    cdtBoolean:
-      fControl.SetValue(vDoc^.B[vCol.PropertyName]);
-  else
-    fControl.SetValue(vDoc^.S[vCol.PropertyName]);
-  end;
-  fGrid.DoPrepareEditor(vCol, fControl);
 end;
 
 procedure TTisGridEditLink.ProcessMessage(var aMessage: TLMessage); stdcall;
@@ -1876,6 +1843,43 @@ begin
     result := VarToStr(vValue^)
   else
     result := aDefault;
+end;
+
+procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
+  aColumn: TColumnIndex);
+var
+  vNodeData: PTisNodeData;
+  vData: PDocVariantData;
+  vCol: TTisGridColumn;
+begin
+  vNodeData := GetData(aNode);
+  if vNodeData^.IsChild then
+    vNodeData^.Value^ := aValue
+  else
+  begin
+    vData := vNodeData^.Data;
+    vCol := Grid.FindColumnByIndex(aColumn);
+    if VarIsNull(aValue) then
+    begin
+      if not vCol.Required then
+        vData^.Value[vCol.PropertyName] := NULL;
+    end
+    else
+      case vCol.DataType of
+        cdtString, cdtMemo:
+          vData^.S[vCol.PropertyName] := VarToStr(aValue);
+        cdtDate, cdtTime, cdtDateTime:
+          vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
+        cdtInteger:
+          vData^.I[vCol.PropertyName] := aValue;
+        cdtFloat:
+          vData^.D[vCol.PropertyName] := aValue;
+        cdtBoolean:
+          vData^.B[vCol.PropertyName] := aValue;
+      else
+        vData^.S[vCol.PropertyName] := VarToStr(aValue);
+      end;
+  end;
 end;
 
 function TTisNodeAdapter.IsChild(aNode: PVirtualNode): Boolean;
