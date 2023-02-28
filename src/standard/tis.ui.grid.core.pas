@@ -98,6 +98,7 @@ type
     fGrid: TTisGrid;
     fNode: PVirtualNode;
     fColumn: Integer;
+    fAbortAll: Boolean;
   protected
     /// disable control events, especially OnExit, to prevents a GPF
     procedure DisableControlEvents;
@@ -347,6 +348,52 @@ type
     property ShowChildren: Boolean read fShowChildren write fShowChildren default DefaultShowChildren;
   end;
 
+  /// as known as "user data" for the Grid
+  // - each node has its own NodeData
+  TTisNodeData = record
+    /// it will be TRUE only if NodeOptions.ShowChildren is TRUE
+    IsChild: Boolean;
+    /// it points to original name
+    // - it can be NIL if the original object/array is nameless
+    Name: PRawUtf8;
+    /// it points to orinal value
+    // - it can not be NIL
+    Value: PVariant;
+    /// it points to original row data
+    Data: PDocVariantData;
+  end;
+  PTisNodeData = ^TTisNodeData;
+
+  /// adapter for a node
+  TTisNodeAdapter = object
+    Offset: Cardinal;
+    Grid: TTisGrid;
+    procedure Init(aGrid: TTisGrid);
+    /// return aNode Data pointer
+    // - use this method if you need a PTisNodeData local variable,
+    // as it will be a little faster then GetData
+    function GetDataPointer(aNode: PVirtualNode): Pointer;
+    /// return aNode Data pointer
+    // - convenient way to access Data but without using a local variable
+    function GetData(aNode: PVirtualNode): PTisNodeData;
+    /// return aNode Data as string
+    // - convenient way to access Data but without using a local variable
+    function GetDataAsString(aNode: PVirtualNode): string;
+    /// return aNode name
+    // - if aNode represents an object, it will return its Name
+    // - if aNode represents an object nameless, it will return "{}"
+    // - if aNode represents an array, it will return its value
+    // - you coud use to read Child nodes values in DoGetText
+    function GetName(aNode: PVirtualNode): string;
+    /// return aNode value
+    function GetValue(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn): PVariant;
+    /// return aNode value
+    function GetValueAsString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn;
+      const aDefault: string = ''): string;
+    /// return TRUE if aNode is child
+    function IsChild(aNode: PVirtualNode): Boolean;
+  end;
+
   TOnGridGetText = procedure(aSender: TBaseVirtualTree; aNode: PVirtualNode;
     const aCell: TDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
     var aText: string) of object;
@@ -404,51 +451,9 @@ type
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
-  private type
-    /// as known as "user data"
-    TNodeData = record
-      /// it will be TRUE only if NodeOptions.ShowChildren is TRUE
-      IsChild: Boolean;
-      /// it points to original name
-      // - it can be NIL if the original object/array is nameless
-      Name: PRawUtf8;
-      /// it points to orinal value
-      // - it can not be NIL
-      Value: PVariant;
-      /// it points to original row data
-      Data: PDocVariantData;
-    end;
-    PNodeData = ^TNodeData;
-    /// adapter to convert a node in other data type
-    TNodeAdapter = object
-      Offset: Cardinal;
-      procedure Init(aGrid: TTisGrid);
-      /// return aNode Data pointer
-      // - use this method if you need a PNodeData local variable,
-      // as it will be a little faster then AsData
-      function GetDataPointer(aNode: PVirtualNode): Pointer;
-      /// return aNode Data pointer
-      // - convenient way to access Data but without using a local variable
-      function GetData(aNode: PVirtualNode): PNodeData;
-      /// return aNode Data as string
-      // - convenient way to access Data but without using a local variable
-      function GetDataAsString(aNode: PVirtualNode): string;
-      /// return aNode name
-      // - if aNode represents an object, it will return its Name
-      // - if aNode represents an object nameless, it will return "{}"
-      // - if aNode represents an array, it will return its value
-      // - you coud use to read Child nodes values in DoGetText
-      function GetName(aNode: PVirtualNode): string;
-      /// return aNode value
-      function GetValue(aNode: PVirtualNode): PVariant;
-      /// return aNode value
-      function GetValueAsString(aNode: PVirtualNode; const aDefault: string = ''): string;
-      /// return TRUE if aNode is child
-      function IsChild(aNode: PVirtualNode): Boolean;
-    end;
   private
     // ------------------------------- new fields ----------------------------------
-    fNodeAdapter: TNodeAdapter;
+    fNodeAdapter: TTisNodeAdapter;
     fKeyFieldsList, fParentKeyFieldsList: array of string;
     fSelectedAndTotalLabel: TLabel;
     fTextFound: boolean;
@@ -461,7 +466,6 @@ type
     fStartSearchNode: PVirtualNode;
     fTextToFind: string;
     fData: TDocVariantData;
-    fSelectedData: TDocVariantData;
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fExportFormatOptions: TTisGridExportFormatOptions;
@@ -554,7 +558,7 @@ type
     procedure Notification(aComponent: TComponent; aOperation: TOperation); override;
     procedure DoAutoAdjustLayout(const aMode: TLayoutAdjustmentPolicy;
       const aXProportion, aYProportion: Double); override;
-    procedure DoChange(Node: PVirtualNode); override;
+    procedure DoChange(aNode: PVirtualNode); override;
     /// called before open a context menu
     // - it will call Clean/FillPopupMenu, as some Captions translation should be done before show up
     procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
@@ -1059,6 +1063,8 @@ procedure TTisGridEditLink.EditKeyDown(aSender: TObject; var Key: Word; Shift: T
 var
   vCanAdvance: Boolean;
 begin
+  if fAbortAll then
+    exit;
   vCanAdvance := True;
   case Key of
     VK_ESCAPE:
@@ -1098,6 +1104,8 @@ end;
 
 procedure TTisGridEditLink.EditExit(aSender: TObject);
 begin
+  if fAbortAll then
+    exit;
   if Assigned(fControl) then
   begin
     if (toAutoAcceptEditChange in fGrid.TreeOptions.StringOptions) then
@@ -1155,9 +1163,12 @@ end;
 
 function TTisGridEditLink.BeginEdit: Boolean; stdcall;
 begin
-  result := True;
-  fControl.Internal.Show;
-  fControl.Internal.SetFocus;
+  result := not fAbortAll;
+  if result then
+  begin
+    fControl.Internal.Show;
+    fControl.Internal.SetFocus;
+  end;
 end;
 
 function TTisGridEditLink.CancelEdit: Boolean; stdcall;
@@ -1175,6 +1186,11 @@ var
   vCur, vNew: Variant;
 begin
   result := True;
+  if fAbortAll then
+  begin
+    result := False;
+    exit;
+  end;
   DisableControlEvents;
   vDoc := fGrid.GetNodeAsPDocVariantData(fNode);
   vCol := fGrid.FindColumnByIndex(fColumn);
@@ -1222,8 +1238,10 @@ function TTisGridEditLink.PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNo
 var
   vDoc: PDocVariantData;
   vCol: TTisGridColumn;
+  vValue: PVariant;
 begin
   result := True;
+  fAbortAll := False;
   fGrid := aTree as TTisGrid;
   fNode := aNode;
   fColumn := aColumn;
@@ -1232,6 +1250,16 @@ begin
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(vCol);
   fControl.ReadOnly := vCol.ReadOnly;
+  vValue := fGrid.fNodeAdapter.GetValue(aNode, aColumn);
+  if Assigned(vValue) and (not fGrid.fNodeAdapter.IsChild(aNode)) then
+    fControl.SetValue(vValue^)
+  else
+  begin
+    result := False;
+    DisableControlEvents;
+    fAbortAll := True;
+    exit;
+  end;
   case vCol.DataType of
     cdtString, cdtMemo:
       fControl.SetValue(vDoc^.S[vCol.PropertyName]);
@@ -1762,14 +1790,15 @@ begin
     inherited AssignTo(aDest);
 end;
 
-{ TTisGrid.TNodeAdapter }
+{ TTisNodeAdapter }
 
-procedure TTisGrid.TNodeAdapter.Init(aGrid: TTisGrid);
+procedure TTisNodeAdapter.Init(aGrid: TTisGrid);
 begin
-  Offset := aGrid.AllocateInternalDataArea(SizeOf(TNodeData));
+  Grid := aGrid;
+  Offset := aGrid.AllocateInternalDataArea(SizeOf(TTisNodeData));
 end;
 
-function TTisGrid.TNodeAdapter.GetDataPointer(aNode: PVirtualNode): Pointer;
+function TTisNodeAdapter.GetDataPointer(aNode: PVirtualNode): Pointer;
 begin
   if (aNode = nil) or (Offset <= 0) then
     result := nil
@@ -1777,19 +1806,19 @@ begin
     result := PByte(aNode) + Offset;
 end;
 
-function TTisGrid.TNodeAdapter.GetData(aNode: PVirtualNode): PNodeData;
+function TTisNodeAdapter.GetData(aNode: PVirtualNode): PTisNodeData;
 begin
   result := GetDataPointer(aNode);
 end;
 
-function TTisGrid.TNodeAdapter.GetDataAsString(aNode: PVirtualNode): string;
+function TTisNodeAdapter.GetDataAsString(aNode: PVirtualNode): string;
 begin
   result := Utf8ToString(GetData(aNode)^.Data^.ToJson);
 end;
 
-function TTisGrid.TNodeAdapter.GetName(aNode: PVirtualNode): string;
+function TTisNodeAdapter.GetName(aNode: PVirtualNode): string;
 var
-  vNodeData: PNodeData;
+  vNodeData: PTisNodeData;
 begin
   result := '';
   vNodeData := GetData(aNode);
@@ -1814,33 +1843,42 @@ begin
   end;
 end;
 
-function TTisGrid.TNodeAdapter.GetValue(aNode: PVirtualNode): PVariant;
+function TTisNodeAdapter.GetValue(aNode: PVirtualNode;
+  aColumn: TColumnIndex): PVariant;
 var
-  vNodeData: PNodeData;
+  vNodeData: PTisNodeData;
   vData: PDocVariantData;
+  vCol: TTisGridColumn;
 begin
   result := nil;
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
   begin
+    // it should return only simple values
     if not _Safe(vNodeData^.Value^, vData) then
       result := vNodeData^.Value
+  end
+  else
+  begin
+    vCol := Grid.FindColumnByIndex(aColumn);
+    if Assigned(vCol) then
+      vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result);
   end;
 end;
 
-function TTisGrid.TNodeAdapter.GetValueAsString(aNode: PVirtualNode;
-  const aDefault: string): string;
+function TTisNodeAdapter.GetValueAsString(aNode: PVirtualNode;
+  aColumn: TColumnIndex; const aDefault: string): string;
 var
   vValue: PVariant;
 begin
-  vValue := GetValue(aNode);
+  vValue := GetValue(aNode, aColumn);
   if Assigned(vValue) then
     result := VarToStr(vValue^)
   else
     result := aDefault;
 end;
 
-function TTisGrid.TNodeAdapter.IsChild(aNode: PVirtualNode): Boolean;
+function TTisNodeAdapter.IsChild(aNode: PVirtualNode): Boolean;
 begin
   result := GetData(aNode)^.IsChild;
 end;
@@ -2251,7 +2289,7 @@ begin
         vMsg.msg := LM_CHAR;
         vMsg.wParam := ord(vBuffer[0]);
         vMsg.lParam := 0;
-        if Message.CharCode <> VK_F2 then
+        if (Message.CharCode <> VK_F2) and Assigned(EditLink) then
           EditLink.ProcessMessage(vMsg);
       end;
     end
@@ -2359,7 +2397,7 @@ end;
 procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
   aTextType: TVSTTextType; var aText: string);
 var
-  vNodeData: PNodeData;
+  vNodeData: PTisNodeData;
   vCol: TTisGridColumn;
 begin
   if Assigned(aNode) then
@@ -2464,7 +2502,7 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   end;
 
 var
-  vNodeData: PNodeData;
+  vNodeData: PTisNodeData;
   vData: PDocVariantData;
 begin
   if not fData.IsVoid then
@@ -2678,10 +2716,9 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoChange(Node: PVirtualNode);
+procedure TTisGrid.DoChange(aNode: PVirtualNode);
 begin
-  inherited DoChange(Node);
-  fSelectedData := SelectedRows;
+  inherited DoChange(aNode);
   UpdateSelectedAndTotalLabel;
 end;
 
@@ -3304,8 +3341,6 @@ begin
   inherited Create(AOwner);
   fNodeAdapter.Init(self);
   Clear;
-  fSelectedData.Clear;
-  fSelectedData.InitArray([], JSON_FAST_FLOAT);
   DefaultText := '';
   DefaultCsvSeparator := ',';
   fZebraColor := $00EDF0F1;
@@ -3457,6 +3492,7 @@ procedure TTisGrid.LoadData;
 
 var
   vFocusedRow, vTopRow: PDocVariantData;
+  vSelectedRows: TDocVariantData;
   vNodeArray: TNodeArray;
   vNode: PVirtualNode;
   vIsReadOnly: Boolean;
@@ -3474,6 +3510,7 @@ begin
     // stores previous focused and selected rows
     BeginUpdate;
     try
+      vSelectedRows := SelectedRows;
       vFocusedRow := FocusedRow;
       vTopRow := GetNodeAsPDocVariantData(TopNode);
       SetLength(vNodeArray, 0);
@@ -3493,7 +3530,7 @@ begin
     finally
       try
         // restore selected nodes
-        SelectedRows := fSelectedData;
+        SelectedRows := vSelectedRows;
         // restore focused node
         if vFocusedRow <> nil then
           SetFocusedRowNoClearSelection(vFocusedRow);
@@ -3681,7 +3718,7 @@ var
   vUseArray: Boolean;
 begin
   SetLength(result, 0);
-  if not assigned(aData) or aData^.IsVoid then
+  if not Assigned(aData) or aData^.IsVoid then
     exit;
   DynArrayFakeLength(@vArray, 1);
   vUseArray := aUseKeyFieldsList and (Length(fKeyFieldsList) > 0);

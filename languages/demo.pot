@@ -65,6 +65,15 @@ msgstr ""
 msgid "Work with Grid Data"
 msgstr ""
 
+#: tgridframe.functionrefreshlabel.caption
+msgid "Refresh"
+msgstr ""
+
+#: tgridframe.functionrefreshlabel.hint
+msgctxt "tgridframe.functionrefreshlabel.hint"
+msgid "MetaData"
+msgstr ""
+
 #: tgridframe.functionselrowslabel.caption
 msgid "Selected Rows"
 msgstr ""

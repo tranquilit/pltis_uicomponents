@@ -939,7 +939,6 @@ object GridFrame: TGridFrame
       ZebraPaint = True
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
-      OnEdited = GridEdited
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
       OnEditorLookup = GridEditorLookup
@@ -1066,6 +1065,28 @@ object GridFrame: TGridFrame
         PopupMenu = GridMetaDataPopupMenu
         ShowHint = True
         OnClick = FunctionDataLabelClick
+      end
+      object FunctionRefreshLabel: TLabel
+        Cursor = crHandPoint
+        Left = 304
+        Height = 15
+        Hint = 'MetaData'
+        Top = 3
+        Width = 39
+        Caption = 'Refresh'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        PopupMenu = GridMetaDataPopupMenu
+        ShowHint = True
+        OnClick = FunctionRefreshLabelClick
       end
     end
     object GroupBox3: TGroupBox
