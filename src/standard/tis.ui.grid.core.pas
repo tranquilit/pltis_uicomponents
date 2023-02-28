@@ -3127,11 +3127,17 @@ begin
     vAdapter.Open;
     try
       vAdapter.Clear;
-      SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, vRow);
-      vStr := VariantToUtf8(GetNodeAsPDocVariantData(FocusedNode)^.GetValueOrDefault(FocusedColumnObject.PropertyName, ''));
-      vAdapter.Add(cbkText, vStr[1], Length(vStr)+1);
-      vStr := vRow.ToJson;
-      vAdapter.Add(cbkJson, vStr[1], Length(vStr));
+      vStr := fNodeAdapter.GetValueAsString(FocusedNode, FocusedColumnObject.Index, '');
+      if vStr <> '' then
+      begin
+        vAdapter.Add(cbkText, vStr[1], Length(vStr)+1);
+        if not fNodeAdapter.IsChild(FocusedNode) then
+        begin
+          SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, vRow);
+          vStr := vRow.ToJson;
+          vAdapter.Add(cbkJson, vStr[1], Length(vStr));
+        end;
+      end;
     finally
       vAdapter.Close;
     end;
