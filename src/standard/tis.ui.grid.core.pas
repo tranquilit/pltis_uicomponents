@@ -385,12 +385,17 @@ type
     // - if aNode represents an array, it will return its value
     // - you coud use to read Child nodes values in DoGetText
     function GetName(aNode: PVirtualNode): string;
-    /// return aNode value
+    /// returns the value corresponding to the aNode
+    // - if it is not a child node, it will (try to) return the value corresponding to
+    // the TTisGridColumn instance by aColumn and it could be NIL, if the name was not found
     function GetValue(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn): PVariant;
-    /// return aNode value
+    /// returns the value corresponding to the aNode
+    // - just a wrapper on GetValue for do not get NIL when return
     function GetValueAsString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn;
       const aDefault: string = ''): string;
     /// set a value to aNode
+    // - if it is not a child node, it will use the PropertyName of the TTisGridColumn instance
+    // by aColumn to try to update the original object data, but if the object.name was not found, it will do nothing
     procedure SetValue(aNode: PVirtualNode; const aValue: Variant; aColumn: TColumnIndex = NoColumn);
     /// return TRUE if aNode is child
     function IsChild(aNode: PVirtualNode): Boolean;
@@ -1821,6 +1826,7 @@ begin
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
   begin
+    // ignoring aColumn, if it is a child node
     // it should return only simple values
     if not _Safe(vNodeData^.Value^, vData) then
       result := vNodeData^.Value
@@ -1859,6 +1865,9 @@ begin
   begin
     vData := vNodeData^.Data;
     vCol := Grid.FindColumnByIndex(aColumn);
+    // check if object.name exists, otherwise it will raise an exception
+    if not Assigned(vData^.GetVarData(vCol.PropertyName)) then
+      exit;
     if VarIsNull(aValue) then
     begin
       if not vCol.Required then
