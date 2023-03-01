@@ -2512,7 +2512,18 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
     vPair: TDocVariantFields;
   begin
     _SetNodeDefaultsForTreeMode(aParent);
-    vDoc := fNodeAdapter.GetData(aParent)^.Data;
+    if not fNodeAdapter.IsChild(aParent) then
+    begin
+      // need to check if the first "father" is a named object
+      // then, get only its fields instead of the whole object
+      vData := fNodeAdapter.GetData(aParent)^.Data;
+      if Length(vData^.GetNames) = 1 then
+        vDoc := _Safe(vData^.Values[0]);
+      else
+        vDoc := vData;
+    end
+    else
+      vDoc := fNodeAdapter.GetData(aParent)^.Data;
     for vPair in vDoc^ do
     begin
       // is it be a valid array or object for the next child?
