@@ -129,7 +129,7 @@ object TisGridEditor: TTisGridEditor
     Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoShowSortGlyphs, hoVisible]
     Header.Style = hsFlatButtons
     ParentFont = False
-    PopupMenu = PopupMenu1
+    PopupMenu = GridPopupMenu
     TabOrder = 1
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toEditable, toFullRepaintOnResize, toGridExtensions, toInitOnSave, toToggleOnDblClick, toFullRowDrag, toEditOnClick]
@@ -641,7 +641,7 @@ object TisGridEditor: TTisGridEditor
       OnExecute = ActLoadDataExecute
     end
   end
-  object PopupMenu1: TPopupMenu
+  object GridPopupMenu: TPopupMenu
     Left = 248
     Top = 96
     object MenuItem1: TMenuItem

@@ -1,3 +1,4 @@
+
 // -----------------------------------------------------------------
 //    This file is part of Tranquil IT Software
 //    Copyright (C) 2012 - 2023  Tranquil IT https://www.tranquil.it
@@ -3920,6 +3921,7 @@ begin
       vTarget := self;
       Grid.ClearAll;
       Grid.Assign(vTarget);
+      Grid.PopupMenu := GridPopupMenu; // special for the Editor
       Grid.Header.Assign(vTarget.Header);
       Grid.TreeOptions.Assign(vTarget.TreeOptions);
       Grid.NodeOptions.Assign(vTarget.NodeOptions);

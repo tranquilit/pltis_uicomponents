@@ -62,7 +62,7 @@ type
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
     ButtonsPanel: TPanel;
-    PopupMenu1: TPopupMenu;
+    GridPopupMenu: TPopupMenu;
     ClearAllButton: TButton;
     PropsPageControl: TPageControl;
     ColumnPropsTab: TTabSheet;
