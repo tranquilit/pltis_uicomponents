@@ -1847,7 +1847,14 @@ var
 begin
   vValue := GetValue(aNode, aColumn);
   if Assigned(vValue) then
-    result := VarToStr(vValue^)
+  begin
+    if VarIsBool(vValue^) then
+      result := LowerCase(VarToStr(vValue^))
+    else if VarIsNull(vValue^) then
+      result := 'null'
+    else
+      result := VarToStr(vValue^);
+  end
   else
     result := aDefault;
 end;
