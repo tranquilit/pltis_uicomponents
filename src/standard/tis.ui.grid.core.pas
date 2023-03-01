@@ -1849,14 +1849,15 @@ begin
   if Assigned(vValue) then
   begin
     if VarIsBool(vValue^) then
-      result := LowerCase(VarToStr(vValue^))
+      result := LowerCase(VariantToUtf8(vValue^))
     else if VarIsNull(vValue^) then
       result := 'null'
     else
-      result := VarToStr(vValue^);
+      result := VariantToUtf8(vValue^);
   end
   else
     result := aDefault;
+  result := Utf8ToString(result);
 end;
 
 procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
