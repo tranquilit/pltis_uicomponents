@@ -1844,17 +1844,11 @@ function TTisNodeAdapter.GetValueAsString(aNode: PVirtualNode;
   aColumn: TColumnIndex; const aDefault: string): string;
 var
   vValue: PVariant;
+  vCtrlsObj: TTisGridControlsObject;
 begin
   vValue := GetValue(aNode, aColumn);
   if Assigned(vValue) then
-  begin
-    if VarIsBool(vValue^) then
-      result := LowerCase(vValue^)
-    else if VarIsNull(vValue^) then
-      result := 'null'
-    else
-      result := VariantToUtf8(vValue^);
-  end
+    result := vCtrlsObj.NormalizeVariantToString(vValue^)
   else
     result := aDefault;
   result := Utf8ToString(result);
@@ -2518,7 +2512,7 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
       // then, get only its fields instead of the whole object
       vData := fNodeAdapter.GetData(aParent)^.Data;
       if Length(vData^.GetNames) = 1 then
-        vDoc := _Safe(vData^.Values[0]);
+        vDoc := _Safe(vData^.Values[0])
       else
         vDoc := vData;
     end
