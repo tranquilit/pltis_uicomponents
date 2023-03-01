@@ -1849,7 +1849,7 @@ begin
   if Assigned(vValue) then
   begin
     if VarIsBool(vValue^) then
-      result := LowerCase(VariantToUtf8(vValue^))
+      result := LowerCase(vValue^)
     else if VarIsNull(vValue^) then
       result := 'null'
     else
