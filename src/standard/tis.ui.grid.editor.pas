@@ -120,6 +120,7 @@ type
     ParentNamesEdit: TEdit;
     Bevel6: TBevel;
     ShowChildrenNodesCheckBox: TCheckBox;
+    SortColumnClearLabel1: TLabel;
     procedure ActAddColumnExecute(Sender: TObject);
     procedure ActAddColumnsExecute(Sender: TObject);
     procedure ActClearAllExecute(Sender: TObject);
@@ -158,6 +159,7 @@ type
     procedure TreeModeCheckBoxChange(Sender: TObject);
     procedure ActLoadDataExecute(Sender: TObject);
     procedure ShowChildrenNodesCheckBoxChange(Sender: TObject);
+    procedure SortColumnClearLabel1Click(Sender: TObject);
   private
     procedure SetPropertiesPanel(aColIndex, aColTitle, aColProperty,
       aColPosition: string; const aColDataType: TTisColumnDataType;
@@ -490,29 +492,21 @@ begin
 end;
 
 procedure TTisGridEditor.ShowChildrenNodesCheckBoxChange(Sender: TObject);
-const
-  cMsg = 'Would you like to delete all previous columns and create only Property and Value ones?';
-var
-  vResult: Integer;
 begin
-  if ShowChildrenNodesCheckBox.Checked then
-  begin
-    vResult := MessageDlg(cMsg, mtConfirmation, [mbYes, mbNo, mbCancel], 0);
-    case vResult of
-      mrYes:
-      begin
-        Grid.Header.Columns.Clear;
-        AddColumn('Property', 'Property');
-        AddColumn('Value', 'Value');
-      end;
-      mrNo: {just continue};
-    else
-      ShowChildrenNodesCheckBox.Checked := False;
-      exit;
-    end;
-  end;
   Grid.NodeOptions.ShowChildren := ShowChildrenNodesCheckBox.Checked;
   Grid.LoadData;
+end;
+
+procedure TTisGridEditor.SortColumnClearLabel1Click(Sender: TObject);
+const
+  cMsg = 'Would you like to delete all previous columns and create only Property and Value ones?';
+begin
+  if MessageDlg(cMsg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    Grid.Header.Columns.Clear;
+    AddColumn('Property', 'Property');
+    AddColumn('Value', 'Value');
+  end;
 end;
 
 procedure TTisGridEditor.SetPropertiesPanel(aColIndex, aColTitle, aColProperty,

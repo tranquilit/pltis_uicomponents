@@ -2,10 +2,10 @@ object TisGridEditor: TTisGridEditor
   Left = 278
   Height = 398
   Top = 240
-  Width = 711
+  Width = 716
   Caption = 'Grid Editor'
   ClientHeight = 398
-  ClientWidth = 711
+  ClientWidth = 716
   OnCreate = FormCreate
   OnShow = FormShow
   LCLVersion = '2.3.0.0'
@@ -13,7 +13,7 @@ object TisGridEditor: TTisGridEditor
     Left = 9
     Height = 34
     Top = 355
-    Width = 693
+    Width = 698
     BorderSpacing.Around = 9
     OKButton.Name = 'OKButton'
     OKButton.DefaultCaption = True
@@ -30,10 +30,10 @@ object TisGridEditor: TTisGridEditor
     Left = 0
     Height = 48
     Top = 0
-    Width = 711
+    Width = 716
     Align = alTop
     ClientHeight = 48
-    ClientWidth = 711
+    ClientWidth = 716
     ParentFont = False
     TabOrder = 0
     object PasteJsonButton: TButton
@@ -81,7 +81,7 @@ object TisGridEditor: TTisGridEditor
       AnchorSideTop.Side = asrCenter
       AnchorSideRight.Control = ButtonsPanel
       AnchorSideRight.Side = asrBottom
-      Left = 591
+      Left = 596
       Height = 27
       Top = 11
       Width = 115
@@ -111,7 +111,7 @@ object TisGridEditor: TTisGridEditor
     Left = 0
     Height = 298
     Top = 48
-    Width = 399
+    Width = 404
     Align = alClient
     Color = clWhite
     Colors.UnfocusedColor = clMedGray
@@ -141,7 +141,7 @@ object TisGridEditor: TTisGridEditor
     OnHeaderDragged = GridHeaderDragged
   end
   object PropsPageControl: TPageControl
-    Left = 399
+    Left = 404
     Height = 298
     Top = 48
     Width = 312
@@ -540,15 +540,41 @@ object TisGridEditor: TTisGridEditor
         Height = 19
         Hint = 'Check this option to show children nodes when in Tree Mode'
         Top = 174
-        Width = 132
+        Width = 100
         BorderSpacing.Left = 10
-        Caption = 'Show Children Nodes'
+        Caption = 'Children Nodes'
         Enabled = False
         OnChange = ShowChildrenNodesCheckBoxChange
         ParentFont = False
         ParentShowHint = False
         ShowHint = True
         TabOrder = 7
+      end
+      object SortColumnClearLabel1: TLabel
+        AnchorSideLeft.Control = ShowChildrenNodesCheckBox
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = ShowChildrenNodesCheckBox
+        AnchorSideTop.Side = asrCenter
+        Cursor = crHandPoint
+        Left = 213
+        Height = 15
+        Hint = 'To create only Property and Value columns'
+        Top = 176
+        Width = 55
+        BorderSpacing.Left = 5
+        Caption = '2 columns'
+        Font.CharSet = ANSI_CHARSET
+        Font.Color = clBlue
+        Font.Height = -12
+        Font.Name = 'Segoe UI'
+        Font.Pitch = fpVariable
+        Font.Quality = fqDraft
+        Font.Style = [fsUnderline]
+        ParentColor = False
+        ParentFont = False
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = SortColumnClearLabel1Click
       end
     end
     object TabSheet1: TTabSheet
