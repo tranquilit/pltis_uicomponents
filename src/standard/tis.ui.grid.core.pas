@@ -1860,15 +1860,19 @@ var
   vNodeData: PTisNodeData;
   vData: PDocVariantData;
   vCol: TTisGridColumn;
+  vValue: Variant;
 begin
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
-    vNodeData^.Value^ := aValue
+  begin
+    TextToVariant(aValue, False, vValue);
+    vNodeData^.Value^ := vValue;
+  end
   else
   begin
     vData := vNodeData^.Data;
     vCol := Grid.FindColumnByIndex(aColumn);
-    // check if object.name exists, otherwise it will raise an exception
+    // checking if "object.name" exists, otherwise it could raise an exception
     if not Assigned(vData^.GetVarData(vCol.PropertyName)) then
       exit;
     if VarIsNull(aValue) then
