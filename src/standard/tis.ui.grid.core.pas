@@ -99,6 +99,7 @@ type
     fGrid: TTisGrid;
     fNode: PVirtualNode;
     fColumn: Integer;
+    fValueIsString: Boolean;
     fAbortAll: Boolean;
   protected
     /// disable control events, especially OnExit, to prevents a GPF
@@ -397,7 +398,8 @@ type
     /// set a value to aNode
     // - if it is not a child node, it will use the PropertyName of the TTisGridColumn instance
     // by aColumn to try to update the original object data, but if the object.name was not found, it will do nothing
-    procedure SetValue(aNode: PVirtualNode; const aValue: Variant; aColumn: TColumnIndex = NoColumn);
+    procedure SetValue(aNode: PVirtualNode; const aValue: Variant; aColumn: TColumnIndex = NoColumn;
+      aDoNotUseTextToVariant: Boolean = False);
     /// return TRUE if aNode is child
     function IsChild(aNode: PVirtualNode): Boolean;
   end;
@@ -1208,7 +1210,7 @@ begin
   try
     if vAborted then
       exit;
-    fGrid.fNodeAdapter.SetValue(fNode, vNew, fColumn);
+    fGrid.fNodeAdapter.SetValue(fNode, vNew, fColumn, fValueIsString);
   finally
     FreeAndNil(fControl); // for do not perform any event from it
     fGrid.InvalidateNode(fNode);
@@ -1232,6 +1234,7 @@ begin
   fGrid := aTree as TTisGrid;
   fNode := aNode;
   fColumn := aColumn;
+  fValueIsString := False;
   FreeAndNil(fControl);
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(vCol);
@@ -1239,6 +1242,7 @@ begin
   vValue := fGrid.fNodeAdapter.GetValue(aNode, aColumn);
   if Assigned(vValue) then
   begin
+    fValueIsString := VarIsStr(vValue^);
     fControl.SetValue(vValue^);
     fGrid.DoPrepareEditor(vCol, fControl);
   end
@@ -1855,7 +1859,7 @@ begin
 end;
 
 procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
-  aColumn: TColumnIndex);
+  aColumn: TColumnIndex; aDoNotUseTextToVariant: Boolean);
 var
   vNodeData: PTisNodeData;
   vData: PDocVariantData;
@@ -1865,7 +1869,10 @@ begin
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
   begin
-    TextToVariant(aValue, False, vValue);
+    if not (VarIsNull(aValue) or aDoNotUseTextToVariant) then
+      TextToVariant(aValue, True, vValue)
+    else
+      vValue := aValue;
     vNodeData^.Value^ := vValue;
   end
   else
