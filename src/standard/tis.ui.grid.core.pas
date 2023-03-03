@@ -734,6 +734,8 @@ type
     /// load Settings from an IniFile
     procedure LoadSettingsFromIni(const aFileName: TFileName);
     /// it returns TRUE if tree mode options were settled
+    function IsTreeMode: Boolean;
+    /// it returns TRUE if tree mode options were settled
     // - also KeyFieldsNames and ParentKeyFieldsNames should not be empty
     function IsTreeModeKeyParent: Boolean;
     /// if using TreeMode, it will expand all
@@ -3032,7 +3034,7 @@ begin
     fFindDlg.Execute
   else
   begin
-    if IsTreeModeKeyParent then
+    if IsTreeMode then
       ExpandAllNodes; // necessary to show the node for the user, otherwise it gets in an infinity loop
     vNode := FocusedNode;
     TextFound := False;
@@ -4149,11 +4151,14 @@ begin
   end;
 end;
 
+function TTisGrid.IsTreeMode: Boolean;
+begin
+  result := (TREEMODE_OPTIONS <= TreeOptions.PaintOptions);
+end;
+
 function TTisGrid.IsTreeModeKeyParent: Boolean;
 begin
-  result := (TREEMODE_OPTIONS <= TreeOptions.PaintOptions) and
-    (KeyFieldsNames <> '') and
-    (ParentKeyFieldsNames <> '');
+  result := IsTreeMode and (KeyFieldsNames <> '') and (ParentKeyFieldsNames <> '');
 end;
 
 procedure TTisGrid.ExpandAllNodes;
