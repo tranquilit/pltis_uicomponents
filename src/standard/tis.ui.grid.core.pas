@@ -3168,7 +3168,7 @@ begin
     vAdapter.Open;
     try
       vAdapter.Clear;
-      vStr := fNodeAdapter.GetValueAsString(FocusedNode, FocusedColumnObject.Index, '');
+      vStr := Text[FocusedNode, FocusedColumnObject.Index];
       if vStr <> '' then
       begin
         vAdapter.Add(cbkText, vStr[1], Length(vStr)+1);
