@@ -2482,33 +2482,29 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   // - in this way, we do not need to override/implement InitChildren and DoInitChildren
   procedure _CreateChildrenFor(aParent: PVirtualNode);
   var
-    vChild: PVirtualNode;
-    vDoc, vData: PDocVariantData;
+    vDoc, vData, vTempData: PDocVariantData;
     vPair: TDocVariantFields;
   begin
     _SetNodeDefaultsForTreeMode(aParent);
+    vData := fNodeAdapter.GetData(aParent)^.Data;
     if not fNodeAdapter.IsChild(aParent) then
     begin
       // need to check if the first "father" is a named object
       // then, get only its fields instead of the whole object
-      vData := fNodeAdapter.GetData(aParent)^.Data;
       if Length(vData^.GetNames) = 1 then
         vDoc := _Safe(vData^.Values[0])
       else
         vDoc := vData;
     end
     else
-      vDoc := fNodeAdapter.GetData(aParent)^.Data;
+      vDoc := vData;
     for vPair in vDoc^ do
     begin
       // is it be a valid array or object for the next child?
-      if _Safe(vPair.Value^, vData) then
-      begin
-        vChild := _CreateChild(aParent, vPair.Name, vPair.Value, vData);
-        _CreateChildrenFor(vChild);
-      end
+      if _Safe(vPair.Value^, vTempData) then
+        _CreateChildrenFor(_CreateChild(aParent, vPair.Name, vPair.Value, vTempData))
       else
-        vChild := _CreateChild(aParent, vPair.Name, vPair.Value, vDoc);
+        _CreateChild(aParent, vPair.Name, vPair.Value, vDoc);
     end;
   end;
 
