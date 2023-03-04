@@ -2822,10 +2822,11 @@ begin
     ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) and
     (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
-  if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
+  if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) and
+    (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
   _AddItem('-', 0, nil);
-  if pmoShowExport in fPopupMenuOptions then
+  if (pmoShowExport in fPopupMenuOptions) {and (not fNodeOptions.ShowChildren)} then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
       _AddItem(rsGridExportSelected, 0, @DoExport, not fData.IsVoid)
