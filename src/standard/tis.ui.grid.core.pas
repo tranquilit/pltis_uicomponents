@@ -2830,19 +2830,19 @@ begin
   _AddItem('-', 0, nil);
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipboard) then
     _AddItem(rsGridCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
-  if (pmoShowCopy in fPopupMenuOptions) and (not fNodeAdapter.IsChild(FocusedNode)) then
+  if (pmoShowCopy in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
   if pmoShowCopyCell in fPopupMenuOptions then
     _AddItem(rsGridCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
-  if (pmoShowCopySpecial in fPopupMenuOptions) and (not fNodeAdapter.IsChild(FocusedNode)) then
+  if (pmoShowCopySpecial in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
-    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste)) and (not fNodeAdapter.IsChild(FocusedNode))  then
+    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste)) and (not fNodeOptions.ShowChildren)  then
     _AddItem(rsGridPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
   _AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and
     ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) and
-    (not fNodeAdapter.IsChild(FocusedNode)) then
+    (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridDeleteRows, ShortCut(VK_DELETE, [ssCtrl]), @DoDeleteRows, not fData.IsVoid);
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) then
     _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
