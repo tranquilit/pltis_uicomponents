@@ -252,7 +252,7 @@ type
     procedure OnMenuHideAllClick(aSender: TObject);
     procedure OnMenuRestoreClick(aSender: TObject);
   public
-    procedure Popup(x, y: Integer); override;
+    procedure FillPopupMenu;
   published
     property Options: TTisGridHeaderPopupOptions read fOptions write fOptions default [];
     property OnAddPopupItem: TOnGridHeaderAddPopupItem read fOnAddPopupItem write fOnAddPopupItem;
@@ -261,19 +261,12 @@ type
 
   /// a custom implementation for Grid Header
   TTisGridHeader = class(TVTHeader)
-  private
-    function GetPopupMenu: TPopupMenu;
-    procedure SetPopupMenu(aValue: TPopupMenu);
   protected
     function GetColumnsClass: TVirtualTreeColumnsClass; override;
-    /// creates a default popup menu
-    procedure NewDefaultPopupMenu;
   public
-    constructor Create(aOwner: TBaseVirtualTree); override;
     // overriding the original Assign for do not assign PopupMenu from another grid header
     // - a Popup in design mode will not work when using Editor
     procedure Assign(aSource: TPersistent); override;
-    property PopupMenu: TPopupMenu read GetPopupMenu write SetPopupMenu;
   end;
 
   /// a custom implementation for String Tree Options
@@ -572,6 +565,7 @@ type
     /// called before open a context menu
     // - it will call Clean/FillPopupMenu, as some Captions translation should be done before show up
     procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
+    procedure DoHeaderMouseUp(aButton: TMouseButton; aShift: TShiftState; aX, aY: Integer); override;
     procedure DoEnter; override;
     procedure DoExit; override;
     function GetHeaderClass: TVTHeaderClass; override;
@@ -1577,7 +1571,7 @@ begin
    TTisGrid(PopupComponent).RestoreSettings;
 end;
 
-procedure TTisGridHeaderPopupMenu.Popup(x, y: Integer);
+procedure TTisGridHeaderPopupMenu.FillPopupMenu;
 var
   vColPos: TColumnPosition;
   vColIdx: TColumnIndex;
@@ -1657,39 +1651,13 @@ begin
         vVisibleItem.Enabled := False;
     end;
   end;
-  inherited Popup(x, y);
 end;
 
 { TTisGridHeader }
 
-function TTisGridHeader.GetPopupMenu: TPopupMenu;
-begin
-  result := inherited PopupMenu;
-end;
-
-procedure TTisGridHeader.SetPopupMenu(aValue: TPopupMenu);
-begin
-  if Assigned(aValue) then
-    inherited PopupMenu := aValue
-  else
-    NewDefaultPopupMenu;
-end;
-
 function TTisGridHeader.GetColumnsClass: TVirtualTreeColumnsClass;
 begin
   result := TTisGridColumns;
-end;
-
-procedure TTisGridHeader.NewDefaultPopupMenu;
-begin
-  inherited PopupMenu := TTisGridHeaderPopupMenu.Create(Treeview);
-  inherited PopupMenu.PopupComponent := Treeview;
-end;
-
-constructor TTisGridHeader.Create(aOwner: TBaseVirtualTree);
-begin
-  inherited Create(aOwner);
-  NewDefaultPopupMenu;
 end;
 
 procedure TTisGridHeader.Assign(aSource: TPersistent);
@@ -2772,6 +2740,20 @@ begin
   CleanPopupMenu;
   FillPopupMenu;
   inherited DoContextPopup(aMousePos, aHandled);
+end;
+
+procedure TTisGrid.DoHeaderMouseUp(aButton: TMouseButton; aShift: TShiftState;
+  aX, aY: Integer);
+begin
+  if not Assigned(Header.PopupMenu) then
+    Header.PopupMenu := TTisGridHeaderPopupMenu.Create(self);
+  if Header.PopupMenu is TTisGridHeaderPopupMenu then
+    with Header.PopupMenu as TTisGridHeaderPopupMenu do
+    begin
+      Header.PopupMenu.PopupComponent := self;
+      FillPopupMenu;
+    end;
+  inherited DoHeaderMouseUp(aButton, aShift, aX, aY);
 end;
 
 procedure TTisGrid.DoEnter;
