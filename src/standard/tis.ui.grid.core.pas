@@ -2826,7 +2826,7 @@ begin
     (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
   _AddItem('-', 0, nil);
-  if (pmoShowExport in fPopupMenuOptions) {and (not fNodeOptions.ShowChildren)} then
+  if (pmoShowExport in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
   begin
     if toMultiSelect in TreeOptions.SelectionOptions then
       _AddItem(rsGridExportSelected, 0, @DoExport, not fData.IsVoid)
