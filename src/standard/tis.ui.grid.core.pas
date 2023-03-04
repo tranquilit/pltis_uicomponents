@@ -3163,7 +3163,7 @@ var
   vRow: TDocVariantData;
   vStr: RawByteString;
 begin
-  if (FocusedColumnObject <> nil) and (FocusedRow <> nil) then
+  if FocusedColumnObject <> nil then
   begin
     vAdapter.Open;
     try
