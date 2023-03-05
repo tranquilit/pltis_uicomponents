@@ -2369,29 +2369,15 @@ end;
 procedure TTisGrid.DoNewText(aNode: PVirtualNode; aColumn: TColumnIndex;
   const aText: string);
 var
-  vRowData: PDocVariantData;
-  vPropertyName: RawUtf8;
+  vValue: PVariant;
 begin
-  if aNode = nil then
-    exit;
-  vRowData := GetNodeAsPDocVariantData(aNode, False);
-  if vRowData <> nil then
-  begin
-    if aColumn >= 0 then
-      vPropertyName := TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName
-    else
-      vPropertyName := StringToUtf8(DefaultText);
-    { TODO -omsantos : we should test for more cases }
-    case VarType(vRowData^.Value[vPropertyName]) of
-      varDouble, varCurrency:
-        vRowData^.D[vPropertyName] := StrToFloatDef(aText, 0);
-      varInteger:
-        vRowData^.I[vPropertyName] := StrToIntDef(aText, 0);
-      else
-        vRowData^.S[vPropertyName] := aText;
+  inherited DoNewText(aNode, aColumn, aText);
+  if Assigned(aNode) then
+    with fNodeAdapter do
+    begin
+      vValue := GetValue(aNode);
+      SetValue(aNode, StringToUtf8(aText), aColumn, Assigned(vValue) and VarIsStr(vValue^));
     end;
-    inherited DoNewText(aNode, aColumn, vRowData^.S[vPropertyName]);
-  end;
 end;
 
 procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
