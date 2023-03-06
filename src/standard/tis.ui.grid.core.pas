@@ -2717,8 +2717,13 @@ end;
 
 procedure TTisGrid.DoContextPopup(aMousePos: TPoint; var aHandled: Boolean);
 begin
-  // - it is needed to Clean/FillPopupMenu first/again,
-  // as some Captions translation should be done before show up
+  // on MacOS and Linux DoContextPopup is called even when user clicks on Header
+  // - this will prevent not call PopupMenu from grid, instead using Header.PopupMenu
+  if Header.InHeader(aMousePos) then
+  begin
+    aHandled := True;
+    exit;
+  end;
   CleanPopupMenu;
   FillPopupMenu;
   inherited DoContextPopup(aMousePos, aHandled);
