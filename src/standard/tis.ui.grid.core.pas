@@ -565,7 +565,7 @@ type
     /// called before open a context menu
     // - it will call Clean/FillPopupMenu, as some Captions translation should be done before show up
     procedure DoContextPopup(aMousePos: TPoint; var aHandled: Boolean); override;
-    procedure DoHeaderMouseUp(aButton: TMouseButton; aShift: TShiftState; aX, aY: Integer); override;
+    procedure DoHeaderMouseDown(aButton: TMouseButton; aShift: TShiftState; aX, aY: Integer); override;
     procedure DoEnter; override;
     procedure DoExit; override;
     function GetHeaderClass: TVTHeaderClass; override;
@@ -2724,7 +2724,7 @@ begin
   inherited DoContextPopup(aMousePos, aHandled);
 end;
 
-procedure TTisGrid.DoHeaderMouseUp(aButton: TMouseButton; aShift: TShiftState;
+procedure TTisGrid.DoHeaderMouseDown(aButton: TMouseButton; aShift: TShiftState;
   aX, aY: Integer);
 begin
   if not Assigned(Header.PopupMenu) then
