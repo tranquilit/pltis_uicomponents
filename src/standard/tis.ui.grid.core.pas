@@ -748,6 +748,7 @@ type
     // - if you change its content directly, you should call Invalidate or
     // LoadData for VirtualTree be aware about it
     property Data: TDocVariantData read fData write SetData;
+    /// columns metadata as JSON
     property MetaData: RawUtf8 read GetMetaData write SetMetaData;
     /// direct access to the node adapter object
     // - you can use it to get more information about a node, especially when
@@ -761,7 +762,10 @@ type
     property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
     /// returns objects from selected rows
     property SelectedObjects: PDocVariantDataDynArray read GetSelectedObjects;
+    /// returns the focused row
+    // - be careful using it in tree mode - see NodeOptions.ShowChildren
     property FocusedRow: PDocVariantData read GetFocusedRow write SetFocusedRow;
+    /// returns the focused column as TTisGridColumn
     property FocusedColumnObject: TTisGridColumn read GetFocusedColumnObject write SetFocusedColumnObject;
     /// saving and restoring user customizations
     property Settings: Variant read GetSettings write SetSettings;
