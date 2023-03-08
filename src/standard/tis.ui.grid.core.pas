@@ -649,6 +649,8 @@ type
     /// it will try load aJson into Data and create Columns from it
     // - it will not clean previous columns or data, if they exists
     // - return TRUE if success, otherwise FALSE with a Dialog error if aShowError is TRUE
+    // - if fNodeOptions.ShowChildren is TRUE and aJson is an object, it will
+    // use FillDataFromJsonObject method for split and convert its fields in Data, which is an array
     function TryLoadAllFrom(const aJson: string; aShowError: Boolean = True): Boolean;
     /// export data
     // - it will export using the format that matchs to aFileName extension
@@ -3398,16 +3400,17 @@ begin
   // make a local copy, as fData could be used as argument too
   vData.InitJson(aObject.ToJson, JSON_FAST_FLOAT);
   InitData;
-  for vField in vData.Fields do
-  begin
-    vObj.Clear;
-    if Assigned(vField.Name) then
-      vName := vField.Name^
-    else
-      vName := '';
-    vObj.InitObject([vName, vField.Value^], JSON_FAST_FLOAT);
-    fData.AddItem(variant(vObj));
-  end;
+  if NodeOptions.ShowChildren then
+    for vField in vData.Fields do
+    begin
+      vObj.Clear;
+      if Assigned(vField.Name) then
+        vName := vField.Name^
+      else
+        vName := '';
+      vObj.InitObject([vName, vField.Value^], JSON_FAST_FLOAT);
+      fData.AddItem(variant(vObj));
+    end;
   if fData.Count = 0 then
     fData.AddItem(variant(vData));
 end;
