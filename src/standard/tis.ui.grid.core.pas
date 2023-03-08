@@ -620,6 +620,8 @@ type
     function GetExportDialogFilter: string; virtual;
     /// it restore original settings from original design
     procedure RestoreSettings;
+    procedure InitData;
+    procedure FillDataFromJsonObject(const aObject: TDocVariantData);
     // ------------------------------- inherited properties ------------------------
     property RootNodeCount stored False;
     // ------------------------------- new properties ------------------------------
@@ -2465,7 +2467,7 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   end;
 
   /// just one only place to create all children recursively
-  // - in this way, we do not need to override/implement InitChildren and DoInitChildren
+  // - in this way, we do not need to override/implement InitChildren or DoInitChildren methods
   procedure _CreateChildrenFor(aParent: PVirtualNode);
   var
     vDoc, vData, vTempData: PDocVariantData;
@@ -3357,6 +3359,36 @@ begin
   Settings := fDefaultSettings;
 end;
 
+procedure TTisGrid.InitData;
+begin
+  fData.Clear;
+  fData.InitArray([], JSON_FAST_FLOAT);
+end;
+
+procedure TTisGrid.FillDataFromJsonObject(const aObject: TDocVariantData);
+var
+  vData, vObj: TDocVariantData;
+  vField: TDocVariantFields;
+  vName: string;
+begin
+  vData.Clear;
+  // make a local copy, as fData could be used as argument too
+  vData.InitJson(aObject.ToJson, JSON_FAST_FLOAT);
+  InitData;
+  for vField in vData.Fields do
+  begin
+    vObj.Clear;
+    if Assigned(vField.Name) then
+      vName := vField.Name^
+    else
+      vName := '';
+    vObj.InitObject([vName, vField.Value^], JSON_FAST_FLOAT);
+    fData.AddItem(variant(vObj));
+  end;
+  if fData.Count = 0 then
+    fData.AddItem(variant(vData));
+end;
+
 constructor TTisGrid.Create(aOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -3438,8 +3470,7 @@ begin
   inherited Clear;
   if vPrevReadOnly then
     TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
-  fData.Clear;
-  fData.InitArray([], JSON_FAST_FLOAT);
+  InitData;
 end;
 
 function TTisGrid.GetNodeAsPDocVariantData(aNode: PVirtualNode;
@@ -3539,6 +3570,9 @@ begin
       TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
       try
         inherited Clear;
+        // user changed the default (array) type
+        if fData.Kind = dvObject then
+          FillDataFromJsonObject(fData);
         RootNodeCount := fData.Count;
         if IsTreeModeKeyParent then
           _ViewInTreeMode;
@@ -3607,7 +3641,7 @@ begin
       end
       else if vDoc.Kind = dvObject then
       begin
-        Data.AddItem(variant(vDoc));
+        FillDataFromJsonObject(vDoc);
       end;
       LoadData;
       CreateColumnsFromData(True, False);
