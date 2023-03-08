@@ -749,6 +749,10 @@ type
     // LoadData for VirtualTree be aware about it
     property Data: TDocVariantData read fData write SetData;
     property MetaData: RawUtf8 read GetMetaData write SetMetaData;
+    /// direct access to the node adapter object
+    // - you can use it to get more information about a node, especially when
+    // it is working in a tree mode with children nodes
+    property NodeAdapter: TTisNodeAdapter read fNodeAdapter;
     /// returns a copy of the object from the main selected row
     // - do not use this to edit Data values, instead use SelectedObjects
     property SelectedRow: TDocVariantData read GetSelectedRow write SetSelectedRow;
