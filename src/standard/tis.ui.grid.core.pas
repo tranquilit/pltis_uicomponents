@@ -1812,7 +1812,16 @@ begin
   begin
     vCol := Grid.FindColumnByIndex(aColumn);
     if Assigned(vCol) then
-      vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result);
+    begin
+      if not vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result) then
+      begin
+        // try to get by its name
+        vNodeData^.Data^.GetAsPVariant(GetName(aNode), result);
+        // it should return only simple values
+        if _Safe(result^, vData) then
+          result := nil;
+      end;
+    end;
   end;
 end;
 
@@ -2396,7 +2405,7 @@ begin
       { #todo : to implement and get Property/Value columns names from fNodeOptions }
       case aColumn of
         0: aText := fNodeAdapter.GetName(aNode);
-        1: aText := fNodeAdapter.GetValueAsString(aNode);
+        1: aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
       end;
     end
     else
