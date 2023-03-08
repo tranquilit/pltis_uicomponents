@@ -1861,28 +1861,31 @@ begin
     vData := vNodeData^.Data;
     vCol := Grid.FindColumnByIndex(aColumn);
     // checking if "object.name" exists, otherwise it could raise an exception
-    if not Assigned(vData^.GetVarData(vCol.PropertyName)) then
-      exit;
-    if VarIsNull(aValue) then
+    if Assigned(vData^.GetVarData(vCol.PropertyName)) then
     begin
-      if not vCol.Required then
-        vData^.Value[vCol.PropertyName] := NULL;
+      if VarIsNull(aValue) then
+      begin
+        if not vCol.Required then
+          vData^.Value[vCol.PropertyName] := NULL;
+      end
+      else
+        case vCol.DataType of
+          cdtString, cdtMemo:
+            vData^.S[vCol.PropertyName] := VarToStr(aValue);
+          cdtDate, cdtTime, cdtDateTime:
+            vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
+          cdtInteger:
+            vData^.I[vCol.PropertyName] := aValue;
+          cdtFloat:
+            vData^.D[vCol.PropertyName] := aValue;
+          cdtBoolean:
+            vData^.B[vCol.PropertyName] := aValue;
+        else
+          vData^.S[vCol.PropertyName] := VarToStr(aValue);
+        end;
     end
     else
-      case vCol.DataType of
-        cdtString, cdtMemo:
-          vData^.S[vCol.PropertyName] := VarToStr(aValue);
-        cdtDate, cdtTime, cdtDateTime:
-          vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
-        cdtInteger:
-          vData^.I[vCol.PropertyName] := aValue;
-        cdtFloat:
-          vData^.D[vCol.PropertyName] := aValue;
-        cdtBoolean:
-          vData^.B[vCol.PropertyName] := aValue;
-      else
-        vData^.S[vCol.PropertyName] := VarToStr(aValue);
-      end;
+      SetVariantByValue(aValue, vData^.Values[0]);
   end;
 end;
 
