@@ -2142,7 +2142,8 @@ begin
   while vNode <> nil do
   begin
     vDoc := GetNodeAsPDocVariantData(vNode);
-    result.AddItem(variant(vDoc^));
+    if Assigned(vDoc) then
+      result.AddItem(variant(vDoc^));
     vNode := GetNextSelected(vNode, True);
   end;
 end;
