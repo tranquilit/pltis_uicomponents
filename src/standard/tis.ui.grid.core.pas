@@ -643,14 +643,6 @@ type
     /// it will clear Data and everything else related
     procedure Clear; override;
     // ----------------------------------- new methods -----------------------------
-    /// it will return aNode as PDocVariantData
-    // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
-    // - if aNode is child type, it will lookup and return its Parent non-child with the original PDocVariantData
-    function GetNodeAsPDocVariantData(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
-    /// it will return aNode as PDocVariantData
-    // - see GetNodeAsPDocVariantData
-    function GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
-      deprecated 'Use GetNodeAsPDocVariantData instead';
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
     procedure LoadData;
@@ -670,13 +662,21 @@ type
     // but it will not clear the current selection
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
     /// returns the cell value
-    // - return the supplied default if aColName is not found
-    function GetCellData(aNode: PVirtualNode; const aColName: RawUtf8;
+    // - return the supplied default if aPropertyName is not found
+    function GetCellData(aNode: PVirtualNode; const aPropertyName: RawUtf8;
       aDefault: PDocVariantData = nil): PDocVariantData;
     /// returns the cell value as string
-    // - return the supplied default if aColName is not found
-    function GetCellDataAsString(aNode: PVirtualNode; const aColName: RawUtf8;
+    // - return the supplied default if aPropertyName is not found
+    function GetCellDataAsString(aNode: PVirtualNode; const aPropertyName: RawUtf8;
       const aDefault: string = ''): string;
+    /// it will return aNode as PDocVariantData
+    // - if aNode is NIL and aUseFocusedNodeAsDefault is TRUE, it will use the node from FocusedNode property
+    // - if aNode is child type, it will lookup and return its Parent non-child with the original PDocVariantData
+    function GetNodeAsPDocVariantData(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
+    /// it will return aNode as PDocVariantData
+    // - see GetNodeAsPDocVariantData
+    function GetNodeDataAsDocVariant(aNode: PVirtualNode; aUseFocusedNodeAsDefault: Boolean = True): PDocVariantData;
+      deprecated 'Use GetNodeAsPDocVariantData instead';
     /// returns a list of nodes which is matching exactly to aData
     // - use aUseKeyFieldsList for search only into fields from KeyFieldsList
     // - if KeyFieldsList is empty, it will be the same as passing aUseKeyFieldsList = FALSE
@@ -745,8 +745,9 @@ type
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ------------------------------
     /// direct access to the low-level internal data
-    // - if you change its content directly, you should call Invalidate or
-    // LoadData for VirtualTree be aware about it
+    // - if you change its content directly, you must call LoadData
+    // - Data is initialized as an array of objects - you can change Data.Kind to dvObject, but
+    // after you call LoadData, Data will be converted to array again
     property Data: TDocVariantData read fData write SetData;
     /// columns metadata as JSON
     property MetaData: RawUtf8 read GetMetaData write SetMetaData;
@@ -2146,6 +2147,7 @@ var
   vDoc: PDocVariantData;
 begin
   vNode := GetFirstSelected;
+  result.Clear;
   result.InitArray([], JSON_FAST);
   while vNode <> nil do
   begin
@@ -3494,35 +3496,6 @@ begin
   InitData;
 end;
 
-function TTisGrid.GetNodeAsPDocVariantData(aNode: PVirtualNode;
-  aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
-var
-  vNode: PVirtualNode;
-begin
-  result := nil;
-  if (aNode = nil) and aUseFocusedNodeAsDefault then
-    aNode := FocusedNode;
-  if aNode <> nil then
-  begin
-    if fNodeAdapter.IsChild(aNode) then
-    begin
-      // get the node parent that is not child type, to return the original PDocVariantData
-      vNode := aNode^.Parent;
-      while not fNodeAdapter.IsChild(vNode) do
-        vNode := vNode^.Parent;
-      result := fNodeAdapter.GetData(vNode)^.Data;
-    end
-    else
-      result := fNodeAdapter.GetData(aNode)^.Data;
-  end;
-end;
-
-function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode;
-  aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
-begin
-  result := GetNodeAsPDocVariantData(aNode, aUseFocusedNodeAsDefault);
-end;
-
 procedure TTisGrid.LoadData;
 
   procedure _ViewInTreeMode;
@@ -3748,8 +3721,8 @@ begin
   end;
 end;
 
-function TTisGrid.GetCellData(aNode: PVirtualNode; const aColName: RawUtf8;
-  aDefault: PDocVariantData): PDocVariantData;
+function TTisGrid.GetCellData(aNode: PVirtualNode;
+  const aPropertyName: RawUtf8; aDefault: PDocVariantData): PDocVariantData;
 begin
   result := aDefault;
   if aNode <> nil then
@@ -3757,24 +3730,53 @@ begin
     result := GetNodeAsPDocVariantData(aNode);
     if result <> nil then
     begin
-      if result^.GetValueIndex(aColName) = -1 then
+      if result^.GetValueIndex(aPropertyName) = -1 then
         result := aDefault;
     end;
   end;
 end;
 
 function TTisGrid.GetCellDataAsString(aNode: PVirtualNode;
-  const aColName: RawUtf8; const aDefault: string): string;
+  const aPropertyName: RawUtf8; const aDefault: string): string;
 var
   vData: PDocVariantData;
 begin
-  vData := GetCellData(aNode, aColName);
+  vData := GetCellData(aNode, aPropertyName);
   if vData = nil then
     result := aDefault
   else if vData^.Kind = dvArray then
     result := Utf8ToString(vData^.ToCsv(','))
   else
-    result := vData^.S[aColName];
+    result := vData^.S[aPropertyName];
+end;
+
+function TTisGrid.GetNodeAsPDocVariantData(aNode: PVirtualNode;
+  aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
+var
+  vNode: PVirtualNode;
+begin
+  result := nil;
+  if (aNode = nil) and aUseFocusedNodeAsDefault then
+    aNode := FocusedNode;
+  if aNode <> nil then
+  begin
+    if fNodeAdapter.IsChild(aNode) then
+    begin
+      // get the node parent that is not child type, to return the original PDocVariantData
+      vNode := aNode^.Parent;
+      while not fNodeAdapter.IsChild(vNode) do
+        vNode := vNode^.Parent;
+      result := fNodeAdapter.GetData(vNode)^.Data;
+    end
+    else
+      result := fNodeAdapter.GetData(aNode)^.Data;
+  end;
+end;
+
+function TTisGrid.GetNodeDataAsDocVariant(aNode: PVirtualNode;
+  aUseFocusedNodeAsDefault: Boolean): PDocVariantData;
+begin
+  result := GetNodeAsPDocVariantData(aNode, aUseFocusedNodeAsDefault);
 end;
 
 function TTisGrid.GetNodesBy(aData: PDocVariantData;
