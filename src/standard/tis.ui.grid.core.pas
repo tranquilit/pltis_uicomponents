@@ -744,10 +744,6 @@ type
     /// it returns TRUE if tree mode options were settled
     // - also KeyFieldsNames and ParentKeyFieldsNames should not be empty
     function IsTreeModeKeyParent: Boolean;
-    /// if using TreeMode, it will expand all
-    procedure ExpandAllNodes;
-    /// if using TreeMode, it will collapse all
-    procedure CollapseAllNodes;
     /// it will search aText in all columns
     // - if found, focus will go to the grid
     function Search(const aText: string): Boolean;
@@ -3042,7 +3038,7 @@ begin
   else
   begin
     if IsTreeMode then
-      ExpandAllNodes; // necessary to show the node for the user, otherwise it gets in an infinity loop
+      FullExpand; // necessary to show the node for the user, otherwise it gets in an infinity loop
     vNode := FocusedNode;
     TextFound := False;
     if vNode <> nil then
@@ -3585,7 +3581,7 @@ begin
         if IsTreeModeKeyParent then
           _ViewInTreeMode;
         if NodeOptions.ShowChildren then
-          ExpandAllNodes;
+          FullExpand;
       finally
         if vIsReadOnly then
           TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
@@ -4217,34 +4213,6 @@ end;
 function TTisGrid.IsTreeModeKeyParent: Boolean;
 begin
   result := IsTreeMode and (KeyFieldsNames <> '') and (ParentKeyFieldsNames <> '');
-end;
-
-procedure TTisGrid.ExpandAllNodes;
-var
-  vNode: PVirtualNode;
-begin
-  vNode := GetFirst;
-  BeginUpdate;
-  while Assigned(vNode) do
-  begin
-    Expanded[vNode] := True;
-    vNode := GetNext(vNode);
-  end;
-  EndUpdate;
-end;
-
-procedure TTisGrid.CollapseAllNodes;
-var
-  vNode: PVirtualNode;
-begin
-  vNode := GetFirst;
-  BeginUpdate;
-  while Assigned(vNode) do
-  begin
-    Expanded[vNode] := False;
-    vNode := GetNext(vNode);
-  end;
-  EndUpdate;
 end;
 
 function TTisGrid.Search(const aText: string): Boolean;
