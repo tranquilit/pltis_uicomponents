@@ -625,6 +625,24 @@ object GridFrame: TGridFrame
       ParentFont = False
       OnClick = ClipboardSelectedRowLabel1Click
     end
+    object FromGridDataAsObjectLabel: TLabel
+      Cursor = crHandPoint
+      Left = 600
+      Height = 15
+      Top = 3
+      Width = 125
+      Caption = 'from grid as json object'
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clBlue
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      Font.Style = [fsUnderline]
+      ParentColor = False
+      ParentFont = False
+      OnClick = FromGridDataAsObjectLabelClick
+    end
   end
   object Splitter: TSplitter
     Cursor = crVSplit

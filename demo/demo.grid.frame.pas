@@ -109,6 +109,7 @@ type
     ZebraLightnessLabel: TLabel;
     ZebraLightnessEdit: TSpinEdit;
     FunctionRefreshLabel: TLabel;
+    FromGridDataAsObjectLabel: TLabel;
     function GridCompareByRow(aSender: TTisGrid; const aPropertyName: RawUtf8;
       const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
@@ -139,6 +140,7 @@ type
     procedure BgColorBoxChange(Sender: TObject);
     procedure ZebraLightnessEditChange(Sender: TObject);
     procedure FunctionRefreshLabelClick(Sender: TObject);
+    procedure FromGridDataAsObjectLabelClick(Sender: TObject);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
   public
@@ -347,6 +349,11 @@ end;
 procedure TGridFrame.FunctionRefreshLabelClick(Sender: TObject);
 begin
   Grid.Refresh;
+end;
+
+procedure TGridFrame.FromGridDataAsObjectLabelClick(Sender: TObject);
+begin
+  InOutputEdit.Lines.Text := Utf8ToString(Grid.GetDataAsJsonObject.ToJson('', '', jsonHumanReadable));
 end;
 
 procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);

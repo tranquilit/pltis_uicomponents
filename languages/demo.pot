@@ -48,6 +48,10 @@ msgctxt "tgridframe.eddatatype2.caption"
 msgid "Column"
 msgstr ""
 
+#: tgridframe.fromgriddataasobjectlabel.caption
+msgid "from grid as json object"
+msgstr ""
+
 #: tgridframe.functiondatalabel.caption
 msgctxt "tgridframe.functiondatalabel.caption"
 msgid "Grid"
