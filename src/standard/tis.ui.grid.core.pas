@@ -664,11 +664,11 @@ type
     // but it will not clear the current selection
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
     /// returns the cell value
-    // - return the supplied default if aPropertyName is not found
+    // - it will return the supplied default, if aPropertyName is not found
     function GetCellData(aNode: PVirtualNode; const aPropertyName: RawUtf8;
       aDefault: PDocVariantData = nil): PDocVariantData;
     /// returns the cell value as string
-    // - return the supplied default if aPropertyName is not found
+    // - it will return the supplied default, if aPropertyName is not found
     function GetCellDataAsString(aNode: PVirtualNode; const aPropertyName: RawUtf8;
       const aDefault: string = ''): string;
     /// it will return aNode as PDocVariantData

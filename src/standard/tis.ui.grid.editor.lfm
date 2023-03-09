@@ -538,7 +538,7 @@ object TisGridEditor: TTisGridEditor
         AnchorSideTop.Side = asrBottom
         Left = 108
         Height = 19
-        Hint = 'Check this option to show children nodes when in Tree Mode'
+        Hint = 'Check this option to show children nodes when in Tree Mode'#13#10'- you should check this option before paste some JSON in grid,'#13#10'because it changes the algorithm that will parse the JSON'
         Top = 174
         Width = 100
         BorderSpacing.Left = 10
