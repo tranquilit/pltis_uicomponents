@@ -2794,14 +2794,16 @@ begin
 end;
 
 procedure TTisGrid.FillPopupMenu;
+const
+  cDivider = '-';
 
   procedure _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
-    aEnabled: Boolean = True);
+    aEnabled: Boolean = True );
   var
     vMenuItem: TMenuItem;
   begin
     vMenuItem := PopupMenu.Items.Find(aCaption);
-    if vMenuItem = nil then
+    if (vMenuItem = nil) or (aCaption = cDivider) then
     begin
       vMenuItem := TMenuItem.Create(PopupMenu);
       with vMenuItem do
@@ -2816,6 +2818,11 @@ procedure TTisGrid.FillPopupMenu;
     end;
   end;
 
+  procedure _AddDivider;
+  begin
+    _AddItem(cDivider, 0, nil, True);
+  end;
+
 begin
   if not Assigned(PopupMenu) then
     PopupMenu := TPopupMenu.Create(self);
@@ -2823,13 +2830,13 @@ begin
   if Assigned(PopupMenu.OnPopup) then
     PopupMenu.OnPopup(PopupMenu);
   if PopupMenu.Items.Count > 0 then
-    _AddItem('-', 0, nil);
+    _AddDivider;
   if pmoShowFind in fPopupMenuOptions then
     _AddItem(rsGridFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
   if pmoShowFindNext in fPopupMenuOptions then
     _AddItem(rsGridFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
   {_AddItem(rsFindReplace, ShortCut(Ord('H'), [ssCtrl]), @DoFindReplace);}
-  _AddItem('-', 0, nil);
+  _AddDivider;
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipboard) then
     _AddItem(rsGridCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
   if (pmoShowCopy in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
@@ -2841,7 +2848,6 @@ begin
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
     ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste)) and (not fNodeOptions.ShowChildren)  then
     _AddItem(rsGridPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
-  _AddItem('-', 0, nil);
   if (pmoShowDelete in fPopupMenuOptions) and
     ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) and
     (not fNodeOptions.ShowChildren) then
@@ -2849,26 +2855,32 @@ begin
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) and
     (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
-  _AddItem('-', 0, nil);
   if (pmoShowExport in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
   begin
+    _AddDivider;
     if toMultiSelect in TreeOptions.SelectionOptions then
       _AddItem(rsGridExportSelected, 0, @DoExport, not fData.IsVoid)
     else
       _AddItem(rsGridExportAll, 0, @DoExport, not fData.IsVoid);
   end;
   {if (HMPrint = 0) then
-    _AddItem(rsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);
-  _AddItem('-', 0, nil);
-  _AddItem(rsExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]),
-    @DoExpandAll);
-  _AddItem(rsCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]),
-    @DoCollapseAll);}
-  _AddItem('-', 0, nil);
+    _AddItem(rsPrint, ShortCut(Ord('P'), [ssCtrl]), @DoPrint);}
+  if IsTreeMode then
+  begin
+    _AddDivider;
+    _AddItem(rsGridExpandAll, Shortcut(Ord('E'), [ssCtrl, ssShift]), @DoExpandAll);
+    _AddItem(rsGridCollapseAll, Shortcut(Ord('R'), [ssCtrl, ssShift]), @DoCollapseAll);
+  end;
   if (pmoShowCustomizeColumns in fPopupMenuOptions) and Assigned(Header.PopupMenu) then
+  begin
+    _AddDivider;
     _AddItem(rsGridCustomizeColumns, 0, @DoCustomizeColumns);
+  end;
   if (csDesigning in ComponentState) or (pmoShowCustomizeGrid in fPopupMenuOptions) then
+  begin
+    _AddDivider;
     _AddItem(rsGridAdvancedCustomizeColumns, 0, @DoAdvancedCustomizeColumns);
+  end;
   if Assigned(fOnAfterFillPopupMenu) then
     fOnAfterFillPopupMenu(self);
 end;

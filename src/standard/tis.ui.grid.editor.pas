@@ -102,7 +102,6 @@ type
     MenuItem9: TMenuItem;
     MenuItem10: TMenuItem;
     ActClearSelRows: TAction;
-    MenuItem2: TMenuItem;
     ReadOnlyCheckBox: TCheckBox;
     ActMetaDataCopy: TAction;
     MetaDataButton: TButton;

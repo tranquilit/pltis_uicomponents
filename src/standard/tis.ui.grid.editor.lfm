@@ -700,9 +700,6 @@ object TisGridEditor: TTisGridEditor
     object MenuItem8: TMenuItem
       Action = ActClearAll
     end
-    object MenuItem2: TMenuItem
-      Caption = '-'
-    end
   end
   object MetaDataPopupMenu: TPopupMenu
     Left = 248
