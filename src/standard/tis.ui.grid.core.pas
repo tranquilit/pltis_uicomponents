@@ -756,8 +756,10 @@ type
     // ------------------------------- new properties ------------------------------
     /// direct access to the low-level internal data
     // - if you change its content directly, you must call LoadData
-    // - Data is initialized as an array of objects - you can change Data.Kind to dvObject, but
-    // after you call LoadData, Data will be converted to array again
+    // - Data is initialized as an array of objects
+    // - you can change Data.Kind to dvObject, but after you call LoadData, Data will
+    // be converted to array again
+    // - if you want a final result as a single JSON object, see GetDataAsJsonObject method
     property Data: TDocVariantData read fData write SetData;
     /// columns metadata as JSON
     property MetaData: RawUtf8 read GetMetaData write SetMetaData;
