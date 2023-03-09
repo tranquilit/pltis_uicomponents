@@ -649,7 +649,7 @@ type
     /// it will try load aJson into Data and create Columns from it
     // - it will not clean previous columns or data, if they exists
     // - return TRUE if success, otherwise FALSE with a Dialog error if aShowError is TRUE
-    // - if fNodeOptions.ShowChildren is TRUE and aJson is an object, it will
+    // - if NodeOptions.ShowChildren is TRUE and aJson is an object, it will
     // use FillDataFromJsonObject method for split and convert its fields in Data, which is an array
     function TryLoadAllFrom(const aJson: string; aShowError: Boolean = True): Boolean;
     /// export data
@@ -663,12 +663,20 @@ type
     /// it will focus in a row it which is matching exactly to aValue,
     // but it will not clear the current selection
     procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
+    /// returns Data property as an object instead an array (default)
+    // - it will convert Data array to a only single JSON object
+    // - each object in Data array will be its fields splitted into the result
+    // - you may use this method when NodeOptions.ShowChildren is TRUE, to export
+    // all data in just one JSON object, after user has finished his edition
+    function GetDataAsJsonObject: TDocVariantData;
     /// returns the cell value
     // - it will return the supplied default, if aPropertyName is not found
+    // - you should better not use it when NodeOptions.ShowChildren is TRUE
     function GetCellData(aNode: PVirtualNode; const aPropertyName: RawUtf8;
       aDefault: PDocVariantData = nil): PDocVariantData;
     /// returns the cell value as string
     // - it will return the supplied default, if aPropertyName is not found
+    // - you should better not use it when NodeOptions.ShowChildren is TRUE
     function GetCellDataAsString(aNode: PVirtualNode; const aPropertyName: RawUtf8;
       const aDefault: string = ''): string;
     /// it will return aNode as PDocVariantData
@@ -3411,6 +3419,7 @@ begin
       vObj.InitObject([vName, vField.Value^], JSON_FAST_FLOAT);
       fData.AddItem(variant(vObj));
     end;
+  // if found nothing, add the JSON as it came
   if fData.Count = 0 then
     fData.AddItem(variant(vData));
 end;
@@ -3720,6 +3729,23 @@ begin
       FocusedNode := vArray[0];
       Selected[vArray[0]] := True;
       ScrollIntoView(FocusedNode, False);
+    end;
+  end;
+end;
+
+function TTisGrid.GetDataAsJsonObject: TDocVariantData;
+var
+  vObj: PDocVariantData;
+  vField: TDocVariantFields;
+begin
+  result.Clear;
+  result.InitObject([], JSON_FAST_FLOAT);
+  for vObj in fData.Objects do
+  begin
+    for vField in vObj^ do
+    begin
+      if Assigned(vField.Name) then
+        result.AddValue(vField.Name^, vField.Value^);
     end;
   end;
 end;
