@@ -640,6 +640,7 @@ type
     procedure Assign(aSource: TPersistent); override;
     procedure FixDesignFontsPPI(const ADesignTimePPI: Integer); override;
     procedure ScaleFontsPPI(const AToPPI: Integer; const AProportion: Double); override;
+    function AddChild(aParent: PVirtualNode; aUserData: Pointer = nil): PVirtualNode; override;
     /// it will clear Data and everything else related
     procedure Clear; override;
     // ----------------------------------- new methods -----------------------------
@@ -2485,7 +2486,7 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   function _CreateChild(aParent: PVirtualNode; aName: PRawUtf8; aValue: PVariant;
     aData: PDocVariantData): PVirtualNode;
   begin
-    result := AddChild(aParent);
+    result := inherited AddChild(aParent);
     _SetNodeDefaults(result);
     _SetNodeDefaultsForTreeMode(result);
     with fNodeAdapter.GetData(result)^ do
@@ -2538,7 +2539,7 @@ begin
     vNodeData := fNodeAdapter.GetDataPointer(aNode);
     with vNodeData^ do
     begin
-      IsChild := False;
+      IsChild := aNode^.Parent <> RootNode;
       Name := nil;
       Value := PVariant(vData);
       Data := vData;
@@ -3504,6 +3505,11 @@ procedure TTisGrid.ScaleFontsPPI(const AToPPI: Integer; const AProportion: Doubl
 begin
   inherited ScaleFontsPPI(AToPPI, AProportion);
   DoScaleFontPPI(Header.Font, AToPPI, AProportion);
+end;
+
+function TTisGrid.AddChild(aParent: PVirtualNode; aUserData: Pointer): PVirtualNode;
+begin
+  raise ETisGrid.Create('Instead to call AddChild, use Data and LoadData to add a new child automatically.');
 end;
 
 procedure TTisGrid.Clear;
