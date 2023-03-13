@@ -120,7 +120,7 @@ type
     procedure MenuItem1Click(Sender: TObject);
     procedure ClipboardSelectedRowLabelClick(Sender: TObject);
     procedure GridPrepareEditor(aSender: TTisGrid;
-      aColumn: TTisGridColumn; aControl: TTisGridControl);
+      aNode: PVirtualNode; aColumn: TTisGridColumn; aControl: TTisGridControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
     procedure GridEditorLookup(aSender: TTisGrid; aColumn: TTisGridColumn;
       aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
@@ -132,8 +132,6 @@ type
     procedure GridDataCustomizeMenuItem1Click(Sender: TObject);
     procedure GridSelRowsMenuItemClick(Sender: TObject);
     procedure ClipboardSelectedRowLabel1Click(Sender: TObject);
-    procedure GridEditValidated(aSender: TTisGrid; aColumn: TTisGridColumn;
-      const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
     procedure GridMetaDataGetMenuItemClick(Sender: TObject);
     procedure GridMetaDataSetMenuItemClick(Sender: TObject);
     procedure GridSearchEditSearch(Sender: TObject; const aText: string);
@@ -141,6 +139,9 @@ type
     procedure ZebraLightnessEditChange(Sender: TObject);
     procedure FunctionRefreshLabelClick(Sender: TObject);
     procedure FromGridDataAsObjectLabelClick(Sender: TObject);
+    procedure GridEditValidated(aSender: TTisGrid; aNode: PVirtualNode;
+      aColumn: TTisGridColumn; const aCurValue: Variant;
+      var aNewValue: Variant; var aAbort: Boolean);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
   public
@@ -198,7 +199,7 @@ begin
 end;
 
 procedure TGridFrame.GridPrepareEditor(aSender: TTisGrid;
-  aColumn: TTisGridColumn; aControl: TTisGridControl);
+  aNode: PVirtualNode; aColumn: TTisGridColumn; aControl: TTisGridControl);
 var
   a: TTisColumnDataTypeAdapter;
 begin
@@ -305,21 +306,6 @@ begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.ContentToCsv(tstSelected, ','));
 end;
 
-procedure TGridFrame.GridEditValidated(aSender: TTisGrid;
-  aColumn: TTisGridColumn; const aCurValue: Variant; var aNewValue: Variant;
-  var aAbort: Boolean);
-begin
-  if aColumn.PropertyName = ValidColumnNameEdit.Text then
-  begin
-    if VarToStr(aNewValue) = ValidEditedValueEdit.Text then
-    begin
-      aAbort := ValidAbortCheckBox.Checked;
-      if ValidMsgEdit.Text <> '' then
-        ShowMessage(ValidMsgEdit.Text);
-    end;
-  end;
-end;
-
 procedure TGridFrame.GridMetaDataGetMenuItemClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.MetaData);
@@ -354,6 +340,21 @@ end;
 procedure TGridFrame.FromGridDataAsObjectLabelClick(Sender: TObject);
 begin
   InOutputEdit.Lines.Text := Utf8ToString(Grid.GetDataAsJsonObject.ToJson('', '', jsonHumanReadable));
+end;
+
+procedure TGridFrame.GridEditValidated(aSender: TTisGrid; aNode: PVirtualNode;
+  aColumn: TTisGridColumn; const aCurValue: Variant; var aNewValue: Variant;
+  var aAbort: Boolean);
+begin
+  if aColumn.PropertyName = ValidColumnNameEdit.Text then
+  begin
+    if VarToStr(aNewValue) = ValidEditedValueEdit.Text then
+    begin
+      aAbort := ValidAbortCheckBox.Checked;
+      if ValidMsgEdit.Text <> '' then
+        ShowMessage(ValidMsgEdit.Text);
+    end;
+  end;
 end;
 
 procedure TGridFrame.DoAsyncSearch(aSender: TObject; const aText: string);

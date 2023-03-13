@@ -437,13 +437,13 @@ type
     aSearchEdit: TTisSearchEdit; var aHandled: Boolean) of object;
 
   /// event that allows users to change some edit control properties, before it shows up
-  TOnGridPrepareEditor = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
+  TOnGridPrepareEditor = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
     aControl: TTisGridControl) of object;
 
   /// event that allow to validate the new value from user input
-  // - aCurValue is the current value for the aColumn
+  // - aCurValue is the current value for the aNode + aColumn
   // - use it for check/change the aNewValue argument, before assign it, and/or abort the process
-  TOnGridEditValidated = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
+  TOnGridEditValidated = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
     const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean) of object;
 
   /// export a custom format
@@ -609,9 +609,10 @@ type
     /// performs OnEditorLookup event, if it was assigned
     procedure DoEditorLookup(const aColumn: TTisGridColumn; out aControl: TTisGridControl; var aHandled: Boolean); virtual;
     /// performs OnPrepareEditor event, if it was assigned
-    procedure DoPrepareEditor(const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
-    procedure DoEditValidated(const aColumn: TTisGridColumn; const aCurValue: Variant;
-      var aNewValue: Variant; var aAbort: Boolean); virtual;
+    procedure DoPrepareEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
+    procedure DoEditValidated(aNode: PVirtualNode; const aColumn: TTisGridColumn;
+      const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
+  virtual;
     procedure DoBeforeDataChange(aData: PDocVariantData; var aAbort: Boolean); virtual;
     procedure DoAfterDataChange; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
@@ -1222,7 +1223,7 @@ begin
   vCur := fGrid.fNodeAdapter.GetValue(fNode, fColumn);
   vNew := fControl.GetValue;
   vCol := fGrid.FindColumnByIndex(fColumn);
-  fGrid.DoEditValidated(vCol, vCur^, vNew, vAborted);
+  fGrid.DoEditValidated(fNode, vCol, vCur^, vNew, vAborted);
   try
     if vAborted then
       exit;
@@ -1255,12 +1256,12 @@ begin
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(vCol);
   fControl.ReadOnly := vCol.ReadOnly;
-  vValue := fGrid.fNodeAdapter.GetValue(aNode, aColumn);
+  vValue := fGrid.fNodeAdapter.GetValue(fNode, aColumn);
   if Assigned(vValue) then
   begin
     fValueIsString := VarIsStr(vValue^);
     fControl.SetValue(vValue^);
-    fGrid.DoPrepareEditor(vCol, fControl);
+    fGrid.DoPrepareEditor(fNode, vCol, fControl);
   end
   else
   begin
@@ -3354,18 +3355,18 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoPrepareEditor(const aColumn: TTisGridColumn;
+procedure TTisGrid.DoPrepareEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn;
   aControl: TTisGridControl);
 begin
   if Assigned(fOnPrepareEditor) then
-    fOnPrepareEditor(self, aColumn, aControl);
+    fOnPrepareEditor(self, aNode, aColumn, aControl);
 end;
 
-procedure TTisGrid.DoEditValidated(const aColumn: TTisGridColumn;
+procedure TTisGrid.DoEditValidated(aNode: PVirtualNode; const aColumn: TTisGridColumn;
   const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
 begin
   if Assigned(fOnEditValidated) then
-    fOnEditValidated(self, aColumn, aCurValue, aNewValue, aAbort);
+    fOnEditValidated(self, aNode, aColumn, aCurValue, aNewValue, aAbort);
 end;
 
 procedure TTisGrid.DoBeforeDataChange(aData: PDocVariantData;
