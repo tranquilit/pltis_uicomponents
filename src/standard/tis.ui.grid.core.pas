@@ -107,11 +107,11 @@ type
     procedure EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure EditExit(aSender: TObject); virtual;
     procedure SetupControlClasses; virtual;
-    /// override this method if you want to change the default control for the column
+    /// override this method if you want to change the default control for aNode/aColumn
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
     // - if none instance was provided, it will use Grid.OnEditorLookup to get one
     // - again, if none was provided, it will use ControlClasses array, according to the aColumn.DataType
-    function NewControl(aColumn: TTisGridColumn): TTisGridControl; virtual;
+    function NewControl(aNode: PVirtualNode; aColumn: TTisGridColumn): TTisGridControl; virtual;
   public var
     /// use this array to change the default control for each data type
     ControlClasses: array[TTisColumnDataType] of TTisGridControlClass;
@@ -429,11 +429,11 @@ type
   TOnGridPaste = procedure(aSender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
 
   /// event that allows users customize the control instance, creating a new one, replacing the default
-  TOnGridCustomEditor = procedure(aSender: TObject; aColumn: TTisGridColumn;
+  TOnGridCustomEditor = procedure(aSender: TObject; aNode: PVirtualNode; aColumn: TTisGridColumn;
     out aControl: TTisGridControl) of object;
 
   /// event that simplifies the use of a TisSearchEdit as Edit Control
-  TOnGridEditorLookup = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
+  TOnGridEditorLookup = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
     aSearchEdit: TTisSearchEdit; var aHandled: Boolean) of object;
 
   /// event that allows users to change some edit control properties, before it shows up
@@ -605,9 +605,11 @@ type
     procedure DoExpandAll(aSender: TObject); virtual;
     procedure DoCollapseAll(aSender: TObject); virtual;
     /// performs OnCustonEditor event, if it was assigned
-    procedure DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl); virtual;
+    procedure DoCustomEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn;
+      out aControl: TTisGridControl); virtual;
     /// performs OnEditorLookup event, if it was assigned
-    procedure DoEditorLookup(const aColumn: TTisGridColumn; out aControl: TTisGridControl; var aHandled: Boolean); virtual;
+    procedure DoEditorLookup(aNode: PVirtualNode; const aColumn: TTisGridColumn;
+      out aControl: TTisGridControl; var aHandled: Boolean); virtual;
     /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(aNode: PVirtualNode; const aColumn: TTisGridColumn;
@@ -1155,15 +1157,16 @@ begin
   ControlClasses[cdtPassword] := TTisGridPasswordEditControl;
 end;
 
-function TTisGridEditLink.NewControl(aColumn: TTisGridColumn): TTisGridControl;
+function TTisGridEditLink.NewControl(aNode: PVirtualNode;
+  aColumn: TTisGridColumn): TTisGridControl;
 var
   vHandled: Boolean;
 begin
-  fGrid.DoCustomEditor(aColumn, result);
+  fGrid.DoCustomEditor(aNode, aColumn, result);
   if result = nil then
   begin
     vHandled := False;
-    fGrid.DoEditorLookup(aColumn, result, vHandled);
+    fGrid.DoEditorLookup(aNode, aColumn, result, vHandled);
     if not vHandled then
       result := ControlClasses[aColumn.DataType].Create;
   end;
@@ -1254,7 +1257,7 @@ begin
   fValueIsString := False;
   FreeAndNil(fControl);
   vCol := fGrid.FindColumnByIndex(fColumn);
-  fControl := NewControl(vCol);
+  fControl := NewControl(fNode, vCol);
   fControl.ReadOnly := vCol.ReadOnly;
   vValue := fGrid.fNodeAdapter.GetValue(fNode, aColumn);
   if Assigned(vValue) then
@@ -3334,22 +3337,23 @@ begin
   FullCollapse;
 end;
 
-procedure TTisGrid.DoCustomEditor(const aColumn: TTisGridColumn; out aControl: TTisGridControl);
+procedure TTisGrid.DoCustomEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn;
+  out aControl: TTisGridControl);
 begin
   aControl := nil;
   if Assigned(fOnCustomEditor) then
-    fOnCustomEditor(self, aColumn, aControl);
+    fOnCustomEditor(self, aNode, aColumn, aControl);
 end;
 
-procedure TTisGrid.DoEditorLookup(const aColumn: TTisGridColumn; out
-  aControl: TTisGridControl; var aHandled: Boolean);
+procedure TTisGrid.DoEditorLookup(aNode: PVirtualNode; const aColumn: TTisGridColumn;
+  out aControl: TTisGridControl; var aHandled: Boolean);
 begin
   aControl := nil;
   aHandled := False;
   if Assigned(fOnEditorLookup) then
   begin
     aControl := TTisGridSearchEditControl.Create;
-    fOnEditorLookup(self, aColumn, (aControl as TTisGridSearchEditControl).Edit, aHandled);
+    fOnEditorLookup(self, aNode, aColumn, (aControl as TTisGridSearchEditControl).Edit, aHandled);
     if not aHandled then
       FreeAndNilSafe(aControl);
   end;

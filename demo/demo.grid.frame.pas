@@ -122,8 +122,8 @@ type
     procedure GridPrepareEditor(aSender: TTisGrid;
       aNode: PVirtualNode; aColumn: TTisGridColumn; aControl: TTisGridControl);
     procedure cbColumnDataTypeEnter(Sender: TObject);
-    procedure GridEditorLookup(aSender: TTisGrid; aColumn: TTisGridColumn;
-      aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
+    procedure GridEditorLookup(aSender: TTisGrid; aNode: PVirtualNode;
+      aColumn: TTisGridColumn; aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
     procedure GridDataAddRowsMenuItemClick(Sender: TObject);
     procedure GridInputDeleteRowsMenuItemClick(Sender: TObject);
     procedure GridSettingsSaveMenuItemClick(Sender: TObject);
@@ -218,7 +218,7 @@ begin
   a.EnumsToStrings(cbColumnDataType.Items);
 end;
 
-procedure TGridFrame.GridEditorLookup(aSender: TTisGrid;
+procedure TGridFrame.GridEditorLookup(aSender: TTisGrid; aNode: PVirtualNode;
   aColumn: TTisGridColumn; aSearchEdit: TTisSearchEdit; var aHandled: Boolean);
 begin
   if aColumn.PropertyName = ColumnNameEdit.Text then
