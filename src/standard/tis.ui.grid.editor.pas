@@ -241,7 +241,8 @@ procedure TTisGridEditor.ActPasteJsonTemplateExecute(Sender: TObject);
 var
   vClip: TClipboardAdapter;
 begin
-  Grid.TryLoadAllFrom(vClip.AsString);
+  if vClip.IsValidFor(cbkJson) or vClip.IsValidFor(cbkText) then
+    Grid.TryLoadAllFrom(vClip.AsJson);
 end;
 
 procedure TTisGridEditor.ActRemoveAllColumnsExecute(Sender: TObject);
