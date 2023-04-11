@@ -349,10 +349,10 @@ type
     /// it will be TRUE only if NodeOptions.ShowChildren is TRUE
     IsChild: Boolean;
     /// it points to original name
-    // - it can be NIL if the original object/array is nameless
+    // - it can be NIL, if the original object/array is nameless
     Name: PRawUtf8;
     /// it points to orinal value
-    // - it can not be NIL
+    // - it cannot be NIL
     Value: PVariant;
     /// it points to original row data
     Data: PDocVariantData;
