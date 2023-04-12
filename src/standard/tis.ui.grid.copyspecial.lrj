@@ -6,5 +6,5 @@
 {"hash":28922003,"name":"tcopyspecialform.columnsvisibleonlycheckbox.hint","sourcebytes":[86,105,115,105,98,108,101,32,111,110,108,121,13,10,45,32,117,110,99,104,101,99,107,32,105,116,32,116,111,32,117,115,101,32,97,108,108,32,99,111,108,117,109,110,115],"value":"Visible only\r\n- uncheck it to use all columns"},
 {"hash":128441513,"name":"tcopyspecialform.columnsvisibleonlycheckbox.caption","sourcebytes":[86,105,115,105,98,108,101,32,111,110,108,121],"value":"Visible only"},
 {"hash":242471125,"name":"tcopyspecialform.translatedcolumnscheckbox.hint","sourcebytes":[84,114,97,110,115,108,97,116,101,100,32,99,111,108,117,109,110,115,32,99,97,112,116,105,111,110,115,13,10,45,32,117,110,99,104,101,99,107,32,105,116,32,116,111,32,117,115,101,32,80,114,111,112,101,114,116,121,78,97,109,101],"value":"Translated columns captions\r\n- uncheck it to use PropertyName"},
-{"hash":94843444,"name":"tcopyspecialform.translatedcolumnscheckbox.caption","sourcebytes":[84,114,97,110,115,108,97,116,101,100],"value":"Translated"}
+{"hash":165361950,"name":"tcopyspecialform.translatedcolumnscheckbox.caption","sourcebytes":[85,115,101,32,67,97,112,116,105,111,110],"value":"Use Caption"}
 ]}

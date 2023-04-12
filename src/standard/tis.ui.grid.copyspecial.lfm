@@ -11,7 +11,7 @@ object CopySpecialForm: TCopySpecialForm
   Constraints.MinWidth = 210
   Position = poOwnerFormCenter
   ShowHint = True
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '2.3.0.0'
   object PanBottom: TPanel
     Left = 5
     Height = 26
@@ -25,12 +25,13 @@ object CopySpecialForm: TCopySpecialForm
     ClientWidth = 200
     TabOrder = 0
     object BitBtn1: TBitBtn
-      Left = 53
+      AnchorSideLeft.Control = PanBottom
+      Left = 10
       Height = 26
       Top = 0
       Width = 62
-      Anchors = [akTop, akRight]
       AutoSize = True
+      BorderSpacing.Left = 10
       Default = True
       DefaultCaption = True
       Kind = bkOK
@@ -38,12 +39,15 @@ object CopySpecialForm: TCopySpecialForm
       TabOrder = 0
     end
     object BitBtn2: TBitBtn
-      Left = 113
+      AnchorSideRight.Control = PanBottom
+      AnchorSideRight.Side = asrBottom
+      Left = 106
       Height = 26
       Top = 0
       Width = 82
       Anchors = [akTop, akRight]
       AutoSize = True
+      BorderSpacing.Right = 12
       DefaultCaption = True
       Kind = bkCancel
       ModalResult = 2
@@ -62,11 +66,11 @@ object CopySpecialForm: TCopySpecialForm
     object FormatLabel: TLabel
       AnchorSideLeft.Control = Panel1
       AnchorSideTop.Control = Panel1
-      Left = 11
+      Left = 15
       Height = 15
       Top = 11
       Width = 38
-      BorderSpacing.Left = 10
+      BorderSpacing.Left = 14
       BorderSpacing.Top = 10
       Caption = 'Format'
       ParentColor = False
@@ -75,7 +79,7 @@ object CopySpecialForm: TCopySpecialForm
       AnchorSideLeft.Control = FormatLabel
       AnchorSideTop.Control = FormatCombo
       AnchorSideTop.Side = asrBottom
-      Left = 11
+      Left = 15
       Height = 15
       Top = 40
       Width = 28
@@ -87,7 +91,7 @@ object CopySpecialForm: TCopySpecialForm
       AnchorSideLeft.Control = FormatCombo
       AnchorSideTop.Control = FormatCombo
       AnchorSideTop.Side = asrBottom
-      Left = 64
+      Left = 68
       Height = 23
       Top = 35
       Width = 124
@@ -101,7 +105,7 @@ object CopySpecialForm: TCopySpecialForm
       AnchorSideLeft.Side = asrBottom
       AnchorSideTop.Control = FormatLabel
       AnchorSideTop.Side = asrCenter
-      Left = 64
+      Left = 68
       Height = 23
       Top = 7
       Width = 124
@@ -114,7 +118,7 @@ object CopySpecialForm: TCopySpecialForm
       AnchorSideLeft.Control = RowsLabel
       AnchorSideTop.Control = RowsLabel
       AnchorSideTop.Side = asrBottom
-      Left = 11
+      Left = 15
       Height = 72
       Top = 60
       Width = 178
@@ -130,7 +134,7 @@ object CopySpecialForm: TCopySpecialForm
         Height = 19
         Hint = 'Visible only'#13#10'- uncheck it to use all columns'
         Top = 5
-        Width = 80
+        Width = 78
         BorderSpacing.Left = 10
         BorderSpacing.Top = 5
         Caption = 'Visible only'
@@ -146,9 +150,9 @@ object CopySpecialForm: TCopySpecialForm
         Height = 19
         Hint = 'Translated columns captions'#13#10'- uncheck it to use PropertyName'
         Top = 29
-        Width = 74
+        Width = 82
         BorderSpacing.Top = 5
-        Caption = 'Translated'
+        Caption = 'Use Caption'
         Checked = True
         State = cbChecked
         TabOrder = 1
