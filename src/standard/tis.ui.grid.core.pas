@@ -133,11 +133,11 @@ type
   private
     fSaveAsUtc: Boolean;
     fShowAsDateTime: Boolean;
-    fDateTimeAsLocal: Boolean;
+    fShowAsLocal: Boolean;
   protected const
     DefaultSaveAsUtc = True;
     DefaultShowAsDateTime = True;
-    DefaultDateTimeAsLocal = True;
+    DefaultShowAsLocal = True;
   public
     constructor Create; reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
@@ -149,7 +149,7 @@ type
     /// it will show Iso8601 value as TDateTime
     property ShowAsDateTime: Boolean read fShowAsDateTime write fShowAsDateTime default DefaultShowAsDateTime;
     /// it will show date/time value as local time
-    property DateTimeAsLocal: Boolean read fDateTimeAsLocal write fDateTimeAsLocal default DefaultDateTimeAsLocal;
+    property ShowAsLocal: Boolean read fShowAsLocal write fShowAsLocal default DefaultShowAsLocal;
   end;
 
   /// a custom implementation for Grid Column
@@ -1295,7 +1295,7 @@ begin
     // format date/time, if needed
     if (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) and
       vCol.DateTimeOptions.SaveAsUtc and
-      vCol.DateTimeOptions.DateTimeAsLocal then
+      vCol.DateTimeOptions.ShowAsLocal then
     begin
       vDateTime := vCol.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue^)));
       fControl.SetValue(DateTimeToIso8601(vDateTime, True));
@@ -1335,7 +1335,7 @@ begin
   inherited Create;
   fSaveAsUtc := DefaultSaveAsUtc;
   fShowAsDateTime := DefaultShowAsDateTime;
-  fDateTimeAsLocal := DefaultDateTimeAsLocal;
+  fShowAsLocal := DefaultShowAsLocal;
 end;
 
 procedure TTisGridColumnDateTimeOptions.AssignTo(aDest: TPersistent);
@@ -1346,7 +1346,7 @@ begin
     begin
       SaveAsUtc := self.SaveAsUtc;
       ShowAsDateTime := self.ShowAsDateTime;
-      DateTimeAsLocal := self.DateTimeAsLocal;
+      ShowAsLocal := self.ShowAsLocal;
     end;
   end
   else
@@ -2540,7 +2540,7 @@ begin
         begin
           vDateTime := Iso8601ToDateTime(aText);
           if vCol.DateTimeOptions.SaveAsUtc and
-            vCol.DateTimeOptions.DateTimeAsLocal then
+            vCol.DateTimeOptions.ShowAsLocal then
             vDateTime := vCol.DateTimeOptions.UtcToLocal(vDateTime);
           case vCol.DataType of
             cdtDate:
