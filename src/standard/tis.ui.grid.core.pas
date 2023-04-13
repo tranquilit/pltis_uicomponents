@@ -31,7 +31,8 @@ uses
   Buttons,
   VirtualTrees,
   mormot.core.base,
-  mormot.core.data, // for dvoNameCaseSensitive
+  mormot.core.data,
+  mormot.core.os,
   mormot.core.datetime,
   mormot.core.variants,
   mormot.core.unicode,
@@ -127,6 +128,30 @@ type
     procedure SetBounds(R: TRect); stdcall;
   end;
 
+  /// datetime options for a column
+  TTisGridColumnDateTimeOptions = class(TPersistent)
+  private
+    fSaveAsUtc: Boolean;
+    fShowAsDateTime: Boolean;
+    fDateTimeAsLocal: Boolean;
+  protected const
+    DefaultSaveAsUtc = True;
+    DefaultShowAsDateTime = True;
+    DefaultDateTimeAsLocal = True;
+  public
+    constructor Create; reintroduce;
+    procedure AssignTo(aDest: TPersistent); override;
+    function UtcToLocal(const aValue: TDateTime): TDateTime;
+    function LocalToUtc(const aValue: TDateTime): TDateTime;
+  published
+    /// it will save date/time value as UTC
+    property SaveAsUtc: Boolean read fSaveAsUtc write fSaveAsUtc default DefaultSaveAsUtc;
+    /// it will show Iso8601 value as TDateTime
+    property ShowAsDateTime: Boolean read fShowAsDateTime write fShowAsDateTime default DefaultShowAsDateTime;
+    /// it will show date/time value as local time
+    property DateTimeAsLocal: Boolean read fDateTimeAsLocal write fDateTimeAsLocal default DefaultDateTimeAsLocal;
+  end;
+
   /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
@@ -134,6 +159,7 @@ type
     fDataType: TTisColumnDataType;
     fRequired: Boolean;
     fReadOnly: Boolean;
+    fDateTimeOptions: TTisGridColumnDateTimeOptions;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
@@ -143,6 +169,7 @@ type
     DefaultReadOnly = False;
   public
     constructor Create(aCollection: TCollection); override;
+    destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
     property Text: TCaption read GetTitle write SetTitle;
@@ -152,6 +179,7 @@ type
     // - if editor focus is lost, it will return the previous value before edition
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
     property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
+    property DateTimeOptions: TTisGridColumnDateTimeOptions read fDateTimeOptions write fDateTimeOptions;
   end;
 
   /// a custom implementation for Grid Columns
@@ -1248,6 +1276,7 @@ function TTisGridEditLink.PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNo
 var
   vCol: TTisGridColumn;
   vValue: PVariant;
+  vDateTime: TDateTime;
 begin
   result := True;
   fAbortAll := False;
@@ -1263,7 +1292,16 @@ begin
   if Assigned(vValue) then
   begin
     fValueIsString := VarIsStr(vValue^);
-    fControl.SetValue(vValue^);
+    // format date/time, if needed
+    if (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) and
+      vCol.DateTimeOptions.SaveAsUtc and
+      vCol.DateTimeOptions.DateTimeAsLocal then
+    begin
+      vDateTime := vCol.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue^)));
+      fControl.SetValue(DateTimeToIso8601(vDateTime, True));
+    end
+    else
+      fControl.SetValue(vValue^);
     fGrid.DoPrepareEditor(fNode, vCol, fControl);
   end
   else
@@ -1288,6 +1326,41 @@ begin
   // we have to set the edit's width explicitly to the width of the column.
   fGrid.Header.Columns.GetColumnBounds(fColumn, vDummy, R.Right);
   fControl.Internal.BoundsRect := R;
+end;
+
+{ TTisGridColumnDateTimeOptions }
+
+constructor TTisGridColumnDateTimeOptions.Create;
+begin
+  inherited Create;
+  fSaveAsUtc := DefaultSaveAsUtc;
+  fShowAsDateTime := DefaultShowAsDateTime;
+  fDateTimeAsLocal := DefaultDateTimeAsLocal;
+end;
+
+procedure TTisGridColumnDateTimeOptions.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisGridColumnDateTimeOptions then
+  begin
+    with TTisGridColumnDateTimeOptions(aDest) do
+    begin
+      SaveAsUtc := self.SaveAsUtc;
+      ShowAsDateTime := self.ShowAsDateTime;
+      DateTimeAsLocal := self.DateTimeAsLocal;
+    end;
+  end
+  else
+    inherited AssignTo(aDest);
+end;
+
+function TTisGridColumnDateTimeOptions.UtcToLocal(const aValue: TDateTime): TDateTime;
+begin
+  result := aValue + TimeZoneLocalBias / 24 / 60;
+end;
+
+function TTisGridColumnDateTimeOptions.LocalToUtc(const aValue: TDateTime): TDateTime;
+begin
+  result := aValue - TimeZoneLocalBias / 24 / 60;
 end;
 
 { TTisGridColumn }
@@ -1318,6 +1391,13 @@ begin
   fDataType := DefaultDataType;
   fRequired := DefaultRequired;
   fReadOnly := DefaultReadOnly;
+  fDateTimeOptions := TTisGridColumnDateTimeOptions.Create;
+end;
+
+destructor TTisGridColumn.Destroy;
+begin
+  fDateTimeOptions.Free;
+  inherited Destroy;
 end;
 
 procedure TTisGridColumn.Assign(aSource: TPersistent);
@@ -1895,7 +1975,12 @@ begin
           cdtString, cdtMemo:
             vData^.S[vCol.PropertyName] := VarToStr(aValue);
           cdtDate, cdtTime, cdtDateTime:
-            vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
+            begin
+              if vCol.DateTimeOptions.SaveAsUtc then
+                vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(vCol.DateTimeOptions.LocalToUtc(aValue))
+              else
+                vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
+            end;
           cdtInteger:
             vData^.I[vCol.PropertyName] := aValue;
           cdtFloat:
@@ -2423,13 +2508,14 @@ procedure TTisGrid.DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
 var
   vNodeData: PTisNodeData;
   vCol: TTisGridColumn;
+  vDateTime: TDateTime;
 begin
   if Assigned(aNode) then
   begin
     vNodeData := fNodeAdapter.GetData(aNode);
+    vCol := FindColumnByIndex(aColumn);
     if fNodeOptions.ShowChildren then
     begin
-      { #todo : to implement and get Property/Value columns names from fNodeOptions }
       case aColumn of
         0: aText := fNodeAdapter.GetName(aNode);
         1: aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
@@ -2437,8 +2523,8 @@ begin
     end
     else
     begin
-      if Header.Columns.IsValidColumn(aColumn) then
-        aText := vNodeData^.Data^.S[TTisGridColumn(Header.Columns.Items[aColumn]).PropertyName]
+      if Assigned(vCol) then
+        aText := vNodeData^.Data^.S[vCol.PropertyName]
       else if DefaultText <> '' then
         aText := vNodeData^.Data^.S[DefaultText];
       if aText = '' then
@@ -2446,20 +2532,43 @@ begin
     end;
     if Assigned(vNodeData^.Data) then
     begin
-      if Assigned(fOnGetText) and Header.Columns.IsValidColumn(aColumn) then
-        fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText)
+      if Assigned(fOnGetText) then
+        fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
+      if Assigned(vCol) then
+      begin
+        if vCol.DataType in [cdtDate, cdtTime, cdtDateTime] then
+        begin
+          vDateTime := Iso8601ToDateTime(aText);
+          if vCol.DateTimeOptions.SaveAsUtc and
+            vCol.DateTimeOptions.DateTimeAsLocal then
+            vDateTime := vCol.DateTimeOptions.UtcToLocal(vDateTime);
+          case vCol.DataType of
+            cdtDate:
+              if vCol.DateTimeOptions.ShowAsDateTime then
+                aText := DateToStr(vDateTime)
+              else
+                aText := DateToIso8601(vDateTime, True);
+            cdtTime:
+              if vCol.DateTimeOptions.ShowAsDateTime then
+                aText := TimeToStr(vDateTime)
+              else
+                aText := TimeToIso8601(vDateTime, True);
+            cdtDateTime:
+              if vCol.DateTimeOptions.ShowAsDateTime then
+                aText := DateTimeToStr(vDateTime)
+              else
+                aText := DateTimeToIso8601(vDateTime, True);
+          end;
+        end
+        else if vCol.DataType = cdtPassword then
+          aText := StrRepeatChar('*', Length(aText));
+      end;
     end
     else
       aText := 'uninitialized';
   end
   else
     aText := '';
-  vCol := FindColumnByIndex(aColumn);
-  if vCol <> nil then
-  begin
-    if vCol.DataType = cdtPassword then
-      aText := StrRepeatChar('*', Length(aText));
-  end;
 end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
@@ -2928,10 +3037,10 @@ end;
 
 function TTisGrid.FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
 begin
-  if aIndex = NoColumn then
-    result := nil
+  if Header.Columns.IsValidColumn(aIndex) then
+    result := TTisGridColumn(Header.Columns[aIndex])
   else
-    result := TTisGridColumn(Header.Columns[aIndex]);
+    result := nil;
 end;
 
 procedure TTisGrid.FindDlgFind(aSender: TObject);
