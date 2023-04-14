@@ -2538,8 +2538,6 @@ begin
     end;
     if Assigned(vNodeData^.Data) then
     begin
-      if Assigned(fOnGetText) then
-        fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
       if Assigned(vCol) then
       begin
         if vCol.DataType in [cdtDate, cdtTime, cdtDateTime] then
@@ -2571,6 +2569,8 @@ begin
         end
         else if vCol.DataType = cdtPassword then
           aText := StrRepeatChar('*', Length(aText));
+        if Assigned(fOnGetText) then
+          fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
       end;
     end
     else
