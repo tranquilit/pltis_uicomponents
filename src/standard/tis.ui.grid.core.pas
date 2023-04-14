@@ -11,7 +11,7 @@ unit tis.ui.grid.core;
 interface
 
 uses
-  {$ifdef windows}
+  {$ifdef WINDOWS}
   Windows,
   {$endif}
   Classes,
@@ -134,6 +134,7 @@ type
     fSaveAsUtc: Boolean;
     fShowAsDateTime: Boolean;
     fShowAsLocal: Boolean;
+    fCustomFormat: string;
   protected const
     DefaultSaveAsUtc = True;
     DefaultShowAsDateTime = True;
@@ -141,7 +142,9 @@ type
   public
     constructor Create; reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
+    /// convert a UTC time to local time
     function UtcToLocal(const aValue: TDateTime): TDateTime;
+    /// convert a local time to UTC time
     function LocalToUtc(const aValue: TDateTime): TDateTime;
   published
     /// it will save date/time value as UTC
@@ -150,6 +153,9 @@ type
     property ShowAsDateTime: Boolean read fShowAsDateTime write fShowAsDateTime default DefaultShowAsDateTime;
     /// it will show date/time value as local time
     property ShowAsLocal: Boolean read fShowAsLocal write fShowAsLocal default DefaultShowAsLocal;
+    /// a custom format for date/time
+    // - if blank, the format will be the same as OS
+    property CustomFormat: string read fCustomFormat write fCustomFormat;
   end;
 
   /// a custom implementation for Grid Column
@@ -2542,23 +2548,26 @@ begin
           if vCol.DateTimeOptions.SaveAsUtc and
             vCol.DateTimeOptions.ShowAsLocal then
             vDateTime := vCol.DateTimeOptions.UtcToLocal(vDateTime);
-          case vCol.DataType of
-            cdtDate:
-              if vCol.DateTimeOptions.ShowAsDateTime then
-                aText := DateToStr(vDateTime)
-              else
-                aText := DateToIso8601(vDateTime, True);
-            cdtTime:
-              if vCol.DateTimeOptions.ShowAsDateTime then
-                aText := TimeToStr(vDateTime)
-              else
-                aText := TimeToIso8601(vDateTime, True);
-            cdtDateTime:
-              if vCol.DateTimeOptions.ShowAsDateTime then
-                aText := DateTimeToStr(vDateTime)
-              else
-                aText := DateTimeToIso8601(vDateTime, True);
-          end;
+          if vCol.DateTimeOptions.CustomFormat <> '' then
+            aText := FormatDateTime(vCol.DateTimeOptions.CustomFormat, vDateTime)
+          else
+            case vCol.DataType of
+              cdtDate:
+                if vCol.DateTimeOptions.ShowAsDateTime then
+                  aText := DateToStr(vDateTime)
+                else
+                  aText := DateToIso8601(vDateTime, True);
+              cdtTime:
+                if vCol.DateTimeOptions.ShowAsDateTime then
+                  aText := TimeToStr(vDateTime)
+                else
+                  aText := TimeToIso8601(vDateTime, True);
+              cdtDateTime:
+                if vCol.DateTimeOptions.ShowAsDateTime then
+                  aText := DateTimeToStr(vDateTime)
+                else
+                  aText := DateTimeToIso8601(vDateTime, True);
+            end;
         end
         else if vCol.DataType = cdtPassword then
           aText := StrRepeatChar('*', Length(aText));
