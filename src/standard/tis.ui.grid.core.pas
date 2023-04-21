@@ -394,6 +394,7 @@ type
     /// it points to original row data
     Data: PDocVariantData;
   end;
+
   PTisNodeData = ^TTisNodeData;
 
   /// adapter for a node
@@ -477,7 +478,7 @@ type
   TOnGridPrepareEditor = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
     aControl: TTisGridControl) of object;
 
-  /// event that allow to validate the new value from user input
+  /// event that allows to validate the new user input value
   // - aCurValue is the current value for the aNode + aColumn
   // - use it for check/change the aNewValue argument, before assign it, and/or abort the process
   TOnGridEditValidated = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
@@ -485,8 +486,7 @@ type
 
   /// export a custom format
   // - use it to pass a custom buffer to the grid when call ExportData, if you use a non-default format
-  TOnGridExportCustomContent = procedure(aSender: TTisGrid; aSource: TVSTTextSourceType;
-    var aBuffer: RawUtf8) of object;
+  TOnGridExportCustomContent = procedure(aSender: TTisGrid; aSource: TVSTTextSourceType; var aBuffer: RawUtf8) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -1036,7 +1036,11 @@ type
     property OnEditorLookup: TOnGridEditorLookup read fOnEditorLookup write fOnEditorLookup;
     /// event that allows users to change some edit control properties, before it shows up
     property OnPrepareEditor: TOnGridPrepareEditor read fOnPrepareEditor write fOnPrepareEditor;
+    /// event that allows to validate the new user input value
     property OnEditValidated: TOnGridEditValidated read fOnEditValidated write fOnEditValidated;
+    /// event when export a custom format
+    // - use it to pass a custom buffer to the grid when call ExportData, if you use a format that
+    // is not included in TTisGridExportFormatOption
     property OnGridExportCustomContent: TOnGridExportCustomContent read fOnGridExportCustomContent write fOnGridExportCustomContent;
   end;
 
