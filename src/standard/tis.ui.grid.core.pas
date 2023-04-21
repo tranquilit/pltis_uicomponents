@@ -412,7 +412,7 @@ type
     // - if aNode represents an object, it will return its Name
     // - if aNode represents an object nameless, it will return "{}"
     // - if aNode represents an array, it will return its value
-    // - you coud use to read Child nodes values in DoGetText
+    // - you could use it to read Child nodes values in DoGetText
     function GetName(aNode: PVirtualNode): string;
     /// returns the value corresponding to the aNode
     // - if it is not a child node, it will (try to) return the value corresponding to
@@ -2566,11 +2566,11 @@ begin
                 else
                   aText := DateTimeToIso8601(vDateTime, True);
             end;
-        end
-        else if vCol.DataType = cdtPassword then
-          aText := StrRepeatChar('*', Length(aText));
+        end;
         if Assigned(fOnGetText) then
           fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
+        if vCol.DataType = cdtPassword then
+          aText := StrRepeatChar('*', Length(aText));
       end;
     end
     else
