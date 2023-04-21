@@ -103,19 +103,22 @@ type
     fValueIsString: Boolean;
     fAbortAll: Boolean;
   protected
+    /// it will initialize ControlClasses array using default values for each data type
+    // - it is called once, in initialization section
+    class procedure SetupControlClasses;
     /// disable control events, especially OnExit, to prevents a GPF
     procedure DisableControlEvents;
     procedure EditKeyDown(aSender: TObject; var Key: Word; Shift: TShiftState); virtual;
     procedure EditExit(aSender: TObject); virtual;
-    procedure SetupControlClasses; virtual;
     /// override this method if you want to change the default control for aNode/aColumn
     // - by default, first it will check Grid.OnCustomEditor event to get an instance
     // - if none instance was provided, it will use Grid.OnEditorLookup to get one
     // - again, if none was provided, it will use ControlClasses array, according to the aColumn.DataType
     function NewControl(aNode: PVirtualNode; aColumn: TTisGridColumn): TTisGridControl; virtual;
-  public var
-    /// use this array to change the default control for each data type
-    ControlClasses: array[TTisColumnDataType] of TTisGridControlClass;
+  public
+    /// use this array to change the default control for each data type on all grids
+    // - initialized by SetupControlClasses
+    class var ControlClasses: array[TTisColumnDataType] of TTisGridControlClass;
   public
     constructor Create;
     destructor Destroy; override;
@@ -1178,7 +1181,7 @@ begin
   end;
 end;
 
-procedure TTisGridEditLink.SetupControlClasses;
+class procedure TTisGridEditLink.SetupControlClasses;
 begin
   ControlClasses[cdtString] := TTisGridEditControl;
   ControlClasses[cdtDate] := TTisGridDateEditControl;
@@ -1216,7 +1219,6 @@ end;
 constructor TTisGridEditLink.Create;
 begin
   inherited Create;
-  SetupControlClasses;
 end;
 
 destructor TTisGridEditLink.Destroy;
@@ -4370,5 +4372,8 @@ begin
   DoFindNext(self);
   result := TextFound;
 end;
+
+initialization
+  TTisGridEditLink.SetupControlClasses;
 
 end.
