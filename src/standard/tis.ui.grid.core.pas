@@ -2583,7 +2583,7 @@ end;
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
   var aInitStates: TVirtualNodeInitStates);
 
-  /// just one only place to setup a default configuration for all nodes
+  /// just a single place to setup a default configuration for all nodes
   procedure _SetNodeDefaults(aNode: PVirtualNode);
   begin
     if Assigned(aNode) then
@@ -2594,7 +2594,7 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
     end;
   end;
 
-  /// just one only place to setup a default configuration for all nodes, when in Tree Mode
+  /// just a single place to setup a default configuration for all nodes, when in Tree Mode
   procedure _SetNodeDefaultsForTreeMode(aNode: PVirtualNode);
   begin
     if Assigned(aNode) then
@@ -2620,8 +2620,8 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
     end;
   end;
 
-  /// just one only place to create all children recursively
-  // - in this way, we do not need to override/implement InitChildren or DoInitChildren methods
+  /// just a single place to create all children recursively
+  // - we do not need to override/implement InitChildren or DoInitChildren methods
   procedure _CreateChildrenFor(aParent: PVirtualNode);
   var
     vDoc, vData, vTempData: PDocVariantData;
@@ -2632,7 +2632,8 @@ procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
     if not fNodeAdapter.IsChild(aParent) then
     begin
       // need to check if the first "father" is a named object
-      // then, get only its fields instead of the whole object
+      //   then, get only its fields instead of the whole object
+      //   otherwise, the first node will be "{}"
       if Length(vData^.GetNames) = 1 then
         vDoc := _Safe(vData^.Values[0])
       else
