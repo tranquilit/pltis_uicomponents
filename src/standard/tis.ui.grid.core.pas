@@ -161,14 +161,26 @@ type
     property CustomFormat: string read fCustomFormat write fCustomFormat;
   end;
 
+  /// data type options for a column
+  TTisGridColumnDataTypeOptions = class(TPersistent)
+  private
+    fDateTimeOptions: TTisGridColumnDateTimeOptions;
+  public
+    constructor Create; reintroduce;
+    destructor Destroy; override;
+    procedure AssignTo(aDest: TPersistent); override;
+  published
+    property DateTimeOptions: TTisGridColumnDateTimeOptions read fDateTimeOptions write fDateTimeOptions;
+  end;
+
   /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
     fPropertyName: RawUtf8;
     fDataType: TTisColumnDataType;
+    fDataTypeOptions: TTisGridColumnDataTypeOptions;
     fRequired: Boolean;
     fReadOnly: Boolean;
-    fDateTimeOptions: TTisGridColumnDateTimeOptions;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
@@ -184,11 +196,11 @@ type
     property Text: TCaption read GetTitle write SetTitle;
     property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
+    property DataTypeOptions: TTisGridColumnDataTypeOptions read fDataTypeOptions write fDataTypeOptions;
     /// if TRUE, it will not allow user to set NULL/blank for this column using Editor
     // - if editor focus is lost, it will return the previous value before edition
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
     property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
-    property DateTimeOptions: TTisGridColumnDateTimeOptions read fDateTimeOptions write fDateTimeOptions;
   end;
 
   /// a custom implementation for Grid Columns
@@ -1306,10 +1318,10 @@ begin
     fValueIsString := VarIsStr(vValue^);
     // format date/time, if needed
     if (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) and
-      vCol.DateTimeOptions.SaveAsUtc and
-      vCol.DateTimeOptions.ShowAsLocal then
+      vCol.DataTypeOptions.DateTimeOptions.SaveAsUtc and
+      vCol.DataTypeOptions.DateTimeOptions.ShowAsLocal then
     begin
-      vDateTime := vCol.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue^)));
+      vDateTime := vCol.DataTypeOptions.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue^)));
       fControl.SetValue(DateTimeToIso8601(vDateTime, True));
     end
     else
@@ -1375,6 +1387,33 @@ begin
   result := aValue - TimeZoneLocalBias / 24 / 60;
 end;
 
+{ TTisGridColumnDataTypeOptions }
+
+constructor TTisGridColumnDataTypeOptions.Create;
+begin
+  inherited Create;
+  fDateTimeOptions := TTisGridColumnDateTimeOptions.Create;
+end;
+
+destructor TTisGridColumnDataTypeOptions.Destroy;
+begin
+  fDateTimeOptions.Destroy;
+  inherited Destroy;
+end;
+
+procedure TTisGridColumnDataTypeOptions.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisGridColumnDataTypeOptions then
+  begin
+    with TTisGridColumnDataTypeOptions(aDest) do
+    begin
+      DateTimeOptions.Assign(DateTimeOptions);
+    end;
+  end
+  else
+    inherited AssignTo(aDest);
+end;
+
 { TTisGridColumn }
 
 function TTisGridColumn.GetTitle: TCaption;
@@ -1401,14 +1440,14 @@ begin
   inherited Create(aCollection);
   Options := Options + [coWrapCaption];
   fDataType := DefaultDataType;
+  fDataTypeOptions := TTisGridColumnDataTypeOptions.Create;
   fRequired := DefaultRequired;
   fReadOnly := DefaultReadOnly;
-  fDateTimeOptions := TTisGridColumnDateTimeOptions.Create;
 end;
 
 destructor TTisGridColumn.Destroy;
 begin
-  fDateTimeOptions.Free;
+  fDataTypeOptions.Free;
   inherited Destroy;
 end;
 
@@ -1422,6 +1461,7 @@ begin
     vColumn := TTisGridColumn(aSource);
     PropertyName := vColumn.PropertyName;
     DataType := vColumn.DataType;
+    DataTypeOptions.Assign(vColumn.DataTypeOptions);
     Required := vColumn.Required;
     ReadOnly := vColumn.ReadOnly;
   end;
@@ -1988,10 +2028,11 @@ begin
             vData^.S[vCol.PropertyName] := VarToStr(aValue);
           cdtDate, cdtTime, cdtDateTime:
             begin
-              if vCol.DateTimeOptions.SaveAsUtc then
-                vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(vCol.DateTimeOptions.LocalToUtc(aValue))
-              else
-                vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
+              with vCol.DataTypeOptions.DateTimeOptions do
+                if SaveAsUtc then
+                  vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(LocalToUtc(aValue))
+                else
+                  vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
             end;
           cdtInteger:
             vData^.I[vCol.PropertyName] := aValue;
@@ -2549,29 +2590,31 @@ begin
         if vCol.DataType in [cdtDate, cdtTime, cdtDateTime] then
         begin
           vDateTime := Iso8601ToDateTime(aText);
-          if vCol.DateTimeOptions.SaveAsUtc and
-            vCol.DateTimeOptions.ShowAsLocal then
-            vDateTime := vCol.DateTimeOptions.UtcToLocal(vDateTime);
-          if vCol.DateTimeOptions.CustomFormat <> '' then
-            aText := FormatDateTime(vCol.DateTimeOptions.CustomFormat, vDateTime)
-          else
-            case vCol.DataType of
-              cdtDate:
-                if vCol.DateTimeOptions.ShowAsDateTime then
-                  aText := DateToStr(vDateTime)
-                else
-                  aText := DateToIso8601(vDateTime, True);
-              cdtTime:
-                if vCol.DateTimeOptions.ShowAsDateTime then
-                  aText := TimeToStr(vDateTime)
-                else
-                  aText := TimeToIso8601(vDateTime, True);
-              cdtDateTime:
-                if vCol.DateTimeOptions.ShowAsDateTime then
-                  aText := DateTimeToStr(vDateTime)
-                else
-                  aText := DateTimeToIso8601(vDateTime, True);
-            end;
+          with vCol.DataTypeOptions.DateTimeOptions do
+          begin
+            if SaveAsUtc and ShowAsLocal then
+              vDateTime := UtcToLocal(vDateTime);
+            if CustomFormat <> '' then
+              aText := FormatDateTime(CustomFormat, vDateTime)
+            else
+              case vCol.DataType of
+                cdtDate:
+                  if ShowAsDateTime then
+                    aText := DateToStr(vDateTime)
+                  else
+                    aText := DateToIso8601(vDateTime, True);
+                cdtTime:
+                  if ShowAsDateTime then
+                    aText := TimeToStr(vDateTime)
+                  else
+                    aText := TimeToIso8601(vDateTime, True);
+                cdtDateTime:
+                  if ShowAsDateTime then
+                    aText := DateTimeToStr(vDateTime)
+                  else
+                    aText := DateTimeToIso8601(vDateTime, True);
+              end;
+          end;
         end;
         if Assigned(fOnGetText) then
           fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
