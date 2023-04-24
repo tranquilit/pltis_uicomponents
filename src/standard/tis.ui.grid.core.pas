@@ -4233,6 +4233,8 @@ begin
 end;
 
 procedure TTisGrid.CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
+const
+  cColWidth = 100;
 var
   vFieldName: PRawUtf8;
   vObj: PDocVariantData;
@@ -4258,7 +4260,7 @@ begin
           vColIndex := vCol.Index;
           vCol.Text := Utf8ToString(vFieldName^);
           vCol.PropertyName := vFieldName^;
-          vCol.Width := 100;
+          vCol.Width := cColWidth;
           if aAppendMissingAsHidden then
             vCol.Options := vCol.Options - [coVisible];
           if VarType(vObj^.Value[vFieldName^]) in [varDouble, varCurrency, varInteger] then
@@ -4270,7 +4272,7 @@ begin
     if aAutoFitColumns and (vColIndex <> NoColumn) then
       Header.AutoFitColumns(False, smaUseColumnOption, vColIndex);
     if vNewCol and (Header.Columns.Count = 1) then
-      Header.Columns[0].Width := 100;
+      Header.Columns[0].Width := cColWidth;
     EndUpdate;
   end;
 end;
