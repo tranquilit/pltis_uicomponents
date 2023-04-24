@@ -4232,19 +4232,20 @@ begin
   end;
 end;
 
-procedure TTisGrid.CreateColumnsFromData(aAutoFitColumns,
-  aAppendMissingAsHidden: Boolean);
+procedure TTisGrid.CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
 var
   vFieldName: PRawUtf8;
   vObj: PDocVariantData;
   vCol: TTisGridColumn;
   vColIndex: Integer;
+  vNewCol: Boolean;
 begin
   if fData.IsVoid then
     exit;
   vColIndex := NoColumn;
   BeginUpdate;
   try
+    vNewCol := False;
     for vObj in fData.Objects do
     begin
       for vFieldName in vObj^.FieldNames do
@@ -4252,6 +4253,7 @@ begin
         vCol := FindColumnByPropertyName(vFieldName^);
         if vCol = nil then
         begin
+          vNewCol := True;
           vCol := Header.Columns.Add as TTisGridColumn;
           vColIndex := vCol.Index;
           vCol.Text := Utf8ToString(vFieldName^);
@@ -4267,6 +4269,8 @@ begin
   finally
     if aAutoFitColumns and (vColIndex <> NoColumn) then
       Header.AutoFitColumns(False, smaUseColumnOption, vColIndex);
+    if vNewCol and (Header.Columns.Count = 1) then
+      Header.Columns[0].Width := 100;
     EndUpdate;
   end;
 end;
