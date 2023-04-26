@@ -632,8 +632,8 @@ type
     procedure FindDlgFind(aSender: TObject);
     /// add aData into Data property
     // - will test if it is an array or object
-    // - returns TRUE if something has been added
-    function Add(aData: PDocVariantData): Boolean;
+    // - returns the index of the corresponding newly added item
+    function Add(aData: PDocVariantData): Integer;
     function DoCompareByRow(const aPropertyName: RawUtf8; const aRow1, aRow2: PDocVariantData): PtrInt; virtual;
     procedure DoFindText(aSender: TObject);
     procedure DoFindNext(aSender: TObject);
@@ -3130,12 +3130,12 @@ begin
   //DoFindPrior(aSender);
 end;
 
-function TTisGrid.Add(aData: PDocVariantData): Boolean;
+function TTisGrid.Add(aData: PDocVariantData): Integer;
 var
   vObj: PDocVariantData;
   vAborted: Boolean;
 begin
-  result := False;
+  result := -1;
   if Assigned(fOnInsert) then
   begin
     vAborted := False;
@@ -3143,17 +3143,14 @@ begin
     if vAborted then
       exit;
   end;
-  result := True;
   case aData^.Kind of
     dvArray:
       for vObj in aData^.Objects do
-        fData.AddItem(variant(vObj^));
+        result := fData.AddItem(variant(vObj^));
     dvObject:
-      fData.AddItem(variant(aData^));
-    else
-      result := False;
+      result := fData.AddItem(variant(aData^));
   end;
-  if result then
+  if result > -1 then
     LoadData;
 end;
 
@@ -3457,7 +3454,7 @@ begin
   end;
   Add(@vNew);
   ClearSelection;
-  FocusedNode := GetLast;
+  FocusedNode := GetNodeBy(@vNew);
   Selected[FocusedNode] := True;
 end;
 
