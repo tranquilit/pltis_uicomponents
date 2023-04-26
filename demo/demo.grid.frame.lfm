@@ -955,7 +955,7 @@ object GridFrame: TGridFrame
       TreeOptions.SelectionOptions = [toExtendedFocus, toMultiSelect, toSimpleDrawSelection]
       ZebraColor = 15593713
       ZebraPaint = True
-      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
+      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowCopySpecial, pmoShowPaste, pmoShowInsert, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow

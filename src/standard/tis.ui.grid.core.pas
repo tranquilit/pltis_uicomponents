@@ -361,6 +361,7 @@ type
     pmoShowCopyCell,
     pmoShowCopySpecial,
     pmoShowPaste,
+    pmoShowInsert,
     pmoShowDelete,
     pmoShowSelectAll,
     pmoShowCustomizeColumns,
@@ -645,6 +646,7 @@ type
     procedure DoCopyCellToClipboard(aSender: TObject); virtual;
     procedure DoCopySpecialToClipboard(aSender: TObject); virtual;
     procedure DoCutToClipboard(aSender: TObject); virtual;
+    procedure DoInsert(aSender: TObject); virtual;
     procedure DoDeleteRows(aSender: TObject); virtual;
     procedure DoPaste(aSender: TObject); virtual;
     procedure DoSelectAllRows(aSender: TObject); virtual;
@@ -3010,6 +3012,8 @@ begin
     _AddItem(rsGridFindNext, VK_F3, @DoFindNext, not fData.IsVoid);
   {_AddItem(rsFindReplace, ShortCut(Ord('H'), [ssCtrl]), @DoFindReplace);}
   _AddDivider;
+  if (pmoShowInsert in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and (not fNodeOptions.ShowChildren) then
+    _AddItem(rsGridInsert, ShortCut(Ord('I'), [ssCtrl]), @DoInsert, Length(Header.Columns.GetVisibleColumns) > 0);
   if (pmoShowCut in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and Assigned(fOnCutToClipboard) then
     _AddItem(rsGridCut, ShortCut(Ord('X'), [ssCtrl]), @DoCutToClipboard, not fData.IsVoid);
   if (pmoShowCopy in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
@@ -3429,6 +3433,25 @@ procedure TTisGrid.DoCutToClipboard(aSender: TObject);
 begin
   if Assigned(fOnCutToClipboard) then
     fOnCutToClipboard(aSender);
+end;
+
+procedure TTisGrid.DoInsert(aSender: TObject);
+var
+  vNew: TDocVariantData;
+  vCol: TTisGridColumn;
+  v1: Integer;
+begin
+  vNew.Clear;
+  vNew.InitFast;
+  for v1 := 0 to Header.Columns.Count -1 do
+  begin
+    vCol := Header.Columns[v1] as TTisGridColumn;
+    vNew.AddValue(vCol.PropertyName, NULL);
+  end;
+  Add(@vNew);
+  ClearSelection;
+  FocusedNode := GetLast;
+  Selected[FocusedNode] := True;
 end;
 
 procedure TTisGrid.DoDeleteRows(aSender: TObject);

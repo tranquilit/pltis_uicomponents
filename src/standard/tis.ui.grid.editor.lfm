@@ -136,6 +136,7 @@ object TisGridEditor: TTisGridEditor
     TreeOptions.PaintOptions = [toPopupMode, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages]
     TreeOptions.SelectionOptions = [toExtendedFocus, toSimpleDrawSelection]
     ZebraColor = 15593713
+    PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowPaste, pmoShowInsert, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns]
     OnClick = GridClick
     OnFocusChanged = GridFocusChanged
     OnHeaderDragged = GridHeaderDragged
