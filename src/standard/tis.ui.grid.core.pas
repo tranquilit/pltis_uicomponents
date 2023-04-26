@@ -475,9 +475,9 @@ type
   TOnGridCompareByRow = function(aSender: TTisGrid; const aPropertyName: RawUtf8;
     const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt of object;
 
-  /// event to manipulate rows using copy/paste on grid
-  // - use it for check/change the aData argument, before assign it, and/or abort the process
-  TOnGridPaste = procedure(aSender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
+  /// event to manipulate aData before use it
+  // - use it for check/change/assign default values on aData argument or abort the process
+  TOnGridInsert = procedure(aSender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
 
   /// event that allows users customize the control instance, creating a new one, replacing the default
   TOnGridCustomEditor = procedure(aSender: TObject; aNode: PVirtualNode; aColumn: TTisGridColumn;
@@ -528,7 +528,7 @@ type
     fOnCutToClipboard: TNotifyEvent;
     fOnBeforeDataChange: TOnGridBeforeDataChange;
     fOnAfterDataChange: TOnGridAfterDataChange;
-    fOnBeforePaste: TOnGridPaste;
+    fOnInsert: TOnGridInsert;
     fOnBeforeDeleteRows: TOnGridBeforeDeleteRows;
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
@@ -764,8 +764,6 @@ type
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
     procedure AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean = True; aCreateColumns: Boolean = True);
-    /// append rows, calling OnBeforePaste
-    procedure PasteRows(aRows: PDocVariantData);
     /// delete a list of rows that match with aRows
     procedure DeleteRows(aRows: PDocVariantData);
     /// ask to delete selected rows
@@ -1022,7 +1020,7 @@ type
     /// event to manipulate data after the internal Data changed
     // - as used by TTisGrid.OnAfterDataChage
     property OnAfterDataChange: TOnGridAfterDataChange read fOnAfterDataChange write fOnAfterDataChange;
-    property OnBeforePaste: TOnGridPaste read fOnBeforePaste write fOnBeforePaste;
+    property OnInsert: TOnGridInsert read fOnInsert write fOnInsert;
     /// event to manipulate rows before deleting them
     // - use it for change the rows or abort the process by assign True to aAbort
     // - if you do not use this event, by default it will ask user about deletion
@@ -3023,7 +3021,7 @@ begin
   if (pmoShowCopySpecial in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
-    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste)) and (not fNodeOptions.ShowChildren)  then
+    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnInsert)) and (not fNodeOptions.ShowChildren)  then
     _AddItem(rsGridPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
   if (pmoShowDelete in fPopupMenuOptions) and
     ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) and
@@ -3135,7 +3133,16 @@ end;
 function TTisGrid.Add(aData: PDocVariantData): Boolean;
 var
   vObj: PDocVariantData;
+  vAborted: Boolean;
 begin
+  result := False;
+  if Assigned(fOnInsert) then
+  begin
+    vAborted := False;
+    fOnInsert(self, @aData, vAborted);
+    if vAborted then
+      exit;
+  end;
   result := True;
   case aData^.Kind of
     dvArray:
@@ -3494,7 +3501,7 @@ begin
   if vClipAdapter.IsValidFor(cbkJson) or vClipAdapter.IsValidFor(cbkText) then
   begin
     vDoc := _Safe(_Json(vClipAdapter.AsJson));
-    PasteRows(vDoc);
+    Add(vDoc);
   end;
 end;
 
@@ -4108,17 +4115,6 @@ begin
     if aCreateColumns and (Header.Columns.Count = 0) then
       CreateColumnsFromData(True, False);
   end;
-end;
-
-procedure TTisGrid.PasteRows(aRows: PDocVariantData);
-var
-  vAborted: Boolean;
-begin
-  vAborted := False;
-  if Assigned(fOnBeforePaste) then
-    fOnBeforePaste(self, aRows, vAborted);
-  if not vAborted then
-    Add(aRows);
 end;
 
 procedure TTisGrid.DeleteRows(aRows: PDocVariantData);
