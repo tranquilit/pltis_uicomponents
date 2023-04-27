@@ -3416,12 +3416,12 @@ begin
       begin
         vBuf := ContentToCsv(vParams.Selection,
           DefaultCsvSeparator, vParams.Columns.VisibleOnly, vParams.Columns.Translated);
-        vClipAdapter.Add(cbkText, vBuf[1], Length(vBuf));
+        vClipAdapter.Add(cbkText, vBuf[1], Length(vBuf)+1);
       end;
       efoJson:
       begin
         vBuf := ContentToJson(vParams.Selection, vParams.Columns.VisibleOnly);
-        vClipAdapter.Add(cbkText, vBuf[1], Length(vBuf));
+        vClipAdapter.Add(cbkText, vBuf[1], Length(vBuf)+1);
         vClipAdapter.Add(cbkJson, vBuf[1], Length(vBuf));
       end;
     else
