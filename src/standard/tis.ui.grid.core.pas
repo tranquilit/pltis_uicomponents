@@ -4109,8 +4109,7 @@ begin
     ((Length(KeyFieldsList) = 0) and (Length(GetNodesBy(aData)) = 0)) or
     (Length(GetNodesBy(aData, True)) = 0) then
   begin
-    Add(aData);
-    if aCreateColumns and (Header.Columns.Count = 0) then
+    if (Add(aData) <> -1) and aCreateColumns and (Header.Columns.Count = 0) then
       CreateColumnsFromData(True, False);
   end;
 end;
