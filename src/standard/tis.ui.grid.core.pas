@@ -3139,7 +3139,7 @@ begin
   if Assigned(fOnInsert) then
   begin
     vAborted := False;
-    fOnInsert(self, @aData, vAborted);
+    fOnInsert(self, aData, vAborted);
     if vAborted then
       exit;
   end;
