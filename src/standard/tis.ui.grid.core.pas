@@ -3456,6 +3456,7 @@ begin
   ClearSelection;
   FocusedNode := GetNodeBy(@vNew);
   Selected[FocusedNode] := True;
+  ScrollIntoView(FocusedNode, False);
 end;
 
 procedure TTisGrid.DoDeleteRows(aSender: TObject);
@@ -3822,7 +3823,7 @@ begin
           break;
         end;
         // restore visible focused column
-        ScrollIntoView(FocusedColumn,False);
+        ScrollIntoView(FocusedColumn, False);
       end;
     end;
   end;
