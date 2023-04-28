@@ -764,9 +764,11 @@ type
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
     procedure AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean = True; aCreateColumns: Boolean = True);
-    /// delete a list of rows that match with aRows
+    /// delete a list of rows that match aRows
+    // - it will not call OnBeforeDeleteRows event by design - use DeleteSelectedRows instead
     procedure DeleteRows(aRows: PDocVariantData);
-    /// ask to delete selected rows
+    /// delete selected rows
+    // - if OnBeforeDeleteRows was not assigned, it will ask user to confirm
     procedure DeleteSelectedRows;
     /// redraw the rows matching this record
     procedure InvalidateNodeByDocVariant(const aData: PDocVariantData);
@@ -1972,7 +1974,7 @@ begin
         // try to get by its name
         vNodeData^.Data^.GetAsPVariant(GetName(aNode), result);
         // it should return only simple values
-        if _Safe(result^, vData) then
+        if Assigned(result) and _Safe(result^, vData) then
           result := nil;
       end;
     end;
