@@ -2576,30 +2576,23 @@ var
   vCol: TTisGridColumn;
   vDateTime: TDateTime;
 begin
-  if Assigned(aNode) then
+  Assert(Assigned(aNode), 'DoGetText: aNode must not be nil.');
+  if fNodeOptions.ShowChildren then
+  begin
+    case aColumn of
+      0: aText := fNodeAdapter.GetName(aNode);
+      1: aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
+    end;
+  end
+  else
   begin
     vNodeData := fNodeAdapter.GetData(aNode);
     vCol := FindColumnByIndex(aColumn);
-    if fNodeOptions.ShowChildren then
-    begin
-      case aColumn of
-        0: aText := fNodeAdapter.GetName(aNode);
-        1: aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
-      end;
-    end
-    else
-    begin
-      if Assigned(vCol) then
-        aText := vNodeData^.Data^.S[vCol.PropertyName]
-      else if DefaultText <> '' then
-        aText := vNodeData^.Data^.S[DefaultText];
-      if aText = '' then
-        aText := DefaultText;
-    end;
     if Assigned(vNodeData^.Data) then
     begin
       if Assigned(vCol) then
       begin
+        aText := vNodeData^.Data^.S[vCol.PropertyName];
         if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
           vDateTime := Iso8601ToDateTime(aText);
@@ -2628,18 +2621,22 @@ begin
                     aText := DateTimeToIso8601(vDateTime, True);
               end;
           end;
-        end;
-        if Assigned(fOnGetText) then
-          fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
-        if vCol.DataType = cdtPassword then
-          aText := StrRepeatChar('*', Length(aText));
-      end;
+        end
+      end
+      else if DefaultText <> '' then
+        aText := vNodeData^.Data^.S[DefaultText];
+      if aText = '' then
+        aText := DefaultText;
+      // firing our customized OnGetText
+      if Assigned(fOnGetText) then
+        fOnGetText(self, aNode, vNodeData^.Data^, aColumn, aTextType, aText);
+      // obfuscating after processing OnGetText event
+      if Assigned(vCol) and (vCol.DataType = cdtPassword) then
+        aText := StrRepeatChar('*', Length(aText));
     end
     else
       aText := 'uninitialized';
-  end
-  else
-    aText := '';
+  end;
 end;
 
 procedure TTisGrid.DoInitNode(aParentNode, aNode: PVirtualNode;
