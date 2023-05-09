@@ -2599,7 +2599,7 @@ begin
     begin
       if Assigned(vCol) then
       begin
-        if vCol.DataType in [cdtDate, cdtTime, cdtDateTime] then
+        if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
           vDateTime := Iso8601ToDateTime(aText);
           with vCol.DataTypeOptions.DateTimeOptions do
