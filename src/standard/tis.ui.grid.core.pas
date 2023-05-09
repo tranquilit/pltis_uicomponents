@@ -1896,6 +1896,7 @@ begin
   begin
     with TTisNodeOptions(aDest) do
     begin
+      MultiEdit := self.MultiEdit;
       MultiLine := self.MultiLine;
       MultiLineHeight := self.MultiLineHeight;
       ShowChildren := self.ShowChildren;
