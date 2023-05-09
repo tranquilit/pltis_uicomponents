@@ -375,12 +375,14 @@ type
   TTisNodeOptions = class(TPersistent)
   private
     fGrid: TTisGrid;
+    fMultiEdit: Boolean;
     fMultiLine: Boolean;
     fMultiLineHeight: Integer;
     fShowChildren: Boolean;
     procedure SetMultiLine(aValue: Boolean);
     procedure SetMultiLineHeight(aValue: Integer);
   protected const
+    DefaultMultiEdit = False;
     DefaultMultiLine = False;
     DefaultMultiLineHeight = 4;
     DefaultShowChildren = False;
@@ -388,6 +390,8 @@ type
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
   published
+    /// allow users edit/set multi nodes values at the same time
+    property MultiEdit: Boolean read fMultiEdit write fMultiEdit default DefaultMultiEdit;
     property MultiLine: Boolean read fMultiLine write SetMultiLine default DefaultMultiLine;
     property MultiLineHeight: Integer read fMultiLineHeight write SetMultiLineHeight default DefaultMultiLineHeight;
     property ShowChildren: Boolean read fShowChildren write fShowChildren default DefaultShowChildren;
@@ -1268,6 +1272,7 @@ var
   vAborted: Boolean;
   vCur: PVariant;
   vNew: Variant;
+  vNode: PVirtualNode;
 begin
   result := True;
   if fAbortAll then
@@ -1284,7 +1289,11 @@ begin
   try
     if vAborted then
       exit;
-    fGrid.fNodeAdapter.SetValue(fNode, vNew, fColumn, fValueIsString);
+    if fGrid.NodeOptions.MultiEdit then
+      for vNode in fGrid.SelectedNodes do
+        fGrid.fNodeAdapter.SetValue(vNode, vNew, fColumn, fValueIsString)
+    else
+      fGrid.fNodeAdapter.SetValue(fNode, vNew, fColumn, fValueIsString);
   finally
     FreeAndNil(fControl); // for do not perform any event from it
     fGrid.InvalidateNode(fNode);
@@ -1875,6 +1884,7 @@ constructor TTisNodeOptions.Create(aGrid: TTisGrid);
 begin
   inherited Create;
   fGrid := aGrid;
+  fMultiEdit := DefaultMultiEdit;
   fMultiLine := DefaultMultiLine;
   fMultiLineHeight := DefaultMultiLineHeight;
   fShowChildren := DefaultShowChildren;
