@@ -649,6 +649,9 @@ type
     procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
     procedure DoCopyToClipboard(aSender: TObject); virtual;
     procedure DoCopyCellToClipboard(aSender: TObject); virtual;
+    /// it will clear selected cell(s) by setting NULL
+    // - if NodeOptions.MultiEdit is TRUE, it will perform in all selected ones
+    // - for each cell, DoEditValidated() event will be called
     procedure DoClearCell(aSender: TObject); virtual;
     procedure DoCopySpecialToClipboard(aSender: TObject); virtual;
     procedure DoCutToClipboard(aSender: TObject); virtual;
