@@ -3396,13 +3396,24 @@ begin
 end;
 
 procedure TTisGrid.DoClearCell(aSender: TObject);
+var
+  vNode: PVirtualNode;
 begin
   if Assigned(FocusedNode) then
   begin
     if Assigned(FocusedColumnObject) and FocusedColumnObject.ReadOnly then
       exit;
-    fNodeAdapter.SetValue(FocusedNode, NULL, FocusedColumn);
-    InvalidateNode(FocusedNode);
+    if NodeOptions.MultiEdit then
+      for vNode in SelectedNodes do
+      begin
+        fNodeAdapter.SetValue(vNode, NULL, FocusedColumn);
+        InvalidateNode(vNode);
+      end
+    else
+    begin
+      fNodeAdapter.SetValue(FocusedNode, NULL, FocusedColumn);
+      InvalidateNode(FocusedNode);
+    end;
   end;
 end;
 
