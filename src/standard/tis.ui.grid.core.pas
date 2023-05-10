@@ -359,6 +359,7 @@ type
     pmoShowCut,
     pmoShowCopy,
     pmoShowCopyCell,
+    pmoShowClearCell,
     pmoShowCopySpecial,
     pmoShowPaste,
     pmoShowInsert,
@@ -445,7 +446,7 @@ type
       const aDefault: string = ''): string;
     /// set a value to aNode
     // - if it is not a child node, it will use the PropertyName of the TTisGridColumn instance
-    // by aColumn to try to update the original object data, but if the object.name was not found, it will do nothing
+    // by aColumn, trying to update the original object data, but if the object.name was not found, it will do nothing
     procedure SetValue(aNode: PVirtualNode; const aValue: Variant; aColumn: TColumnIndex = NoColumn;
       aDoNotUseTextToVariant: Boolean = False);
     /// return TRUE if aNode is child
@@ -648,6 +649,7 @@ type
     procedure DoExportCustomContent(aSource: TVSTTextSourceType; var aBuffer: RawUtf8); virtual;
     procedure DoCopyToClipboard(aSender: TObject); virtual;
     procedure DoCopyCellToClipboard(aSender: TObject); virtual;
+    procedure DoClearCell(aSender: TObject); virtual;
     procedure DoCopySpecialToClipboard(aSender: TObject); virtual;
     procedure DoCutToClipboard(aSender: TObject); virtual;
     procedure DoInsert(aSender: TObject); virtual;
@@ -3028,6 +3030,8 @@ begin
     _AddItem(rsGridCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopyToClipboard, not fData.IsVoid);
   if pmoShowCopyCell in fPopupMenuOptions then
     _AddItem(rsGridCopyCell, ShortCut(Ord('C'), [ssCtrl,ssShift]), @DoCopyCellToClipboard, not fData.IsVoid);
+  if pmoShowClearCell in fPopupMenuOptions then
+    _AddItem(rsGridClearCell, ShortCut(VK_DELETE, [ssCtrl,ssShift]), @DoClearCell, not fData.IsVoid);
   if (pmoShowCopySpecial in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
@@ -3388,6 +3392,15 @@ begin
     finally
       vAdapter.Close;
     end;
+  end;
+end;
+
+procedure TTisGrid.DoClearCell(aSender: TObject);
+begin
+  if Assigned(FocusedNode) then
+  begin
+    fNodeAdapter.SetValue(FocusedNode, NULL, FocusedColumn);
+    InvalidateNode(FocusedNode);
   end;
 end;
 

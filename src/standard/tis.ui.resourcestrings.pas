@@ -24,6 +24,7 @@ resourcestring
   rsGridFindReplace = 'Find and replace...';
   rsGridCopy = 'Copy';
   rsGridCopyCell = 'Copy cell';
+  rsGridClearCell = 'Clear cell';
   rsGridCopySpecial = 'Copy special...';
   rsGridCut = 'Cut';
   rsGridPaste = 'Paste';

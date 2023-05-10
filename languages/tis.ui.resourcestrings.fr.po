@@ -6,6 +6,10 @@ msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
 msgid "Advanced customize of table..."
 msgstr "Personnalisation avancée du tableau..."
 
+#: tis.ui.resourcestrings.rsgridclearcell
+msgid "Clear cell"
+msgstr "Effacer la cellule"
+
 #: tis.ui.resourcestrings.rsgridcollapseall
 msgctxt "tis.ui.resourcestrings.rsgridcollapseall"
 msgid "Collapse all"
@@ -176,3 +180,4 @@ msgstr "Personnaliser la barre d'outils"
 msgctxt "tis.ui.resourcestrings.rstoolbarrestore"
 msgid "Restore"
 msgstr "Restaurer"
+

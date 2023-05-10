@@ -6,6 +6,10 @@ msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
 msgid "Advanced customize of table..."
 msgstr "Erweitertes Anpassen der Tabelle ..."
 
+#: tis.ui.resourcestrings.rsgridclearcell
+msgid "Clear cell"
+msgstr "Zelle löschen"
+
 #: tis.ui.resourcestrings.rsgridcollapseall
 msgctxt "tis.ui.resourcestrings.rsgridcollapseall"
 msgid "Collapse all"
@@ -111,7 +115,7 @@ msgstr "Buchseite"
 #: tis.ui.resourcestrings.rsgridpaste
 msgctxt "tis.ui.resourcestrings.rsgridpaste"
 msgid "Paste"
-msgstr Paste""
+msgstr ""
 
 #: tis.ui.resourcestrings.rsgridprint
 msgctxt "tis.ui.resourcestrings.rsgridprint"

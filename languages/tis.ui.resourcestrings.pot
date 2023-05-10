@@ -5,6 +5,10 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 msgid "Advanced customize of table..."
 msgstr ""
 
+#: tis.ui.resourcestrings.rsgridclearcell
+msgid "Clear cell"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridcollapseall
 msgid "Collapse all"
 msgstr ""
