@@ -3399,6 +3399,8 @@ procedure TTisGrid.DoClearCell(aSender: TObject);
 begin
   if Assigned(FocusedNode) then
   begin
+    if Assigned(FocusedColumnObject) and FocusedColumnObject.ReadOnly then
+      exit;
     fNodeAdapter.SetValue(FocusedNode, NULL, FocusedColumn);
     InvalidateNode(FocusedNode);
   end;
