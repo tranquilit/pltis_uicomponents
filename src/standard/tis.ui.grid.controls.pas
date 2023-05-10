@@ -172,11 +172,6 @@ type
     function Edit: TTisSearchEdit;
   end;
 
-  // all global functions for this unit
-  TTisGridControlsObject = object
-    function NormalizeVariantToString(const aValue: Variant): string;
-  end;
-
 implementation
 
 { TTisGridControl }
@@ -248,10 +243,8 @@ begin
 end;
 
 procedure TTisGridEditControl.SetValue(const aValue: Variant);
-var
-  vCtrlsObj: TTisGridControlsObject;
 begin
-  Edit.Text := vCtrlsObj.NormalizeVariantToString(aValue);
+  Edit.Text := VarToStr(aValue);
 end;
 
 function TTisGridEditControl.Edit: TEdit;
@@ -517,18 +510,6 @@ end;
 function TTisGridSearchEditControl.Edit: TTisSearchEdit;
 begin
   result := fInternal as TTisSearchEdit;
-end;
-
-{ TTisGridControlsObject }
-
-function TTisGridControlsObject.NormalizeVariantToString(const aValue: Variant): string;
-begin
-  if VarIsBool(aValue) then
-    result := LowerCase(aValue)
-  else if VarIsNull(aValue) then
-    result := 'null'
-  else
-    result := VariantToUtf8(aValue);
 end;
 
 end.

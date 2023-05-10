@@ -1999,13 +1999,21 @@ end;
 
 function TTisNodeAdapter.GetValueAsString(aNode: PVirtualNode;
   aColumn: TColumnIndex; const aDefault: string): string;
+
+  function LJsonVarToStr(const aValue: Variant): string;
+  begin
+    if VarIsBool(aValue) then
+      result := LowerCase(aValue)
+    else
+      result := Utf8ToString(VariantToUtf8(aValue));
+  end;
+
 var
   vValue: PVariant;
-  vCtrlsObj: TTisGridControlsObject;
 begin
   vValue := GetValue(aNode, aColumn);
   if Assigned(vValue) then
-    result := vCtrlsObj.NormalizeVariantToString(vValue^)
+    result := LJsonVarToStr(vValue^)
   else
     result := aDefault;
   result := Utf8ToString(result);
