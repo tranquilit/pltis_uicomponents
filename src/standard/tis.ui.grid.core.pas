@@ -445,10 +445,11 @@ type
     function GetValueAsString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn;
       const aDefault: string = ''): string;
     /// set a value to aNode
-    // - if it is not a child node, it will use the PropertyName of the TTisGridColumn instance
-    // by aColumn, trying to update the original object data, but if the object.name was not found, it will do nothing
+    // - if it is not a child node, it will use PropertyName from its TTisGridColumn instance getting it by aColumn,
+    // trying to update the original object data, but if the object.name was not found, it will do nothing
+    // - if aValueIsString is FALSE, it will try to detect JSON numbers or constants to use the correct date type
     procedure SetValue(aNode: PVirtualNode; const aValue: Variant; aColumn: TColumnIndex = NoColumn;
-      aDoNotUseTextToVariant: Boolean = False);
+      aValueIsString: Boolean = False);
     /// return TRUE if aNode is child
     function IsChild(aNode: PVirtualNode): Boolean;
   end;
@@ -2019,7 +2020,7 @@ begin
 end;
 
 procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
-  aColumn: TColumnIndex; aDoNotUseTextToVariant: Boolean);
+  aColumn: TColumnIndex; aValueIsString: Boolean);
 var
   vNodeData: PTisNodeData;
   vData: PDocVariantData;
@@ -2029,7 +2030,7 @@ begin
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
   begin
-    if not (VarIsNull(aValue) or aDoNotUseTextToVariant) then
+    if not (VarIsNull(aValue) or aValueIsString) then
       TextToVariant(aValue, True, vValue)
     else
       vValue := aValue;
