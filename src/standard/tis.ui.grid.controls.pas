@@ -244,7 +244,10 @@ end;
 
 procedure TTisGridEditControl.SetValue(const aValue: Variant);
 begin
-  Edit.Text := VarToStr(aValue);
+  if VarIsBool(aValue) then
+    Edit.Text := LowerCase(aValue)
+  else
+    Edit.Text := VarToStr(aValue);
 end;
 
 function TTisGridEditControl.Edit: TEdit;

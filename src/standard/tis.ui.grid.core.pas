@@ -2004,7 +2004,7 @@ function TTisNodeAdapter.GetValueAsString(aNode: PVirtualNode;
   function LJsonVarToStr(const aValue: Variant): string;
   begin
     if VarIsBool(aValue) then
-      result := Utf8ToString(LowerCase(VariantToUtf8(aValue)))
+      result := Utf8ToString(LowerCase(aValue))
     else
       result := Utf8ToString(VariantToUtf8(aValue));
   end;
