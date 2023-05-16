@@ -165,7 +165,8 @@ type
       aColRequired, aColReadOnly: Boolean);
     procedure ClearPropertiesPanel;
     procedure LoadGridCommonProps;
-    procedure AddColumn(const aPropertyName: string = ''; const aTitle: string = '');
+    procedure AddColumn(const aPropertyName: string = ''; const aTitle: string = '';
+      aDataType: TTisColumnDataType = cdtString; aReadOnly: Boolean = False);
     procedure AddFakeDataIfNeedIt;
   end;
 
@@ -504,8 +505,8 @@ begin
   if MessageDlg(cMsg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
   begin
     Grid.Header.Columns.Clear;
-    AddColumn('Property', 'Property');
-    AddColumn('Value', 'Value');
+    AddColumn('Property', 'Property', cdtString, True);
+    AddColumn('Value', 'Value', cdtJson);
   end;
 end;
 
@@ -544,7 +545,7 @@ begin
 end;
 
 procedure TTisGridEditor.AddColumn(const aPropertyName: string;
-  const aTitle: string);
+  const aTitle: string; aDataType: TTisColumnDataType; aReadOnly: Boolean);
 var
   vCol : TTisGridColumn;
 begin
@@ -557,6 +558,8 @@ begin
     vCol.PropertyName := 'column' + IntToStr(vCol.Index)
   else
     vCol.PropertyName := aPropertyName;
+  vCol.DataType := aDataType;
+  vCol.ReadOnly := aReadOnly;
   Grid.FocusedColumn := vCol.Index;
   AddFakeDataIfNeedIt;
 end;

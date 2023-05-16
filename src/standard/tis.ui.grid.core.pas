@@ -61,6 +61,7 @@ type
     cdtFloat,
     cdtBoolean,
     cdtMemo,
+    cdtJson,
     /// it shows only "***" in Columns and Editor
     // - this type will not be exported
     cdtPassword
@@ -1091,8 +1092,12 @@ const
     (Caption: 'Float'),
     (Caption: 'Boolean'),
     (Caption: 'Memo'),
+    (Caption: 'JSON'),
     (Caption: 'Password')
   );
+
+  CHILD_COLUMN_NAME_INDEX = 0;
+  CHILD_COLUMN_VALUE_INDEX = 1;
 
 { TTisColumnDataTypeAdapter }
 
@@ -1219,6 +1224,7 @@ begin
   ControlClasses[cdtFloat] := TTisGridFloatEditControl;
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
   ControlClasses[cdtMemo] := TTisGridMemoControl;
+  ControlClasses[cdtJson] := TTisGridEditControl;
   ControlClasses[cdtPassword] := TTisGridPasswordEditControl;
 end;
 
@@ -2004,19 +2010,25 @@ function TTisNodeAdapter.GetValueAsString(aNode: PVirtualNode;
   function LJsonVarToStr(const aValue: Variant): string;
   begin
     if VarIsBool(aValue) then
-      result := Utf8ToString(LowerCase(aValue))
+      result := Utf8ToString(LowerCaseU(aValue))
     else
       result := Utf8ToString(VariantToUtf8(aValue));
   end;
 
 var
   vValue: PVariant;
+  vCol: TTisGridColumn;
 begin
+  result := aDefault;
   vValue := GetValue(aNode, aColumn);
   if Assigned(vValue) then
-    result := LJsonVarToStr(vValue^)
-  else
-    result := aDefault;
+  begin
+    vCol := Grid.FindColumnByIndex(aColumn);
+    if VarIsNull(vValue^) and Assigned(vCol) and (vCol.DataType <> cdtJson) then
+      result := ''
+    else
+      result := LJsonVarToStr(vValue^);
+  end;
 end;
 
 procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
@@ -2027,23 +2039,32 @@ var
   vCol: TTisGridColumn;
   vValue: Variant;
 begin
+  vCol := Grid.FindColumnByIndex(aColumn);
+  if not Assigned(vCol) or vCol.ReadOnly then
+    exit;
+  if (vCol.DataType = cdtJson) and (not (VarIsNull(aValue) or aValueIsString)) then
+    TextToVariant(aValue, True, vValue)
+  else
+    vValue := aValue;
   vNodeData := GetData(aNode);
   if vNodeData^.IsChild then
   begin
-    if not (VarIsNull(aValue) or aValueIsString) then
-      TextToVariant(aValue, True, vValue)
-    else
-      vValue := aValue;
-    vNodeData^.Value^ := vValue;
+    if aColumn = CHILD_COLUMN_VALUE_INDEX then
+      if VarIsNull(vValue) then
+      begin
+        if not vCol.Required then
+          vNodeData^.Value^ := NULL;
+      end
+      else
+        vNodeData^.Value^ := vValue;
   end
   else
   begin
     vData := vNodeData^.Data;
-    vCol := Grid.FindColumnByIndex(aColumn);
     // checking if "object.name" exists, otherwise it could raise an exception
     if Assigned(vData^.GetVarData(vCol.PropertyName)) then
     begin
-      if VarIsNull(aValue) then
+      if VarIsNull(vValue) then
       begin
         if not vCol.Required then
           vData^.Value[vCol.PropertyName] := NULL;
@@ -2051,23 +2072,23 @@ begin
       else
         case vCol.DataType of
           cdtString, cdtMemo:
-            vData^.S[vCol.PropertyName] := VarToStr(aValue);
+            vData^.S[vCol.PropertyName] := VarToStr(vValue);
           cdtDate, cdtTime, cdtDateTime:
             begin
               with vCol.DataTypeOptions.DateTimeOptions do
                 if SaveAsUtc then
-                  vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(LocalToUtc(aValue))
+                  vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(LocalToUtc(vValue))
                 else
-                  vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(aValue);
+                  vData^.U[vCol.PropertyName] := DateTimeToIso8601Text(vValue);
             end;
           cdtInteger:
-            vData^.I[vCol.PropertyName] := aValue;
+            vData^.I[vCol.PropertyName] := vValue;
           cdtFloat:
-            vData^.D[vCol.PropertyName] := aValue;
+            vData^.D[vCol.PropertyName] := vValue;
           cdtBoolean:
-            vData^.B[vCol.PropertyName] := aValue;
+            vData^.B[vCol.PropertyName] := vValue;
         else
-          vData^.S[vCol.PropertyName] := VarToStr(aValue);
+          vData^.Value[vCol.PropertyName] := vValue;
         end;
     end
     else
@@ -2593,19 +2614,21 @@ begin
   if fNodeOptions.ShowChildren then
   begin
     case aColumn of
-      0: aText := fNodeAdapter.GetName(aNode);
-      1: aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
+      CHILD_COLUMN_NAME_INDEX:
+        aText := fNodeAdapter.GetName(aNode);
+      CHILD_COLUMN_VALUE_INDEX:
+        aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
     end;
   end
   else
   begin
+    aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
     vNodeData := fNodeAdapter.GetData(aNode);
     vCol := FindColumnByIndex(aColumn);
     if Assigned(vNodeData^.Data) then
     begin
       if Assigned(vCol) then
       begin
-        aText := vNodeData^.Data^.S[vCol.PropertyName];
         if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
           vDateTime := Iso8601ToDateTime(aText);
@@ -3426,7 +3449,7 @@ begin
           fNodeAdapter.GetValue(vNode, FocusedColumn)^, vNewValue, vAborted);
         if vAborted then
           Continue;
-        fNodeAdapter.SetValue(vNode, vNewValue, FocusedColumn);
+        fNodeAdapter.SetValue(vNode, vNewValue, FocusedColumn, VarIsStr(vNewValue));
         InvalidateNode(vNode);
       end
     else
@@ -3437,7 +3460,7 @@ begin
         fNodeAdapter.GetValue(vNode, FocusedColumn)^, vNewValue, vAborted);
       if not vAborted then
       begin
-        fNodeAdapter.SetValue(FocusedNode, vNewValue, FocusedColumn);
+        fNodeAdapter.SetValue(FocusedNode, vNewValue, FocusedColumn, VarIsStr(vNewValue));
         InvalidateNode(FocusedNode);
       end;
     end;
