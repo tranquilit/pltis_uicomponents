@@ -1,6 +1,11 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: tis.ui.resourcestrings.rsformtimeoutcaption
+#, object-pascal-format
+msgid "%s (%d seconds remaining...)"
+msgstr "%s (noch %d Sekunden...)"
+
 #: tis.ui.resourcestrings.rsgridadvancedcustomizecolumns
 msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
 msgid "Advanced customize of table..."

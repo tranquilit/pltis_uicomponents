@@ -24,6 +24,7 @@ uses
   tis.ui.searchedit,
   tis.ui.toolbar.core,
   tis.ui.toolbar.editor,
+  tis.ui.formtimeout,
   tis.ui.togglebutton,
   tis.ui.syncontroledit,
   tis.ui.lvlgraphcontrol;
@@ -36,8 +37,8 @@ procedure Register;
 begin
   RegisterComponents('Tranquil IT', [
     TTisGrid, TTisGridHeaderPopupMenu, TTisTagEditor,
-    TTisSearchEdit, TTisToolBar, TTisToggleButton,
-    TTisControlSynEditor, TTisLvlGraphControl]);
+    TTisSearchEdit, TTisToolBar, TTisFormTimeout,
+    TTisToggleButton, TTisControlSynEditor, TTisLvlGraphControl]);
   RegisterComponentEditor(TTisGrid, TTisGridComponentEditor);
   RegisterComponentEditor(TTisToolBar, TTisToolBarComponentEditor);
 end;

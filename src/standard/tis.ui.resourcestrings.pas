@@ -54,6 +54,9 @@ resourcestring
   rsToolBarCommands = 'Toolbar commands';
   rsToolBarRestore = 'Restore';
 
+  // form timeout
+  rsFormTimeoutCaption = '%s (%d seconds remaining...)';
+
 implementation
 
 uses

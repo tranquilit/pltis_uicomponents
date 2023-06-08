@@ -27,7 +27,7 @@
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="23">
+    <Files Count="24">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -121,6 +121,10 @@
         <Filename Value="..\src\standard\tis.ui.resourcestrings.pas"/>
         <UnitName Value="tis.ui.resourcestrings"/>
       </Item23>
+      <Item24>
+        <Filename Value="..\src\standard\tis.ui.formtimeout.pas"/>
+        <UnitName Value="tis.ui.formtimeout"/>
+      </Item24>
     </Files>
     <CompatibilityMode Value="True"/>
     <i18n>
