@@ -44,7 +44,6 @@ type
   protected
     fTimer: TTimer;
     fSavedCaption: TCaption;
-    procedure Loaded; override;
     procedure DoTimer({%H-}aSender: TObject); virtual;
     procedure DoCounting; virtual;
     procedure DoTimeout(var aHandled: Boolean); virtual;
@@ -92,17 +91,12 @@ begin
     raise Exception.Create('The Owner should be an instance of TCustomForm or descendant.');
 end;
 
-procedure TTisFormTimeout.Loaded;
-begin
-  inherited Loaded;
-  if not (csDesigning in ComponentState) then
-    fTimer.OnTimer := @DoTimer;
-end;
-
 procedure TTisFormTimeout.DoTimer(aSender: TObject);
 var
   vHandled: Boolean;
 begin
+  if csDesigning in ComponentState then
+    Exit;
   if fSavedCaption = '' then
     fSavedCaption := OwnerAsForm.Caption;
   Dec(fCounting);
@@ -140,6 +134,7 @@ begin
   fTimer := TTimer.Create(self);
   fTimer.Interval := 1000;
   fTimer.Enabled := False;
+  fTimer.OnTimer := @DoTimer;
   UpdateCaption := DefaultUpdateCaption;
   Timeout := DefaultTimeout; // set fTimeout and fCounting
   Enabled := DefaultEnabled; // enables the timer
