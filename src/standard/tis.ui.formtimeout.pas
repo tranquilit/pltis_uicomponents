@@ -29,6 +29,7 @@ type
   TTisFormTimeout = class(TComponent)
   private
     fTimeout: Integer;
+    fUpdateCaption: Boolean;
     fCounting: Integer;
     fOnCounting: TTisCountingEvent;
     fOnTimeout: TTisTimeoutEvent;
@@ -39,6 +40,7 @@ type
   protected const
     DefaultEnabled = True;
     DefaultTimeout = 30;
+    DefaultUpdateCaption = True;
   protected
     fTimer: TTimer;
     fSavedCaption: TCaption;
@@ -52,6 +54,7 @@ type
   published
     property Enabled: Boolean read GetEnabled write SetEnabled default DefaultEnabled;
     property Timeout: Integer read fTimeout write SetTimeout default DefaultTimeout;
+    property UpdateCaption: Boolean read fUpdateCaption write fUpdateCaption default DefaultUpdateCaption;
     property OnCounting: TTisCountingEvent read fOnCounting write fOnCounting;
     property OnTimeout: TTisTimeoutEvent read fOnTimeout write fOnTimeout;
   end;
@@ -105,7 +108,10 @@ begin
   Dec(fCounting);
   DoCounting;
   if fCounting > 0 then
-    OwnerAsForm.Caption := Format(rsFormTimeoutCaption, [fSavedCaption, fCounting])
+  begin
+    if fUpdateCaption then
+      OwnerAsForm.Caption := Format(rsFormTimeoutCaption, [fSavedCaption, fCounting]);
+  end
   else
   begin
     fTimer.Enabled := False;
@@ -134,6 +140,7 @@ begin
   fTimer := TTimer.Create(self);
   fTimer.Interval := 1000;
   fTimer.Enabled := False;
+  UpdateCaption := DefaultUpdateCaption;
   Timeout := DefaultTimeout; // set fTimeout and fCounting
   Enabled := DefaultEnabled; // enables the timer
 end;
