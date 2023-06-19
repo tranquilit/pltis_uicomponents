@@ -543,7 +543,7 @@ type
     fOnEditorLookup: TOnGridEditorLookup;
     fOnPrepareEditor: TOnGridPrepareEditor;
     fOnEditValidated: TOnGridEditValidated;
-    fOnGridExportCustomContent: TOnGridExportCustomContent;
+    fOnExportCustomContent: TOnGridExportCustomContent;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -1066,7 +1066,7 @@ type
     /// event when export a custom format
     // - use it to pass a custom buffer to the grid when call ExportData, if you use a format that
     // is not included in TTisGridExportFormatOption
-    property OnGridExportCustomContent: TOnGridExportCustomContent read fOnGridExportCustomContent write fOnGridExportCustomContent;
+    property OnExportCustomContent: TOnGridExportCustomContent read fOnExportCustomContent write fOnExportCustomContent;
   end;
 
 implementation
@@ -3380,8 +3380,8 @@ end;
 procedure TTisGrid.DoExportCustomContent(aSource: TVSTTextSourceType;
   var aBuffer: RawUtf8);
 begin
-  if Assigned(fOnGridExportCustomContent) then
-    fOnGridExportCustomContent(self, aSource, aBuffer);
+  if Assigned(fOnExportCustomContent) then
+    fOnExportCustomContent(self, aSource, aBuffer);
 end;
 
 procedure TTisGrid.DoCopyToClipboard(aSender: TObject);
