@@ -508,6 +508,9 @@ type
   // - use it to pass a custom buffer to the grid when call ExportData, if you use a non-default format
   TOnGridExportCustomContent = procedure(aSender: TTisGrid; aSource: TVSTTextSourceType; var aBuffer: RawUtf8) of object;
 
+  /// event that allows customizing the metadata
+  TOnGridGetMetaData = procedure(aSender: TTisGrid; var aMetaData: RawUtf8) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -544,6 +547,7 @@ type
     fOnPrepareEditor: TOnGridPrepareEditor;
     fOnEditValidated: TOnGridEditValidated;
     fOnExportCustomContent: TOnGridExportCustomContent;
+    fOnGetMetaData: TOnGridGetMetaData;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -675,10 +679,10 @@ type
     /// performs OnPrepareEditor event, if it was assigned
     procedure DoPrepareEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn; aControl: TTisGridControl); virtual;
     procedure DoEditValidated(aNode: PVirtualNode; const aColumn: TTisGridColumn;
-      const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean);
-  virtual;
+      const aCurValue: Variant; var aNewValue: Variant; var aAbort: Boolean); virtual;
     procedure DoBeforeDataChange(aData: PDocVariantData; var aAbort: Boolean); virtual;
     procedure DoAfterDataChange; virtual;
+    procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1067,6 +1071,8 @@ type
     // - use it to pass a custom buffer to the grid when call ExportData, if you use a format that
     // is not included in TTisGridExportFormatOption
     property OnExportCustomContent: TOnGridExportCustomContent read fOnExportCustomContent write fOnExportCustomContent;
+    /// event that allows customizing the metadata, before give it to the caller
+    property OnGetMetaData: TOnGridGetMetaData read fOnGetMetaData write fOnGetMetaData;
   end;
 
 implementation
@@ -2286,6 +2292,7 @@ begin
     );
   end;
   result := vDoc.ToJson;
+  DoGetMetaData(result);
 end;
 
 procedure TTisGrid.SetMetaData(const aValue: RawUtf8);
@@ -3668,6 +3675,12 @@ begin
     fOnAfterDataChange(self);
 end;
 
+procedure TTisGrid.DoGetMetaData(var aMetaData: RawUtf8);
+begin
+  if Assigned(fOnGetMetaData) then
+    fOnGetMetaData(self, aMetaData);
+end;
+
 function TTisGrid.GetExportDialogFilter: string;
 var
   vExportAdapter: TTisGridExportFormatOptionAdapter;
@@ -3779,6 +3792,7 @@ begin
       self.ZebraColor := ZebraColor;
       self.ZebraLightness := ZebraLightness;
       self.ZebraPaint := ZebraPaint;
+      self.OnGetMetaData := OnGetMetaData;
     end
 end;
 
