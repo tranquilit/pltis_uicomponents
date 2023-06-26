@@ -486,6 +486,9 @@ type
   // - use it for check/change/assign default values on aData argument or abort the process
   TOnGridInsert = procedure(aSender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
 
+  /// event to manipulate rows using copy/paste on grid
+  // - use it for check/change the aData argument, before assign it, and/or abort the process
+  TOnGridPaste = procedure(aSender: TTisGrid; aData: PDocVariantData; var aAbort: Boolean) of object;
   /// event that allows users customize the control instance, creating a new one, replacing the default
   TOnGridCustomEditor = procedure(aSender: TObject; aNode: PVirtualNode; aColumn: TTisGridColumn;
     out aControl: TTisGridControl) of object;
@@ -539,6 +542,7 @@ type
     fOnBeforeDataChange: TOnGridBeforeDataChange;
     fOnAfterDataChange: TOnGridAfterDataChange;
     fOnInsert: TOnGridInsert;
+    fOnBeforePaste: TOnGridPaste;
     fOnBeforeDeleteRows: TOnGridBeforeDeleteRows;
     fOnCompareByRow: TOnGridCompareByRow;
     fOnAfterFillPopupMenu: TNotifyEvent;
@@ -1038,6 +1042,7 @@ type
     // - as used by TTisGrid.OnAfterDataChage
     property OnAfterDataChange: TOnGridAfterDataChange read fOnAfterDataChange write fOnAfterDataChange;
     property OnInsert: TOnGridInsert read fOnInsert write fOnInsert;
+    property OnBeforePaste: TOnGridPaste read fOnBeforePaste write fOnBeforePaste;
     /// event to manipulate rows before deleting them
     // - use it for change the rows or abort the process by assign True to aAbort
     // - if you do not use this event, by default it will ask user about deletion
@@ -3076,7 +3081,7 @@ begin
   if (pmoShowCopySpecial in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridCopySpecial, ShortCut(Ord('S'), [ssCtrl,ssShift]), @DoCopySpecialToClipboard, not fData.IsVoid);
   if (pmoShowPaste in fPopupMenuOptions) and (not (toReadOnly in TreeOptions.MiscOptions)) and
-    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnInsert)) and (not fNodeOptions.ShowChildren)  then
+    ((toEditable in TreeOptions.MiscOptions) or Assigned(fOnBeforePaste)) and (not fNodeOptions.ShowChildren)  then
     _AddItem(rsGridPaste, ShortCut(Ord('V'), [ssCtrl]), @DoPaste, Header.UseColumns);
   if (pmoShowDelete in fPopupMenuOptions) and
     ((not (toReadOnly in TreeOptions.MiscOptions)) or Assigned(fOnBeforeDeleteRows)) and
@@ -3588,12 +3593,24 @@ procedure TTisGrid.DoPaste(aSender: TObject);
 var
   vClipAdapter: TClipboardAdapter;
   vDoc: PDocVariantData;
+  vTempDoc: TDocVariantData;
+  vAbort: Boolean;
 begin
+  vAbort := False;
+  vDoc := Nil;
   if vClipAdapter.IsValidFor(cbkJson) or vClipAdapter.IsValidFor(cbkText) then
+    vDoc := _Safe(_Json(vClipAdapter.AsJson))
+  else
   begin
-    vDoc := _Safe(_Json(vClipAdapter.AsJson));
-    Add(vDoc);
+    vTempDoc.InitArray([],[dvoReturnNullForUnknownProperty]);
+    vDoc := @vTempDoc;
   end;
+  if Assigned(fOnBeforePaste) then
+    fOnBeforePaste(Self,vDoc,vAbort);
+  if vAbort then
+    Exit;
+  if Assigned(vDoc) then
+    Add(vDoc);
 end;
 
 procedure TTisGrid.DoSelectAllRows(aSender: TObject);
