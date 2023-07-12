@@ -1765,7 +1765,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
 var
   vColPos: TColumnPosition;
   vColIdx: TColumnIndex;
-  vNewMenuItem: TMenuItem;
+  vNewMenuItem, vShowHideMenuItem: TMenuItem;
   vHpi: TTisGridHeaderPopupItem;
   vVisibleCounter: Cardinal;
   vVisibleItem: TMenuItem;
@@ -1774,9 +1774,12 @@ begin
   begin
     // delete existing menu items
     RemoveAutoItems;
-    // add column menu items
     with TVirtualTreeCast(PopupComponent).Header do
     begin
+      // add subitem "show/hide columns"
+      vShowHideMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      vShowHideMenuItem.Caption := rsGridShowHideColumns;
+      Items.Add(vShowHideMenuItem);
       if hoShowImages in Options then
         self.Images := Images
       else
@@ -1784,6 +1787,7 @@ begin
         self.Images := nil;
       vVisibleItem := nil;
       vVisibleCounter := 0;
+      // add column menu items
       for vColPos := 0 to Columns.Count - 1 do
       begin
         if poOriginalOrder in fOptions then
@@ -1799,7 +1803,7 @@ begin
           DoAddHeaderPopupItem(vColIdx, vHpi);
           if vHpi <> apHidden then
           begin
-            vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
+            vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
             vNewMenuItem.Tag := vColIdx;
             vNewMenuItem.Caption := Text + ' (' + Utf8ToString(PropertyName) + ')';
             vNewMenuItem.Hint := Hint;
@@ -1811,13 +1815,10 @@ begin
             else
               if coVisible in Options then
                 vVisibleItem := vNewMenuItem;
-            Items.Add(vNewMenuItem);
+            vShowHideMenuItem.Add(vNewMenuItem);
           end;
         end;
       end;
-      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vNewMenuItem.Caption := '-';
-      Items.Add(vNewMenuItem);
       // show all columns
       vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
       vNewMenuItem.Tag := -1;

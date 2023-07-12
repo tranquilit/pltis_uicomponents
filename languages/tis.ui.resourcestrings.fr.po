@@ -151,6 +151,10 @@ msgctxt "tis.ui.resourcestrings.rsgridshowallcolumns"
 msgid "Show all columns"
 msgstr "Afficher toutes les colonnes"
 
+#: tis.ui.resourcestrings.rsgridshowhidecolumns
+msgid "Show/hide columns"
+msgstr "Afficher/masquer les colonnes"
+
 #: tis.ui.resourcestrings.rsgridundolastupdate
 msgctxt "tis.ui.resourcestrings.rsgridundolastupdate"
 msgid "Undo last change"

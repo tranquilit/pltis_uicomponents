@@ -124,6 +124,10 @@ msgstr ""
 msgid "Show all columns"
 msgstr ""
 
+#: tis.ui.resourcestrings.rsgridshowhidecolumns
+msgid "Show/hide columns"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridundolastupdate
 msgid "Undo last change"
 msgstr ""

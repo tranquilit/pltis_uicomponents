@@ -40,6 +40,7 @@ resourcestring
   rsGridCollapseAll = 'Collapse all';
   rsGridCustomizeColumns = 'Customize columns...';
   rsGridAdvancedCustomizeColumns = 'Advanced customize of table...';
+  rsGridShowHideColumns = 'Show/hide columns';
   rsGridShowAllColumns = 'Show all columns';
   rsGridHideAllColumns = 'Hide all columns';
   rsGridRestoreDefaultColumns = 'Restore default columns';
