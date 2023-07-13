@@ -67,6 +67,16 @@ msgstr ""
 msgid "Export selected rows to file..."
 msgstr ""
 
+#: tis.ui.resourcestrings.rsgridfilter
+msgctxt "tis.ui.resourcestrings.rsgridfilter"
+msgid "Filter"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridfilterclear
+msgctxt "tis.ui.resourcestrings.rsgridfilterclear"
+msgid "Clear"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridfind
 msgid "Search..."
 msgstr ""

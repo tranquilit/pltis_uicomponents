@@ -81,6 +81,16 @@ msgctxt "tis.ui.resourcestrings.rsgridexportselected"
 msgid "Export selected rows to file..."
 msgstr "Ausgewählte Zeilen in Datei exportieren..."
 
+#: tis.ui.resourcestrings.rsgridfilter
+msgctxt "tis.ui.resourcestrings.rsgridfilter"
+msgid "Filter"
+msgstr "Filter"
+
+#: tis.ui.resourcestrings.rsgridfilterclear
+msgctxt "tis.ui.resourcestrings.rsgridfilterclear"
+msgid "Clear"
+msgstr "Klar"
+
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"
 msgid "Search..."

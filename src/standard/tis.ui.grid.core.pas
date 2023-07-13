@@ -174,6 +174,23 @@ type
     property DateTimeOptions: TTisGridColumnDateTimeOptions read fDateTimeOptions write fDateTimeOptions;
   end;
 
+  /// filter options for header popup menu
+  TTisGridFilterOptions = class(TPersistent)
+  private
+    fEnabled: Boolean;
+    fDisplayedCount: Integer;
+  protected const
+    DefaultEnabled = False;
+    DefaultDisplayedCount = 10;
+  public
+    constructor Create; reintroduce;
+    destructor Destroy; override;
+    procedure AssignTo(aDest: TPersistent); override;
+  published
+    property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
+    property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
+  end;
+
   /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
@@ -301,6 +318,8 @@ type
     procedure OnMenuShowAllClick(aSender: TObject);
     procedure OnMenuHideAllClick(aSender: TObject);
     procedure OnMenuRestoreClick(aSender: TObject);
+    procedure OnMenuFilterClick(aSender: TObject);
+    procedure OnMenuFilterClearClick(aSender: TObject);
   public
     procedure FillPopupMenu;
   published
@@ -535,6 +554,7 @@ type
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fExportFormatOptions: TTisGridExportFormatOptions;
+    fFilterOptions: TTisGridFilterOptions;
     fDefaultSettings: Variant; // all default settings after load component
     // ------------------------------- new events ----------------------------------
     fOnGetText: TOnGridGetText;
@@ -933,6 +953,7 @@ type
     property NodeOptions: TTisNodeOptions read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
     property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
+    property FilterOptions: TTisGridFilterOptions read fFilterOptions write fFilterOptions;
     // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumns;
@@ -1441,7 +1462,35 @@ begin
   begin
     with TTisGridColumnDataTypeOptions(aDest) do
     begin
-      DateTimeOptions.Assign(DateTimeOptions);
+      DateTimeOptions.Assign(self.DateTimeOptions);
+    end;
+  end
+  else
+    inherited AssignTo(aDest);
+end;
+
+{ TTisGridFilterOptions }
+
+constructor TTisGridFilterOptions.Create;
+begin
+  inherited Create;
+  fEnabled := DefaultEnabled;
+  fDisplayedCount := DefaultDisplayedCount;
+end;
+
+destructor TTisGridFilterOptions.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TTisGridFilterOptions.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisGridFilterOptions then
+  begin
+    with TTisGridFilterOptions(aDest) do
+    begin
+      Enabled := self.Enabled;
+      DisplayedCount := self.DisplayedCount;
     end;
   end
   else
@@ -1761,14 +1810,119 @@ begin
    TTisGrid(PopupComponent).RestoreSettings;
 end;
 
+procedure TTisGridHeaderPopupMenu.OnMenuFilterClick(aSender: TObject);
+var
+  vGrid: TTisGrid;
+  vData: PDocVariantData;
+  vNode: PVirtualNode;
+  vItem: TMenuItem;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      OnMenuFilterClearClick(aSender);
+      vItem := aSender as TMenuItem;
+      vItem.Checked := not vItem.Checked;
+      vGrid := PopupComponent as TTisGrid;
+      vNode := vGrid.GetFirst(True);
+      while vNode <> nil do
+      begin
+        vData := vGrid.GetNodeAsPDocVariantData(vNode, False);
+        if Assigned(vData) and
+          (vsVisible in vNode^.States) and
+          (vData^.S[vGrid.FindColumnByIndex(vItem.Tag).PropertyName] <> vItem.Caption) then
+            Exclude(vNode^.States, vsVisible);
+        vNode := vGrid.GetNext(vNode, True);
+      end;
+      vGrid.Invalidate;
+    end;
+  end;
+end;
+
+procedure TTisGridHeaderPopupMenu.OnMenuFilterClearClick(aSender: TObject);
+var
+  vGrid: TTisGrid;
+  vNode: PVirtualNode;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      vGrid := PopupComponent as TTisGrid;
+      vNode := vGrid.GetFirst(True);
+      while vNode <> nil do
+      begin
+        include(vNode^.States, vsVisible);
+        vNode := vGrid.GetNext(vNode, True);
+      end;
+      vGrid.Invalidate;
+    end;
+  end;
+end;
+
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
+
+  procedure AddSubItemsFromGridColumnData(aMenu: TMenuItem; aGrid: TTisGrid; aColIdx: TColumnIndex);
+  var
+    vNewMenuItem: TTisGridHeaderMenuItem;
+    vCount: Integer;
+    vNode: PVirtualNode;
+    vData: PDocVariantData;
+    vItem: TMenuItem;
+    vValue: string;
+    vFound: Boolean;
+  begin
+    vCount := 0;
+    vNode := aGrid.GetFirst(True);
+    // add a clear/restore item
+    vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+    vNewMenuItem.Caption := rsGridFilterClear;
+    vNewMenuItem.OnClick := @OnMenuFilterClearClick;
+    aMenu.Add(vNewMenuItem);
+    vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+    vNewMenuItem.Caption := '-';
+    aMenu.Add(vNewMenuItem);
+    while vNode <> nil do
+    begin
+      vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
+      if Assigned(vData) then
+      begin
+        vValue := vData^.S[aGrid.FindColumnByIndex(aColIdx).PropertyName];
+        vFound := False;
+        for vItem in aMenu do
+        begin
+          if vItem.Caption = vValue then
+          begin
+            vFound := True;
+            break;
+          end;
+        end;
+        if not vFound then
+        begin
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+          vNewMenuItem.Caption := vValue;
+          vNewMenuItem.OnClick := @OnMenuFilterClick;
+          aMenu.Add(vNewMenuItem);
+          Inc(vCount);
+          if vCount >= aGrid.FilterOptions.DisplayedCount then
+            exit;
+        end;
+      end;
+      vNode := aGrid.GetNext(vNode, True);
+    end;
+  end;
+
 var
   vColPos: TColumnPosition;
   vColIdx: TColumnIndex;
-  vNewMenuItem, vShowHideMenuItem: TMenuItem;
+  vNewMenuItem, vParentMenuItem: TMenuItem;
   vHpi: TTisGridHeaderPopupItem;
   vVisibleCounter: Cardinal;
   vVisibleItem: TMenuItem;
+  vMousePos: TPoint;
+  vGrid: TTisGrid;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
@@ -1777,9 +1931,9 @@ begin
     with TVirtualTreeCast(PopupComponent).Header do
     begin
       // add subitem "show/hide columns"
-      vShowHideMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vShowHideMenuItem.Caption := rsGridShowHideColumns;
-      Items.Add(vShowHideMenuItem);
+      vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
+      vParentMenuItem.Caption := rsGridShowHideColumns;
+      Items.Add(vParentMenuItem);
       if hoShowImages in Options then
         self.Images := Images
       else
@@ -1815,7 +1969,7 @@ begin
             else
               if coVisible in Options then
                 vVisibleItem := vNewMenuItem;
-            vShowHideMenuItem.Add(vNewMenuItem);
+            vParentMenuItem.Add(vNewMenuItem);
           end;
         end;
       end;
@@ -1837,6 +1991,26 @@ begin
       vNewMenuItem.Caption := rsGridRestoreDefaultColumns;
       vNewMenuItem.OnClick := @OnMenuRestoreClick;
       Items.Add(vNewMenuItem);
+      // enable/disable filter
+      if PopupComponent is TTisGrid then
+      begin
+        vGrid := PopupComponent as TTisGrid;
+        RecordZero(@vMousePos, TypeInfo(TPoint));
+        GetCursorPos(vMousePos);
+        vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
+        if (vColIdx > NoColumn) and vGrid.FilterOptions.Enabled and not vGrid.NodeOptions.ShowChildren then
+        begin
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
+          // add filter item
+          vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vParentMenuItem.Tag := -4;
+          vParentMenuItem.Caption := rsGridFilter;
+          Items.Add(vParentMenuItem);
+          AddSubItemsFromGridColumnData(vParentMenuItem, vGrid, vColIdx);
+        end;
+      end;
       // conditionally disable menu item of last enabled column
       if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
         vVisibleItem.Enabled := False;
@@ -3766,6 +3940,7 @@ begin
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
   fExportFormatOptions := DefaultExportFormatOptions;
+  fFilterOptions := TTisGridFilterOptions.Create;
   WantTabs := DefaultWantTabs;
   TabStop := True;
   with TreeOptions do
@@ -3798,6 +3973,7 @@ begin
   if Assigned(fFindDlg) then
     FreeAndNil(fFindDlg);
   fNodeOptions.Free;
+  fFilterOptions.Free;
   inherited Destroy;
 end;
 
@@ -4333,6 +4509,7 @@ begin
       Grid.Header.Assign(vTarget.Header);
       Grid.TreeOptions.Assign(vTarget.TreeOptions);
       Grid.NodeOptions.Assign(vTarget.NodeOptions);
+      Grid.FilterOptions.Assign(vTarget.FilterOptions);
       Grid.Settings := vTarget.Settings;
       Grid.KeyFieldsNames := vTarget.KeyFieldsNames;
       Grid.ParentKeyFieldsNames := vTarget.ParentKeyFieldsNames;
@@ -4342,6 +4519,7 @@ begin
         vTarget.Header.Assign(Grid.Header);
         vTarget.TreeOptions.Assign(Grid.TreeOptions);
         vTarget.NodeOptions.Assign(Grid.NodeOptions);
+        vTarget.FilterOptions.Assign(Grid.FilterOptions);
         vTarget.KeyFieldsNames := KeyNamesEdit.Text;
         vTarget.ParentKeyFieldsNames := ParentNamesEdit.Text;
         if KeepDataCheckBox.Checked then

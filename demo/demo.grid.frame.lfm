@@ -958,6 +958,7 @@ object GridFrame: TGridFrame
       NodeOptions.MultiEdit = True
       PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowClearCell, pmoShowCopySpecial, pmoShowPaste, pmoShowInsert, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
+      FilterOptions.Enabled = True
       OnInitNode = GridInitNode
       OnCompareByRow = GridCompareByRow
       OnEditorLookup = GridEditorLookup
