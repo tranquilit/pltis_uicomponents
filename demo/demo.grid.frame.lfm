@@ -1286,8 +1286,8 @@ object GridFrame: TGridFrame
     DefaultExt = '.ini'
     FileName = 'settings.ini'
     Filter = 'Ini Files|*.ini'
-    Left = 344
-    Top = 224
+    Left = 312
+    Top = 272
   end
   object SaveDialog: TSaveDialog
     DefaultExt = '.ini'
@@ -1323,8 +1323,8 @@ object GridFrame: TGridFrame
     end
   end
   object GridPropsPopupMenu: TPopupMenu
-    Left = 112
-    Top = 208
+    Left = 80
+    Top = 368
     object GridDataCustomizeMenuItem1: TMenuItem
       Caption = 'Customize'
       Hint = 'Open Grid Editor'

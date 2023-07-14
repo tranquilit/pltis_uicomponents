@@ -307,10 +307,13 @@ type
 
   TTisGridHeaderPopupMenu = class(TPopupMenu)
   private
+    fFilters: TDocVariantData;
     fOptions: TTisGridHeaderPopupOptions;
     fOnAddPopupItem: TOnGridHeaderAddPopupItem;
     fOnColumnChange: TOnGridHeaderColumnChange;
   protected
+    function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
+    procedure ApplyFilters;
     procedure RemoveAutoItems; virtual;
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
@@ -321,6 +324,7 @@ type
     procedure OnMenuFilterClick(aSender: TObject);
     procedure OnMenuFilterClearClick(aSender: TObject);
   public
+    constructor Create(aOwner: TComponent); override;
     procedure FillPopupMenu;
   published
     property Options: TTisGridHeaderPopupOptions read fOptions write fOptions default [];
@@ -533,6 +537,10 @@ type
   /// event that allows customizing the metadata
   TOnGridGetMetaData = procedure(aSender: TTisGrid; var aMetaData: RawUtf8) of object;
 
+  /// event that allows change aNode.States after it was changed
+  // - use it to force showing (or not) some node
+  TOnGridNodeFiltering = procedure(aSender: TTisGrid; aNode: PVirtualNode) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -572,6 +580,7 @@ type
     fOnEditValidated: TOnGridEditValidated;
     fOnExportCustomContent: TOnGridExportCustomContent;
     fOnGetMetaData: TOnGridGetMetaData;
+    fOnNodeFiltering: TOnGridNodeFiltering;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -707,6 +716,7 @@ type
     procedure DoBeforeDataChange(aData: PDocVariantData; var aAbort: Boolean); virtual;
     procedure DoAfterDataChange; virtual;
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
+    procedure DoNodeFiltering(aNode: PVirtualNode); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1099,6 +1109,9 @@ type
     property OnExportCustomContent: TOnGridExportCustomContent read fOnExportCustomContent write fOnExportCustomContent;
     /// event that allows customizing the metadata, before give it to the caller
     property OnGetMetaData: TOnGridGetMetaData read fOnGetMetaData write fOnGetMetaData;
+    /// event that allows change aNode.States after it was changed
+    // - use it to force showing (or not) some node
+    property OnNodeFiltering: TOnGridNodeFiltering read fOnNodeFiltering write fOnNodeFiltering;
   end;
 
 implementation
@@ -1726,6 +1739,77 @@ end;
 type
   TVirtualTreeCast = class(TBaseVirtualTree); // necessary to make the header accessible
 
+function TTisGridHeaderPopupMenu.FilterExists(const aPropertyName: RawUtf8;
+  const aValue: string): Boolean;
+var
+  vObj: PDocVariantData;
+  vTest: TDocVariantData;
+begin
+  result := False;
+  vTest.Clear;
+  vTest.InitFast(dvObject);
+  vTest.S[aPropertyName] := aValue;
+  for vObj in fFilters.Objects do
+  begin
+    if vObj^.Equals(vTest) then
+    begin
+      result := True;
+      break;
+    end;
+  end;
+end;
+
+procedure TTisGridHeaderPopupMenu.ApplyFilters;
+var
+  vGrid: TTisGrid;
+  vData: PDocVariantData;
+  vNode: PVirtualNode;
+  vField: TDocVariantFields;
+  v1: Integer;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      vGrid := PopupComponent as TTisGrid;
+      vNode := vGrid.GetFirst(True);
+      while vNode <> nil do
+      begin
+        vData := vGrid.GetNodeAsPDocVariantData(vNode, False);
+        if Assigned(vData) then
+        begin
+          if fFilters.Count > 0 then
+          begin
+            // turn it invisible by default
+            Exclude(vNode^.States, vsVisible);
+            for v1 := fFilters.Count-1 downto 0 do
+            begin
+              for vField in DocVariantData(fFilters.Value[v1])^.Fields do
+                if vData^.S[vField.Name^] = vField.Value^ then
+                begin
+                  Include(vNode^.States, vsVisible);
+                  vGrid.DoNodeFiltering(vNode);
+                  break;
+                end;
+              // if it is already visible, do not needed to continue checking more filters for it
+              if vsVisible in vNode^.States then
+                break;
+            end;
+          end
+          else
+          begin
+            // if there is no filters, turn it visible by default
+            Include(vNode^.States, vsVisible);
+            vGrid.DoNodeFiltering(vNode);
+          end;
+        end;
+        vNode := vGrid.GetNext(vNode, True);
+      end;
+      vGrid.Invalidate;
+    end;
+  end;
+end;
+
 procedure TTisGridHeaderPopupMenu.RemoveAutoItems;
 var
   v1: Integer;
@@ -1813,29 +1897,24 @@ end;
 procedure TTisGridHeaderPopupMenu.OnMenuFilterClick(aSender: TObject);
 var
   vGrid: TTisGrid;
-  vData: PDocVariantData;
-  vNode: PVirtualNode;
   vItem: TMenuItem;
+  vColumn: TTisGridColumn;
+  vObj: Variant;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
     if PopupComponent is TTisGrid then
     begin
-      OnMenuFilterClearClick(aSender);
       vItem := aSender as TMenuItem;
       vItem.Checked := not vItem.Checked;
       vGrid := PopupComponent as TTisGrid;
-      vNode := vGrid.GetFirst(True);
-      while vNode <> nil do
-      begin
-        vData := vGrid.GetNodeAsPDocVariantData(vNode, False);
-        if Assigned(vData) and
-          (vsVisible in vNode^.States) and
-          (vData^.S[vGrid.FindColumnByIndex(vItem.Tag).PropertyName] <> vItem.Caption) then
-            Exclude(vNode^.States, vsVisible);
-        vNode := vGrid.GetNext(vNode, True);
-      end;
-      vGrid.Invalidate;
+      vColumn := vGrid.FindColumnByIndex(vItem.Tag);
+      vObj := _ObjFast([vColumn.PropertyName, StringToUtf8(vItem.Caption)]);
+      if vItem.Checked then
+        fFilters.AddItem(vObj)
+      else
+        fFilters.DeleteByValue(vObj);
+      ApplyFilters;
     end;
   end;
 end;
@@ -1843,22 +1922,38 @@ end;
 procedure TTisGridHeaderPopupMenu.OnMenuFilterClearClick(aSender: TObject);
 var
   vGrid: TTisGrid;
-  vNode: PVirtualNode;
+  vItem: TMenuItem;
+  vColumn: TTisGridColumn;
+  v1: Integer;
+  vFieldName: PRawUtf8;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
     if PopupComponent is TTisGrid then
     begin
       vGrid := PopupComponent as TTisGrid;
-      vNode := vGrid.GetFirst(True);
-      while vNode <> nil do
+      vItem := aSender as TMenuItem;
+      vColumn := vGrid.FindColumnByIndex(vItem.Tag);
+      // delete all filters for the same propertyname
+      for v1 := fFilters.Count-1 downto 0 do
       begin
-        include(vNode^.States, vsVisible);
-        vNode := vGrid.GetNext(vNode, True);
+        for vFieldName in DocVariantData(fFilters.Value[v1])^.FieldNames do
+          if vFieldName^ = vColumn.PropertyName then
+          begin
+            fFilters.Delete(v1);
+            break;
+          end;
       end;
-      vGrid.Invalidate;
+      ApplyFilters;
     end;
   end;
+end;
+
+constructor TTisGridHeaderPopupMenu.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+  fFilters.Clear;
+  fFilters.InitArray([], JSON_FAST_FLOAT);
 end;
 
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
@@ -1872,11 +1967,13 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     vItem: TMenuItem;
     vValue: string;
     vFound: Boolean;
+    vColumn: TTisGridColumn;
   begin
     vCount := 0;
     vNode := aGrid.GetFirst(True);
-    // add a clear/restore item
+    // add a item for delete all filters for a column
     vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+    vNewMenuItem.Tag := aColIdx;
     vNewMenuItem.Caption := rsGridFilterClear;
     vNewMenuItem.OnClick := @OnMenuFilterClearClick;
     aMenu.Add(vNewMenuItem);
@@ -1886,9 +1983,10 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
+      vColumn := aGrid.FindColumnByIndex(aColIdx);
       if Assigned(vData) then
       begin
-        vValue := vData^.S[aGrid.FindColumnByIndex(aColIdx).PropertyName];
+        vValue := vData^.S[vColumn.PropertyName];
         vFound := False;
         for vItem in aMenu do
         begin
@@ -1904,6 +2002,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
           vNewMenuItem.Caption := vValue;
           vNewMenuItem.OnClick := @OnMenuFilterClick;
+          vNewMenuItem.Checked := FilterExists(vColumn.PropertyName, vValue);
           aMenu.Add(vNewMenuItem);
           Inc(vCount);
           if vCount >= aGrid.FilterOptions.DisplayedCount then
@@ -3871,6 +3970,12 @@ procedure TTisGrid.DoGetMetaData(var aMetaData: RawUtf8);
 begin
   if Assigned(fOnGetMetaData) then
     fOnGetMetaData(self, aMetaData);
+end;
+
+procedure TTisGrid.DoNodeFiltering(aNode: PVirtualNode);
+begin
+  if Assigned(fOnNodeFiltering) then
+    fOnNodeFiltering(self, aNode);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
