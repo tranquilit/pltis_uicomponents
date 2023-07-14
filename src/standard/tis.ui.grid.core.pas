@@ -1988,6 +1988,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       begin
         vValue := vData^.S[vColumn.PropertyName];
         vFound := False;
+        // search duplicated value
         for vItem in aMenu do
         begin
           if vItem.Caption = vValue then
@@ -1996,6 +1997,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
             break;
           end;
         end;
+        // do not duplicate items
         if not vFound then
         begin
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
@@ -2097,7 +2099,10 @@ begin
         RecordZero(@vMousePos, TypeInfo(TPoint));
         GetCursorPos(vMousePos);
         vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
-        if (vColIdx > NoColumn) and vGrid.FilterOptions.Enabled and not vGrid.NodeOptions.ShowChildren then
+        if (vColIdx > NoColumn)
+          and vGrid.FilterOptions.Enabled
+          and not vGrid.Data.IsVoid
+          and not vGrid.NodeOptions.ShowChildren then
         begin
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Caption := '-';
