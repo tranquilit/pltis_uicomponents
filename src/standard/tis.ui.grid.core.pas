@@ -315,7 +315,7 @@ type
     fOnColumnChange: TOnGridHeaderColumnChange;
   protected
     function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
-    procedure ApplyFilters;
+    procedure ApplyFilters(aColumn: TColumnIndex);
     procedure RemoveAutoItems; virtual;
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
@@ -1758,20 +1758,26 @@ begin
   end;
 end;
 
-procedure TTisGridHeaderPopupMenu.ApplyFilters;
+procedure TTisGridHeaderPopupMenu.ApplyFilters(aColumn: TColumnIndex);
+const
+  cArrow = ' ↓';
 var
   vGrid: TTisGrid;
   vData: PDocVariantData;
   vNode: PVirtualNode;
   vField: TDocVariantFields;
   v1: Integer;
+  vUseArrow: Boolean;
+  vColumn: TTisGridColumn;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
     if PopupComponent is TTisGrid then
     begin
       vGrid := PopupComponent as TTisGrid;
+      vColumn := vGrid.FindColumnByIndex(aColumn);
       vNode := vGrid.GetFirst(True);
+      vUseArrow := False;
       while vNode <> nil do
       begin
         vData := vGrid.GetNodeAsPDocVariantData(vNode, False);
@@ -1789,6 +1795,7 @@ begin
                 begin
                   Include(vNode^.States, vsVisible);
                   vGrid.DoNodeFiltering(vNode);
+                  vUseArrow := (vsVisible in vNode^.States) and (vField.Name^ = vColumn.PropertyName);
                   break;
                 end;
               // if it is already visible, do not needed to continue checking more filters for it
@@ -1804,6 +1811,17 @@ begin
           end;
         end;
         vNode := vGrid.GetNext(vNode, True);
+      end;
+      // add an arrow in header column text, if there are filters for this column
+      with vGrid.Header.Columns[aColumn] do
+      begin
+        if vUseArrow then
+        begin
+          if Pos(cArrow, Text) = 0 then
+            Text := Text + cArrow;
+        end
+        else
+          Text := StringReplace(Text, cArrow, '', [rfReplaceAll]);
       end;
       vGrid.Invalidate;
     end;
@@ -1914,7 +1932,7 @@ begin
         fFilters.AddItem(vObj)
       else
         fFilters.DeleteByValue(vObj);
-      ApplyFilters;
+      ApplyFilters(vItem.Tag);
     end;
   end;
 end;
@@ -1944,7 +1962,7 @@ begin
             break;
           end;
       end;
-      ApplyFilters;
+      ApplyFilters(vItem.Tag);
     end;
   end;
 end;
