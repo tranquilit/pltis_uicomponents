@@ -177,18 +177,20 @@ type
   /// filter options for header popup menu
   TTisGridFilterOptions = class(TPersistent)
   private
-    fEnabled: Boolean;
+    fCaseInsensitive: Boolean;
     fDisplayedCount: Integer;
+    fEnabled: Boolean;
   protected const
-    DefaultEnabled = False;
     DefaultDisplayedCount = 10;
+    DefaultEnabled = False;
+    DefaultCaseInsensitive = False;
   public
     constructor Create; reintroduce;
-    destructor Destroy; override;
     procedure AssignTo(aDest: TPersistent); override;
   published
-    property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
+    property CaseInsensitive: Boolean read fCaseInsensitive write fCaseInsensitive default DefaultCaseInsensitive;
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
+    property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
   end;
 
   /// a custom implementation for Grid Column
@@ -1487,13 +1489,9 @@ end;
 constructor TTisGridFilterOptions.Create;
 begin
   inherited Create;
-  fEnabled := DefaultEnabled;
+  fCaseInsensitive := DefaultCaseInsensitive;
   fDisplayedCount := DefaultDisplayedCount;
-end;
-
-destructor TTisGridFilterOptions.Destroy;
-begin
-  inherited Destroy;
+  fEnabled := DefaultEnabled;
 end;
 
 procedure TTisGridFilterOptions.AssignTo(aDest: TPersistent);
@@ -1502,8 +1500,9 @@ begin
   begin
     with TTisGridFilterOptions(aDest) do
     begin
-      Enabled := self.Enabled;
+      CaseInsensitive := self.CaseInsensitive;
       DisplayedCount := self.DisplayedCount;
+      Enabled := self.Enabled;
     end;
   end
   else
@@ -1785,7 +1784,8 @@ begin
             for v1 := fFilters.Count-1 downto 0 do
             begin
               for vField in DocVariantData(fFilters.Value[v1])^.Fields do
-                if vData^.S[vField.Name^] = vField.Value^ then
+                if (not vGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
+                  or (vGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
                 begin
                   Include(vNode^.States, vsVisible);
                   vGrid.DoNodeFiltering(vNode);
@@ -1991,7 +1991,8 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
         // search duplicated value
         for vItem in aMenu do
         begin
-          if vItem.Caption = vValue then
+          if (not aGrid.FilterOptions.CaseInsensitive and SameText(vItem.Caption, vValue))
+            or (aGrid.FilterOptions.CaseInsensitive and SameStr(vItem.Caption, vValue)) then
           begin
             vFound := True;
             break;
