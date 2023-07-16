@@ -177,6 +177,8 @@ type
   /// filter options for header popup menu
   TTisGridFilterOptions = class(TPersistent)
   private
+    fGrid: TTisGrid;
+    fFilters: TDocVariantData;
     fCaseInsensitive: Boolean;
     fDisplayedCount: Integer;
     fEnabled: Boolean;
@@ -184,9 +186,14 @@ type
     DefaultDisplayedCount = 10;
     DefaultEnabled = False;
     DefaultCaseInsensitive = False;
+    MARK_ARROW = ' ↓';
   public
-    constructor Create; reintroduce;
+    constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
+    function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
+    procedure ApplyFilters(aColumn: TColumnIndex);
+    procedure ClearFilters;
+    property Filters: TDocVariantData read fFilters;
   published
     property CaseInsensitive: Boolean read fCaseInsensitive write fCaseInsensitive default DefaultCaseInsensitive;
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
@@ -309,13 +316,10 @@ type
 
   TTisGridHeaderPopupMenu = class(TPopupMenu)
   private
-    fFilters: TDocVariantData;
     fOptions: TTisGridHeaderPopupOptions;
     fOnAddPopupItem: TOnGridHeaderAddPopupItem;
     fOnColumnChange: TOnGridHeaderColumnChange;
   protected
-    function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
-    procedure ApplyFilters(aColumn: TColumnIndex);
     procedure RemoveAutoItems; virtual;
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
     procedure DoColumnChange(aColumn: TColumnIndex; aVisible: Boolean); virtual;
@@ -327,6 +331,7 @@ type
     procedure OnMenuFilterClearClick(aSender: TObject);
   public
     constructor Create(aOwner: TComponent); override;
+    procedure AssignTo(aDest: TPersistent); override;
     procedure FillPopupMenu;
   published
     property Options: TTisGridHeaderPopupOptions read fOptions write fOptions default [];
@@ -1486,9 +1491,12 @@ end;
 
 { TTisGridFilterOptions }
 
-constructor TTisGridFilterOptions.Create;
+constructor TTisGridFilterOptions.Create(aGrid: TTisGrid);
 begin
   inherited Create;
+  fGrid := aGrid;
+  fFilters.Clear;
+  fFilters.InitArray([], JSON_FAST_FLOAT);
   fCaseInsensitive := DefaultCaseInsensitive;
   fDisplayedCount := DefaultDisplayedCount;
   fEnabled := DefaultEnabled;
@@ -1507,6 +1515,116 @@ begin
   end
   else
     inherited AssignTo(aDest);
+end;
+
+function TTisGridFilterOptions.FilterExists(const aPropertyName: RawUtf8;
+  const aValue: string): Boolean;
+var
+  vObj: PDocVariantData;
+  vTest: TDocVariantData;
+begin
+  result := False;
+  vTest.Clear;
+  vTest.InitFast(dvObject);
+  vTest.S[aPropertyName] := aValue;
+  for vObj in fFilters.Objects do
+  begin
+    if vObj^.Equals(vTest) then
+    begin
+      result := True;
+      break;
+    end;
+  end;
+end;
+
+procedure TTisGridFilterOptions.ApplyFilters(aColumn: TColumnIndex);
+var
+  vData: PDocVariantData;
+  vNode: PVirtualNode;
+  vField: TDocVariantFields;
+  v1: Integer;
+  vUseArrow: Boolean;
+  vColumn: TTisGridColumn;
+begin
+  vColumn := fGrid.FindColumnByIndex(aColumn);
+  vNode := fGrid.GetFirst(True);
+  vUseArrow := False;
+  while vNode <> nil do
+  begin
+    vData := fGrid.GetNodeAsPDocVariantData(vNode, False);
+    if Assigned(vData) then
+    begin
+      if fFilters.Count > 0 then
+      begin
+        // turn it invisible by default
+        Exclude(vNode^.States, vsVisible);
+        for v1 := fFilters.Count-1 downto 0 do
+        begin
+          for vField in DocVariantData(fFilters.Value[v1])^.Fields do
+            if (not fGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
+              or (fGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
+            begin
+              Include(vNode^.States, vsVisible);
+              fGrid.DoNodeFiltering(vNode);
+              vUseArrow := (vsVisible in vNode^.States) and (vField.Name^ = vColumn.PropertyName);
+              break;
+            end;
+          // if it is already visible, do not needed to continue checking more filters for it
+          if vsVisible in vNode^.States then
+            break;
+        end;
+      end
+      else
+      begin
+        // if there is no filters, turn it visible by default
+        Include(vNode^.States, vsVisible);
+        fGrid.DoNodeFiltering(vNode);
+      end;
+    end;
+    vNode := fGrid.GetNext(vNode, True);
+  end;
+  // add an MARK_ARROW in header column text, if there are filters for this column
+  with fGrid.Header.Columns[aColumn] do
+  begin
+    if vUseArrow then
+    begin
+      if Pos(MARK_ARROW, Text) = 0 then
+        Text := Text + MARK_ARROW;
+    end
+    else
+      Text := StringReplace(Text, MARK_ARROW, '', [rfReplaceAll]);
+  end;
+  fGrid.Invalidate;
+end;
+
+procedure TTisGridFilterOptions.ClearFilters;
+var
+  vColumn: TVirtualTreeColumn;
+  v1: Integer;
+  vNode: PVirtualNode;
+begin
+  // clear MARK_ARROW mark of all header columns
+  // - it should execute even if fFilters.IsVoid, as some header columns
+  // could have the MARK_ARROW on its Text, which may have come from Editor but
+  // this grid haven't PopupMenu instance yet
+  for v1 := 0 to fGrid.Header.Columns.Count-1 do
+  begin
+    vColumn := fGrid.Header.Columns[v1];
+    vColumn.Text := StringReplace(vColumn.Text, MARK_ARROW, '', [rfReplaceAll]);
+  end;
+  if not fFilters.IsVoid then
+  begin
+    // turn visible all nodes again
+    vNode := fGrid.GetFirst(True);
+    while vNode <> nil do
+    begin
+      Include(vNode^.States, vsVisible);
+      fGrid.DoNodeFiltering(vNode);
+      vNode := fGrid.GetNext(vNode, True);
+    end;
+    fGrid.Invalidate;
+    fFilters.Clear;
+  end;
 end;
 
 { TTisGridColumn }
@@ -1738,96 +1856,6 @@ end;
 type
   TVirtualTreeCast = class(TBaseVirtualTree); // necessary to make the header accessible
 
-function TTisGridHeaderPopupMenu.FilterExists(const aPropertyName: RawUtf8;
-  const aValue: string): Boolean;
-var
-  vObj: PDocVariantData;
-  vTest: TDocVariantData;
-begin
-  result := False;
-  vTest.Clear;
-  vTest.InitFast(dvObject);
-  vTest.S[aPropertyName] := aValue;
-  for vObj in fFilters.Objects do
-  begin
-    if vObj^.Equals(vTest) then
-    begin
-      result := True;
-      break;
-    end;
-  end;
-end;
-
-procedure TTisGridHeaderPopupMenu.ApplyFilters(aColumn: TColumnIndex);
-const
-  cArrow = ' ↓';
-var
-  vGrid: TTisGrid;
-  vData: PDocVariantData;
-  vNode: PVirtualNode;
-  vField: TDocVariantFields;
-  v1: Integer;
-  vUseArrow: Boolean;
-  vColumn: TTisGridColumn;
-begin
-  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
-  begin
-    if PopupComponent is TTisGrid then
-    begin
-      vGrid := PopupComponent as TTisGrid;
-      vColumn := vGrid.FindColumnByIndex(aColumn);
-      vNode := vGrid.GetFirst(True);
-      vUseArrow := False;
-      while vNode <> nil do
-      begin
-        vData := vGrid.GetNodeAsPDocVariantData(vNode, False);
-        if Assigned(vData) then
-        begin
-          if fFilters.Count > 0 then
-          begin
-            // turn it invisible by default
-            Exclude(vNode^.States, vsVisible);
-            for v1 := fFilters.Count-1 downto 0 do
-            begin
-              for vField in DocVariantData(fFilters.Value[v1])^.Fields do
-                if (not vGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
-                  or (vGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
-                begin
-                  Include(vNode^.States, vsVisible);
-                  vGrid.DoNodeFiltering(vNode);
-                  vUseArrow := (vsVisible in vNode^.States) and (vField.Name^ = vColumn.PropertyName);
-                  break;
-                end;
-              // if it is already visible, do not needed to continue checking more filters for it
-              if vsVisible in vNode^.States then
-                break;
-            end;
-          end
-          else
-          begin
-            // if there is no filters, turn it visible by default
-            Include(vNode^.States, vsVisible);
-            vGrid.DoNodeFiltering(vNode);
-          end;
-        end;
-        vNode := vGrid.GetNext(vNode, True);
-      end;
-      // add an arrow in header column text, if there are filters for this column
-      with vGrid.Header.Columns[aColumn] do
-      begin
-        if vUseArrow then
-        begin
-          if Pos(cArrow, Text) = 0 then
-            Text := Text + cArrow;
-        end
-        else
-          Text := StringReplace(Text, cArrow, '', [rfReplaceAll]);
-      end;
-      vGrid.Invalidate;
-    end;
-  end;
-end;
-
 procedure TTisGridHeaderPopupMenu.RemoveAutoItems;
 var
   v1: Integer;
@@ -1929,10 +1957,10 @@ begin
       vColumn := vGrid.FindColumnByIndex(vItem.Tag);
       vObj := _ObjFast([vColumn.PropertyName, StringToUtf8(vItem.Caption)]);
       if vItem.Checked then
-        fFilters.AddItem(vObj)
+        vGrid.FilterOptions.Filters.AddItem(vObj)
       else
-        fFilters.DeleteByValue(vObj);
-      ApplyFilters(vItem.Tag);
+        vGrid.FilterOptions.Filters.DeleteByValue(vObj);
+      vGrid.FilterOptions.ApplyFilters(vItem.Tag);
     end;
   end;
 end;
@@ -1953,16 +1981,16 @@ begin
       vItem := aSender as TMenuItem;
       vColumn := vGrid.FindColumnByIndex(vItem.Tag);
       // delete all filters for the same propertyname
-      for v1 := fFilters.Count-1 downto 0 do
+      for v1 := vGrid.FilterOptions.Filters.Count-1 downto 0 do
       begin
-        for vFieldName in DocVariantData(fFilters.Value[v1])^.FieldNames do
+        for vFieldName in DocVariantData(vGrid.FilterOptions.Filters.Value[v1])^.FieldNames do
           if vFieldName^ = vColumn.PropertyName then
           begin
-            fFilters.Delete(v1);
+            vGrid.FilterOptions.Filters.Delete(v1);
             break;
           end;
       end;
-      ApplyFilters(vItem.Tag);
+      vGrid.FilterOptions.ApplyFilters(vItem.Tag);
     end;
   end;
 end;
@@ -1970,8 +1998,19 @@ end;
 constructor TTisGridHeaderPopupMenu.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
-  fFilters.Clear;
-  fFilters.InitArray([], JSON_FAST_FLOAT);
+end;
+
+procedure TTisGridHeaderPopupMenu.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisGridHeaderPopupMenu then
+  begin
+    with TTisGridHeaderPopupMenu(aDest) do
+    begin
+      Options := self.Options;
+    end;
+  end
+  else
+    inherited AssignTo(aDest);
 end;
 
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
@@ -2023,7 +2062,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
           vNewMenuItem.Caption := vValue;
           vNewMenuItem.OnClick := @OnMenuFilterClick;
-          vNewMenuItem.Checked := FilterExists(vColumn.PropertyName, vValue);
+          vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
           aMenu.Add(vNewMenuItem);
           Inc(vCount);
           if vCount >= aGrid.FilterOptions.DisplayedCount then
@@ -4069,7 +4108,7 @@ begin
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
   fExportFormatOptions := DefaultExportFormatOptions;
-  fFilterOptions := TTisGridFilterOptions.Create;
+  fFilterOptions := TTisGridFilterOptions.Create(self);
   WantTabs := DefaultWantTabs;
   TabStop := True;
   with TreeOptions do
@@ -4250,7 +4289,9 @@ begin
       end;
       // should update the popup menu as some items depend on whether or not there is data
       CleanPopupMenu;
-      FillPopupMenu
+      FillPopupMenu;
+      // clear all filters after loading
+      fFilterOptions.ClearFilters;
     end;
   end;
 end;
@@ -4648,7 +4689,6 @@ begin
         vTarget.Header.Assign(Grid.Header);
         vTarget.TreeOptions.Assign(Grid.TreeOptions);
         vTarget.NodeOptions.Assign(Grid.NodeOptions);
-        vTarget.FilterOptions.Assign(Grid.FilterOptions);
         vTarget.KeyFieldsNames := KeyNamesEdit.Text;
         vTarget.ParentKeyFieldsNames := ParentNamesEdit.Text;
         if KeepDataCheckBox.Checked then
