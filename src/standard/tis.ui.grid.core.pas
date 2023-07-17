@@ -1605,8 +1605,7 @@ var
 begin
   // clear MARK_ARROW mark of all header columns
   // - it should execute even if fFilters.IsVoid, as some header columns
-  // could have the MARK_ARROW on its Text, which may have come from Editor but
-  // this grid haven't PopupMenu instance yet
+  // could have the MARK_ARROW on its Text, which may have come from Editor or Assigned from other grid
   for v1 := 0 to fGrid.Header.Columns.Count-1 do
   begin
     vColumn := fGrid.Header.Columns[v1];
