@@ -2014,7 +2014,7 @@ end;
 
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
 
-  procedure AddSubItemsFromGridColumnData(aMenu: TMenuItem; aGrid: TTisGrid; aColIdx: TColumnIndex);
+  procedure AddFilterItems(aGrid: TTisGrid; aColIdx: TColumnIndex);
   var
     vNewMenuItem: TTisGridHeaderMenuItem;
     vCount: Integer;
@@ -2027,15 +2027,6 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
   begin
     vCount := 0;
     vNode := aGrid.GetFirst(True);
-    // add a item for delete all filters for a column
-    vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-    vNewMenuItem.Tag := aColIdx;
-    vNewMenuItem.Caption := rsGridFilterClear;
-    vNewMenuItem.OnClick := @OnMenuFilterClearClick;
-    aMenu.Add(vNewMenuItem);
-    vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-    vNewMenuItem.Caption := '-';
-    aMenu.Add(vNewMenuItem);
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
@@ -2045,7 +2036,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
         vValue := vData^.S[vColumn.PropertyName];
         vFound := False;
         // search duplicated value
-        for vItem in aMenu do
+        for vItem in Items do
         begin
           if (not aGrid.FilterOptions.CaseInsensitive and SameText(vItem.Caption, vValue))
             or (aGrid.FilterOptions.CaseInsensitive and SameStr(vItem.Caption, vValue)) then
@@ -2062,7 +2053,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           vNewMenuItem.Caption := vValue;
           vNewMenuItem.OnClick := @OnMenuFilterClick;
           vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
-          aMenu.Add(vNewMenuItem);
+          Items.Add(vNewMenuItem);
           Inc(vCount);
           if vCount >= aGrid.FilterOptions.DisplayedCount then
             exit;
@@ -2088,6 +2079,33 @@ begin
     RemoveAutoItems;
     with TVirtualTreeCast(PopupComponent).Header do
     begin
+      // enable/disable filter
+      if PopupComponent is TTisGrid then
+      begin
+        vGrid := PopupComponent as TTisGrid;
+        RecordZero(@vMousePos, TypeInfo(TPoint));
+        GetCursorPos(vMousePos);
+        vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
+        if (vColIdx > NoColumn)
+          and vGrid.FilterOptions.Enabled
+          and not vGrid.Data.IsVoid
+          and not vGrid.NodeOptions.ShowChildren then
+        begin
+          // add a item for delete filters for a column
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Tag := vColIdx;
+          vNewMenuItem.Caption := rsGridFilterClear;
+          vNewMenuItem.OnClick := @OnMenuFilterClearClick;
+          Items.Add(vNewMenuItem);
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
+          AddFilterItems(vGrid, vColIdx);
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
+        end;
+      end;
       // add subitem "show/hide columns"
       vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
       vParentMenuItem.Caption := rsGridShowHideColumns;
@@ -2149,29 +2167,6 @@ begin
       vNewMenuItem.Caption := rsGridRestoreDefaultColumns;
       vNewMenuItem.OnClick := @OnMenuRestoreClick;
       Items.Add(vNewMenuItem);
-      // enable/disable filter
-      if PopupComponent is TTisGrid then
-      begin
-        vGrid := PopupComponent as TTisGrid;
-        RecordZero(@vMousePos, TypeInfo(TPoint));
-        GetCursorPos(vMousePos);
-        vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
-        if (vColIdx > NoColumn)
-          and vGrid.FilterOptions.Enabled
-          and not vGrid.Data.IsVoid
-          and not vGrid.NodeOptions.ShowChildren then
-        begin
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Caption := '-';
-          Items.Add(vNewMenuItem);
-          // add filter item
-          vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vParentMenuItem.Tag := -4;
-          vParentMenuItem.Caption := rsGridFilter;
-          Items.Add(vParentMenuItem);
-          AddSubItemsFromGridColumnData(vParentMenuItem, vGrid, vColIdx);
-        end;
-      end;
       // conditionally disable menu item of last enabled column
       if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
         vVisibleItem.Enabled := False;
