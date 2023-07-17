@@ -87,8 +87,12 @@ msgstr "Filtre"
 
 #: tis.ui.resourcestrings.rsgridfilterclear
 msgctxt "tis.ui.resourcestrings.rsgridfilterclear"
-msgid "Clear"
-msgstr "Effacer"
+msgid "Clear filter"
+msgstr "Effacer le filtre"
+
+#: tis.ui.resourcestrings.rsgridfilterclearall
+msgid "Clear all filters"
+msgstr "Effacer tous les filtres"
 
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"

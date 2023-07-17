@@ -45,7 +45,8 @@ resourcestring
   rsGridHideAllColumns = 'Hide all columns';
   rsGridRestoreDefaultColumns = 'Restore default columns';
   rsGridFilter = 'Filter';
-  rsGridFilterClear = 'Clear';
+  rsGridFilterClear = 'Clear filter';
+  rsGridFilterClearAll = 'Clear all filters';
 
   /// searchedit
   rsSearchEditClearAll = 'Clear all';

@@ -1979,17 +1979,23 @@ begin
       vGrid := PopupComponent as TTisGrid;
       vItem := aSender as TMenuItem;
       vColumn := vGrid.FindColumnByIndex(vItem.Tag);
-      // delete all filters for the same propertyname
-      for v1 := vGrid.FilterOptions.Filters.Count-1 downto 0 do
+      if Assigned(vColumn) then
       begin
-        for vFieldName in DocVariantData(vGrid.FilterOptions.Filters.Value[v1])^.FieldNames do
-          if vFieldName^ = vColumn.PropertyName then
-          begin
-            vGrid.FilterOptions.Filters.Delete(v1);
-            break;
-          end;
-      end;
-      vGrid.FilterOptions.ApplyFilters(vItem.Tag);
+        // clear all filters for the same propertyname
+        for v1 := vGrid.FilterOptions.Filters.Count-1 downto 0 do
+        begin
+          for vFieldName in DocVariantData(vGrid.FilterOptions.Filters.Value[v1])^.FieldNames do
+            if vFieldName^ = vColumn.PropertyName then
+            begin
+              vGrid.FilterOptions.Filters.Delete(v1);
+              break;
+            end;
+        end;
+        vGrid.FilterOptions.ApplyFilters(vItem.Tag);
+      end
+      else
+        // if not found vColumn, it should clear all filters in the grid
+        vGrid.FilterOptions.ClearFilters;
     end;
   end;
 end;
@@ -2103,6 +2109,12 @@ begin
           AddFilterItems(vGrid, vColIdx);
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
+          // add a item for delete all filters
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Tag := NoColumn;
+          vNewMenuItem.Caption := rsGridFilterClearAll;
+          vNewMenuItem.OnClick := @OnMenuFilterClearClick;
           Items.Add(vNewMenuItem);
         end;
       end;
