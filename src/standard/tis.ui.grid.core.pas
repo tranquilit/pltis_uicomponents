@@ -180,22 +180,30 @@ type
     fGrid: TTisGrid;
     fFilters: TDocVariantData;
     fCaseInsensitive: Boolean;
+    fClearAterLoadingData: Boolean;
     fDisplayedCount: Integer;
     fEnabled: Boolean;
   protected const
     DefaultDisplayedCount = 10;
     DefaultEnabled = False;
     DefaultCaseInsensitive = False;
+    DefaultClearAterLoadingData = False;
     MARK_ARROW = ' ↓';
+  protected
+    /// clear MARK_ARROW mark of all header columns
+    procedure ClearHeaderArrows;
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
     function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
-    procedure ApplyFilters(aColumn: TColumnIndex);
+    procedure ApplyFilters;
     procedure ClearFilters;
     property Filters: TDocVariantData read fFilters;
   published
     property CaseInsensitive: Boolean read fCaseInsensitive write fCaseInsensitive default DefaultCaseInsensitive;
+    /// used after call Grid.LoadData
+    // - if it is TRUE, it will call ClearFilters, otherwise it will call ApplyFilters
+    property ClearAterLoadingData: Boolean read fClearAterLoadingData write fClearAterLoadingData default DefaultClearAterLoadingData;
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
     property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
   end;
@@ -1491,6 +1499,18 @@ end;
 
 { TTisGridFilterOptions }
 
+procedure TTisGridFilterOptions.ClearHeaderArrows;
+var
+  v1: Integer;
+  vColumn: TVirtualTreeColumn;
+begin
+  for v1 := 0 to fGrid.Header.Columns.Count-1 do
+  begin
+    vColumn := fGrid.Header.Columns[v1];
+    vColumn.Text := StringReplace(vColumn.Text, MARK_ARROW, '', [rfReplaceAll]);
+  end;
+end;
+
 constructor TTisGridFilterOptions.Create(aGrid: TTisGrid);
 begin
   inherited Create;
@@ -1508,6 +1528,8 @@ begin
   begin
     with TTisGridFilterOptions(aDest) do
     begin
+      fFilters.Clear;
+      fFilters.InitCopy(Variant(self.fFilters), JSON_[mDefault]);
       CaseInsensitive := self.CaseInsensitive;
       DisplayedCount := self.DisplayedCount;
       Enabled := self.Enabled;
@@ -1537,18 +1559,16 @@ begin
   end;
 end;
 
-procedure TTisGridFilterOptions.ApplyFilters(aColumn: TColumnIndex);
+procedure TTisGridFilterOptions.ApplyFilters;
 var
   vData: PDocVariantData;
   vNode: PVirtualNode;
   vField: TDocVariantFields;
-  v1: Integer;
-  vUseArrow: Boolean;
+  v1, v2: Integer;
   vColumn: TTisGridColumn;
 begin
-  vColumn := fGrid.FindColumnByIndex(aColumn);
+  ClearHeaderArrows;
   vNode := fGrid.GetFirst(True);
-  vUseArrow := False;
   while vNode <> nil do
   begin
     vData := fGrid.GetNodeAsPDocVariantData(vNode, False);
@@ -1556,22 +1576,27 @@ begin
     begin
       if fFilters.Count > 0 then
       begin
-        // turn it invisible by default
-        Exclude(vNode^.States, vsVisible);
-        for v1 := fFilters.Count-1 downto 0 do
+        for v1 := 0 to fGrid.Header.Columns.Count-1 do
         begin
-          for vField in DocVariantData(fFilters.Value[v1])^.Fields do
-            if (not fGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
-              or (fGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
-            begin
-              Include(vNode^.States, vsVisible);
-              fGrid.DoNodeFiltering(vNode);
-              vUseArrow := (vsVisible in vNode^.States) and (vField.Name^ = vColumn.PropertyName);
-              break;
-            end;
-          // if it is already visible, do not needed to continue checking more filters for it
-          if vsVisible in vNode^.States then
-            break;
+          vColumn := fGrid.Header.Columns[v1] as TTisGridColumn;
+          // turn it invisible by default
+          Exclude(vNode^.States, vsVisible);
+          for v2 := fFilters.Count-1 downto 0 do
+          begin
+            for vField in DocVariantData(fFilters.Value[v2])^.Fields do
+              if (not fGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
+                or (fGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
+              begin
+                Include(vNode^.States, vsVisible);
+                fGrid.DoNodeFiltering(vNode);
+                // add an MARK_ARROW in header column text, if there are filters for this column
+                if (vsVisible in vNode^.States)
+                  and (vField.Name^ = vColumn.PropertyName)
+                  and (Pos(MARK_ARROW, vColumn.Text) = 0) then
+                    vColumn.Text := vColumn.Text + MARK_ARROW;
+                break;
+              end;
+          end;
         end;
       end
       else
@@ -1583,34 +1608,16 @@ begin
     end;
     vNode := fGrid.GetNext(vNode, True);
   end;
-  // add an MARK_ARROW in header column text, if there are filters for this column
-  with fGrid.Header.Columns[aColumn] do
-  begin
-    if vUseArrow then
-    begin
-      if Pos(MARK_ARROW, Text) = 0 then
-        Text := Text + MARK_ARROW;
-    end
-    else
-      Text := StringReplace(Text, MARK_ARROW, '', [rfReplaceAll]);
-  end;
   fGrid.Invalidate;
 end;
 
 procedure TTisGridFilterOptions.ClearFilters;
 var
-  vColumn: TVirtualTreeColumn;
-  v1: Integer;
   vNode: PVirtualNode;
 begin
-  // clear MARK_ARROW mark of all header columns
-  // - it should execute even if fFilters.IsVoid, as some header columns
+  // it should execute even if fFilters.IsVoid, as some header columns
   // could have the MARK_ARROW on its Text, which may have come from Editor or Assigned from other grid
-  for v1 := 0 to fGrid.Header.Columns.Count-1 do
-  begin
-    vColumn := fGrid.Header.Columns[v1];
-    vColumn.Text := StringReplace(vColumn.Text, MARK_ARROW, '', [rfReplaceAll]);
-  end;
+  ClearHeaderArrows;
   if not fFilters.IsVoid then
   begin
     // turn visible all nodes again
@@ -1959,7 +1966,7 @@ begin
         vGrid.FilterOptions.Filters.AddItem(vObj)
       else
         vGrid.FilterOptions.Filters.DeleteByValue(vObj);
-      vGrid.FilterOptions.ApplyFilters(vItem.Tag);
+      vGrid.FilterOptions.ApplyFilters;
     end;
   end;
 end;
@@ -1991,7 +1998,7 @@ begin
               break;
             end;
         end;
-        vGrid.FilterOptions.ApplyFilters(vItem.Tag);
+        vGrid.FilterOptions.ApplyFilters;
       end
       else
         // if not found vColumn, it should clear all filters in the grid
@@ -4297,7 +4304,10 @@ begin
       CleanPopupMenu;
       FillPopupMenu;
       // clear all filters after loading
-      fFilterOptions.ClearFilters;
+      if fFilterOptions.ClearAterLoadingData then
+        fFilterOptions.ClearFilters
+      else
+        fFilterOptions.ApplyFilters;
     end;
   end;
 end;
@@ -4695,6 +4705,7 @@ begin
         vTarget.Header.Assign(Grid.Header);
         vTarget.TreeOptions.Assign(Grid.TreeOptions);
         vTarget.NodeOptions.Assign(Grid.NodeOptions);
+        vTarget.FilterOptions.Assign(Grid.FilterOptions);
         vTarget.KeyFieldsNames := KeyNamesEdit.Text;
         vTarget.ParentKeyFieldsNames := ParentNamesEdit.Text;
         if KeepDataCheckBox.Checked then
