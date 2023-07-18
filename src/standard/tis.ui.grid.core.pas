@@ -195,8 +195,11 @@ type
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
+    /// check if a filter exists
     function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
+    /// apply all filters in all columns
     procedure ApplyFilters;
+    /// clear all filters
     procedure ClearFilters;
     property Filters: TDocVariantData read fFilters;
   published
@@ -204,7 +207,9 @@ type
     /// used after call Grid.LoadData
     // - if it is TRUE, it will call ClearFilters, otherwise it will call ApplyFilters
     property ClearAterLoadingData: Boolean read fClearAterLoadingData write fClearAterLoadingData default DefaultClearAterLoadingData;
+    /// how many menu items will be used to show filters
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
+    /// if FALSE, none filter menu item will be created
     property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
   end;
 
