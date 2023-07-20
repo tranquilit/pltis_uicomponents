@@ -1618,6 +1618,13 @@ begin
     vNode := fGrid.GetNext(vNode, True);
   end;
   fGrid.Invalidate;
+  if (fGrid.FocusedNode = nil) or not (vsVisible in fGrid.FocusedNode^.States) then
+  begin
+    fGrid.ClearSelection;
+    fGrid.FocusedNode := fGrid.GetFirstVisible;
+    fGrid.Selected[fGrid.FocusedNode] := True;
+  end;
+  fGrid.ScrollIntoView(fGrid.FocusedNode, False);
 end;
 
 procedure TTisGridFilterOptions.ClearFilters;
