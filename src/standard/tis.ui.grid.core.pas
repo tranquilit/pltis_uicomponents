@@ -3486,9 +3486,10 @@ procedure TTisGrid.CleanPopupMenu;
 var
   v1: Integer;
 begin
-  for v1 := PopupMenu.Items.Count-1 downto 0 do
-    if PopupMenu.Items[v1].Tag = POPUP_ITEM_TAG then
-      PopupMenu.Items.Delete(v1);
+  if Assigned(PopupMenu) then
+    for v1 := PopupMenu.Items.Count-1 downto 0 do
+      if PopupMenu.Items[v1].Tag = POPUP_ITEM_TAG then
+        PopupMenu.Items.Delete(v1);
 end;
 
 function TTisGrid.FindText(const aText: string): PVirtualNode;
