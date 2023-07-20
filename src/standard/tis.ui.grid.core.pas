@@ -216,15 +216,17 @@ type
   /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
-    fPropertyName: RawUtf8;
+    fAllowFilter: Boolean;
     fDataType: TTisColumnDataType;
     fDataTypeOptions: TTisGridColumnDataTypeOptions;
+    fPropertyName: RawUtf8;
     fRequired: Boolean;
     fReadOnly: Boolean;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
   protected const
+    DefaultAllowFilter = True;
     DefaultDataType = cdtString;
     DefaultRequired = False;
     DefaultReadOnly = False;
@@ -233,14 +235,16 @@ type
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
-    property Text: TCaption read GetTitle write SetTitle;
-    property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
+    /// allow use filter for this column, if Grid.FilterOptions.Enable is TRUE
+    property AllowFilter: Boolean read fAllowFilter write fAllowFilter default DefaultAllowFilter;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
     property DataTypeOptions: TTisGridColumnDataTypeOptions read fDataTypeOptions write fDataTypeOptions;
+    property PropertyName: RawUtf8 read fPropertyName write SetPropertyName;
     /// if TRUE, it will not allow user to set NULL/blank for this column using Editor
     // - if editor focus is lost, it will return the previous value before edition
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
     property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
+    property Text: TCaption read GetTitle write SetTitle;
   end;
 
   /// a custom implementation for Grid Columns
@@ -1663,6 +1667,7 @@ constructor TTisGridColumn.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
   Options := Options + [coWrapCaption];
+  fAllowFilter := DefaultAllowFilter;
   fDataType := DefaultDataType;
   fDataTypeOptions := TTisGridColumnDataTypeOptions.Create;
   fRequired := DefaultRequired;
@@ -1683,9 +1688,10 @@ begin
   if aSource is TTisGridColumn then
   begin
     vColumn := TTisGridColumn(aSource);
-    PropertyName := vColumn.PropertyName;
+    AllowFilter := vColumn.AllowFilter;
     DataType := vColumn.DataType;
     DataTypeOptions.Assign(vColumn.DataTypeOptions);
+    PropertyName := vColumn.PropertyName;
     Required := vColumn.Required;
     ReadOnly := vColumn.ReadOnly;
   end;
@@ -2044,11 +2050,11 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     vColumn: TTisGridColumn;
   begin
     vCount := 0;
+    vColumn := aGrid.FindColumnByIndex(aColIdx);
     vNode := aGrid.GetFirst(True);
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
-      vColumn := aGrid.FindColumnByIndex(aColIdx);
       if Assigned(vData) then
       begin
         vValue := vData^.S[vColumn.PropertyName];
@@ -2106,6 +2112,7 @@ begin
         vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
         if (vColIdx > NoColumn)
           and vGrid.FilterOptions.Enabled
+          and vGrid.FindColumnByIndex(vColIdx).AllowFilter
           and not vGrid.Data.IsVoid
           and not vGrid.NodeOptions.ShowChildren then
         begin
