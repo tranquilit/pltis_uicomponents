@@ -1628,25 +1628,9 @@ begin
 end;
 
 procedure TTisGridFilterOptions.ClearFilters;
-var
-  vNode: PVirtualNode;
 begin
-  // it should execute even if fFilters.IsVoid, as some header columns
-  // could have the MARK_ARROW on its Text, which may have come from Editor or Assigned from other grid
-  ClearHeaderArrows;
-  if not fFilters.IsVoid then
-  begin
-    // turn visible all nodes again
-    vNode := fGrid.GetFirst(True);
-    while vNode <> nil do
-    begin
-      Include(vNode^.States, vsVisible);
-      fGrid.DoNodeFiltering(vNode);
-      vNode := fGrid.GetNext(vNode, True);
-    end;
-    fGrid.Invalidate;
-    fFilters.Clear;
-  end;
+  fFilters.Clear;
+  ApplyFilters;
 end;
 
 { TTisGridColumn }
