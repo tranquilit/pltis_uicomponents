@@ -2050,28 +2050,33 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       begin
         vValue := vData^.S[vColumn.PropertyName];
         vFound := False;
-        // search duplicated value
-        for vItem in Items do
+        aGrid.DoNodeFiltering(vNode);
+        // test if node continues visible to be use
+        if vsVisible in vNode^.States then
         begin
-          if (not aGrid.FilterOptions.CaseInsensitive and SameText(vItem.Caption, vValue))
-            or (aGrid.FilterOptions.CaseInsensitive and SameStr(vItem.Caption, vValue)) then
+          // search duplicated value
+          for vItem in Items do
           begin
-            vFound := True;
-            break;
+            if (not aGrid.FilterOptions.CaseInsensitive and SameText(vItem.Caption, vValue))
+              or (aGrid.FilterOptions.CaseInsensitive and SameStr(vItem.Caption, vValue)) then
+            begin
+              vFound := True;
+              break;
+            end;
           end;
-        end;
-        // do not duplicate items
-        if not vFound then
-        begin
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
-          vNewMenuItem.Caption := vValue;
-          vNewMenuItem.OnClick := @OnMenuFilterClick;
-          vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
-          Items.Add(vNewMenuItem);
-          Inc(vCount);
-          if vCount >= aGrid.FilterOptions.DisplayedCount then
-            exit;
+          // do not duplicate items
+          if not vFound then
+          begin
+            vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+            vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+            vNewMenuItem.Caption := vValue;
+            vNewMenuItem.OnClick := @OnMenuFilterClick;
+            vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
+            Items.Add(vNewMenuItem);
+            Inc(vCount);
+            if vCount >= aGrid.FilterOptions.DisplayedCount then
+              exit;
+          end;
         end;
       end;
       vNode := aGrid.GetNext(vNode, True);
