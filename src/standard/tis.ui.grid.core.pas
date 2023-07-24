@@ -562,8 +562,8 @@ type
   TOnGridGetMetaData = procedure(aSender: TTisGrid; var aMetaData: RawUtf8) of object;
 
   /// event that allows change aNode.States after it was changed
-  // - use it to force showing (or not) some node
-  TOnGridNodeFiltering = procedure(aSender: TTisGrid; aNode: PVirtualNode) of object;
+  // - use it to force showing (or not) some node by seting aHandled=TRUE
+  TOnGridNodeFiltering = procedure(aSender: TTisGrid; aNode: PVirtualNode; var aHandled: Boolean) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -740,7 +740,7 @@ type
     procedure DoBeforeDataChange(aData: PDocVariantData; var aAbort: Boolean); virtual;
     procedure DoAfterDataChange; virtual;
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
-    procedure DoNodeFiltering(aNode: PVirtualNode); virtual;
+    function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1596,8 +1596,8 @@ begin
               if (not fGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
                 or (fGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
               begin
-                Include(vNode^.States, vsVisible);
-                fGrid.DoNodeFiltering(vNode);
+                if not fGrid.DoNodeFiltering(vNode) then
+                  Include(vNode^.States, vsVisible);
                 // add an MARK_ARROW in header column text, if there are filters for this column
                 if (vsVisible in vNode^.States)
                   and (vField.Name^ = vColumn.PropertyName)
@@ -1610,9 +1610,9 @@ begin
       end
       else
       begin
-        // if there is no filters, turn it visible by default
-        Include(vNode^.States, vsVisible);
-        fGrid.DoNodeFiltering(vNode);
+        // if did not handled and there is no filters, turn it visible by default
+        if not fGrid.DoNodeFiltering(vNode) then
+          Include(vNode^.States, vsVisible);
       end;
     end;
     vNode := fGrid.GetNext(vNode, True);
@@ -2039,6 +2039,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     vValue: string;
     vFound: Boolean;
     vColumn: TTisGridColumn;
+    vHandled: Boolean;
   begin
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
@@ -2050,9 +2051,9 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       begin
         vValue := vData^.S[vColumn.PropertyName];
         vFound := False;
-        aGrid.DoNodeFiltering(vNode);
-        // test if node continues visible to be use
-        if vsVisible in vNode^.States then
+        vHandled := aGrid.DoNodeFiltering(vNode);
+        // get nodes handle by user only if it continues visible
+        if not vHandled or (vHandled and (vsVisible in vNode^.States)) then
         begin
           // search duplicated value
           for vItem in Items do
@@ -4057,10 +4058,11 @@ begin
     fOnGetMetaData(self, aMetaData);
 end;
 
-procedure TTisGrid.DoNodeFiltering(aNode: PVirtualNode);
+function TTisGrid.DoNodeFiltering(aNode: PVirtualNode): Boolean;
 begin
+  result := False;
   if Assigned(fOnNodeFiltering) then
-    fOnNodeFiltering(self, aNode);
+    fOnNodeFiltering(self, aNode, result);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
