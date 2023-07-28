@@ -323,8 +323,8 @@ begin
   if aSource is TTisActionsItem then
     with aSource as TTisActionsItem do
     begin
-      self.List := List;
-      self.HiddenCategories := HiddenCategories;
+      self.List.Assign(List);
+      self.HiddenCategories.Assign(HiddenCategories);
     end
   else
     inherited Assign(aSource);
@@ -421,8 +421,8 @@ begin
   if aSource is TTisPopupMenusItem then
     with aSource as TTisPopupMenusItem do
     begin
-      self.Action := Action;
-      self.PopupMenu := PopupMenu;
+      self.Action.Assign(Action);
+      self.PopupMenu.Assign(PopupMenu);
     end
   else
     inherited Assign(aSource);
@@ -497,7 +497,7 @@ var
   vPopupItem: TTisPopupMenusItem;
 begin
   inherited Notification(aComponent, aOperation);
-  if aOperation = opRemove then
+  if (aOperation = opRemove) and not (csDestroying in ComponentState) then
   begin
     for v1 := 0 to Actions.Count -1 do
     begin
