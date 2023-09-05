@@ -486,12 +486,15 @@ type
     function GetName(aNode: PVirtualNode): string;
     /// returns the value corresponding to the aNode
     // - if it is not a child node, it will (try to) return the value corresponding to
-    // the TTisGridColumn instance by aColumn and it could be NIL, if the name was not found
+    // the column instance using aColumn as the index - it will return NIL, if no column was found
     function GetValue(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn): PVariant;
     /// returns the value corresponding to the aNode
-    // - just a wrapper on GetValue for do not get NIL when return
-    function GetValueAsString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn;
-      const aDefault: string = ''): string;
+    // - it will return only simple values (no object/array), otherwise it will return NIL
+    function GetValueAsSimple(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn): PVariant;
+    /// returns the value corresponding to the aNode
+    // - just a wrapper around GetValueAsSimple
+    // - if it is NIL, aDefault will be used
+    function GetValueAsSimpleString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn; const aDefault: string = ''): string;
     /// set a value to aNode
     // - if it is not a child node, it will use PropertyName from its TTisGridColumn instance getting it by aColumn,
     // trying to update the original object data, but if the object.name was not found, it will do nothing
@@ -1363,7 +1366,7 @@ begin
   end;
   DisableControlEvents;
   vAborted := False;
-  vCur := fGrid.fNodeAdapter.GetValue(fNode, fColumn);
+  vCur := fGrid.fNodeAdapter.GetValueAsSimple(fNode, fColumn);
   vNew := fControl.GetValue;
   vCol := fGrid.FindColumnByIndex(fColumn);
   fGrid.DoEditValidated(fNode, vCol, vCur^, vNew, vAborted);
@@ -1404,7 +1407,7 @@ begin
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(fNode, vCol);
   fControl.ReadOnly := vCol.ReadOnly;
-  vValue := fGrid.fNodeAdapter.GetValue(fNode, aColumn);
+  vValue := fGrid.fNodeAdapter.GetValueAsSimple(fNode, aColumn);
   if Assigned(vValue) then
   begin
     fValueIsString := VarIsStr(vValue^);
@@ -2345,6 +2348,27 @@ function TTisNodeAdapter.GetValue(aNode: PVirtualNode;
   aColumn: TColumnIndex): PVariant;
 var
   vNodeData: PTisNodeData;
+  vCol: TTisGridColumn;
+begin
+  result := nil;
+  vNodeData := GetData(aNode);
+  if vNodeData^.IsChild then
+  begin
+    // ignoring aColumn, if it is a child node
+    result := vNodeData^.Value
+  end
+  else
+  begin
+    vCol := Grid.FindColumnByIndex(aColumn);
+    if Assigned(vCol) then
+      vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result);
+  end;
+end;
+
+function TTisNodeAdapter.GetValueAsSimple(aNode: PVirtualNode;
+  aColumn: TColumnIndex): PVariant;
+var
+  vNodeData: PTisNodeData;
   vData: PDocVariantData;
   vCol: TTisGridColumn;
 begin
@@ -2353,26 +2377,21 @@ begin
   if vNodeData^.IsChild then
   begin
     // ignoring aColumn, if it is a child node
-    // it should return only simple values
     if not _Safe(vNodeData^.Value^, vData) then
       result := vNodeData^.Value
   end
   else
   begin
     vCol := Grid.FindColumnByIndex(aColumn);
-    if Assigned(vCol) then
+    if Assigned(vCol) and vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result) then
     begin
-      if not vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result) then
-      begin
-        // it should return only simple values
-        if Assigned(result) and _Safe(result^, vData) then
-          result := nil;
-      end;
+      if _Safe(result^, vData) then
+        result := nil;
     end;
   end;
 end;
 
-function TTisNodeAdapter.GetValueAsString(aNode: PVirtualNode;
+function TTisNodeAdapter.GetValueAsSimpleString(aNode: PVirtualNode;
   aColumn: TColumnIndex; const aDefault: string): string;
 
   function LJsonVarToStr(const aValue: Variant): string;
@@ -2388,7 +2407,7 @@ var
   vCol: TTisGridColumn;
 begin
   result := aDefault;
-  vValue := GetValue(aNode, aColumn);
+  vValue := GetValueAsSimple(aNode, aColumn);
   if Assigned(vValue) then
   begin
     vCol := Grid.FindColumnByIndex(aColumn);
@@ -2967,7 +2986,7 @@ begin
   if Assigned(aNode) then
     with fNodeAdapter do
     begin
-      vValue := GetValue(aNode);
+      vValue := GetValueAsSimple(aNode);
       SetValue(aNode, StringToUtf8(aText), aColumn, Assigned(vValue) and VarIsStr(vValue^));
     end;
 end;
@@ -2986,12 +3005,12 @@ begin
       CHILD_COLUMN_NAME_INDEX:
         aText := fNodeAdapter.GetName(aNode);
       CHILD_COLUMN_VALUE_INDEX:
-        aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
+        aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
     end;
   end
   else
   begin
-    aText := fNodeAdapter.GetValueAsString(aNode, aColumn);
+    aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
     vNodeData := fNodeAdapter.GetData(aNode);
     vCol := FindColumnByIndex(aColumn);
     if Assigned(vNodeData^.Data) then
@@ -3816,7 +3835,7 @@ begin
         vAborted := False;
         DoEditValidated(
           FocusedNode, FocusedColumnObject,
-          fNodeAdapter.GetValue(vNode, FocusedColumn)^, vNewValue, vAborted);
+          fNodeAdapter.GetValueAsSimple(vNode, FocusedColumn)^, vNewValue, vAborted);
         if vAborted then
           Continue;
         fNodeAdapter.SetValue(vNode, vNewValue, FocusedColumn, VarIsStr(vNewValue));
@@ -3827,7 +3846,7 @@ begin
       vAborted := False;
       DoEditValidated(
         FocusedNode, FocusedColumnObject,
-        fNodeAdapter.GetValue(vNode, FocusedColumn)^, vNewValue, vAborted);
+        fNodeAdapter.GetValueAsSimple(vNode, FocusedColumn)^, vNewValue, vAborted);
       if not vAborted then
       begin
         fNodeAdapter.SetValue(FocusedNode, vNewValue, FocusedColumn, VarIsStr(vNewValue));
