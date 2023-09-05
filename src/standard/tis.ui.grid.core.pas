@@ -2365,7 +2365,7 @@ begin
       if not vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result) then
       begin
         // try to get by its name
-        vNodeData^.Data^.GetAsPVariant(GetName(aNode), result);
+        vNodeData^.Data^.GetAsPVariant(vCol.PropertyName, result);
         // it should return only simple values
         if Assigned(result) and _Safe(result^, vData) then
           result := nil;
