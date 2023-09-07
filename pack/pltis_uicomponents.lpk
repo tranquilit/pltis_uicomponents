@@ -13,6 +13,16 @@
         <OtherUnitFiles Value="..\src\core;..\src\standard"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)\standard"/>
       </SearchPaths>
+      <Conditionals Value="if FRAMEVIEWER09_ENABLED then
+begin
+  UnitPath += &apos;$PkgOutDir(FrameViewer09)&apos;
+            + &apos;;$PkgOutDir(printer4lazarus)&apos;
+            + &apos;;$PkgOutDir(cairocanvas_pkg)&apos;
+            ;
+  IncPath += &apos;$(ProjOutDir)&apos;
+           + &apos;;$PkgDir(FrameViewer09)\source&apos;
+           ;
+end;"/>
       <CodeGeneration>
         <SmartLinkUnit Value="True"/>
         <Optimizations>
@@ -24,6 +34,12 @@
           <DebugInfoType Value="dsDwarf3"/>
         </Debugging>
       </Linking>
+      <Other>
+        <CustomOptions Value="-dFRAMEVIEWER09_ENABLED"/>
+        <OtherDefines Count="1">
+          <Define0 Value="FRAMEVIEWER09_ENABLED"/>
+        </OtherDefines>
+      </Other>
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
