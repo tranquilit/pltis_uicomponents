@@ -541,6 +541,11 @@ begin
   fInternal := THtmlViewer.Create(nil);
   Edit.Clear;
   Edit.Parent := aOwner;
+  Edit.ScrollBars := ssNone;
+  Edit.LoadCursor := crNone;
+  Edit.DefBackground := clWhite;
+  Edit.DefFontName := Screen.SystemFont.Name;
+  Edit.DefFontSize := Screen.SystemFont.Size;
 end;
 
 function TTisHtmlControl.GetValue: Variant;
