@@ -571,6 +571,11 @@ type
   // - use it to force showing (or not) some node by seting aHandled=TRUE
   TOnGridNodeFiltering = procedure(aSender: TTisGrid; aNode: PVirtualNode; var aHandled: Boolean) of object;
 
+  {$ifdef FRAMEVIEWER09_ENABLED}
+  /// event that allows apply a HTML template for the data
+  TOnGridHtmlRendering = function(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn): string of object;
+  {$endif FRAMEVIEWER09_ENABLED}
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -611,6 +616,9 @@ type
     fOnExportCustomContent: TOnGridExportCustomContent;
     fOnGetMetaData: TOnGridGetMetaData;
     fOnNodeFiltering: TOnGridNodeFiltering;
+    {$ifdef FRAMEVIEWER09_ENABLED}
+    fOnHtmlRendering: TOnGridHtmlRendering;
+    {$endif FRAMEVIEWER09_ENABLED}
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -747,6 +755,9 @@ type
     procedure DoAfterDataChange; virtual;
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
+    {$ifdef FRAMEVIEWER09_ENABLED}
+    function DoHtmlRendering(aNode: PVirtualNode; const aColumn: TTisGridColumn; const aHtml: string): string; virtual;
+    {$endif FRAMEVIEWER09_ENABLED}
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1142,6 +1153,10 @@ type
     /// event that allows change aNode.States after it was changed
     // - use it to force showing (or not) some node
     property OnNodeFiltering: TOnGridNodeFiltering read fOnNodeFiltering write fOnNodeFiltering;
+    {$ifdef FRAMEVIEWER09_ENABLED}
+    /// event that allows apply a HTML template for the data
+    property OnHtmlRendering: TOnGridHtmlRendering read fOnHtmlRendering write fOnHtmlRendering;
+    {$endif FRAMEVIEWER09_ENABLED}
   end;
 
 implementation
@@ -1433,6 +1448,10 @@ begin
     end
     else
       fControl.SetValue(vValue^);
+    {$ifdef FRAMEVIEWER09_ENABLED}
+    if (vCol.DataType = cdtHtml) and fValueIsString then
+      fControl.SetValue(fGrid.DoHtmlRendering(fNode, vCol, vValue^));
+    {$endif FRAMEVIEWER09_ENABLED}
     fGrid.DoPrepareEditor(fNode, vCol, fControl);
   end
   else
@@ -3308,6 +3327,8 @@ end;
 procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
   aColumn: TColumnIndex; aCellPaintMode: TVTCellPaintMode; aCellRect: TRect;
   var aContentRect: TRect);
+var
+  vColumn: TTisGridColumn;
 begin
   //Pour affichage lignes multiselect en gris clair avec cellule focused en bleu
   if (aCellPaintMode = cpmPaint) and (toMultiSelect in TreeOptions.SelectionOptions) and
@@ -3341,8 +3362,17 @@ begin
     end;
   end;
   {$ifdef FRAMEVIEWER09_ENABLED}
-  if Header.Columns.IsValidColumn(aColumn) and (FindColumnByIndex(aColumn).DataType = cdtHtml) then
-    PrintHtmlAsImage(self, NodeAdapter.GetValueAsSimpleString(aNode, aColumn), aCanvas, aCellRect, aContentRect);
+  if Header.Columns.IsValidColumn(aColumn) then
+  begin
+    vColumn := FindColumnByIndex(aColumn);
+    if vColumn.DataType = cdtHtml then
+    begin
+      PrintHtmlAsImage(
+        self,
+        DoHtmlRendering(aNode, vColumn, NodeAdapter.GetValueAsSimpleString(aNode, aColumn)),
+        aCanvas, aCellRect, aContentRect);
+    end;
+  end;
   {$endif FRAMEVIEWER09_ENABLED}
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
@@ -4150,6 +4180,17 @@ begin
   if Assigned(fOnNodeFiltering) then
     fOnNodeFiltering(self, aNode, result);
 end;
+
+{$ifdef FRAMEVIEWER09_ENABLED}
+function TTisGrid.DoHtmlRendering(aNode: PVirtualNode;
+  const aColumn: TTisGridColumn; const aHtml: string): string;
+begin
+  if Assigned(fOnHtmlRendering) then
+    result := fOnHtmlRendering(self, aNode, aColumn)
+  else
+    result := aHtml;
+end;
+{$endif FRAMEVIEWER09_ENABLED}
 
 function TTisGrid.GetExportDialogFilter: string;
 var
