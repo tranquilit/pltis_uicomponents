@@ -1338,7 +1338,7 @@ begin
     vHandled := False;
     fGrid.DoEditorLookup(aNode, aColumn, result, vHandled);
     if not vHandled then
-      result := ControlClasses[aColumn.DataType].Create;
+      result := ControlClasses[aColumn.DataType].Create(fGrid);
   end;
   if Assigned(result) then
   begin
@@ -4134,7 +4134,7 @@ begin
   aHandled := False;
   if Assigned(fOnEditorLookup) then
   begin
-    aControl := TTisGridSearchEditControl.Create;
+    aControl := TTisGridSearchEditControl.Create(self);
     fOnEditorLookup(self, aNode, aColumn, (aControl as TTisGridSearchEditControl).Edit, aHandled);
     if not aHandled then
       FreeAndNilSafe(aControl);

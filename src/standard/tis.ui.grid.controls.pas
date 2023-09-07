@@ -50,9 +50,10 @@ type
     fReadOnly: Boolean;
   protected
     fInternal: TWinControl;
+    fOwner: TWinControl;
     procedure SetReadOnly(aValue: Boolean); virtual;
   public
-    constructor Create; reintroduce; virtual;
+    constructor Create(aOwner: TWinControl); reintroduce; virtual;
     destructor Destroy; override;
     /// access to the internal (generic) WinControl instance
     function Internal: TWinControl;
@@ -74,7 +75,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TEdit;
@@ -82,7 +83,7 @@ type
 
   TTisGridPasswordEditControl = class(TTisGridEditControl)
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
   end;
 
   /// control used for all Date data type
@@ -90,7 +91,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     procedure SetOnKeyDown(aEvent: TKeyEvent); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
@@ -100,7 +101,7 @@ type
   /// control used for all Time data type
   TTisGridTimeEditControl = class(TTisGridDateEditControl)
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
   end;
@@ -108,7 +109,7 @@ type
   /// control used for all DateTime data type
   TTisGridDateTimeEditControl = class(TTisGridDateEditControl)
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
   end;
@@ -118,7 +119,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TSpinEdit;
@@ -129,7 +130,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TFloatSpinEdit;
@@ -140,7 +141,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TCheckBoxThemed;
@@ -151,7 +152,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TMemo;
@@ -169,7 +170,7 @@ type
   protected
     procedure SetReadOnly(aValue: Boolean); override;
   public
-    constructor Create; override;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: TTisSearchEdit;
@@ -178,9 +179,9 @@ type
 {$ifdef FRAMEVIEWER09_ENABLED}
 
   /// control used for display HTML
-  TTisHtmlControl = class(TTisGridControl)
+  TTisGridHtmlControl = class(TTisGridControl)
   public
-    constructor Create(aOwner: TWinControl); reintroduce;
+    constructor Create(aOwner: TWinControl); override;
     function GetValue: Variant; override;
     procedure SetValue(const aValue: Variant); override;
     function Edit: THtmlViewer;
@@ -199,9 +200,10 @@ begin
   fReadOnly := aValue;
 end;
 
-constructor TTisGridControl.Create;
+constructor TTisGridControl.Create(aOwner: TWinControl);
 begin
   inherited Create;
+  fOwner := aOwner;
 end;
 
 destructor TTisGridControl.Destroy;
@@ -243,9 +245,9 @@ begin
   Edit.ReadOnly := aValue;
 end;
 
-constructor TTisGridEditControl.Create;
+constructor TTisGridEditControl.Create(aOwner: TWinControl);
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TEdit.Create(nil);
   Edit.Clear;
 end;
@@ -275,7 +277,7 @@ end;
 
 constructor TTisGridPasswordEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   Edit.PasswordChar := '*';
 end;
 
@@ -289,7 +291,7 @@ end;
 
 constructor TTisGridDateEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TDateTimePicker.Create(nil);
   Edit.Kind := dtkDate;
 end;
@@ -322,7 +324,7 @@ end;
 
 constructor TTisGridTimeEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   Edit.Kind := dtkTime;
 end;
 
@@ -343,7 +345,7 @@ end;
 
 constructor TTisGridDateTimeEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   Edit.Kind := dtkDateTime;
 end;
 
@@ -375,7 +377,7 @@ end;
 
 constructor TTisGridIntegerEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TSpinEdit.Create(nil);
 end;
 
@@ -411,7 +413,7 @@ end;
 
 constructor TTisGridFloatEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TFloatSpinEdit.Create(nil);
 end;
 
@@ -438,7 +440,7 @@ end;
 
 constructor TTisGridBooleanEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TCheckBoxThemed.Create(nil);
   Edit.Caption := ' ';
 end;
@@ -472,7 +474,7 @@ end;
 
 constructor TTisGridMemoControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TMemo.Create(nil);
   Edit.Clear;
 end;
@@ -505,7 +507,7 @@ end;
 
 constructor TTisGridSearchEditControl.Create;
 begin
-  inherited Create;
+  inherited Create(aOwner);
   fInternal := TTisSearchEdit.Create(nil);
   Edit.AutoComplete := True;
 end;
@@ -533,14 +535,14 @@ end;
 
 {$ifdef FRAMEVIEWER09_ENABLED}
 
-{ TTisHtmlControl }
+{ TTisGridHtmlControl }
 
-constructor TTisHtmlControl.Create(aOwner: TWinControl);
+constructor TTisGridHtmlControl.Create(aOwner: TWinControl);
 begin
-  inherited Create;
-  fInternal := THtmlViewer.Create(nil);
-  Edit.Clear;
+  inherited Create(aOwner);
+  fInternal := THtmlViewer.Create(aOwner);
   Edit.Parent := aOwner;
+  Edit.Clear;
   Edit.ScrollBars := ssNone;
   Edit.LoadCursor := crNone;
   Edit.DefBackground := clWhite;
@@ -548,7 +550,7 @@ begin
   Edit.DefFontSize := Screen.SystemFont.Size;
 end;
 
-function TTisHtmlControl.GetValue: Variant;
+function TTisGridHtmlControl.GetValue: Variant;
 begin
   if Edit.Text = '' then
     result := NULL
@@ -556,12 +558,12 @@ begin
     result := Edit.Text;
 end;
 
-procedure TTisHtmlControl.SetValue(const aValue: Variant);
+procedure TTisGridHtmlControl.SetValue(const aValue: Variant);
 begin
   Edit.Text := aValue;
 end;
 
-function TTisHtmlControl.Edit: THtmlViewer;
+function TTisGridHtmlControl.Edit: THtmlViewer;
 begin
   result := fInternal as THtmlViewer;
 end;
