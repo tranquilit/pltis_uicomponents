@@ -62,6 +62,9 @@ type
     cdtBoolean,
     cdtMemo,
     cdtJson,
+    {$ifdef FRAMEVIEWER09_ENABLED}
+    cdtHtml,
+    {$endif FRAMEVIEWER09_ENABLED}
     /// it shows only "***" in Columns and Editor
     // - this type will not be exported
     cdtPassword
@@ -1147,6 +1150,9 @@ uses
   GraphUtil,
   IniFiles,
   Variants,
+{$ifdef FRAMEVIEWER09_ENABLED}
+  HtmlView,
+{$endif FRAMEVIEWER09_ENABLED}
   tis.ui.grid.editor,
   tis.ui.grid.copyspecial;
 
@@ -1165,6 +1171,9 @@ const
     (Caption: 'Boolean'),
     (Caption: 'Memo'),
     (Caption: 'JSON'),
+    {$ifdef FRAMEVIEWER09_ENABLED}
+    (Caption: 'HTML'),
+    {$endif FRAMEVIEWER09_ENABLED}
     (Caption: 'Password')
   );
 
@@ -1297,6 +1306,9 @@ begin
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
   ControlClasses[cdtMemo] := TTisGridMemoControl;
   ControlClasses[cdtJson] := TTisGridEditControl;
+{$ifdef FRAMEVIEWER09_ENABLED}
+  ControlClasses[cdtHtml] := TTisGridHtmlControl;
+{$endif FRAMEVIEWER09_ENABLED}
   ControlClasses[cdtPassword] := TTisGridPasswordEditControl;
 end;
 
@@ -3010,13 +3022,18 @@ begin
   end
   else
   begin
-    aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
     vNodeData := fNodeAdapter.GetData(aNode);
     vCol := FindColumnByIndex(aColumn);
     if Assigned(vNodeData^.Data) then
     begin
       if Assigned(vCol) then
       begin
+        {$ifdef FRAMEVIEWER09_ENABLED}
+        // it will be print an image and the original text should be hide
+        if vCol.DataType = cdtHtml then
+          exit;
+        {$endif FRAMEVIEWER09_ENABLED}
+        aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
         if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
           vDateTime := Iso8601ToDateTime(aText);
@@ -3240,6 +3257,54 @@ begin
   inherited PrepareCell(PaintInfo, WindowOrgX, MaxWidth);
 end;
 
+{$ifdef FRAMEVIEWER09_ENABLED}
+
+procedure PrintHtmlAsImage(aGrid: TTisGrid; const aHtml: string; aTargetCanvas: TCanvas;
+  const aCellRect: TRect; var aContentRect: TRect);
+
+  procedure HtmlToBitmap(const aHtml: string; aBitmap: TBitmap);
+  var
+    vHtml: THtmlViewer;
+  begin
+    vHtml := THtmlViewer.Create(aGrid);
+    try
+      vHtml.Visible := False;         // it SHOULD be invisible first, otherwise it will be buggy
+      vHtml.Parent := aGrid;          // it needs a valid Parent...
+      vHtml.Left := aGrid.Width * 2;  // ...but it should not apper on the Parent
+      vHtml.ScrollBars := ssNone;
+      vHtml.LoadCursor := crNone;
+      vHtml.DefBackground := clWhite;
+      vHtml.DefFontName := Screen.SystemFont.Name;
+      vHtml.DefFontSize := Screen.SystemFont.Size;
+      //vHtml.LoadFromString(aHtml);
+      vHtml.Text := aHtml;
+      vHtml.Width := aBitmap.Width;
+      vHtml.Height := aBitmap.Height;
+      vHtml.Visible := True;
+      vHtml.PaintTo(aBitmap.Canvas, 0, 0);
+    finally
+      vHtml.Free;
+    end;
+  end;
+
+var
+  vBitmap: TBitmap;
+begin
+  vBitmap := TBitmap.Create;
+  try
+    vBitmap.Width := aCellRect.Width;
+    vBitmap.Height := aCellRect.Height;
+    //HtmlToBitmap(Format(_HTML_TEMPLATE, [Grid.NodeAdapter.GetValueAsSimpleString(Node, Column)]), vBitmap);
+    HtmlToBitmap(aHtml, vBitmap);
+    aContentRect.Left := aContentRect.Left - 4; // for better adjust on the left
+    aTargetCanvas.StretchDraw(aContentRect, vBitmap);
+  finally
+    vBitmap.Free;
+  end;
+end;
+
+{$endif FRAMEVIEWER09_ENABLED}
+
 procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
   aColumn: TColumnIndex; aCellPaintMode: TVTCellPaintMode; aCellRect: TRect;
   var aContentRect: TRect);
@@ -3275,6 +3340,10 @@ begin
       aCanvas.FillRect(aCellRect);
     end;
   end;
+  {$ifdef FRAMEVIEWER09_ENABLED}
+  if Header.Columns.IsValidColumn(aColumn) and (FindColumnByIndex(aColumn).DataType = cdtHtml) then
+    PrintHtmlAsImage(self, NodeAdapter.GetValueAsSimpleString(aNode, aColumn), aCanvas, aCellRect, aContentRect);
+  {$endif FRAMEVIEWER09_ENABLED}
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
 
