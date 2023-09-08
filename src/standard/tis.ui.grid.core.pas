@@ -1432,7 +1432,7 @@ begin
     end
     else
       fControl.SetValue(vValue^);
-    if (vCol.DataType = cdtHtml) and fValueIsString then
+    if vCol.DataType = cdtHtml then
       fControl.SetValue(fGrid.DoHtmlRendering(fNode, vCol));
     fGrid.DoPrepareEditor(fNode, vCol, fControl);
   end

@@ -13,7 +13,10 @@
         <OtherUnitFiles Value="..\src\core;..\src\standard;..\src\3rd"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)\standard"/>
       </SearchPaths>
-      <Conditionals Value="if FRAMEVIEWER_ENABLED then
+      <Conditionals Value="// check FRAMEVIEWER_ENABLED for show HTML in cells
+// - the FrameViewer09 package will be required for the project
+// - use Grid.OnHtmlRendering event to personalize it
+if FRAMEVIEWER_ENABLED then
 begin
   UnitPath += &apos;$PkgOutDir(FrameViewer09)&apos;
             + &apos;;$PkgOutDir(printer4lazarus)&apos;

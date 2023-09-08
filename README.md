@@ -132,8 +132,11 @@ Please submit pull requests for non-validated versions.
 
 First of all, you should have these libraries installed in your environment:
 - [mORMot 2](https://github.com/synopse/mORMot2) — An Open Source Client-Server ORM/SOA framework in modern Object Pascal
+- [HtmlViewer](https://github.com/BerndGabriel/HtmlViewer) — The HtmlViewer component set consists of the THtmlViewer, TFrameViewer,
+and TFrameBrowser components — which can be removed by uncheck FRAMEVIEWER_ENABLED conditional
 - [pltis_utils](https://github.com/tranquilit/pltis_utils) — Tranquil IT utilities 
 - [pltis_virtualtrees](https://github.com/tranquilit/pltis_virtualtrees) — Tranquil IT modified version of [virtualtreeview_package](https://gitlab.com/freepascal.org/lazarus/lazarus/-/tree/main/components/virtualtreeview), which is compilable on Lazarus stable and up.
+
 
 ## Demo
 
