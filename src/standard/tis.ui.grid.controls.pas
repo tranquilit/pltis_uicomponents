@@ -16,22 +16,15 @@ uses
   SysUtils,
   Controls,
   Menus,
-  Graphics,
   StdCtrls,
   LCLIntf,
   LCLType,
-  LazControls,
   Forms,
   Dialogs,
-  ExtCtrls,
   Buttons,
   DateTimePicker,
   Spin,
   CheckBoxThemed,
-  VirtualTrees,
-{$ifdef FRAMEVIEWER09_ENABLED}
-  HtmlView,
-{$endif FRAMEVIEWER09_ENABLED}
   mormot.core.base,
   mormot.core.datetime,
   mormot.core.variants,
@@ -175,19 +168,6 @@ type
     procedure SetValue(const aValue: Variant); override;
     function Edit: TTisSearchEdit;
   end;
-
-{$ifdef FRAMEVIEWER09_ENABLED}
-
-  /// control used for display HTML
-  TTisGridHtmlControl = class(TTisGridControl)
-  public
-    constructor Create(aOwner: TWinControl); override;
-    function GetValue: Variant; override;
-    procedure SetValue(const aValue: Variant); override;
-    function Edit: THtmlViewer;
-  end;
-
-{$endif FRAMEVIEWER09_ENABLED}
 
 implementation
 
@@ -532,42 +512,5 @@ function TTisGridSearchEditControl.Edit: TTisSearchEdit;
 begin
   result := fInternal as TTisSearchEdit;
 end;
-
-{$ifdef FRAMEVIEWER09_ENABLED}
-
-{ TTisGridHtmlControl }
-
-constructor TTisGridHtmlControl.Create(aOwner: TWinControl);
-begin
-  inherited Create(aOwner);
-  fInternal := THtmlViewer.Create(aOwner);
-  Edit.Parent := aOwner;
-  Edit.Clear;
-  Edit.ScrollBars := ssNone;
-  Edit.LoadCursor := crNone;
-  Edit.DefBackground := clWhite;
-  Edit.DefFontName := Screen.SystemFont.Name;
-  Edit.DefFontSize := Screen.SystemFont.Size;
-end;
-
-function TTisGridHtmlControl.GetValue: Variant;
-begin
-  if Edit.Text = '' then
-    result := NULL
-  else
-    result := Edit.Text;
-end;
-
-procedure TTisGridHtmlControl.SetValue(const aValue: Variant);
-begin
-  Edit.Text := aValue;
-end;
-
-function TTisGridHtmlControl.Edit: THtmlViewer;
-begin
-  result := fInternal as THtmlViewer;
-end;
-
-{$endif FRAMEVIEWER09_ENABLED}
 
 end.

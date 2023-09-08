@@ -10,10 +10,10 @@
       <PathDelim Value="\"/>
       <SearchPaths>
         <IncludeFiles Value="..\src"/>
-        <OtherUnitFiles Value="..\src\core;..\src\standard"/>
+        <OtherUnitFiles Value="..\src\core;..\src\standard;..\src\3rd"/>
         <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\$(LCLWidgetType)\standard"/>
       </SearchPaths>
-      <Conditionals Value="if FRAMEVIEWER09_ENABLED then
+      <Conditionals Value="if FRAMEVIEWER_ENABLED then
 begin
   UnitPath += &apos;$PkgOutDir(FrameViewer09)&apos;
             + &apos;;$PkgOutDir(printer4lazarus)&apos;
@@ -35,14 +35,15 @@ end;"/>
         </Debugging>
       </Linking>
       <Other>
+        <CustomOptions Value="-dFRAMEVIEWER_ENABLED"/>
         <OtherDefines Count="1">
-          <Define0 Value="FRAMEVIEWER09_ENABLED"/>
+          <Define0 Value="FRAMEVIEWER_ENABLED"/>
         </OtherDefines>
       </Other>
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="24">
+    <Files Count="25">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -140,6 +141,10 @@ end;"/>
         <Filename Value="..\src\standard\tis.ui.formtimeout.pas"/>
         <UnitName Value="tis.ui.formtimeout"/>
       </Item24>
+      <Item25>
+        <Filename Value="..\src\3rd\tis.frameviewer.pas"/>
+        <UnitName Value="tis.frameviewer"/>
+      </Item25>
     </Files>
     <CompatibilityMode Value="True"/>
     <i18n>

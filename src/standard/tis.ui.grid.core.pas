@@ -44,7 +44,8 @@ uses
   tis.core.utils,
   tis.ui.resourcestrings,
   tis.ui.searchedit,
-  tis.ui.grid.controls;
+  tis.ui.grid.controls,
+  tis.frameviewer;
 
 type
   ETisGrid = class(Exception);
@@ -62,9 +63,7 @@ type
     cdtBoolean,
     cdtMemo,
     cdtJson,
-    {$ifdef FRAMEVIEWER09_ENABLED}
     cdtHtml,
-    {$endif FRAMEVIEWER09_ENABLED}
     /// it shows only "***" in Columns and Editor
     // - this type will not be exported
     cdtPassword
@@ -571,10 +570,8 @@ type
   // - use it to force showing (or not) some node by seting aHandled=TRUE
   TOnGridNodeFiltering = procedure(aSender: TTisGrid; aNode: PVirtualNode; var aHandled: Boolean) of object;
 
-  {$ifdef FRAMEVIEWER09_ENABLED}
   /// event that allows apply a HTML template for the data
-  TOnGridHtmlRendering = function(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn): string of object;
-  {$endif FRAMEVIEWER09_ENABLED}
+  TOnGridHtmlRendering = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn; var aHtmlResult: string) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -616,9 +613,7 @@ type
     fOnExportCustomContent: TOnGridExportCustomContent;
     fOnGetMetaData: TOnGridGetMetaData;
     fOnNodeFiltering: TOnGridNodeFiltering;
-    {$ifdef FRAMEVIEWER09_ENABLED}
     fOnHtmlRendering: TOnGridHtmlRendering;
-    {$endif FRAMEVIEWER09_ENABLED}
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -755,9 +750,7 @@ type
     procedure DoAfterDataChange; virtual;
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
-    {$ifdef FRAMEVIEWER09_ENABLED}
-    function DoHtmlRendering(aNode: PVirtualNode; const aColumn: TTisGridColumn; const aHtml: string): string; virtual;
-    {$endif FRAMEVIEWER09_ENABLED}
+    function DoHtmlRendering(aNode: PVirtualNode; const aColumn: TTisGridColumn): string; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1153,10 +1146,8 @@ type
     /// event that allows change aNode.States after it was changed
     // - use it to force showing (or not) some node
     property OnNodeFiltering: TOnGridNodeFiltering read fOnNodeFiltering write fOnNodeFiltering;
-    {$ifdef FRAMEVIEWER09_ENABLED}
     /// event that allows apply a HTML template for the data
     property OnHtmlRendering: TOnGridHtmlRendering read fOnHtmlRendering write fOnHtmlRendering;
-    {$endif FRAMEVIEWER09_ENABLED}
   end;
 
 implementation
@@ -1165,9 +1156,6 @@ uses
   GraphUtil,
   IniFiles,
   Variants,
-{$ifdef FRAMEVIEWER09_ENABLED}
-  HtmlView,
-{$endif FRAMEVIEWER09_ENABLED}
   tis.ui.grid.editor,
   tis.ui.grid.copyspecial;
 
@@ -1186,9 +1174,7 @@ const
     (Caption: 'Boolean'),
     (Caption: 'Memo'),
     (Caption: 'JSON'),
-    {$ifdef FRAMEVIEWER09_ENABLED}
     (Caption: 'HTML'),
-    {$endif FRAMEVIEWER09_ENABLED}
     (Caption: 'Password')
   );
 
@@ -1321,9 +1307,7 @@ begin
   ControlClasses[cdtBoolean] := TTisGridBooleanEditControl;
   ControlClasses[cdtMemo] := TTisGridMemoControl;
   ControlClasses[cdtJson] := TTisGridEditControl;
-{$ifdef FRAMEVIEWER09_ENABLED}
   ControlClasses[cdtHtml] := TTisGridHtmlControl;
-{$endif FRAMEVIEWER09_ENABLED}
   ControlClasses[cdtPassword] := TTisGridPasswordEditControl;
 end;
 
@@ -1448,10 +1432,8 @@ begin
     end
     else
       fControl.SetValue(vValue^);
-    {$ifdef FRAMEVIEWER09_ENABLED}
     if (vCol.DataType = cdtHtml) and fValueIsString then
-      fControl.SetValue(fGrid.DoHtmlRendering(fNode, vCol, vValue^));
-    {$endif FRAMEVIEWER09_ENABLED}
+      fControl.SetValue(fGrid.DoHtmlRendering(fNode, vCol));
     fGrid.DoPrepareEditor(fNode, vCol, fControl);
   end
   else
@@ -3047,11 +3029,9 @@ begin
     begin
       if Assigned(vCol) then
       begin
-        {$ifdef FRAMEVIEWER09_ENABLED}
         // it will be print an image and the original text should be hide
         if vCol.DataType = cdtHtml then
           exit;
-        {$endif FRAMEVIEWER09_ENABLED}
         aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
         if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
@@ -3276,57 +3256,44 @@ begin
   inherited PrepareCell(PaintInfo, WindowOrgX, MaxWidth);
 end;
 
-{$ifdef FRAMEVIEWER09_ENABLED}
-
-procedure PrintHtmlAsImage(aGrid: TTisGrid; const aHtml: string; aTargetCanvas: TCanvas;
-  const aCellRect: TRect; var aContentRect: TRect);
-
-  procedure HtmlToBitmap(const aHtml: string; aBitmap: TBitmap);
-  var
-    vHtml: THtmlViewer;
-  begin
-    vHtml := THtmlViewer.Create(aGrid);
-    try
-      vHtml.Visible := False;         // it SHOULD be invisible first, otherwise it will be buggy
-      vHtml.Parent := aGrid;          // it needs a valid Parent...
-      vHtml.Left := aGrid.Width * 2;  // ...but it should not apper on the Parent
-      vHtml.ScrollBars := ssNone;
-      vHtml.LoadCursor := crNone;
-      vHtml.DefBackground := clWhite;
-      vHtml.DefFontName := Screen.SystemFont.Name;
-      vHtml.DefFontSize := Screen.SystemFont.Size;
-      //vHtml.LoadFromString(aHtml);
-      vHtml.Text := aHtml;
-      vHtml.Width := aBitmap.Width;
-      vHtml.Height := aBitmap.Height;
-      vHtml.Visible := True;
-      vHtml.PaintTo(aBitmap.Canvas, 0, 0);
-    finally
-      vHtml.Free;
-    end;
-  end;
-
-var
-  vBitmap: TBitmap;
-begin
-  vBitmap := TBitmap.Create;
-  try
-    vBitmap.Width := aCellRect.Width;
-    vBitmap.Height := aCellRect.Height;
-    //HtmlToBitmap(Format(_HTML_TEMPLATE, [Grid.NodeAdapter.GetValueAsSimpleString(Node, Column)]), vBitmap);
-    HtmlToBitmap(aHtml, vBitmap);
-    aContentRect.Left := aContentRect.Left - 4; // for better adjust on the left
-    aTargetCanvas.StretchDraw(aContentRect, vBitmap);
-  finally
-    vBitmap.Free;
-  end;
-end;
-
-{$endif FRAMEVIEWER09_ENABLED}
-
 procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
   aColumn: TColumnIndex; aCellPaintMode: TVTCellPaintMode; aCellRect: TRect;
   var aContentRect: TRect);
+
+  procedure PrintHtmlAsImage(aGrid: TTisGrid; const aHtml: string; aTargetCanvas: TCanvas;
+    const aCellRect: TRect; var aContentRect: TRect);
+
+    procedure HtmlToBitmap(const aHtml: string; aBitmap: TBitmap);
+    var
+      vHtml: TTisHtmlViewer;
+    begin
+      vHtml := TTisHtmlViewer.Create(aGrid);
+      try
+        vHtml.Text := aHtml;
+        vHtml.Width := aBitmap.Width;
+        vHtml.Height := aBitmap.Height;
+        vHtml.Visible := True;
+        vHtml.PaintTo(aBitmap.Canvas, 0, 0);
+      finally
+        vHtml.Free;
+      end;
+    end;
+
+  var
+    vBitmap: TBitmap;
+  begin
+    vBitmap := TBitmap.Create;
+    try
+      vBitmap.Width := aCellRect.Width;
+      vBitmap.Height := aCellRect.Height;
+      HtmlToBitmap(aHtml, vBitmap);
+      aContentRect.Left := aContentRect.Left - 4; // for better adjust on the left
+      aTargetCanvas.StretchDraw(aContentRect, vBitmap);
+    finally
+      vBitmap.Free;
+    end;
+  end;
+
 var
   vColumn: TTisGridColumn;
 begin
@@ -3361,19 +3328,12 @@ begin
       aCanvas.FillRect(aCellRect);
     end;
   end;
-  {$ifdef FRAMEVIEWER09_ENABLED}
   if Header.Columns.IsValidColumn(aColumn) then
   begin
     vColumn := FindColumnByIndex(aColumn);
     if vColumn.DataType = cdtHtml then
-    begin
-      PrintHtmlAsImage(
-        self,
-        DoHtmlRendering(aNode, vColumn, NodeAdapter.GetValueAsSimpleString(aNode, aColumn)),
-        aCanvas, aCellRect, aContentRect);
-    end;
+      PrintHtmlAsImage(self, DoHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
   end;
-  {$endif FRAMEVIEWER09_ENABLED}
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
 
@@ -4181,16 +4141,13 @@ begin
     fOnNodeFiltering(self, aNode, result);
 end;
 
-{$ifdef FRAMEVIEWER09_ENABLED}
 function TTisGrid.DoHtmlRendering(aNode: PVirtualNode;
-  const aColumn: TTisGridColumn; const aHtml: string): string;
+  const aColumn: TTisGridColumn): string;
 begin
+  result := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index);
   if Assigned(fOnHtmlRendering) then
-    result := fOnHtmlRendering(self, aNode, aColumn)
-  else
-    result := aHtml;
+    fOnHtmlRendering(self, aNode, aColumn, result);
 end;
-{$endif FRAMEVIEWER09_ENABLED}
 
 function TTisGrid.GetExportDialogFilter: string;
 var
