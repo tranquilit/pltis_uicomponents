@@ -63,7 +63,7 @@ var
   vParent: TWinControl;
 begin
   inherited Create(aOwner);
-  vParent := aOwner as TWinControl;
+  vParent := Application.MainForm;
   Visible := False;           // it SHOULD be invisible first, otherwise it will be buggy
   Parent := vParent;          // it needs a valid Parent...
   Left := vParent.Width * 2;  // ...but it should not apper on the Parent
