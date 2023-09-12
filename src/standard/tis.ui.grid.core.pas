@@ -3373,11 +3373,14 @@ begin
       aCanvas.FillRect(aCellRect);
     end;
   end;
-  if Header.Columns.IsValidColumn(aColumn) then
+  if not (csDesigning in ComponentState) then
   begin
-    vColumn := FindColumnByIndex(aColumn);
-    if vColumn.DataType = cdtHtml then
-      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
+    if Header.Columns.IsValidColumn(aColumn) then
+    begin
+      vColumn := FindColumnByIndex(aColumn);
+      if vColumn.DataType = cdtHtml then
+        PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
+    end;
   end;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
