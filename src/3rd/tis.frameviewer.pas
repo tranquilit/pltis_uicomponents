@@ -35,10 +35,14 @@ uses
   tis.ui.grid.controls;
 
 type
+
+  { TTisHtmlViewer }
+
   TTisHtmlViewer = class(THtmlViewer)
   public
     /// initialize some required properties
     constructor Create(aOwner: TComponent); override;
+    procedure HTMLPaintPublic(ACanvas: TCanvas; const ARect: TRect);
   end;
 
 {$endif FRAMEVIEWER_ENABLED}
@@ -66,12 +70,16 @@ begin
   vParent := Application.MainForm;
   Visible := False;           // it SHOULD be invisible first, otherwise it will be buggy
   Parent := vParent;          // it needs a valid Parent...
-  Left := vParent.Width * 2;  // ...but it should not apper on the Parent
   ScrollBars := ssNone;
   LoadCursor := crNone;
   DefBackground := clWhite;
   DefFontName := Screen.SystemFont.Name;
   DefFontSize := Screen.SystemFont.Size;
+end;
+
+procedure TTisHtmlViewer.HTMLPaintPublic(ACanvas: TCanvas; const ARect: TRect);
+begin
+  HTMLPaint(ACanvas, ARect);
 end;
 
 {$endif FRAMEVIEWER_ENABLED}
