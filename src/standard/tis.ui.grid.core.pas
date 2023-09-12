@@ -767,7 +767,7 @@ type
     procedure DoAfterDataChange; virtual;
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
-    function DoBeforeHtmlRendering(aNode: PVirtualNode; const aColumn: TTisGridColumn): string; virtual;
+    function DoBeforeHtmlRendering(aNode: PVirtualNode; aColumn: TTisGridColumn): string; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -4197,10 +4197,11 @@ begin
 end;
 
 function TTisGrid.DoBeforeHtmlRendering(aNode: PVirtualNode;
-  const aColumn: TTisGridColumn): string;
+  aColumn: TTisGridColumn): string;
 var
   vHandled: Boolean;
 begin
+  result := '';
   vHandled := False;
   if Assigned(fOnBeforeHtmlRendering) then
     fOnBeforeHtmlRendering(self, GetNodeAsPDocVariantData(aNode), aColumn, result, vHandled);
