@@ -164,16 +164,25 @@ type
     property CustomFormat: string read fCustomFormat write fCustomFormat;
   end;
 
+  TTisGridColumnHtmlOptions = class(TPersistent)
+  private
+    fMustacheTemplate: string;
+  public
+    property MustacheTemplate: string read fMustacheTemplate write fMustacheTemplate;
+  end;
+
   /// data type options for a column
   TTisGridColumnDataTypeOptions = class(TPersistent)
   private
     fDateTimeOptions: TTisGridColumnDateTimeOptions;
+    fHtmlOptions: TTisGridColumnHtmlOptions;
   public
     constructor Create; reintroduce;
     destructor Destroy; override;
     procedure AssignTo(aDest: TPersistent); override;
   published
     property DateTimeOptions: TTisGridColumnDateTimeOptions read fDateTimeOptions write fDateTimeOptions;
+    property HtmlOptions: TTisGridColumnHtmlOptions read fHtmlOptions write fHtmlOptions;
   end;
 
   /// filter options for header popup menu
@@ -567,11 +576,13 @@ type
   TOnGridGetMetaData = procedure(aSender: TTisGrid; var aMetaData: RawUtf8) of object;
 
   /// event that allows change aNode.States after it was changed
-  // - use it to force showing (or not) some node by seting aHandled=TRUE
+  // - use it to force showing (or not) some node by setting aHandled=TRUE
   TOnGridNodeFiltering = procedure(aSender: TTisGrid; aNode: PVirtualNode; var aHandled: Boolean) of object;
 
-  /// event that allows apply a HTML template for the data
-  TOnGridHtmlRendering = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn; var aHtmlResult: string) of object;
+  /// event that allows overriden the default HTML rendering
+  // - set aHandled=TRUE, if you overriden aHtmlResult
+  TOnGridBeforeHtmlRendering = procedure(aSender: TTisGrid; aRowData: PDocVariantData; aColumn: TTisGridColumn;
+    var aHtmlResult: string; var aHandled: Boolean) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -613,7 +624,7 @@ type
     fOnExportCustomContent: TOnGridExportCustomContent;
     fOnGetMetaData: TOnGridGetMetaData;
     fOnNodeFiltering: TOnGridNodeFiltering;
-    fOnHtmlRendering: TOnGridHtmlRendering;
+    fOnBeforeHtmlRendering: TOnGridBeforeHtmlRendering;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -750,7 +761,7 @@ type
     procedure DoAfterDataChange; virtual;
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
-    function DoHtmlRendering(aNode: PVirtualNode; const aColumn: TTisGridColumn): string; virtual;
+    function DoBeforeHtmlRendering(aNode: PVirtualNode; const aColumn: TTisGridColumn): string; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1147,7 +1158,7 @@ type
     // - use it to force showing (or not) some node
     property OnNodeFiltering: TOnGridNodeFiltering read fOnNodeFiltering write fOnNodeFiltering;
     /// event that allows apply a HTML template for the data
-    property OnHtmlRendering: TOnGridHtmlRendering read fOnHtmlRendering write fOnHtmlRendering;
+    property OnBeforeHtmlRendering: TOnGridBeforeHtmlRendering read fOnBeforeHtmlRendering write fOnBeforeHtmlRendering;
   end;
 
 implementation
@@ -1430,10 +1441,10 @@ begin
       vDateTime := vCol.DataTypeOptions.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue^)));
       fControl.SetValue(DateTimeToIso8601(vDateTime, True));
     end
+    else if vCol.DataType = cdtHtml then
+      fControl.SetValue(fGrid.DoBeforeHtmlRendering(fNode, vCol))
     else
       fControl.SetValue(vValue^);
-    if vCol.DataType = cdtHtml then
-      fControl.SetValue(fGrid.DoHtmlRendering(fNode, vCol));
     fGrid.DoPrepareEditor(fNode, vCol, fControl);
   end
   else
@@ -1501,11 +1512,13 @@ constructor TTisGridColumnDataTypeOptions.Create;
 begin
   inherited Create;
   fDateTimeOptions := TTisGridColumnDateTimeOptions.Create;
+  fHtmlOptions := TTisGridColumnHtmlOptions.Create;
 end;
 
 destructor TTisGridColumnDataTypeOptions.Destroy;
 begin
-  fDateTimeOptions.Destroy;
+  fDateTimeOptions.Free;
+  fHtmlOptions.Free;
   inherited Destroy;
 end;
 
@@ -3331,7 +3344,7 @@ begin
   begin
     vColumn := FindColumnByIndex(aColumn);
     if vColumn.DataType = cdtHtml then
-      PrintHtmlAsImage(self, DoHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
+      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
   end;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
@@ -4140,12 +4153,22 @@ begin
     fOnNodeFiltering(self, aNode, result);
 end;
 
-function TTisGrid.DoHtmlRendering(aNode: PVirtualNode;
+function TTisGrid.DoBeforeHtmlRendering(aNode: PVirtualNode;
   const aColumn: TTisGridColumn): string;
+var
+  vHandled: Boolean;
 begin
-  result := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index);
-  if Assigned(fOnHtmlRendering) then
-    fOnHtmlRendering(self, aNode, aColumn, result);
+  vHandled := False;
+  if Assigned(fOnBeforeHtmlRendering) then
+    fOnBeforeHtmlRendering(self, GetNodeAsPDocVariantData(aNode), aColumn, result, vHandled);
+  if not vHandled then
+  begin
+    // if not handled, and there is a template, use it
+    result := aColumn.DataTypeOptions.HtmlOptions.MustacheTemplate;
+    // if there is no template, assume that the cell data already contains a plain HTML to be rendered
+    if result = '' then
+      result := NodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index);
+  end;
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
