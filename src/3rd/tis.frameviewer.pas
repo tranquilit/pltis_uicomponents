@@ -67,7 +67,7 @@ var
   vParent: TWinControl;
 begin
   inherited Create(aOwner);
-  vParent := Application.MainForm;
+  vParent := aOwner as TWinControl;
   Visible := False;           // it SHOULD be invisible first, otherwise it will be buggy
   Parent := vParent;          // it needs a valid Parent...
   ScrollBars := ssNone;
