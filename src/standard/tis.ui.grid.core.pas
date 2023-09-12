@@ -168,6 +168,8 @@ type
   private
     fMustacheTemplate: string;
   public
+    procedure AssignTo(aDest: TPersistent); override;
+  published
     property MustacheTemplate: string read fMustacheTemplate write fMustacheTemplate;
   end;
 
@@ -1192,6 +1194,21 @@ const
   CHILD_COLUMN_NAME_INDEX = 0;
   CHILD_COLUMN_VALUE_INDEX = 1;
 
+{ TTisGridColumnHtmlOptions }
+
+procedure TTisGridColumnHtmlOptions.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisGridColumnHtmlOptions then
+  begin
+    with TTisGridColumnHtmlOptions(aDest) do
+    begin
+      MustacheTemplate := self.MustacheTemplate;
+    end;
+  end
+  else
+    inherited AssignTo(aDest);
+end;
+
 { TTisColumnDataTypeAdapter }
 
 function TTisColumnDataTypeAdapter.EnumToCaption(const aValue: TTisColumnDataType): string;
@@ -1529,6 +1546,7 @@ begin
     with TTisGridColumnDataTypeOptions(aDest) do
     begin
       DateTimeOptions.Assign(self.DateTimeOptions);
+      HtmlOptions.Assign(self.HtmlOptions);
     end;
   end
   else
