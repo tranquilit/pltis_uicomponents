@@ -3320,7 +3320,7 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
     var
       vHtml: TTisHtmlViewer;
     begin
-      vHtml := TTisHtmlViewer.Create(Application.MainForm);
+      vHtml := TTisHtmlViewer.Create(Owner);
       try
         vHtml.Text := aHtml;
         vHtml.Width := aBitmap.Width;

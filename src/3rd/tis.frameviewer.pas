@@ -70,6 +70,8 @@ begin
   vParent := aOwner as TWinControl;
   Visible := False;           // it SHOULD be invisible first, otherwise it will be buggy
   Parent := vParent;          // it needs a valid Parent...
+  Left := vParent.Width * 2;  // ...but it should not be visible for users...
+  Anchors := [akRight];       // ...staying away from them
   ScrollBars := ssNone;
   LoadCursor := crNone;
   DefBackground := clWhite;
@@ -77,9 +79,11 @@ begin
   DefFontSize := Screen.SystemFont.Size;
 end;
 
-procedure TTisHtmlViewer.HTMLPaintPublic(ACanvas: TCanvas; const ARect: TRect);
+procedure TTisHtmlViewer.HTMLPaintPublic(aCanvas: TCanvas; const aRect: TRect);
 begin
-  HTMLPaint(ACanvas, ARect);
+  Visible := True;             // needed, otherwise it will show a black retangle
+  //HTMLPaint(aCanvas, aRect); // it does not work, even if Visible is True...
+  PaintTo(aCanvas, 0, 0);      // ...should be this
 end;
 
 {$endif FRAMEVIEWER_ENABLED}
