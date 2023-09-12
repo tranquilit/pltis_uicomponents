@@ -3267,13 +3267,12 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
     var
       vHtml: TTisHtmlViewer;
     begin
-      vHtml := TTisHtmlViewer.Create(aGrid);
+      vHtml := TTisHtmlViewer.Create(Application.MainForm);
       try
         vHtml.Text := aHtml;
         vHtml.Width := aBitmap.Width;
         vHtml.Height := aBitmap.Height;
-        vHtml.Visible := True;
-        vHtml.PaintTo(aBitmap.Canvas, 0, 0);
+        vHtml.HTMLPaintPublic(aBitmap.Canvas, aCellRect);
       finally
         vHtml.Free;
       end;
