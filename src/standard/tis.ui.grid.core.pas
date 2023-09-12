@@ -168,12 +168,13 @@ type
   TTisGridColumnHtmlOptions = class(TPersistent)
   private
     fMustacheTemplate: TStrings;
+    procedure SetMustacheTemplate(aValue: TStrings);
   public
     constructor Create; reintroduce;
     destructor Destroy; override;
     procedure AssignTo(aDest: TPersistent); override;
   published
-    property MustacheTemplate: TStrings read fMustacheTemplate write fMustacheTemplate;
+    property MustacheTemplate: TStrings read fMustacheTemplate write SetMustacheTemplate;
   end;
 
   /// data type options for a column
@@ -1198,6 +1199,12 @@ const
   CHILD_COLUMN_VALUE_INDEX = 1;
 
 { TTisGridColumnHtmlOptions }
+
+procedure TTisGridColumnHtmlOptions.SetMustacheTemplate(aValue: TStrings);
+begin
+  if Assigned(aValue) then
+    fMustacheTemplate.Assign(aValue);
+end;
 
 constructor TTisGridColumnHtmlOptions.Create;
 begin
