@@ -29,6 +29,7 @@ uses
   Forms,
   Dialogs,
   Buttons,
+  TextStrings,
   VirtualTrees,
   mormot.core.base,
   mormot.core.data,
@@ -166,11 +167,13 @@ type
 
   TTisGridColumnHtmlOptions = class(TPersistent)
   private
-    fMustacheTemplate: string;
+    fMustacheTemplate: TStrings;
   public
+    constructor Create; reintroduce;
+    destructor Destroy; override;
     procedure AssignTo(aDest: TPersistent); override;
   published
-    property MustacheTemplate: string read fMustacheTemplate write fMustacheTemplate;
+    property MustacheTemplate: TStrings read fMustacheTemplate write fMustacheTemplate;
   end;
 
   /// data type options for a column
@@ -1196,13 +1199,25 @@ const
 
 { TTisGridColumnHtmlOptions }
 
+constructor TTisGridColumnHtmlOptions.Create;
+begin
+  inherited Create;
+  fMustacheTemplate := TTextStrings.Create;
+end;
+
+destructor TTisGridColumnHtmlOptions.Destroy;
+begin
+  fMustacheTemplate.Free;
+  inherited Destroy;
+end;
+
 procedure TTisGridColumnHtmlOptions.AssignTo(aDest: TPersistent);
 begin
   if aDest is TTisGridColumnHtmlOptions then
   begin
     with TTisGridColumnHtmlOptions(aDest) do
     begin
-      MustacheTemplate := self.MustacheTemplate;
+      MustacheTemplate.Assign(self.MustacheTemplate);
     end;
   end
   else
@@ -4182,7 +4197,7 @@ begin
   if not vHandled then
   begin
     // if not handled, and there is a template, use it
-    result := aColumn.DataTypeOptions.HtmlOptions.MustacheTemplate;
+    result := aColumn.DataTypeOptions.HtmlOptions.MustacheTemplate.Text;
     // if there is no template, assume that the cell data already contains a plain HTML to be rendered
     if result = '' then
       result := NodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index);
