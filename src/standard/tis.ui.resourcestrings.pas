@@ -61,6 +61,11 @@ resourcestring
   // form timeout
   rsFormTimeoutCaption = '%s (%d seconds remaining...)';
 
+  // frameviewer
+  rsFrameViewerSelectAll = 'Select all';
+  rsFrameViewerCopy = 'Copy';
+  rsFrameViewerCopyAsHtml = 'Copy as HTML';
+
 implementation
 
 uses

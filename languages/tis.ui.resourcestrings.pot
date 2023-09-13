@@ -6,6 +6,19 @@ msgstr "Content-Type: text/plain; charset=UTF-8"
 msgid "%s (%d seconds remaining...)"
 msgstr ""
 
+#: tis.ui.resourcestrings.rsframeviewercopy
+msgctxt "tis.ui.resourcestrings.rsframeviewercopy"
+msgid "Copy"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsframeviewercopyashtml
+msgid "Copy as HTML"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsframeviewerselectall
+msgid "Select all"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridadvancedcustomizecolumns
 msgid "Advanced customize of table..."
 msgstr ""
@@ -28,6 +41,7 @@ msgid "Confirm"
 msgstr ""
 
 #: tis.ui.resourcestrings.rsgridcopy
+msgctxt "tis.ui.resourcestrings.rsgridcopy"
 msgid "Copy"
 msgstr ""
 

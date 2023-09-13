@@ -31,7 +31,9 @@ uses
   Graphics,
   StdCtrls,
   Forms,
+  Menus,
   HtmlView,
+  tis.ui.resourcestrings,
   tis.ui.grid.controls;
 
 type
@@ -39,6 +41,11 @@ type
   { TTisHtmlViewer }
 
   TTisHtmlViewer = class(THtmlViewer)
+  protected
+    procedure FillPopupMenu; virtual;
+    procedure DoSelectAll(aSender: TObject); virtual;
+    procedure DoCopy(aSender: TObject); virtual;
+    procedure DoCopyAsHtml(aSender: TObject); virtual;
   public
     /// initialize some required properties
     constructor Create(aOwner: TComponent); override;
@@ -58,9 +65,52 @@ type
 
 implementation
 
+uses
+  Clipbrd;
+
 {$ifdef FRAMEVIEWER_ENABLED}
 
 { TTisHtmlViewer }
+
+procedure TTisHtmlViewer.FillPopupMenu;
+
+  procedure AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent);
+  var
+    vMenuItem: TMenuItem;
+  begin
+    vMenuItem := TMenuItem.Create(PopupMenu);
+    with vMenuItem do
+    begin
+      Caption := aCaption;
+      ShortCut := aShortcut;
+      OnClick := aEvent;
+    end;
+    PopupMenu.Items.Add(vMenuItem);
+  end;
+
+begin
+  if Assigned(PopupMenu) then
+    exit;
+  PopupMenu := TPopupMenu.Create(self);
+  AddItem(rsFrameViewerSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAll);
+  AddItem(rsFrameViewerCopy, ShortCut(Ord('C'), [ssCtrl]), @DoCopy);
+  AddItem(rsFrameViewerCopyAsHtml, ShortCut(Ord('C'), [ssCtrl, ssShift]), @DoCopyAsHtml);
+end;
+
+procedure TTisHtmlViewer.DoSelectAll(aSender: TObject);
+begin
+  SelectAll;
+end;
+
+procedure TTisHtmlViewer.DoCopy(aSender: TObject);
+begin
+  CopyToClipboard;
+end;
+
+procedure TTisHtmlViewer.DoCopyAsHtml(aSender: TObject);
+begin
+  Clipboard.AsText := SelHtml;
+end;
 
 constructor TTisHtmlViewer.Create(aOwner: TComponent);
 var
@@ -77,6 +127,7 @@ begin
   DefBackground := clWhite;
   DefFontName := Screen.SystemFont.Name;
   DefFontSize := Screen.SystemFont.Size;
+  FillPopupMenu;
 end;
 
 procedure TTisHtmlViewer.PaintHtml(aCanvas: TCanvas; const aRect: TRect);
