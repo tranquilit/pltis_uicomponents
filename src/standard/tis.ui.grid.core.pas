@@ -3321,7 +3321,7 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
     var
       vHtml: TTisHtmlViewer;
     begin
-      vHtml := TTisHtmlViewer.Create(Owner);
+      vHtml := TTisHtmlViewer.Create(Application.MainForm);
       try
         vHtml.Text := aHtml;
         vHtml.Width := aBitmap.Width;
@@ -3381,14 +3381,11 @@ begin
       aCanvas.FillRect(aCellRect);
     end;
   end;
-  if not (csDesigning in ComponentState) then
+  if Header.Columns.IsValidColumn(aColumn) then
   begin
-    if Header.Columns.IsValidColumn(aColumn) then
-    begin
-      vColumn := FindColumnByIndex(aColumn);
-      if vColumn.DataType = cdtHtml then
-        PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
-    end;
+    vColumn := FindColumnByIndex(aColumn);
+    if vColumn.DataType = cdtHtml then
+      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
   end;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
