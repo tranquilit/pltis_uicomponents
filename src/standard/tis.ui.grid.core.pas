@@ -40,6 +40,7 @@ uses
   mormot.core.text,
   mormot.core.buffers,
   mormot.core.rtti,
+  mormot.core.mustache,
   tisstrings,
   tis.core.os,
   tis.core.utils,
@@ -3325,7 +3326,8 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
         vHtml.Text := aHtml;
         vHtml.Width := aBitmap.Width;
         vHtml.Height := aBitmap.Height;
-        vHtml.PaintHtml(aBitmap.Canvas, aCellRect);
+        vHtml.PaintHtml(aBitmap.Canvas, Rect(
+          0, 0, aBitmap.Width, aBitmap.Height));
       finally
         vHtml.Free;
       end;
@@ -3336,11 +3338,10 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
   begin
     vBitmap := TBitmap.Create;
     try
-      vBitmap.Width := aCellRect.Width;
-      vBitmap.Height := aCellRect.Height;
+      vBitmap.Width := aCellRect.Width-10;
+      vBitmap.Height := aCellRect.Height-4;
       HtmlToBitmap(aHtml, vBitmap);
-      aContentRect.Left := aContentRect.Left - 4; // for better adjust on the left
-      aTargetCanvas.StretchDraw(aContentRect, vBitmap);
+      aTargetCanvas.Draw(aContentRect.Left+2 ,aContentRect.Top+2, vBitmap);
     finally
       vBitmap.Free;
     end;
