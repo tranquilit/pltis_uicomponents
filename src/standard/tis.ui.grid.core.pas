@@ -4200,18 +4200,26 @@ function TTisGrid.DoBeforeHtmlRendering(aNode: PVirtualNode;
   aColumn: TTisGridColumn): string;
 var
   vHandled: Boolean;
+  vMus: TSynMustache;
+  vRowData: PDocVariantData;
 begin
   result := '';
   vHandled := False;
+  vRowData := GetNodeAsPDocVariantData(aNode);
   if Assigned(fOnBeforeHtmlRendering) then
-    fOnBeforeHtmlRendering(self, GetNodeAsPDocVariantData(aNode), aColumn, result, vHandled);
+    fOnBeforeHtmlRendering(self, vRowData, aColumn, result, vHandled);
   if not vHandled then
   begin
     // if not handled, and there is a template, use it
     result := aColumn.DataTypeOptions.HtmlOptions.MustacheTemplate.Text;
     // if there is no template, assume that the cell data already contains a plain HTML to be rendered
     if result = '' then
-      result := NodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index);
+      result := NodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index)
+    else
+    begin
+      vMus := TSynMustache.Parse(result);
+      result := vMus.Render(Variant(vRowData^));
+    end;
   end;
 end;
 
