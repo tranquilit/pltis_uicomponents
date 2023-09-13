@@ -3325,7 +3325,7 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
         vHtml.Text := aHtml;
         vHtml.Width := aBitmap.Width;
         vHtml.Height := aBitmap.Height;
-        vHtml.HTMLPaintPublic(aBitmap.Canvas, aCellRect);
+        vHtml.PaintHtml(aBitmap.Canvas, aCellRect);
       finally
         vHtml.Free;
       end;

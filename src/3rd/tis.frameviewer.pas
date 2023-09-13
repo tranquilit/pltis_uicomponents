@@ -42,7 +42,7 @@ type
   public
     /// initialize some required properties
     constructor Create(aOwner: TComponent); override;
-    procedure HTMLPaintPublic(ACanvas: TCanvas; const ARect: TRect);
+    procedure PaintHtml(aCanvas: TCanvas; const aRect: TRect);
   end;
 
 {$endif FRAMEVIEWER_ENABLED}
@@ -79,10 +79,10 @@ begin
   DefFontSize := Screen.SystemFont.Size;
 end;
 
-procedure TTisHtmlViewer.HTMLPaintPublic(aCanvas: TCanvas; const aRect: TRect);
+procedure TTisHtmlViewer.PaintHtml(aCanvas: TCanvas; const aRect: TRect);
 begin
   Visible := True;             // needed, otherwise it will show a black retangle
-  //HTMLPaint(aCanvas, aRect); // it does not work, even if Visible is True...
+  //HTMLPaint(aCanvas, aRect); // this inherited method does not work, even if Visible is True...
   PaintTo(aCanvas, 0, 0);      // ...should be this
 end;
 
