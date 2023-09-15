@@ -513,6 +513,10 @@ type
     // - just a wrapper around GetValueAsSimple
     // - if it is NIL, aDefault will be used
     function GetValueAsSimpleString(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn; const aDefault: string = ''): string;
+    /// returns the value corresponding to the aNode
+    // - it will try to get the value from node Data, if not found, it will try to get from Grid OnCalcAttributes event
+    // otherwise it will return NULL
+    function GetValueAsVariant(aNode: PVirtualNode; aColumn: TColumnIndex = NoColumn): Variant;
     /// set a value to aNode
     // - if it is not a child node, it will use PropertyName from its TTisGridColumn instance getting it by aColumn,
     // trying to update the original object data, but if the object.name was not found, it will do nothing
@@ -591,6 +595,11 @@ type
   TOnGridBeforeHtmlRendering = procedure(aSender: TTisGrid; aRowData: PDocVariantData; aColumn: TTisGridColumn;
     var aHtmlResult: string; var aHandled: Boolean) of object;
 
+  /// event that provides a value for a "virtual column" (when the column PropertyName does not exist in Data)
+  // - you could set aValue using a simple value or even a DocVariantData
+  // - set aHandled=TRUE, if you filled aValue
+  TOnGridCalcAttributes = procedure(aSender: TTisGrid; aColumn: TTisGridColumn; out aValue: Variant; var aHandled: Boolean) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -632,6 +641,7 @@ type
     fOnGetMetaData: TOnGridGetMetaData;
     fOnNodeFiltering: TOnGridNodeFiltering;
     fOnBeforeHtmlRendering: TOnGridBeforeHtmlRendering;
+    fOnCalcAttributes: TOnGridCalcAttributes;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -769,6 +779,7 @@ type
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
     function DoBeforeHtmlRendering(aNode: PVirtualNode; aColumn: TTisGridColumn): string; virtual;
+    function DoCalcAttributes(aNode: PVirtualNode; aColumn: TTisGridColumn; out aValue: Variant): Boolean; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1154,6 +1165,8 @@ type
     /// event that allows users to change some edit control properties, before it shows up
     property OnPrepareEditor: TOnGridPrepareEditor read fOnPrepareEditor write fOnPrepareEditor;
     /// event that allows to validate the new user input value
+    // - if the new value is coming from a calculated attribute (see OnCalcAttributes), you can use it
+    // elsewhere (eg: another DocVariantData, change another attribute in Grid Data, etc) you want to
     property OnEditValidated: TOnGridEditValidated read fOnEditValidated write fOnEditValidated;
     /// event when export a custom format
     // - use it to pass a custom buffer to the grid when call ExportData, if you use a format that
@@ -1166,6 +1179,11 @@ type
     property OnNodeFiltering: TOnGridNodeFiltering read fOnNodeFiltering write fOnNodeFiltering;
     /// event that allows apply a HTML template for the data
     property OnBeforeHtmlRendering: TOnGridBeforeHtmlRendering read fOnBeforeHtmlRendering write fOnBeforeHtmlRendering;
+    /// event that provides a value for a "virtual column" (when the column PropertyName does not exist in Data)
+    // - you could set aValue using a simple value or even a DocVariantData
+    // - set aHandled=TRUE, if you filled aValue
+    // - when editing it, you can use this new value in OnEditValidated event
+    property OnCalcAttributes: TOnGridCalcAttributes read fOnCalcAttributes write fOnCalcAttributes;
   end;
 
 implementation
@@ -1416,8 +1434,7 @@ function TTisGridEditLink.EndEdit: Boolean; stdcall;
 var
   vCol: TTisGridColumn;
   vAborted: Boolean;
-  vCur: PVariant;
-  vNew: Variant;
+  vCur, vNew: Variant;
   vNode: PVirtualNode;
 begin
   result := True;
@@ -1427,12 +1444,12 @@ begin
     exit;
   end;
   DisableControlEvents;
-  vAborted := False;
-  vCur := fGrid.fNodeAdapter.GetValueAsSimple(fNode, fColumn);
-  vNew := fControl.GetValue;
-  vCol := fGrid.FindColumnByIndex(fColumn);
-  fGrid.DoEditValidated(fNode, vCol, vCur^, vNew, vAborted);
   try
+    vCur := fGrid.fNodeAdapter.GetValueAsVariant(fNode, fColumn);
+    vNew := fControl.GetValue;
+    vCol := fGrid.FindColumnByIndex(fColumn);
+    vAborted := False;
+    fGrid.DoEditValidated(fNode, vCol, vCur, vNew, vAborted);
     if vAborted then
       exit;
     if fGrid.NodeOptions.MultiEdit then
@@ -1456,43 +1473,54 @@ function TTisGridEditLink.PrepareEdit(aTree: TBaseVirtualTree; aNode: PVirtualNo
   aColumn: TColumnIndex): Boolean; stdcall;
 var
   vCol: TTisGridColumn;
-  vValue: PVariant;
+  vValue: Variant;
   vDateTime: TDateTime;
+  vCanEdit: Boolean;
 begin
   result := True;
   fAbortAll := False;
   fGrid := aTree as TTisGrid;
   fNode := aNode;
   fColumn := aColumn;
-  fValueIsString := False;
   FreeAndNil(fControl);
   vCol := fGrid.FindColumnByIndex(fColumn);
   fControl := NewControl(fNode, vCol);
   fControl.ReadOnly := vCol.ReadOnly;
-  vValue := fGrid.fNodeAdapter.GetValueAsSimple(fNode, aColumn);
-  if Assigned(vValue) then
-  begin
-    fValueIsString := VarIsStr(vValue^);
-    // format date/time, if needed
-    if (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) and
-      vCol.DataTypeOptions.DateTimeOptions.SaveAsUtc and
-      vCol.DataTypeOptions.DateTimeOptions.ShowAsLocal then
-    begin
-      vDateTime := vCol.DataTypeOptions.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue^)));
-      fControl.SetValue(DateTimeToIso8601(vDateTime, True));
-    end
-    else if vCol.DataType = cdtHtml then
-      fControl.SetValue(fGrid.DoBeforeHtmlRendering(fNode, vCol))
-    else
-      fControl.SetValue(vValue^);
-    fGrid.DoPrepareEditor(fNode, vCol, fControl);
-  end
-  else
+  // it is allowed to edit:
+  vCanEdit :=
+    // if it is HTML - it will be a "fake editing", just to able to select and copy
+    (vCol.DataType = cdtHtml) or (
+      // if it is not read only
+      not fControl.ReadOnly and not (vsHasChildren in fNode^.States) and (
+        // if it has a simple value
+        Assigned(fGrid.fNodeAdapter.GetValueAsSimple(fNode, fColumn)) or
+        // if it is a calculated node column - see OnCalcAttributes event
+        not Assigned(fGrid.fNodeAdapter.GetValue(fNode, fColumn))
+      )
+    );
+  if not vCanEdit then
   begin
     result := False;
     fAbortAll := True;
     DisableControlEvents;
+    exit;
   end;
+  vValue := fGrid.fNodeAdapter.GetValueAsVariant(aNode, aColumn);
+  fValueIsString := VarIsStr(vValue);
+  // format date/time, if needed
+  if (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) and
+    vCol.DataTypeOptions.DateTimeOptions.SaveAsUtc and
+    vCol.DataTypeOptions.DateTimeOptions.ShowAsLocal then
+  begin
+    vDateTime := vCol.DataTypeOptions.DateTimeOptions.UtcToLocal(Iso8601ToDateTime(VariantToUtf8(vValue)));
+    fControl.SetValue(DateTimeToIso8601(vDateTime, True));
+  end
+  // HTML rendering
+  else if vCol.DataType = cdtHtml then
+    fControl.SetValue(fGrid.DoBeforeHtmlRendering(fNode, vCol))
+  else
+    fControl.SetValue(vValue);
+  fGrid.DoPrepareEditor(fNode, vCol, fControl);
 end;
 
 procedure TTisGridEditLink.ProcessMessage(var aMessage: TLMessage); stdcall;
@@ -2485,6 +2513,29 @@ begin
   end;
 end;
 
+function TTisNodeAdapter.GetValueAsVariant(aNode: PVirtualNode;
+  aColumn: TColumnIndex): Variant;
+var
+  vTmpPVar: PVariant;
+  vCol: TTisGridColumn;
+begin
+  result := NULL;
+  vTmpPVar := Grid.fNodeAdapter.GetValueAsSimple(aNode, aColumn);
+  if not Assigned(vTmpPVar) then
+  begin
+    vCol := Grid.FindColumnByIndex(aColumn);
+    // try to get the value
+    if not Grid.DoCalcAttributes(aNode, vCol, result) then
+    begin
+      // if column data type is HTML, it will receiv the original row data by default
+      if vCol.DataType = cdtHtml then
+        result := Variant(Grid.GetNodeAsPDocVariantData(aNode)^);
+    end;
+  end
+  else
+    result := vTmpPVar^;
+end;
+
 procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
   aColumn: TColumnIndex; aValueIsString: Boolean);
 var
@@ -2544,9 +2595,7 @@ begin
         else
           vData^.Value[vCol.PropertyName] := vValue;
         end;
-    end
-    else
-      SetVariantByValue(aValue, vData^.Values[0]);
+    end;
   end;
 end;
 
@@ -3064,6 +3113,7 @@ var
   vNodeData: PTisNodeData;
   vCol: TTisGridColumn;
   vDateTime: TDateTime;
+  vTmpVar: Variant;
 begin
   Assert(Assigned(aNode), 'DoGetText: aNode must not be nil.');
   if fNodeOptions.ShowChildren then
@@ -3087,6 +3137,9 @@ begin
         if vCol.DataType = cdtHtml then
           exit;
         aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
+        // try to get the value
+        if (aText = '') and DoCalcAttributes(aNode, vCol, vTmpVar) then
+          aText := VarToStr(vTmpVar);
         if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
           vDateTime := Iso8601ToDateTime(aText);
@@ -3349,6 +3402,8 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
 
 var
   vColumn: TTisGridColumn;
+  vData: PDocVariantData;
+  vTmpVar: Variant;
 begin
   //Pour affichage lignes multiselect en gris clair avec cellule focused en bleu
   if (aCellPaintMode = cpmPaint) and (toMultiSelect in TreeOptions.SelectionOptions) and
@@ -3385,7 +3440,10 @@ begin
   begin
     vColumn := FindColumnByIndex(aColumn);
     if vColumn.DataType = cdtHtml then
-      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
+    begin
+      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn),
+        aCanvas, aCellRect, aContentRect);
+    end;
   end;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
@@ -4194,31 +4252,38 @@ begin
     fOnNodeFiltering(self, aNode, result);
 end;
 
-function TTisGrid.DoBeforeHtmlRendering(aNode: PVirtualNode;
-  aColumn: TTisGridColumn): string;
+function TTisGrid.DoBeforeHtmlRendering(aNode: PVirtualNode; aColumn: TTisGridColumn): string;
 var
   vHandled: Boolean;
   vMus: TSynMustache;
-  vRowData: PDocVariantData;
+  vValue: Variant;
 begin
   result := '';
   vHandled := False;
-  vRowData := GetNodeAsPDocVariantData(aNode);
+  vValue := fNodeAdapter.GetValueAsVariant(aNode, aColumn.Index);
   if Assigned(fOnBeforeHtmlRendering) then
-    fOnBeforeHtmlRendering(self, vRowData, aColumn, result, vHandled);
+    fOnBeforeHtmlRendering(self, _Safe(vValue), aColumn, result, vHandled);
   if not vHandled then
   begin
     // if not handled, and there is a template, use it
     result := aColumn.DataTypeOptions.HtmlOptions.MustacheTemplate.Text;
     // if there is no template, assume that the cell data already contains a plain HTML to be rendered
     if result = '' then
-      result := NodeAdapter.GetValueAsSimpleString(aNode, aColumn.Index)
+      result := VarToStr(vValue)
     else
     begin
       vMus := TSynMustache.Parse(result);
-      result := vMus.Render(Variant(vRowData^));
+      result := vMus.Render(vValue);
     end;
   end;
+end;
+
+function TTisGrid.DoCalcAttributes(aNode: PVirtualNode;
+  aColumn: TTisGridColumn; out aValue: Variant): Boolean;
+begin
+  result := False;
+  if Assigned(fOnCalcAttributes) then
+    fOnCalcAttributes(self, aColumn, aValue, result);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;

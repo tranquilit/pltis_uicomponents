@@ -155,7 +155,10 @@ end;
 
 procedure TTisGridHtmlControl.SetValue(const aValue: Variant);
 begin
-  Edit.Text := aValue;
+  if VarIsStr(aValue) and (aValue <> '') then
+    Edit.Text := aValue // do not set a empty string
+  else
+    Edit.Clear;
 end;
 
 function TTisGridHtmlControl.Edit: TTisHtmlViewer;
