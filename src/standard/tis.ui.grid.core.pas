@@ -598,7 +598,8 @@ type
   /// event that provides a value for a "virtual column" (when the column PropertyName does not exist in Data)
   // - you could set aValue using a simple value or even a DocVariantData
   // - set aHandled=TRUE, if you filled aValue
-  TOnGridCalcAttributes = procedure(aSender: TTisGrid; aColumn: TTisGridColumn; out aValue: Variant; var aHandled: Boolean) of object;
+  TOnGridCalcAttributes = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
+    out aValue: Variant; var aHandled: Boolean) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -779,7 +780,8 @@ type
     procedure DoGetMetaData(var aMetaData: RawUtf8); virtual;
     function DoNodeFiltering(aNode: PVirtualNode): Boolean; virtual;
     function DoBeforeHtmlRendering(aNode: PVirtualNode; aColumn: TTisGridColumn): string; virtual;
-    function DoCalcAttributes(aNode: PVirtualNode; aColumn: TTisGridColumn; out aValue: Variant): Boolean; virtual;
+    function DoCalcAttributes(aNode: PVirtualNode; aColumn: TTisGridColumn;
+      out aValue: Variant): Boolean; virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1490,7 +1492,7 @@ begin
   vCanEdit :=
     // if it is HTML - it will be a "fake editing", just to able to select and copy
     (vCol.DataType = cdtHtml) or (
-      // if it is not read only
+      // if it is not read only and has no children - see NodeOptions.ShowChildren property
       not fControl.ReadOnly and not (vsHasChildren in fNode^.States) and (
         // if it has a simple value
         Assigned(fGrid.fNodeAdapter.GetValueAsSimple(fNode, fColumn)) or
@@ -4278,12 +4280,12 @@ begin
   end;
 end;
 
-function TTisGrid.DoCalcAttributes(aNode: PVirtualNode;
-  aColumn: TTisGridColumn; out aValue: Variant): Boolean;
+function TTisGrid.DoCalcAttributes(aNode: PVirtualNode; aColumn: TTisGridColumn;
+  out aValue: Variant): Boolean;
 begin
   result := False;
   if Assigned(fOnCalcAttributes) then
-    fOnCalcAttributes(self, aColumn, aValue, result);
+    fOnCalcAttributes(self, aNode, aColumn, aValue, result);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
