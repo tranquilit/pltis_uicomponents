@@ -2519,12 +2519,12 @@ end;
 function TTisNodeAdapter.GetValueAsVariant(aNode: PVirtualNode;
   aColumn: TColumnIndex): Variant;
 var
-  vTmpPVar: PVariant;
+  vPVar: PVariant;
   vCol: TTisGridColumn;
 begin
   result := NULL;
-  vTmpPVar := Grid.fNodeAdapter.GetValueAsSimple(aNode, aColumn);
-  if not Assigned(vTmpPVar) then
+  vPVar := Grid.fNodeAdapter.GetValue(aNode, aColumn);
+  if not Assigned(vPVar) then
   begin
     vCol := Grid.FindColumnByIndex(aColumn);
     // try to get the value
@@ -2536,7 +2536,7 @@ begin
     end;
   end
   else
-    result := vTmpPVar^;
+    result := vPVar^;
 end;
 
 procedure TTisNodeAdapter.SetValue(aNode: PVirtualNode; const aValue: Variant;
@@ -3116,7 +3116,7 @@ var
   vNodeData: PTisNodeData;
   vCol: TTisGridColumn;
   vDateTime: TDateTime;
-  vTmpVar: Variant;
+  vVar: Variant;
 begin
   Assert(Assigned(aNode), 'DoGetText: aNode must not be nil.');
   if fNodeOptions.ShowChildren then
@@ -3141,8 +3141,8 @@ begin
           exit;
         aText := fNodeAdapter.GetValueAsSimpleString(aNode, aColumn);
         // try to get the value
-        if (aText = '') and DoCalcAttributes(aNode, vCol, vTmpVar) then
-          aText := VarToStr(vTmpVar);
+        if (aText = '') and DoCalcAttributes(aNode, vCol, vVar) then
+          aText := VarToStr(vVar);
         if (aText <> '') and (vCol.DataType in [cdtDate, cdtTime, cdtDateTime]) then
         begin
           vDateTime := Iso8601ToDateTime(aText);
@@ -3405,8 +3405,6 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
 
 var
   vColumn: TTisGridColumn;
-  vData: PDocVariantData;
-  vTmpVar: Variant;
 begin
   //Pour affichage lignes multiselect en gris clair avec cellule focused en bleu
   if (aCellPaintMode = cpmPaint) and (toMultiSelect in TreeOptions.SelectionOptions) and
