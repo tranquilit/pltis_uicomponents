@@ -1497,7 +1497,8 @@ begin
         // if it has a simple value
         Assigned(fGrid.fNodeAdapter.GetValueAsSimple(fNode, fColumn)) or
         // if it is a calculated node column - see OnCalcAttributes event
-        not Assigned(fGrid.fNodeAdapter.GetValue(fNode, fColumn))
+        not Assigned(fGrid.fNodeAdapter.GetValue(fNode, fColumn)) and
+        fGrid.DoCalcAttributes(aNode, vCol, vValue)
       )
     );
   if not vCanEdit then
