@@ -464,6 +464,18 @@ type
     property ShowChildren: Boolean read fShowChildren write fShowChildren default DefaultShowChildren;
   end;
 
+  TTisNodeCache = packed object
+    Column: TColumnIndex;
+    Image: TBitmap;
+    Hash: Cardinal;
+    /// call it to free and reset all fields
+    procedure Clear;
+  end;
+
+  PTisNodeCache = ^TTisNodeCache;
+
+  TTisNodeCacheDynArray = array of TTisNodeCache;
+
   /// as known as "user data" for the Grid
   // - each node has its own NodeData
   TTisNodeData = record
@@ -477,6 +489,8 @@ type
     Value: PVariant;
     /// it points to original row data
     Data: PDocVariantData;
+    /// cache array for columns
+    Cache: TTisNodeCacheDynArray;
   end;
 
   PTisNodeData = ^TTisNodeData;
@@ -525,6 +539,14 @@ type
       aValueIsString: Boolean = False);
     /// return TRUE if aNode is child
     function IsChild(aNode: PVirtualNode): Boolean;
+    /// returns the cache of a node, for a specific column
+    // - if there is none, it will return NIL
+    // - you can have a cache for each column
+    function GetCache(aNode: PVirtualNode; aColumn: TColumnIndex): PTisNodeCache;
+    /// set a cache for a node
+    // - if the cache for the aValue.Column exists already, it will be replaced
+    // otherwise it will (initialize it, if need it and) create a new item on the cache array
+    procedure SetCache(aNode: PVirtualNode; const aValue: TTisNodeCache);
   end;
 
   TOnGridGetText = procedure(aSender: TBaseVirtualTree; aNode: PVirtualNode;
@@ -2389,6 +2411,14 @@ begin
     inherited AssignTo(aDest);
 end;
 
+{ TTisNodeCache }
+
+procedure TTisNodeCache.Clear;
+begin
+  FreeAndNil(Image);
+  RecordZero(@self, TypeInfo(TTisNodeCache));
+end;
+
 { TTisNodeAdapter }
 
 procedure TTisNodeAdapter.Init(aGrid: TTisGrid);
@@ -2608,6 +2638,41 @@ begin
     result := GetData(aNode)^.IsChild
   else
     result := False;
+end;
+
+function TTisNodeAdapter.GetCache(aNode: PVirtualNode; aColumn: TColumnIndex): PTisNodeCache;
+var
+  vData: PTisNodeData;
+  v1: Integer;
+begin
+  result := nil;
+  vData := GetData(aNode);
+  if Assigned(vData^.Cache) then
+  begin
+    for v1 := Low(vData^.Cache) to High(vData^.Cache) do
+      if vData^.Cache[v1].Column = aColumn then
+      begin
+        result := @vData^.Cache[v1];
+        break;
+      end;
+  end;
+end;
+
+procedure TTisNodeAdapter.SetCache(aNode: PVirtualNode; const aValue: TTisNodeCache);
+var
+  vData: PTisNodeData;
+  vCache: PTisNodeCache;
+begin
+  vCache := GetCache(aNode, aValue.Column);
+  if not Assigned(vCache) then
+  begin
+    vData := GetData(aNode);
+    SetLength(vData^.Cache, Length(vData^.Cache)+1);
+    vCache := @vData^.Cache[High(vData^.Cache)];
+  end
+  else
+    vCache^.Clear;
+  RecordCopy(vCache^, aValue, TypeInfo(TTisNodeCache));
 end;
 
 { TTisGrid }
@@ -3275,6 +3340,7 @@ begin
       Name := nil;
       Value := PVariant(vData);
       Data := vData;
+      Cache := nil;
     end;
     _SetNodeDefaults(aNode);
     if fNodeOptions.ShowChildren then
@@ -3284,12 +3350,18 @@ begin
 end;
 
 procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
+var
+  v1: Integer;
 begin
   with fNodeAdapter.GetData(aNode)^ do
   begin
     Name := nil;
     Value := nil;
     Data := nil;
+    if Assigned(Cache) then
+      for v1 := Low(Cache) to High(Cache) do
+        Cache[v1].Clear;
+    Cache := nil;
   end;
   inherited DoFreeNode(aNode);
 end;
@@ -3390,17 +3462,33 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
     end;
 
   var
-    vBitmap: TBitmap;
+    vImage: TBitmap;
+    vCache: PTisNodeCache;
+    vNewCache: TTisNodeCache;
+    vHash: Cardinal;
   begin
-    vBitmap := TBitmap.Create;
-    try
-      vBitmap.Width := aCellRect.Width-10;
-      vBitmap.Height := aCellRect.Height-4;
-      HtmlToBitmap(aHtml, vBitmap);
-      aTargetCanvas.Draw(aContentRect.Left+2 ,aContentRect.Top+2, vBitmap);
-    finally
-      vBitmap.Free;
+    vImage := nil;
+    vHash := Hash32(aHtml + IntToStr(aColumn) + aContentRect.Width.ToString + aContentRect.Height.ToString);
+    vCache := fNodeAdapter.GetCache(aNode, aColumn);
+    if Assigned(vCache) and (vCache^.Hash = vHash) and Assigned(vCache^.Image) then
+      vImage := vCache^.Image
+    else
+    begin
+      vImage := TBitmap.Create;
+      try
+        vImage.Width := aCellRect.Width-10;
+        vImage.Height := aCellRect.Height-4;
+        HtmlToBitmap(aHtml, vImage);
+        vNewCache.Clear;
+        vNewCache.Column := aColumn;
+        vNewCache.Image := vImage;
+        vNewCache.Hash := vHash;
+        fNodeAdapter.SetCache(aNode, vNewCache);
+      except
+        vImage.Free;
+      end;
     end;
+    aTargetCanvas.Draw(aContentRect.Left+2, aContentRect.Top+2, vImage);
   end;
 
 var
