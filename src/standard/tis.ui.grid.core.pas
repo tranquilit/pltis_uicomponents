@@ -3467,7 +3467,6 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
     vNewCache: TTisNodeCache;
     vHash: Cardinal;
   begin
-    vImage := nil;
     vHash := Hash32(aHtml + IntToStr(aColumn) + aContentRect.Width.ToString + aContentRect.Height.ToString);
     vCache := fNodeAdapter.GetCache(aNode, aColumn);
     if Assigned(vCache) and (vCache^.Hash = vHash) and Assigned(vCache^.Image) then
@@ -3486,9 +3485,11 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
         fNodeAdapter.SetCache(aNode, vNewCache);
       except
         vImage.Free;
+        raise;
       end;
     end;
-    aTargetCanvas.Draw(aContentRect.Left+2, aContentRect.Top+2, vImage);
+    if Assigned(vImage) then
+      aTargetCanvas.Draw(aContentRect.Left+2, aContentRect.Top+2, vImage);
   end;
 
 var
