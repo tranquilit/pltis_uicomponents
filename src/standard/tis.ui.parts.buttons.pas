@@ -232,24 +232,24 @@ procedure TButtonCollection.Invalidate;
 const
   cSpace = 2;
 var
-  i, m: Integer;
+  v1, vLeftCount: Integer;
   vButton: TButtonItem;
   vSpeedButton: TSpeedButton;
 begin
-  m := fControl.Left + fControl.Width + cSpace;
-  for i := 0 to Count -1 do
+  vLeftCount := fControl.Left + fControl.Width + cSpace;
+  for v1 := 0 to Count -1 do
   begin
-    vButton := TButtonItem(Items[i]);
+    vButton := TButtonItem(Items[v1]);
     Setup(vButton);
     vSpeedButton := vButton.Button;
     vSpeedButton.SetBounds(fControl.Left, fControl.Top, vSpeedButton.Width, vSpeedButton.Height);
     if vSpeedButton.Visible then
     begin
-      vSpeedButton.Left := m;
-      inc(m, vSpeedButton.Width + cSpace);
+      vSpeedButton.Left := vLeftCount;
+      inc(vLeftCount, vSpeedButton.Width + cSpace);
     end;
     vSpeedButton.Parent := fControl.Parent;
-    vSpeedButton.Tag := i; // it could be used to locate the corresponding item instance
+    vSpeedButton.Tag := v1; // it could be used to locate the corresponding item instance
     vSpeedButton.Invalidate;
   end;
 end;

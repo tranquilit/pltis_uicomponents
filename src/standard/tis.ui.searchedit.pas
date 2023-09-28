@@ -75,6 +75,8 @@ type
     procedure DoSetBounds(aLeft, aTop, aWidth, aHeight: Integer); override;
     procedure Select; override;
     procedure DoAutoCompleteSelect; override;
+    procedure FixDesignFontsPPI(const aDesignTimePPI: Integer); override;
+    procedure ScaleFontsPPI(const aToPPI: Integer; const aProportion: Double); override;
     // ------------------------------- new methods ----------------------------------
     /// it will add aText for each new typing, if Data.IsVoid = TRUE
     procedure AddHistory(const aText: string); virtual;
@@ -257,6 +259,19 @@ end;
 procedure TTisSearchEdit.DoAutoCompleteSelect;
 begin
   // do nothing
+end;
+
+procedure TTisSearchEdit.FixDesignFontsPPI(const aDesignTimePPI: Integer);
+begin
+  inherited FixDesignFontsPPI(aDesignTimePPI);
+  fButtons.Invalidate;
+end;
+
+procedure TTisSearchEdit.ScaleFontsPPI(const aToPPI: Integer;
+  const aProportion: Double);
+begin
+  inherited ScaleFontsPPI(aToPPI, aProportion);
+  fButtons.Invalidate;
 end;
 
 procedure TTisSearchEdit.AddHistory(const aText: string);
