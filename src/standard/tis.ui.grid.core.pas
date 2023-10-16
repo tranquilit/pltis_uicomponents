@@ -464,12 +464,35 @@ type
     property ShowChildren: Boolean read fShowChildren write fShowChildren default DefaultShowChildren;
   end;
 
-  TTisNodeCache = packed object
+  TTisNodeColumnCache = packed object
     Column: TColumnIndex;
     Image: TBitmap;
     Hash: Cardinal;
+    // call it before use an object instance
+    procedure Init;
     /// call it to free and reset all fields
     procedure Clear;
+  end;
+
+  PTisNodeColumnCache = ^TTisNodeColumnCache;
+
+  TTisNodeColumnCacheDynArray = array of TTisNodeColumnCache;
+
+  PTisNodeColumnCacheDynArray = ^TTisNodeColumnCacheDynArray;
+
+  TTisNodeCache = packed object
+    Hash: Cardinal;
+    Height: Integer;
+    Columns: TTisNodeColumnCacheDynArray;
+    // call it before use an object instance
+    procedure Init;
+    /// call it to free and reset all fields
+    procedure Clear;
+    function GetColumnCache(aColumn: Integer): PTisNodeColumnCache;
+    /// set a node column cache
+    // - if the cache already exists, it will be replaced
+    // otherwise it will create a new item on array of columns
+    procedure SetColumnCache(aColumn: Integer; const aValue: TTisNodeColumnCache);
   end;
 
   PTisNodeCache = ^TTisNodeCache;
@@ -489,8 +512,8 @@ type
     Value: PVariant;
     /// it points to original row data
     Data: PDocVariantData;
-    /// cache array for columns
-    Cache: TTisNodeCacheDynArray;
+    /// node cache values
+    Cache: TTisNodeCache;
   end;
 
   PTisNodeData = ^TTisNodeData;
@@ -539,14 +562,8 @@ type
       aValueIsString: Boolean = False);
     /// return TRUE if aNode is child
     function IsChild(aNode: PVirtualNode): Boolean;
-    /// returns the cache of a node, for a specific column
-    // - if there is none, it will return NIL
-    // - you can have a cache for each column
-    function GetCache(aNode: PVirtualNode; aColumn: TColumnIndex): PTisNodeCache;
-    /// set a cache for a node
-    // - if the cache for the aValue.Column exists already, it will be replaced
-    // otherwise it will (initialize it, if need it and) create a new item on the cache array
-    procedure SetCache(aNode: PVirtualNode; const aValue: TTisNodeCache);
+    /// returns the node cache
+    function GetCache(aNode: PVirtualNode): PTisNodeCache;
   end;
 
   TOnGridGetText = procedure(aSender: TBaseVirtualTree; aNode: PVirtualNode;
@@ -833,6 +850,7 @@ type
     function AddChild(aParent: PVirtualNode; aUserData: Pointer = nil): PVirtualNode; override;
     /// it will clear Data and everything else related
     procedure Clear; override;
+    function ComputeNodeHeight(aCanvas: TCanvas; aNode: PVirtualNode; aColumn: TColumnIndex; S: string = ''): Integer; override;
     // ----------------------------------- new methods -----------------------------
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
@@ -2411,12 +2429,62 @@ begin
     inherited AssignTo(aDest);
 end;
 
+{ TTisNodeColumnCache }
+
+procedure TTisNodeColumnCache.Init;
+begin
+  RecordZero(@self, TypeInfo(TTisNodeColumnCache));
+end;
+
+procedure TTisNodeColumnCache.Clear;
+begin
+  FreeAndNil(Image);
+  Init;
+end;
+
 { TTisNodeCache }
+
+procedure TTisNodeCache.Init;
+var
+  v1: Integer;
+begin
+  for v1 := 0 to High(Columns) do
+    Columns[v1].Clear;
+  RecordZero(@self, TypeInfo(TTisNodeCache));
+end;
 
 procedure TTisNodeCache.Clear;
 begin
-  FreeAndNil(Image);
-  RecordZero(@self, TypeInfo(TTisNodeCache));
+  Init;
+end;
+
+function TTisNodeCache.GetColumnCache(aColumn: Integer): PTisNodeColumnCache;
+var
+  v1: Integer;
+begin
+  result := nil;
+  for v1 := 0 to High(Columns) do
+    if Columns[v1].Column = aColumn then
+    begin
+      result := @Columns[v1];
+      break;
+    end;
+end;
+
+procedure TTisNodeCache.SetColumnCache(aColumn: Integer;
+  const aValue: TTisNodeColumnCache);
+var
+  vCache: PTisNodeColumnCache;
+begin
+  vCache := GetColumnCache(aValue.Column);
+  if not Assigned(vCache) then
+  begin
+    SetLength(Columns, Length(Columns)+1);
+    vCache := @Columns[High(Columns)];
+  end
+  else
+    vCache^.Clear;
+  RecordCopy(vCache^, aValue, TypeInfo(TTisNodeColumnCache));
 end;
 
 { TTisNodeAdapter }
@@ -2640,39 +2708,9 @@ begin
     result := False;
 end;
 
-function TTisNodeAdapter.GetCache(aNode: PVirtualNode; aColumn: TColumnIndex): PTisNodeCache;
-var
-  vData: PTisNodeData;
-  v1: Integer;
+function TTisNodeAdapter.GetCache(aNode: PVirtualNode): PTisNodeCache;
 begin
-  result := nil;
-  vData := GetData(aNode);
-  if Assigned(vData^.Cache) then
-  begin
-    for v1 := Low(vData^.Cache) to High(vData^.Cache) do
-      if vData^.Cache[v1].Column = aColumn then
-      begin
-        result := @vData^.Cache[v1];
-        break;
-      end;
-  end;
-end;
-
-procedure TTisNodeAdapter.SetCache(aNode: PVirtualNode; const aValue: TTisNodeCache);
-var
-  vData: PTisNodeData;
-  vCache: PTisNodeCache;
-begin
-  vCache := GetCache(aNode, aValue.Column);
-  if not Assigned(vCache) then
-  begin
-    vData := GetData(aNode);
-    SetLength(vData^.Cache, Length(vData^.Cache)+1);
-    vCache := @vData^.Cache[High(vData^.Cache)];
-  end
-  else
-    vCache^.Clear;
-  RecordCopy(vCache^, aValue, TypeInfo(TTisNodeCache));
+  result := @GetData(aNode)^.Cache;
 end;
 
 { TTisGrid }
@@ -3340,7 +3378,6 @@ begin
       Name := nil;
       Value := PVariant(vData);
       Data := vData;
-      Cache := nil;
     end;
     _SetNodeDefaults(aNode);
     if fNodeOptions.ShowChildren then
@@ -3358,10 +3395,7 @@ begin
     Name := nil;
     Value := nil;
     Data := nil;
-    if Assigned(Cache) then
-      for v1 := Low(Cache) to High(Cache) do
-        Cache[v1].Clear;
-    Cache := nil;
+    Cache.Clear;
   end;
   inherited DoFreeNode(aNode);
 end;
@@ -3382,7 +3416,7 @@ begin
       begin
         if (coVisible in Header.Columns[v1].Options) then
         begin
-          vCellHeight := ComputeNodeHeight(aTargetCanvas, aNode, v1);
+          vCellHeight := inherited ComputeNodeHeight(aTargetCanvas, aNode, v1);
           if vCellHeight > vMaxHeight then
             vMaxHeight := vCellHeight;
         end;
@@ -3464,13 +3498,15 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
   var
     vImage: TBitmap;
     vCache: PTisNodeCache;
-    vNewCache: TTisNodeCache;
+    vColCache: PTisNodeColumnCache;
+    vNewColCache: TTisNodeColumnCache;
     vHash: Cardinal;
   begin
-    vHash := Hash32(aHtml + IntToStr(aColumn) + aContentRect.Width.ToString + aContentRect.Height.ToString);
-    vCache := fNodeAdapter.GetCache(aNode, aColumn);
-    if Assigned(vCache) and (vCache^.Hash = vHash) and Assigned(vCache^.Image) then
-      vImage := vCache^.Image
+    vHash := Hash32(aHtml + aContentRect.Width.ToString + aContentRect.Height.ToString);
+    vCache := fNodeAdapter.GetCache(aNode);
+    vColCache := vCache^.GetColumnCache(aColumn);
+    if Assigned(vColCache) and (vColCache^.Hash = vHash) and Assigned(vColCache^.Image) then
+      vImage := vColCache^.Image
     else
     begin
       vImage := TBitmap.Create;
@@ -3478,11 +3514,11 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
         vImage.Width := aCellRect.Width-10;
         vImage.Height := aCellRect.Height-4;
         HtmlToBitmap(aHtml, vImage);
-        vNewCache.Clear;
-        vNewCache.Column := aColumn;
-        vNewCache.Image := vImage;
-        vNewCache.Hash := vHash;
-        fNodeAdapter.SetCache(aNode, vNewCache);
+        vNewColCache.Init;
+        vNewColCache.Column := aColumn;
+        vNewColCache.Image := vImage;
+        vNewColCache.Hash := vHash;
+        vCache^.SetColumnCache(aColumn, vNewColCache);
       except
         vImage.Free;
         raise;
@@ -3492,8 +3528,24 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
       aTargetCanvas.Draw(aContentRect.Left+2, aContentRect.Top+2, vImage);
   end;
 
-var
-  vColumn: TTisGridColumn;
+  procedure CacheNode;
+  var
+    vHash: Cardinal;
+    vCache: PTisNodeCache;
+    vColumn: TTisGridColumn;
+  begin
+    vHash := Hash32(Text[aNode, aColumn] + aNode^.NodeHeight.ToString);
+    vCache := fNodeAdapter.GetCache(aNode);
+    if Assigned(vCache) and (vCache^.Hash <> vHash) then
+    begin
+      vCache^.Height := inherited ComputeNodeHeight(aCanvas, aNode, aColumn);
+      vCache^.Hash := vHash;
+    end;
+    vColumn := FindColumnByIndex(aColumn);
+    if vColumn.DataType = cdtHtml then
+      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn), aCanvas, aCellRect, aContentRect);
+  end;
+
 begin
   //Pour affichage lignes multiselect en gris clair avec cellule focused en bleu
   if (aCellPaintMode = cpmPaint) and (toMultiSelect in TreeOptions.SelectionOptions) and
@@ -3526,15 +3578,8 @@ begin
       aCanvas.FillRect(aCellRect);
     end;
   end;
-  if Header.Columns.IsValidColumn(aColumn) then
-  begin
-    vColumn := FindColumnByIndex(aColumn);
-    if vColumn.DataType = cdtHtml then
-    begin
-      PrintHtmlAsImage(self, DoBeforeHtmlRendering(aNode, vColumn),
-        aCanvas, aCellRect, aContentRect);
-    end;
-  end;
+  if (aCellPaintMode = cpmPaint) and Header.Columns.IsValidColumn(aColumn) then
+    CacheNode;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
 end;
 
@@ -4520,6 +4565,19 @@ begin
   if vPrevReadOnly then
     TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toReadOnly];
   InitData;
+end;
+
+function TTisGrid.ComputeNodeHeight(aCanvas: TCanvas; aNode: PVirtualNode;
+  aColumn: TColumnIndex; S: string): Integer;
+var
+  vCache: PTisNodeCache;
+begin
+  vCache := fNodeAdapter.GetCache(aNode);
+  if Assigned(vCache) then
+  begin
+    result := vCache^.Height;
+    RepaintNode(aNode);
+  end;
 end;
 
 procedure TTisGrid.LoadData;
