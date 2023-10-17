@@ -4574,10 +4574,7 @@ var
 begin
   vCache := fNodeAdapter.GetCache(aNode);
   if Assigned(vCache) then
-  begin
     result := vCache^.Height;
-    RepaintNode(aNode);
-  end;
 end;
 
 procedure TTisGrid.LoadData;
