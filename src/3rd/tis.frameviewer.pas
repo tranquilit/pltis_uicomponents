@@ -122,6 +122,8 @@ begin
   Parent := vParent;          // it needs a valid Parent...
   ScrollBars := ssNone;
   LoadCursor := crNone;
+  DefBackground := clWindow;
+  DefFontColor := clWindowText;
   DefFontName := Screen.SystemFont.Name;
   DefFontSize := Screen.SystemFont.Size;
   FillPopupMenu;
