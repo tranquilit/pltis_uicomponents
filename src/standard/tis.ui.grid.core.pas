@@ -2180,11 +2180,12 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     vValue: string;
     vFound: Boolean;
     vColumn: TTisGridColumn;
-    vHandled: Boolean;
+    vHandled, vAddedClearItem: Boolean;
   begin
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
     vNode := aGrid.GetFirst(True);
+    vAddedClearItem := False;
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
@@ -2209,7 +2210,20 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           // do not duplicate items
           if not vFound then
           begin
-            vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+            if not vAddedClearItem and (aGrid.FilterOptions.Filters.Count > 0) then
+            begin
+              // add a item for delete filters for a column
+              vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+              vNewMenuItem.Tag := aColIdx;
+              vNewMenuItem.Caption := rsGridFilterClear;
+              vNewMenuItem.OnClick := @OnMenuFilterClearClick;
+              Items.Add(vNewMenuItem);
+              vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+              vNewMenuItem.Caption := '-';
+              Items.Add(vNewMenuItem);
+              vAddedClearItem := True;
+            end;
+            vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
             vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
             vNewMenuItem.Caption := vValue;
             vNewMenuItem.OnClick := @OnMenuFilterClick;
@@ -2254,25 +2268,19 @@ begin
           and not vGrid.Data.IsVoid
           and not vGrid.NodeOptions.ShowChildren then
         begin
-          // add a item for delete filters for a column
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Tag := vColIdx;
-          vNewMenuItem.Caption := rsGridFilterClear;
-          vNewMenuItem.OnClick := @OnMenuFilterClearClick;
-          Items.Add(vNewMenuItem);
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Caption := '-';
-          Items.Add(vNewMenuItem);
           AddFilterItems(vGrid, vColIdx);
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Caption := '-';
           Items.Add(vNewMenuItem);
-          // add a item for delete all filters
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Tag := NoColumn;
-          vNewMenuItem.Caption := rsGridFilterClearAll;
-          vNewMenuItem.OnClick := @OnMenuFilterClearClick;
-          Items.Add(vNewMenuItem);
+          if vGrid.FilterOptions.Filters.Count > 0 then
+          begin
+            // add a item for delete all filters
+            vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+            vNewMenuItem.Tag := NoColumn;
+            vNewMenuItem.Caption := rsGridFilterClearAll;
+            vNewMenuItem.OnClick := @OnMenuFilterClearClick;
+            Items.Add(vNewMenuItem);
+          end;
         end;
       end;
       // add subitem "show/hide columns"
