@@ -1710,12 +1710,20 @@ begin
 end;
 
 procedure TTisGridFilterOptions.ApplyFilters;
+
+  procedure SetVisible(aNode: PVirtualNode);
+  begin
+    if not fGrid.DoNodeFiltering(aNode) then
+      Include(aNode^.States, vsVisible);
+  end;
+
 var
   vData: PDocVariantData;
   vNode: PVirtualNode;
   vField: TDocVariantFields;
-  v1, v2: Integer;
+  v1: Integer;
   vColumn: TTisGridColumn;
+  vCaseInsensitive: Boolean;
 begin
   ClearHeaderArrows;
   vNode := fGrid.GetFirst(True);
@@ -1726,35 +1734,35 @@ begin
     begin
       if fFilters.Count > 0 then
       begin
-        for v1 := 0 to fGrid.Header.Columns.Count-1 do
+        SetVisible(vNode);
+        vCaseInsensitive := fGrid.FilterOptions.CaseInsensitive;
+        for v1 := 0 to fFilters.Count-1 do
         begin
-          vColumn := fGrid.Header.Columns[v1] as TTisGridColumn;
-          // turn it invisible by default
-          Exclude(vNode^.States, vsVisible);
-          for v2 := fFilters.Count-1 downto 0 do
+          for vField in DocVariantData(fFilters.Value[v1])^.Fields do
           begin
-            for vField in DocVariantData(fFilters.Value[v2])^.Fields do
-              if (not fGrid.FilterOptions.CaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
-                or (fGrid.FilterOptions.CaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
-              begin
-                if not fGrid.DoNodeFiltering(vNode) then
-                  Include(vNode^.States, vsVisible);
-                // add an MARK_ARROW in header column text, if there are filters for this column
-                if (vsVisible in vNode^.States)
-                  and (vField.Name^ = vColumn.PropertyName)
-                  and (Pos(MARK_ARROW, vColumn.Text) = 0) then
-                    vColumn.Text := vColumn.Text + MARK_ARROW;
-                break;
-              end;
+            if not (vsVisible in vNode^.States) then
+              Continue;
+            if (not vCaseInsensitive and SameText(vData^.S[vField.Name^], vField.Value^))
+              or (vCaseInsensitive and SameStr(vData^.S[vField.Name^], vField.Value^)) then
+            begin
+              if not fGrid.DoNodeFiltering(vNode) then
+                Include(vNode^.States, vsVisible);
+              vColumn := fGrid.FindColumnByPropertyName(vField.Name^);
+              // add an MARK_ARROW in header column text, if there are filters for this column
+              if (vsVisible in vNode^.States)
+                and (Pos(MARK_ARROW, vColumn.Text) = 0) then
+                  vColumn.Text := vColumn.Text + MARK_ARROW;
+            end
+            else
+            begin
+              Exclude(vNode^.States, vsVisible);
+              Break;
+            end;
           end;
-        end;
+        end
       end
       else
-      begin
-        // if did not handled and there is no filters, turn it visible by default
-        if not fGrid.DoNodeFiltering(vNode) then
-          Include(vNode^.States, vsVisible);
-      end;
+        SetVisible(vNode);
     end;
     vNode := fGrid.GetNext(vNode, True);
   end;
@@ -2184,7 +2192,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
   begin
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
-    vNode := aGrid.GetFirst(True);
+    vNode := aGrid.GetFirstVisible;
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
@@ -2221,7 +2229,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           end;
         end;
       end;
-      vNode := aGrid.GetNext(vNode, True);
+      vNode := aGrid.GetNextVisible(vNode);
     end;
   end;
 
@@ -2254,7 +2262,7 @@ begin
           and not vGrid.Data.IsVoid
           and not vGrid.NodeOptions.ShowChildren then
         begin
-          // add a item for delete filters for the column, it it has filter(s) already
+          // add a item for delete filters for the column, if it has some filter(s) already
           if Pos(vGrid.FilterOptions.MARK_ARROW, vGrid.FindColumnByIndex(vColIdx).Text) > 0 then
           begin
             vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
