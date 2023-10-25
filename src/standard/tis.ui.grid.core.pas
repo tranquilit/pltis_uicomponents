@@ -192,6 +192,11 @@ type
     property HtmlOptions: TTisGridColumnHtmlOptions read fHtmlOptions write fHtmlOptions;
   end;
 
+  TisGridFilterSort = (
+    gfsMostUsedValues,
+    gfsFirstValues
+  );
+
   /// filter options for header popup menu
   TTisGridFilterOptions = class(TPersistent)
   private
@@ -201,11 +206,13 @@ type
     fClearAterLoadingData: Boolean;
     fDisplayedCount: Integer;
     fEnabled: Boolean;
+    fSort: TisGridFilterSort;
   protected const
     DefaultDisplayedCount = 10;
     DefaultEnabled = False;
     DefaultCaseInsensitive = False;
     DefaultClearAterLoadingData = False;
+    DefaultSort = gfsMostUsedValues;
     MARK_ARROW = ' ↓';
   protected
     /// clear MARK_ARROW mark of all header columns
@@ -219,6 +226,7 @@ type
     procedure ApplyFilters;
     /// clear all filters
     procedure ClearFilters;
+    /// filter table
     property Filters: TDocVariantData read fFilters;
   published
     property CaseInsensitive: Boolean read fCaseInsensitive write fCaseInsensitive default DefaultCaseInsensitive;
@@ -229,6 +237,8 @@ type
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
     /// if FALSE, none filter menu item will be created
     property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
+    /// which order it will show the menu items
+    property Sort: TisGridFilterSort read fSort write fSort default DefaultSort;
   end;
 
   /// a custom implementation for Grid Column
@@ -1670,6 +1680,7 @@ begin
   fCaseInsensitive := DefaultCaseInsensitive;
   fDisplayedCount := DefaultDisplayedCount;
   fEnabled := DefaultEnabled;
+  fSort := DefaultSort;
 end;
 
 procedure TTisGridFilterOptions.AssignTo(aDest: TPersistent);
@@ -1683,6 +1694,7 @@ begin
       CaseInsensitive := self.CaseInsensitive;
       DisplayedCount := self.DisplayedCount;
       Enabled := self.Enabled;
+      Sort := self.Sort;
     end;
   end
   else
@@ -2179,57 +2191,55 @@ end;
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
 
   procedure AddFilterItems(aGrid: TTisGrid; aColIdx: TColumnIndex);
+  const
+    cCountName = 'count';
   var
     vNewMenuItem: TTisGridHeaderMenuItem;
-    vCount: Integer;
+    vCount, vIndex: Integer;
     vNode: PVirtualNode;
-    vData: PDocVariantData;
-    vItem: TMenuItem;
-    vValue: string;
-    vFound: Boolean;
+    vData, vObj: PDocVariantData;
+    vValue: RawUtf8;
     vColumn: TTisGridColumn;
-    vHandled: Boolean;
+    vTable: TDocVariantData;
   begin
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
     vNode := aGrid.GetFirstVisible;
+    vTable.Clear;
+    vTable.InitFast;
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
       if Assigned(vData) then
       begin
-        vValue := vData^.S[vColumn.PropertyName];
-        vFound := False;
-        vHandled := aGrid.DoNodeFiltering(vNode);
-        // get nodes handle by user only if it continues visible
-        if not vHandled or (vHandled and (vsVisible in vNode^.States)) then
+        vValue := vData^.U[vColumn.PropertyName];
+        aGrid.DoNodeFiltering(vNode);
+        // get only visible nodes
+        if vsVisible in vNode^.States then
         begin
-          // search duplicated value
-          for vItem in Items do
-          begin
-            if (not aGrid.FilterOptions.CaseInsensitive and SameText(vItem.Caption, vValue))
-              or (aGrid.FilterOptions.CaseInsensitive and SameStr(vItem.Caption, vValue)) then
-            begin
-              vFound := True;
-              break;
-            end;
-          end;
-          // do not duplicate items
-          if not vFound then
-          begin
-            vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
-            vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
-            vNewMenuItem.Caption := vValue;
-            vNewMenuItem.OnClick := @OnMenuFilterClick;
-            vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
-            Items.Add(vNewMenuItem);
-            Inc(vCount);
-            if vCount >= aGrid.FilterOptions.DisplayedCount then
-              exit;
-          end;
+          vIndex := vTable.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
+          if vIndex >= 0 then
+            with _Safe(vTable.Value[vIndex])^ do
+              I[cCountName] := I[cCountName] + 1
+          else
+            vTable.AddItem(_ObjFast([vColumn.PropertyName, vValue, cCountName, 1]));
         end;
       end;
       vNode := aGrid.GetNextVisible(vNode);
+    end;
+    if aGrid.FilterOptions.Sort = gfsMostUsedValues then
+      vTable.SortArrayByFields([cCountName, vColumn.PropertyName], nil, nil, True);
+    for vObj in vTable.Objects do
+    begin
+      vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
+      vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+      vNewMenuItem.Caption := vObj^.S[vColumn.PropertyName];
+      vNewMenuItem.OnClick := @OnMenuFilterClick;
+      vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
+      Items.Add(vNewMenuItem);
+      Inc(vCount);
+      if vCount >= aGrid.FilterOptions.DisplayedCount then
+        exit;
     end;
   end;
 
