@@ -108,6 +108,14 @@ msgstr ""
 msgid "Clear all filters"
 msgstr ""
 
+#: tis.ui.resourcestrings.rsgridfiltercustomexpression
+msgid "Custom expression"
+msgstr ""
+
+#: tis.ui.resourcestrings.rsgridfiltercustomexpressioncaption
+msgid "Type a custom expression"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"
 msgid "Search..."

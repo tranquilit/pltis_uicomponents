@@ -46,6 +46,8 @@ resourcestring
   rsGridRestoreDefaultColumns = 'Restore default columns';
   rsGridFilter = 'Filter';
   rsGridFilterClear = 'Clear filter';
+  rsGridFilterCustomExpression = 'Custom expression';
+  rsGridFilterCustomExpressionCaption = 'Type a custom expression';
   rsGridFilterClearAll = 'Clear all filters';
 
   /// searchedit

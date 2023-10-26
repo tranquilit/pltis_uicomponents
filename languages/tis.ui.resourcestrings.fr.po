@@ -107,6 +107,14 @@ msgstr "Effacer le filtre"
 msgid "Clear all filters"
 msgstr "Effacer tous les filtres"
 
+#: tis.ui.resourcestrings.rsgridfiltercustomexpression
+msgid "Custom expression"
+msgstr "Expression personnalisée"
+
+#: tis.ui.resourcestrings.rsgridfiltercustomexpressioncaption
+msgid "Type a custom expression"
+msgstr "Tapez une expression personnalisée"
+
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"
 msgid "Search..."
