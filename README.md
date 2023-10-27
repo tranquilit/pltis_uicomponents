@@ -2,7 +2,7 @@
 
 All components created at Tranquil IT https://www.tranquil.it
 
-Copyright (C) 2012 - 2022 — All Rights Reserved.
+Copyright (C) 2012 - 2023 — All Rights Reserved.
 
 ## Components
 
