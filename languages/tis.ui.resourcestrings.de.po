@@ -110,11 +110,11 @@ msgstr "Alle Filter löschen"
 
 #: tis.ui.resourcestrings.rsgridfiltercustomexpression
 msgid "Custom expression"
-msgstr ""
+msgstr "Benutzerdefinierter Ausdruck"
 
 #: tis.ui.resourcestrings.rsgridfiltercustomexpressioncaption
 msgid "Type a custom expression"
-msgstr ""
+msgstr "Geben Sie einen benutzerdefinierten Ausdruck ein"
 
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"
