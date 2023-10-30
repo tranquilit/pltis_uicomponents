@@ -721,8 +721,8 @@ type
     procedure SetSelectedRows(const aValue: TDocVariantData);
     function GetSelectedObjects: PDocVariantDataDynArray;
     function GetSelectedRow: TDocVariantData;
-    procedure SetSelectedRow(aValue: TDocVariantData);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
+    procedure SetSelectedRow(const aValue: TDocVariantData);
     procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     procedure SetZebraLightness(aValue: Byte);
   protected const
@@ -987,6 +987,7 @@ type
     property NodeAdapter: TTisNodeAdapter read fNodeAdapter;
     /// returns a copy of the object from the main selected row
     // - do not use this to edit Data values, instead use SelectedObjects
+  public
     property SelectedRow: TDocVariantData read GetSelectedRow write SetSelectedRow;
     /// returns a copy of objects from selected rows
     // - do not use this to edit Data values, instead use SelectedObjects
@@ -3081,7 +3082,7 @@ begin
     result.AddFrom(Variant(vRow^));
 end;
 
-procedure TTisGrid.SetSelectedRow(aValue: TDocVariantData);
+procedure TTisGrid.SetSelectedRow(const aValue: TDocVariantData);
 var
   vArray: TDocVariantData;
 begin
