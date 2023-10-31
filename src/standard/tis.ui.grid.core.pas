@@ -723,7 +723,6 @@ type
     function GetSelectedRow: TDocVariantData;
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure SetSelectedRow(const aValue: TDocVariantData);
-    procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     procedure SetZebraLightness(aValue: Byte);
   protected const
     // ------------------------------- new constants -------------------------------
@@ -737,6 +736,7 @@ type
   protected
     DefaultCsvSeparator: string;
     // ------------------------------- inherited methods ---------------------------
+    procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     procedure Loaded; override;
     procedure WndProc(var Message: TLMessage); override;
     /// after cell editing to set Data
