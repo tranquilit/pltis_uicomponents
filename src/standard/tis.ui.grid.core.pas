@@ -223,7 +223,7 @@ type
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
     /// check if a filter exists
-    function FilterExists(const aPropertyName: RawUtf8; const aValue: string): Boolean;
+    function FilterExists(const aFieldName: RawUtf8; const aValue: string; aCustom: Boolean = False): Boolean;
     /// apply all filters in all columns
     procedure ApplyFilters;
     /// clear all filters
@@ -1705,8 +1705,8 @@ begin
     inherited AssignTo(aDest);
 end;
 
-function TTisGridFilterOptions.FilterExists(const aPropertyName: RawUtf8;
-  const aValue: string): Boolean;
+function TTisGridFilterOptions.FilterExists(const aFieldName: RawUtf8;
+  const aValue: string; aCustom: Boolean): Boolean;
 var
   vObj: PDocVariantData;
   vTest: TDocVariantData;
@@ -1714,8 +1714,9 @@ begin
   result := False;
   vTest.Clear;
   vTest.InitFast(dvObject);
-  vTest.U['field'] := aPropertyName;
+  vTest.U['field'] := aFieldName;
   vTest.S['value'] := aValue;
+  vTest.b['custom'] := aCustom;
   for vObj in fFilters.Objects do
   begin
     if vObj^.Equals(vTest) then
@@ -2117,11 +2118,15 @@ begin
       vItem.Checked := not vItem.Checked;
       vGrid := PopupComponent as TTisGrid;
       vColumn := vGrid.FindColumnByIndex(vItem.Tag);
-      vObj := _ObjFast(['field', vColumn.PropertyName, 'value', StringToUtf8(vItem.Caption)]);
+      vObj := _ObjFast([
+        'field', vColumn.PropertyName,
+        'value', StringToUtf8(vItem.Caption),
+        'custom', vGrid.FilterOptions.FilterExists(vColumn.PropertyName, StringToUtf8(vItem.Caption), True)
+      ]);
       if vItem.Checked then
         vGrid.FilterOptions.Filters.AddItem(vObj)
       else
-        vGrid.FilterOptions.Filters.DeleteByValue(vObj);
+        vGrid.FilterOptions.Filters.DeleteByValue(vObj, vGrid.FilterOptions.CaseInsensitive);
       vGrid.FilterOptions.ApplyFilters;
     end;
   end;
@@ -2173,11 +2178,11 @@ begin
       vValue := '';
       if Dialogs.InputQuery(rsGridFilterCustomExpression, rsGridFilterCustomExpressionCaption, False, vValue) then
       begin
-        vObj := _ObjFast(['field', vColumn.PropertyName, 'value', StringToUtf8(vValue)]);
+        vObj := _ObjFast(['field', vColumn.PropertyName, 'value', StringToUtf8(vValue), 'custom', True]);
         if vItem.Checked then
           vGrid.FilterOptions.Filters.AddItem(vObj)
         else
-          vGrid.FilterOptions.Filters.DeleteByValue(vObj);
+          vGrid.FilterOptions.Filters.DeleteByValue(vObj, vGrid.FilterOptions.CaseInsensitive);
         vGrid.FilterOptions.ApplyFilters;
       end;
     end;
@@ -2205,8 +2210,6 @@ end;
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
 
   procedure AddFilterItems(aGrid: TTisGrid; aColIdx: TColumnIndex);
-  const
-    cCountName = 'count';
   var
     vNewMenuItem: TTisGridHeaderMenuItem;
     vCount, vIndex: Integer;
@@ -2234,26 +2237,41 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           vIndex := vTable.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
           if vIndex >= 0 then
             with _Safe(vTable.Value[vIndex])^ do
-              I[cCountName] := I[cCountName] + 1
+              I['count'] := I['count'] + 1
           else
-            vTable.AddItem(_ObjFast([vColumn.PropertyName, vValue, cCountName, 1]));
+            vTable.AddItem(_ObjFast([vColumn.PropertyName, vValue, 'count', 1]));
         end;
       end;
       vNode := aGrid.GetNextVisible(vNode);
     end;
     if aGrid.FilterOptions.Sort = gfsMostUsedValues then
-      vTable.SortArrayByFields([cCountName, vColumn.PropertyName], nil, nil, True);
+      vTable.SortArrayByFields(['count', vColumn.PropertyName], nil, nil, True);
+    // add non-custom filters
     for vObj in vTable.Objects do
     begin
       vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
       vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
       vNewMenuItem.Caption := vObj^.S[vColumn.PropertyName];
       vNewMenuItem.OnClick := @OnMenuFilterClick;
-      vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vValue);
+      vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S[vColumn.PropertyName], False);
       Items.Add(vNewMenuItem);
       Inc(vCount);
       if vCount >= aGrid.FilterOptions.DisplayedCount then
-        exit;
+        Break;
+    end;
+    // add custom filters
+    for vObj in aGrid.FilterOptions.Filters.Objects do
+    begin
+      if not vObj^.B['custom']
+        or aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S['value'], False)
+        or (vObj^.U['field'] <> vColumn.PropertyName) then
+        continue;
+      vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
+      vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+      vNewMenuItem.Caption := vObj^.U['value'];
+      vNewMenuItem.OnClick := @OnMenuFilterClick;
+      vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S['value'], True);
+      Items.Add(vNewMenuItem);
     end;
   end;
 
