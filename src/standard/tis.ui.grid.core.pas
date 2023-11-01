@@ -1702,8 +1702,9 @@ begin
   begin
     with TTisGridFilterOptions(aDest) do
     begin
-      fFilters.Clear;
-      fFilters.InitCopy(Variant(self.fFilters), JSON_[mDefault]);
+      fFilters.Reset;
+      if not self.fFilters.IsVoid then
+        fFilters.InitCopy(Variant(self.fFilters), JSON_[mDefault]);
       CaseInsensitive := self.CaseInsensitive;
       DisplayedCount := self.DisplayedCount;
       Enabled := self.Enabled;
