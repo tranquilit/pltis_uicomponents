@@ -2347,6 +2347,7 @@ begin
         GetCursorPos(vMousePos);
         vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
         if (vColIdx > NoColumn)
+          and not vGrid.Data.IsVoid
           and vGrid.FilterOptions.Enabled
           and vGrid.FindColumnByIndex(vColIdx).AllowFilter
           and not vGrid.Data.IsVoid
@@ -2365,28 +2366,28 @@ begin
             Items.Add(vNewMenuItem);
           end;
           AddFilterItems(vGrid, vColIdx);
+          // add a divisor
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Caption := '-';
           Items.Add(vNewMenuItem);
+          // add the custom filter
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Tag := vColIdx;
           vNewMenuItem.Caption := rsGridFilterCustomExpression + '...';
           vNewMenuItem.OnClick := @OnMenuFilterCustomClick;
           Items.Add(vNewMenuItem);
-          if vGrid.FilterOptions.Filters.Count > 0 then
-          begin
-            // add a item for delete all filters
-            vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-            vNewMenuItem.Tag := NoColumn;
-            vNewMenuItem.Caption := rsGridFilterClearAll;
-            vNewMenuItem.OnClick := @OnMenuFilterClearClick;
-            Items.Add(vNewMenuItem);
-          end;
+          // add an item to delete all filters
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Tag := NoColumn;
+          vNewMenuItem.Caption := rsGridFilterClearAll;
+          vNewMenuItem.OnClick := @OnMenuFilterClearClick;
+          Items.Add(vNewMenuItem);
+          // add a divisor
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
         end;
       end;
-      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vNewMenuItem.Caption := '-';
-      Items.Add(vNewMenuItem);
       // add subitem "show/hide columns"
       vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
       vParentMenuItem.Caption := rsGridShowHideColumns;
