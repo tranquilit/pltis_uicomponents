@@ -48,6 +48,7 @@ resourcestring
   rsGridFilterClear = 'Clear filter';
   rsGridFilterCustomExpression = 'Custom expression';
   rsGridFilterCustomExpressionCaption = 'Type a custom expression';
+  rsGridFilterCustomExpressionRemove = 'Remove custom expression';
   rsGridFilterClearAll = 'Clear all filters';
 
   /// searchedit

@@ -231,6 +231,7 @@ type
     /// clear all filters
     procedure ClearFilters;
     procedure AddMruFilter(const aFieldName, aValue: RawUtf8);
+    procedure RemoveMruFilter(const aFieldName, aValue: RawUtf8);
     function MruFiltersAsArrayOfString(const aFieldName: RawUtf8): TStringArray;
     /// filter table
     property Filters: TDocVariantData read fFilters;
@@ -381,6 +382,7 @@ type
     procedure OnMenuFilterClick(aSender: TObject);
     procedure OnMenuFilterClearClick(aSender: TObject);
     procedure OnMenuFilterCustomClick(aSender: TObject);
+    procedure OnMenuFilterRemoveCustomClick(aSender: TObject);
   public
     constructor Create(aOwner: TComponent); override;
     procedure AssignTo(aDest: TPersistent); override;
@@ -1818,6 +1820,11 @@ begin
   fMruFilters.AddItem(vNewObj);
 end;
 
+procedure TTisGridFilterOptions.RemoveMruFilter(const aFieldName, aValue: RawUtf8);
+begin
+  fMruFilters.DeleteByValue(_ObjFast(['field', aFieldName, 'value', aValue]), fCaseInsensitive);
+end;
+
 function TTisGridFilterOptions.MruFiltersAsArrayOfString(
   const aFieldName: RawUtf8): TStringArray;
 var
@@ -2238,6 +2245,26 @@ begin
   end;
 end;
 
+procedure TTisGridHeaderPopupMenu.OnMenuFilterRemoveCustomClick(aSender: TObject);
+var
+  vGrid: TTisGrid;
+  vItem: TMenuItem;
+  vColumn: TTisGridColumn;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      vItem := aSender as TMenuItem;
+      vItem.Checked := not vItem.Checked;
+      vGrid := PopupComponent as TTisGrid;
+      vColumn := vGrid.FindColumnByIndex(vItem.Tag);
+      vGrid.FilterOptions.RemoveMruFilter(vColumn.PropertyName, StringToUtf8(vItem.Caption));
+      OnMenuFilterClick(aSender); // should remove it from filters too
+    end;
+  end;
+end;
+
 constructor TTisGridHeaderPopupMenu.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
@@ -2324,6 +2351,36 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     end;
   end;
 
+  procedure AddCustomExpressionsToRemoveItems(aGrid: TTisGrid; aColIdx: TColumnIndex);
+  var
+    vColumn: TTisGridColumn;
+    vObj: PDocVariantData;
+    vParentMenuItem, vNewMenuItem: TTisGridHeaderMenuItem;
+  begin
+    if aGrid.FilterOptions.fMruFilters.IsVoid then
+      Exit;
+    vParentMenuItem := nil;
+    vColumn := aGrid.FindColumnByIndex(aColIdx);
+    for vObj in aGrid.FilterOptions.fMruFilters.Objects do
+    begin
+      if vObj^.U['field'] = vColumn.PropertyName then
+      begin
+        if not Assigned(vParentMenuItem) then
+        begin
+          vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vParentMenuItem.Tag := NoColumn;
+          vParentMenuItem.Caption := rsGridFilterCustomExpressionRemove;
+          Items.Add(vParentMenuItem);
+        end;
+        vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
+        vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+        vNewMenuItem.Caption := vObj^.U['value'];
+        vNewMenuItem.OnClick := @OnMenuFilterRemoveCustomClick;
+        vParentMenuItem.Add(vNewMenuItem);
+      end;
+    end;
+  end;
+
 var
   vColPos: TColumnPosition;
   vColIdx: TColumnIndex;
@@ -2371,12 +2428,14 @@ begin
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Caption := '-';
           Items.Add(vNewMenuItem);
-          // add the custom filter
+          // add the custom expression menu item
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Tag := vColIdx;
           vNewMenuItem.Caption := rsGridFilterCustomExpression + '...';
           vNewMenuItem.OnClick := @OnMenuFilterCustomClick;
           Items.Add(vNewMenuItem);
+          // add a remove custom expression menu items
+          AddCustomExpressionsToRemoveItems(vGrid, vColIdx);
           // add an item to delete all filters
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Tag := NoColumn;
