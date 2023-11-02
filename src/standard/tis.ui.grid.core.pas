@@ -701,6 +701,7 @@ type
     fOnNodeFiltering: TOnGridNodeFiltering;
     fOnBeforeHtmlRendering: TOnGridBeforeHtmlRendering;
     fOnCalcAttributes: TOnGridCalcAttributes;
+    procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -742,7 +743,6 @@ type
   protected
     DefaultCsvSeparator: string;
     // ------------------------------- inherited methods ---------------------------
-    procedure WMKeyDown(var Message: TLMKeyDown); message LM_KEYDOWN;
     procedure Loaded; override;
     procedure WndProc(var Message: TLMessage); override;
     /// after cell editing to set Data
@@ -1690,7 +1690,6 @@ constructor TTisGridFilterOptions.Create(aGrid: TTisGrid);
 begin
   inherited Create;
   fGrid := aGrid;
-  fFilters.Clear;
   fFilters.InitArray([], JSON_FAST_FLOAT);
   fCaseInsensitive := DefaultCaseInsensitive;
   fDisplayedCount := DefaultDisplayedCount;
@@ -1724,7 +1723,6 @@ var
   vTest: TDocVariantData;
 begin
   result := False;
-  vTest.Clear;
   vTest.InitFast(dvObject);
   vTest.U['field'] := aFieldName;
   vTest.S['value'] := aValue;
@@ -2298,7 +2296,6 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
     vNode := aGrid.GetFirstVisible;
-    vTable.Clear;
     vTable.InitFast;
     while vNode <> nil do
     begin
@@ -3051,7 +3048,6 @@ var
   vColumns: PDocVariantData;
   vColAdapter: TTisColumnDataTypeAdapter;
 begin
-  vDoc.Clear;
   vDoc.InitFast;
   vColumns := vDoc.A_['columns'];
   for v1 := 0 to Header.Columns.Count -1 do
@@ -3128,7 +3124,6 @@ var
   vDoc: PDocVariantData;
 begin
   vNode := GetFirstSelected;
-  result.Clear;
   result.InitArray([], JSON_FAST);
   while vNode <> nil do
   begin
@@ -3202,7 +3197,6 @@ function TTisGrid.GetSelectedRow: TDocVariantData;
 var
   vRow: PDocVariantData;
 begin
-  result.Clear;
   result.InitFast;
   vRow := FocusedRow;
   if vRow <> nil then
@@ -4399,7 +4393,6 @@ var
   vCol: TTisGridColumn;
   v1: Integer;
 begin
-  vNew.Clear;
   vNew.InitFast;
   for v1 := 0 to Header.Columns.Count -1 do
   begin
@@ -4629,9 +4622,9 @@ var
   vField: TDocVariantFields;
   vName: string;
 begin
-  vData.Clear;
   // make a local copy, as fData could be used as argument too
   vData.InitJson(aObject.ToJson, JSON_FAST_FLOAT);
+  vObj.InitObject([], JSON_FAST_FLOAT);
   InitData;
   if NodeOptions.ShowChildren then
     for vField in vData.Fields do
@@ -4989,7 +4982,6 @@ var
   vObj: PDocVariantData;
   vField: TDocVariantFields;
 begin
-  result.Clear;
   result.InitObject([], JSON_FAST_FLOAT);
   for vObj in fData.Objects do
   begin
@@ -5083,6 +5075,8 @@ begin
   if vUseArray then
     StringDynArrayToRawUtf8DynArray(fKeyFieldsList, vArray);
   vNode := GetFirst(True);
+  vA.InitObject([],JSON_FAST);
+  vB.InitObject([],JSON_FAST);
   while vNode <> nil do
   begin
     vData := GetNodeAsPDocVariantData(vNode, False);
@@ -5400,7 +5394,7 @@ begin
     if ((coVisible in vCol.Options) or not aColumnsVisibleOnly) and (vCol.DataType <> cdtPassword) then
       vCols.AddItemText(vCol.PropertyName);
   end;
-  vRes.Clear;
+  vRes.InitObject([],JSON_FAST);
   vRows.Reduce(vCols.ToRawUtf8DynArray, False, vRes);
   result := vRes.ToJson;
 end;
