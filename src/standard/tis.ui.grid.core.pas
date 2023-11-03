@@ -224,6 +224,11 @@ type
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
     procedure AssignTo(aDest: TPersistent); override;
+    /// it will add a new filter to the list of filters values and trigger it,
+    // filtering the grid nodes by calling ApplyFilters
+    // - use aCustom to add to the MRU list filters as well
+    // - it returns the new item added
+    function AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean = False): Variant;
     /// check if a filter exists
     function FilterExists(const aFieldName: RawUtf8; const aValue: string; aCustom: Boolean = False): Boolean;
     /// apply all filters in all columns
@@ -232,7 +237,7 @@ type
     procedure ClearFilters;
     procedure AddMruFilter(const aFieldName, aValue: RawUtf8);
     procedure RemoveMruFilter(const aFieldName, aValue: RawUtf8);
-    function MruFiltersAsArrayOfString(const aFieldName: RawUtf8): TStringArray;
+    function GetMruFiltersAsArrayOfString(const aFieldName: RawUtf8): TStringArray;
     /// filter table
     property Filters: TDocVariantData read fFilters;
   published
@@ -1713,6 +1718,15 @@ begin
     inherited AssignTo(aDest);
 end;
 
+function TTisGridFilterOptions.AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean): Variant;
+begin
+  result := _ObjFast(['field', aFieldName, 'value', aValue, 'custom', aCustom]);
+  fFilters.AddItem(result);
+  if aCustom then
+    fGrid.FilterOptions.AddMruFilter(aFieldName, aValue);
+  fGrid.FilterOptions.ApplyFilters;
+end;
+
 function TTisGridFilterOptions.FilterExists(const aFieldName: RawUtf8;
   const aValue: string; aCustom: Boolean): Boolean;
 var
@@ -1820,7 +1834,7 @@ begin
   fMruFilters.DeleteByValue(_ObjFast(['field', aFieldName, 'value', aValue]), fCaseInsensitive);
 end;
 
-function TTisGridFilterOptions.MruFiltersAsArrayOfString(
+function TTisGridFilterOptions.GetMruFiltersAsArrayOfString(
   const aFieldName: RawUtf8): TStringArray;
 var
   vObj: PDocVariantData;
@@ -2225,7 +2239,7 @@ begin
       vColumn := vGrid.FindColumnByIndex(vItem.Tag);
       vValue := Dialogs.InputComboEx(
         rsGridFilterCustomExpression, rsGridFilterCustomExpressionCaption,
-        vGrid.FilterOptions.MruFiltersAsArrayOfString(vColumn.PropertyName), True);
+        vGrid.FilterOptions.GetMruFiltersAsArrayOfString(vColumn.PropertyName), True);
       if Trim(vValue) <> '' then
       begin
         vGrid.FilterOptions.AddMruFilter(vColumn.PropertyName, vValue);
