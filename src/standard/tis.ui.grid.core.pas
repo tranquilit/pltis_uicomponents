@@ -726,9 +726,7 @@ type
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
     function GetSelectedObjects: PDocVariantDataDynArray;
-    function GetSelectedRow: TDocVariantData;
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
-    procedure SetSelectedRow(const aValue: TDocVariantData);
     procedure SetZebraLightness(aValue: Byte);
   protected const
     // ------------------------------- new constants -------------------------------
@@ -994,7 +992,6 @@ type
     /// returns a copy of the object from the main selected row
     // - do not use this to edit Data values, instead use SelectedObjects
   public
-    property SelectedRow: TDocVariantData read GetSelectedRow write SetSelectedRow;
     /// returns a copy of objects from selected rows
     // - do not use this to edit Data values, instead use SelectedObjects
     property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
@@ -3191,25 +3188,6 @@ begin
     vNode := GetNextSelected(vNode, True);
   end;
   SetLength(result, vCount);
-end;
-
-function TTisGrid.GetSelectedRow: TDocVariantData;
-var
-  vRow: PDocVariantData;
-begin
-  result.InitFast;
-  vRow := FocusedRow;
-  if vRow <> nil then
-    result.AddFrom(Variant(vRow^));
-end;
-
-procedure TTisGrid.SetSelectedRow(const aValue: TDocVariantData);
-var
-  vArray: TDocVariantData;
-begin
-  vArray.InitArray([]);
-  vArray.AddItem(variant(aValue));
-  SetSelectedRows(vArray);
 end;
 
 procedure TTisGrid.SetSelectedAndTotalLabel(aValue: TLabel);

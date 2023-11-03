@@ -195,7 +195,7 @@ end;
 
 procedure TGridFrame.ClipboardSelectedRowLabelClick(Sender: TObject);
 begin
-  InOutputEdit.Lines.Text := Utf8ToString(Grid.SelectedRow.ToJson('', '', jsonHumanReadable));
+  InOutputEdit.Lines.Text := Utf8ToString(Grid.SelectedRows.ToJson('', '', jsonHumanReadable));
 end;
 
 procedure TGridFrame.GridPrepareEditor(aSender: TTisGrid;

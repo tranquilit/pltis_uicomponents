@@ -594,8 +594,8 @@ object GridFrame: TGridFrame
       Left = 336
       Height = 15
       Top = 3
-      Width = 95
-      Caption = 'from selected row'
+      Width = 100
+      Caption = 'from selected rows'
       Font.CharSet = ANSI_CHARSET
       Font.Color = clBlue
       Font.Height = -12
