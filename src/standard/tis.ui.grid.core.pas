@@ -231,7 +231,10 @@ type
     function AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean = False): Variant;
     /// check if a filter exists
     function FilterExists(const aFieldName: RawUtf8; const aValue: string; aCustom: Boolean = False): Boolean;
-    /// apply all filters in all columns
+    /// apply all filters
+    // - it is allowed more than one filter for the first column that user started filtering;
+    // the filter system will use an "OR" clause for all values chosen by the user
+    // - for the second column filtered onwards, it will use an "AND" clause, combining to values from the first column
     procedure ApplyFilters;
     /// clear all filters
     procedure ClearFilters;
@@ -1750,19 +1753,25 @@ end;
 
 procedure TTisGridFilterOptions.ApplyFilters;
 
-  procedure SetVisible(aNode: PVirtualNode);
+  procedure SetNodeVisible(aNode: PVirtualNode; aInclude: Boolean);
   begin
     if not fGrid.DoNodeFiltering(aNode) then
-      Include(aNode^.States, vsVisible);
+    begin
+      if aInclude then
+        Include(aNode^.States, vsVisible)
+      else
+        Exclude(aNode^.States, vsVisible);
+    end;
   end;
 
 var
   vData, vObj: PDocVariantData;
   vNode: PVirtualNode;
   vColumn: TTisGridColumn;
+  vPropertyName: RawUtf8;
 begin
   ClearHeaderArrows;
-  vNode := fGrid.GetFirst(True);
+  vNode := fGrid.GetFirst;
   while vNode <> nil do
   begin
     vData := fGrid.GetNodeAsPDocVariantData(vNode, False);
@@ -1770,28 +1779,37 @@ begin
     begin
       if fFilters.Count > 0 then
       begin
-        SetVisible(vNode);
+        SetNodeVisible(vNode, False);
+        vPropertyName := '';
         for vObj in fFilters.Objects do
         begin
-          if not (vsVisible in vNode^.States) then
-            Continue;
-          if IsMatchs(vObj^.U['value'], vData^.U[vObj^.S['field']], fGrid.FilterOptions.CaseInsensitive) then
+          vColumn := fGrid.FindColumnByPropertyName(vObj^.U['field']);
+          if vPropertyName = '' then
+            vPropertyName := vColumn.PropertyName;
+          if vPropertyName = vColumn.PropertyName then
           begin
-            if not fGrid.DoNodeFiltering(vNode) then
-              Include(vNode^.States, vsVisible);
+            if IsMatchs(vObj^.U['value'], vData^.U[vObj^.U['field']], fGrid.FilterOptions.CaseInsensitive) then
+              SetNodeVisible(vNode, True)
           end
           else
-            Exclude(vNode^.States, vsVisible);
-          vColumn := fGrid.FindColumnByPropertyName(vObj^.S['field']);
+          begin
+            if vsVisible in vNode^.States then
+            begin
+              if IsMatchs(vObj^.U['value'], vData^.U[vObj^.U['field']], fGrid.FilterOptions.CaseInsensitive) then
+                SetNodeVisible(vNode, True)
+              else
+                SetNodeVisible(vNode, False);
+            end;
+          end;
           // add an MARK_ARROW in header column text, if there are filters for this column
           if Pos(MARK_ARROW, vColumn.Text) = 0 then
             vColumn.Text := vColumn.Text + MARK_ARROW;
         end;
       end
       else
-        SetVisible(vNode);
+        SetNodeVisible(vNode, True);
     end;
-    vNode := fGrid.GetNext(vNode, True);
+    vNode := fGrid.GetNext(vNode);
   end;
   fGrid.Invalidate;
   if (fGrid.FocusedNode = nil) or not (vsVisible in fGrid.FocusedNode^.States) then
@@ -2306,7 +2324,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
   begin
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
-    vNode := aGrid.GetFirstVisible;
+    vNode := aGrid.GetFirst;
     vTable.InitFast;
     while vNode <> nil do
     begin
@@ -2315,18 +2333,14 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       begin
         vValue := vData^.U[vColumn.PropertyName];
         aGrid.DoNodeFiltering(vNode);
-        // get only visible nodes
-        if vsVisible in vNode^.States then
-        begin
-          vIndex := vTable.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
-          if vIndex >= 0 then
-            with _Safe(vTable.Value[vIndex])^ do
-              I['count'] := I['count'] + 1
-          else
-            vTable.AddItem(_ObjFast([vColumn.PropertyName, vValue, 'count', 1]));
-        end;
+        vIndex := vTable.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
+        if vIndex >= 0 then
+          with _Safe(vTable.Value[vIndex])^ do
+            I['count'] := I['count'] + 1
+        else
+          vTable.AddItem(_ObjFast([vColumn.PropertyName, vValue, 'count', 1]));
       end;
-      vNode := aGrid.GetNextVisible(vNode);
+      vNode := aGrid.GetNext(vNode);
     end;
     if aGrid.FilterOptions.Sort = gfsMostUsedValues then
       vTable.SortArrayByFields(['count', vColumn.PropertyName], nil, nil, True);
@@ -2349,7 +2363,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       if not vObj^.B['custom']
         or aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S['value'], False)
         or (vObj^.U['field'] <> vColumn.PropertyName) then
-        continue;
+        Continue;
       vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
       vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
       vNewMenuItem.Caption := vObj^.U['value'];
