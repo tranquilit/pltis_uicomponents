@@ -230,7 +230,7 @@ type
     // - it returns the new item added
     function AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean = False): Variant;
     /// check if a filter exists
-    function FilterExists(const aFieldName: RawUtf8; const aValue: string; aCustom: Boolean = False): Boolean;
+    function FilterExists(const aFieldName: RawUtf8; const aValue: string): Boolean;
     /// apply all filters
     // - it is allowed more than one filter for the first column that user started filtering;
     // the filter system will use an "OR" clause for all values chosen by the user
@@ -1731,7 +1731,7 @@ begin
 end;
 
 function TTisGridFilterOptions.FilterExists(const aFieldName: RawUtf8;
-  const aValue: string; aCustom: Boolean): Boolean;
+  const aValue: string): Boolean;
 var
   vObj: PDocVariantData;
   vTest: TDocVariantData;
@@ -2349,7 +2349,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
       vNewMenuItem.Caption := vObj^.S[vColumn.PropertyName];
       vNewMenuItem.OnClick := @OnMenuFilterClick;
-      vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S[vColumn.PropertyName]{, False});
+      vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S[vColumn.PropertyName]);
       Items.Add(vNewMenuItem);
       Inc(vCount);
       if vCount >= aGrid.FilterOptions.DisplayedCount then
