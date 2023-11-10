@@ -1,4 +1,3 @@
-
 // -----------------------------------------------------------------
 //    This file is part of Tranquil IT Software
 //    Copyright (C) 2012 - 2023  Tranquil IT https://www.tranquil.it
@@ -240,6 +239,7 @@ type
     procedure ClearFilters;
     procedure AddMruFilter(const aFieldName, aValue: RawUtf8);
     procedure RemoveMruFilter(const aFieldName, aValue: RawUtf8);
+    function GetMruFilters: PDocVariantData;
     function GetMruFiltersAsArrayOfString(const aFieldName: RawUtf8): TStringArray;
     /// filter table
     property Filters: TDocVariantData read fFilters;
@@ -1851,6 +1851,11 @@ begin
   fMruFilters.DeleteByValue(_ObjFast(['field', aFieldName, 'value', aValue]), fCaseInsensitive);
 end;
 
+function TTisGridFilterOptions.GetMruFilters: PDocVariantData;
+begin
+  result := @fMruFilters;
+end;
+
 function TTisGridFilterOptions.GetMruFiltersAsArrayOfString(
   const aFieldName: RawUtf8): TStringArray;
 var
@@ -2986,6 +2991,10 @@ begin
       ])
     );
   end;
+  if not FilterOptions.Filters.IsVoid then
+    vRes^.A_['filters']^.InitCopy(Variant(FilterOptions.Filters), JSON_[mDefault]);
+  if not FilterOptions.fMruFilters.IsVoid then
+    vRes^.A_['mrufilters']^.InitCopy(Variant(FilterOptions.fMruFilters), JSON_[mDefault]);
 end;
 
 procedure TTisGrid.SetSettings(const aValue: Variant);
@@ -3018,6 +3027,17 @@ begin
         else
           vCol.Options := vCol.Options - [coVisible];
       end;
+    end;
+    if not vSettings^.A_['filters']^.IsVoid then
+    begin
+      FilterOptions.Filters.Reset;
+      FilterOptions.Filters.InitCopy(Variant(vSettings^.A_['filters']^), JSON_[mDefault]);
+      FilterOptions.ApplyFilters;
+    end;
+    if not vSettings^.A_['mrufilters']^.IsVoid then
+    begin
+      FilterOptions.fMruFilters.Reset;
+      FilterOptions.fMruFilters.InitCopy(Variant(vSettings^.A_['mrufilters']^), JSON_[mDefault]);
     end;
     if vSettings^.GetAsInteger('sortcolumn', vIntValue) then
       Header.SortColumn := vIntValue;
