@@ -3003,6 +3003,7 @@ var
   vIntValue: Integer;
   vPropName: RawUtf8;
   vCol: TTisGridColumn;
+  vLock: TLightLock;
 begin
   vSettings := _Safe(aValue);
   if not vSettings^.IsVoid then
@@ -3036,8 +3037,14 @@ begin
     end;
     if not vSettings^.A_['mrufilters']^.IsVoid then
     begin
-      FilterOptions.fMruFilters.Reset;
-      FilterOptions.fMruFilters.InitCopy(Variant(vSettings^.A_['mrufilters']^), JSON_[mDefault]);
+      vLock.Init;
+      try
+        vLock.Lock;
+        FilterOptions.fMruFilters.Reset;
+        FilterOptions.fMruFilters.InitCopy(Variant(vSettings^.A_['mrufilters']^), JSON_[mDefault]);
+      finally
+        vLock.UnLock;
+      end;
     end;
     if vSettings^.GetAsInteger('sortcolumn', vIntValue) then
       Header.SortColumn := vIntValue;
