@@ -120,6 +120,10 @@ msgstr "Geben Sie einen benutzerdefinierten Ausdruck ein"
 msgid "Remove custom expression"
 msgstr "Benutzerdefinierten Ausdruck entfernen"
 
+#: tis.ui.resourcestrings.rsgridfilterenabled
+msgid "Enable AutoFilter"
+msgstr "Aktivieren Sie AutoFilter"
+
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"
 msgid "Search..."

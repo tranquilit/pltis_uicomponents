@@ -383,6 +383,7 @@ type
     fOptions: TTisGridHeaderPopupOptions;
     fOnAddPopupItem: TOnGridHeaderAddPopupItem;
     fOnColumnChange: TOnGridHeaderColumnChange;
+    fFilterEnabled: Boolean;
   protected
     procedure RemoveAutoItems; virtual;
     procedure DoAddHeaderPopupItem(const aColumn: TColumnIndex; out aItem: TTisGridHeaderPopupItem); virtual;
@@ -391,6 +392,7 @@ type
     procedure OnMenuShowAllClick(aSender: TObject);
     procedure OnMenuHideAllClick(aSender: TObject);
     procedure OnMenuRestoreClick(aSender: TObject);
+    procedure OnMenuFilterEnableClick(aSender: TObject);
     procedure OnMenuFilterClick(aSender: TObject);
     procedure OnMenuFilterClearClick(aSender: TObject);
     procedure OnMenuFilterCustomClick(aSender: TObject);
@@ -2192,6 +2194,22 @@ begin
    TTisGrid(PopupComponent).RestoreSettings;
 end;
 
+procedure TTisGridHeaderPopupMenu.OnMenuFilterEnableClick(aSender: TObject);
+var
+  vGrid: TTisGrid;
+begin
+  fFilterEnabled := not fFilterEnabled;
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      vGrid := PopupComponent as TTisGrid;
+      if not fFilterEnabled then
+        vGrid.FilterOptions.ClearFilters;
+    end;
+  end;
+end;
+
 procedure TTisGridHeaderPopupMenu.OnMenuFilterClick(aSender: TObject);
 var
   vGrid: TTisGrid;
@@ -2431,12 +2449,26 @@ begin
       if PopupComponent is TTisGrid then
       begin
         vGrid := PopupComponent as TTisGrid;
+        if vGrid.FilterOptions.Enabled then
+        begin
+          // add a divisor
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := rsGridFilterEnabled;
+          vNewMenuItem.OnClick := @OnMenuFilterEnableClick;
+          vNewMenuItem.Checked := fFilterEnabled;
+          Items.Add(vNewMenuItem);
+          // add a divisor
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
+        end;
         RecordZero(@vMousePos, TypeInfo(TPoint));
         GetCursorPos(vMousePos);
         vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
         if (vColIdx > NoColumn)
           and not vGrid.Data.IsVoid
           and vGrid.FilterOptions.Enabled
+          and fFilterEnabled
           and vGrid.FindColumnByIndex(vColIdx).AllowFilter
           and not vGrid.Data.IsVoid
           and not vGrid.NodeOptions.ShowChildren then

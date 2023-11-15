@@ -50,6 +50,7 @@ resourcestring
   rsGridFilterCustomExpressionCaption = 'Type a custom expression';
   rsGridFilterCustomExpressionRemove = 'Remove custom expression';
   rsGridFilterClearAll = 'Clear all filters';
+  rsGridFilterEnabled = 'Enable AutoFilter';
 
   /// searchedit
   rsSearchEditClearAll = 'Clear all';

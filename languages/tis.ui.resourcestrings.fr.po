@@ -119,6 +119,10 @@ msgstr "Tapez une expression personnalisée"
 msgid "Remove custom expression"
 msgstr "Supprimer l'expression personnalisée"
 
+#: tis.ui.resourcestrings.rsgridfilterenabled
+msgid "Enable AutoFilter"
+msgstr "Activer le filtre automatique"
+
 #: tis.ui.resourcestrings.rsgridfind
 msgctxt "tis.ui.resourcestrings.rsgridfind"
 msgid "Search..."
