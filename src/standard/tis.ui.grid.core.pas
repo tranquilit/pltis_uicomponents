@@ -4429,7 +4429,7 @@ var
   vCol: TTisGridColumn;
   v1: Integer;
 begin
-  vNew.InitFast;
+  vNew.InitObject([], JSON_FAST_FLOAT);
   for v1 := 0 to Header.Columns.Count -1 do
   begin
     vCol := Header.Columns[v1] as TTisGridColumn;
