@@ -206,12 +206,14 @@ type
     fClearAfterLoadingData: Boolean;
     fDisplayedCount: Integer;
     fEnabled: Boolean;
+    fMaxCaptionLength: Integer;
     fSort: TisGridFilterSort;
   protected const
     DefaultDisplayedCount = 10;
     DefaultEnabled = False;
     DefaultCaseInsensitive = False;
     DefaultClearAfterLoadingData = False;
+    DefaultMaxCaptionLength = 45;
     DefaultSort = gfsMostUsedValues;
   protected const
     MARK_ARROW = ' ↓';
@@ -252,6 +254,8 @@ type
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
     /// if FALSE, none filter menu item will be created
     property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
+    /// it determines the max length a menu item caption can be
+    property MaxCaptionLength: Integer read fMaxCaptionLength write fMaxCaptionLength default DefaultMaxCaptionLength;
     /// which order it will show the menu items
     property Sort: TisGridFilterSort read fSort write fSort default DefaultSort;
   end;
@@ -1699,6 +1703,7 @@ begin
   fCaseInsensitive := DefaultCaseInsensitive;
   fDisplayedCount := DefaultDisplayedCount;
   fEnabled := DefaultEnabled;
+  fMaxCaptionLength := DefaultMaxCaptionLength;
   fSort := DefaultSort;
 end;
 
@@ -2334,8 +2339,10 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
       if Assigned(vData) then
       begin
-        vValue := vData^.U[vColumn.PropertyName];
         aGrid.DoNodeFiltering(vNode);
+        vValue := vData^.U[vColumn.PropertyName];
+        if Length(vValue) > aGrid.FilterOptions.MaxCaptionLength then
+          vValue := Copy(vValue, 1, aGrid.FilterOptions.MaxCaptionLength) + '*';
         vIndex := vTable.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
         if vIndex >= 0 then
           with _Safe(vTable.Value[vIndex])^ do
