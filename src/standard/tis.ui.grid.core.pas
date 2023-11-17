@@ -1794,14 +1794,14 @@ begin
             vPropertyName := vColumn.PropertyName;
           if vPropertyName = vColumn.PropertyName then
           begin
-            if IsMatchs(vObj^.U['value'], vData^.U[vObj^.U['field']], fGrid.FilterOptions.CaseInsensitive) then
+            if IsMatch(vObj^.U['value'], vData^.U[vObj^.U['field']], fGrid.FilterOptions.CaseInsensitive) then
               SetNodeVisible(vNode, True)
           end
           else
           begin
             if vsVisible in vNode^.States then
             begin
-              if IsMatchs(vObj^.U['value'], vData^.U[vObj^.U['field']], fGrid.FilterOptions.CaseInsensitive) then
+              if IsMatch(vObj^.U['value'], vData^.U[vObj^.U['field']], fGrid.FilterOptions.CaseInsensitive) then
                 SetNodeVisible(vNode, True)
               else
                 SetNodeVisible(vNode, False);
