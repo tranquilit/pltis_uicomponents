@@ -113,8 +113,12 @@ msgid "Custom expression"
 msgstr "Benutzerdefinierter Ausdruck"
 
 #: tis.ui.resourcestrings.rsgridfiltercustomexpressioncaption
-msgid "Type a custom expression"
-msgstr "Geben Sie einen benutzerdefinierten Ausdruck ein"
+msgid ""
+"Type a custom expression:\n"
+"(you can add \"*\" at the beginning and/or end for partial match)"
+msgstr ""
+"Geben Sie einen benutzerdefinierten Ausdruck ein:\n"
+"(Sie können \"*\" am Anfang und/oder am Ende hinzufügen, um eine teilweise Übereinstimmung zu erzielen)"
 
 #: tis.ui.resourcestrings.rsgridfiltercustomexpressionremove
 msgid "Remove custom expression"
