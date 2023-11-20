@@ -2346,34 +2346,54 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     vData, vObj: PDocVariantData;
     vValue: RawUtf8;
     vColumn: TTisGridColumn;
-    vTable: TDocVariantData;
+    vJson, vFilters: TDocVariantData;
+    vItem: PVariant;
   begin
     vCount := 0;
     vColumn := aGrid.FindColumnByIndex(aColIdx);
     vNode := aGrid.GetFirst;
-    vTable.InitFast;
+    vFilters.InitFast;
+    vJson.InitFast;
     while vNode <> nil do
     begin
       vData := aGrid.GetNodeAsPDocVariantData(vNode, False);
       if Assigned(vData) then
       begin
-        aGrid.DoNodeFiltering(vNode);
         vValue := vData^.U[vColumn.PropertyName];
-        if Length(vValue) > aGrid.FilterOptions.MaxCaptionLength then
-          vValue := Copy(vValue, 1, aGrid.FilterOptions.MaxCaptionLength) + '*';
-        vIndex := vTable.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
-        if vIndex >= 0 then
-          with _Safe(vTable.Value[vIndex])^ do
-            I['count'] := I['count'] + 1
+        vJson.Clear;
+        if vJson.InitJson(vValue, JSON_FAST_FLOAT) and (vJson.Kind = dvArray) then
+        begin
+          for vItem in vJson.Items do
+          begin
+            vValue := '*' + VariantToUtf8(vItem^) + '*';
+            vIndex := vFilters.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
+            if vIndex >= 0 then
+              with _Safe(vFilters.Value[vIndex])^ do
+                I['count'] := I['count'] + 1
+            else
+              vFilters.AddItem(_ObjFast([vColumn.PropertyName, vValue, 'count', 1, 'is_array', True]));
+          end;
+        end
         else
-          vTable.AddItem(_ObjFast([vColumn.PropertyName, vValue, 'count', 1]));
+        begin
+          if Length(vValue) > aGrid.FilterOptions.MaxCaptionLength then
+            vValue := Copy(vValue, 1, aGrid.FilterOptions.MaxCaptionLength) + '*';
+          vIndex := vFilters.SearchItemByProp(vColumn.PropertyName, vValue, not aGrid.FilterOptions.CaseInsensitive);
+          if vIndex >= 0 then
+            with _Safe(vFilters.Value[vIndex])^ do
+              I['count'] := I['count'] + 1
+          else
+            vFilters.AddItem(_ObjFast([vColumn.PropertyName, vValue, 'count', 1]));
+        end;
       end;
       vNode := aGrid.GetNext(vNode);
     end;
     if aGrid.FilterOptions.Sort = gfsMostUsedValues then
-      vTable.SortArrayByFields(['count', vColumn.PropertyName], nil, nil, True);
+      vFilters.SortArrayByFields(['is_array', 'count', vColumn.PropertyName], nil, nil, True)
+    else
+      vFilters.SortArrayByFields(['is_array', vColumn.PropertyName], nil, nil, True);
     // add non-custom filters
-    for vObj in vTable.Objects do
+    for vObj in vFilters.Objects do
     begin
       vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
       vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
