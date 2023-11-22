@@ -904,7 +904,7 @@ type
     function CheckedRows: TDocVariantData;
     /// it will focus in a row it which is matching exactly to aValue,
     // but it will not clear the current selection
-    procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData);
+    procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData; aEnsureScrollIntoView: Boolean = False);
     /// returns Data property as an object instead an array (default)
     // - it will convert Data array to a only single JSON object
     // - each object in Data array will be its fields splitted into the result
@@ -1847,7 +1847,7 @@ begin
     fGrid.FocusedNode := fGrid.GetFirstVisible;
     fGrid.Selected[fGrid.FocusedNode] := True;
   end;
-  fGrid.ScrollIntoView(fGrid.FocusedNode, False);
+  //fGrid.ScrollIntoView(fGrid.FocusedNode, False);
 end;
 
 procedure TTisGridFilterOptions.ClearFilters;
@@ -2361,7 +2361,7 @@ end;
 
 procedure TTisGridHeaderPopupMenu.FillPopupMenu;
 
-  procedure AddFilterItems(aGrid: TTisGrid; aColIdx: TColumnIndex);
+  procedure AddAutoFiltersItems(aGrid: TTisGrid; aColIdx: TColumnIndex);
   var
     vNewMenuItem: TTisGridHeaderMenuItem;
     vCount, vIndex: Integer;
@@ -2513,7 +2513,6 @@ begin
           and vGrid.FilterOptions.Enabled
           and vGrid.FilterOptions.ShowAutoFilters
           and vGrid.FindColumnByIndex(vColIdx).AllowFilter
-          and not vGrid.Data.IsVoid
           and not vGrid.NodeOptions.ShowChildren then
         begin
           // add a item for delete filters for the column, if it has some filter(s) already
@@ -2528,7 +2527,7 @@ begin
             vNewMenuItem.Caption := '-';
             Items.Add(vNewMenuItem);
           end;
-          AddFilterItems(vGrid, vColIdx);
+          AddAutoFiltersItems(vGrid, vColIdx);
           // add a divisor
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Caption := '-';
@@ -5070,7 +5069,8 @@ begin
   end;
 end;
 
-procedure TTisGrid.SetFocusedRowNoClearSelection(aValue: PDocVariantData);
+procedure TTisGrid.SetFocusedRowNoClearSelection(aValue: PDocVariantData;
+  aEnsureScrollIntoView: Boolean);
 var
   vArray: TNodeArray;
 begin
@@ -5083,7 +5083,9 @@ begin
     begin
       FocusedNode := vArray[0];
       Selected[vArray[0]] := True;
-      ScrollIntoView(FocusedNode, False);
+      // this is slow when there are many rows
+      if EnsureScrollIntoView then
+        ScrollIntoView(FocusedNode, False);
     end;
   end;
 end;
