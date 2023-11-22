@@ -904,7 +904,7 @@ type
     function CheckedRows: TDocVariantData;
     /// it will focus in a row it which is matching exactly to aValue,
     // but it will not clear the current selection
-    procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData; aEnsureScrollIntoView: Boolean = False);
+    procedure SetFocusedRowNoClearSelection(aValue: PDocVariantData; EnsureScrollIntoView: Boolean = False);
     /// returns Data property as an object instead an array (default)
     // - it will convert Data array to a only single JSON object
     // - each object in Data array will be its fields splitted into the result
@@ -5070,7 +5070,7 @@ begin
 end;
 
 procedure TTisGrid.SetFocusedRowNoClearSelection(aValue: PDocVariantData;
-  aEnsureScrollIntoView: Boolean);
+  EnsureScrollIntoView: Boolean);
 var
   vArray: TNodeArray;
 begin
