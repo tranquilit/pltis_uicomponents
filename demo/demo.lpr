@@ -14,7 +14,7 @@ uses
   demo.main,
   demo.grid.frame,
   demo.tageditor.frame,
-  demo.searchedit.frame;
+  demo.searchedit.frame, FrameViewer09;
 
 {$R *.res}
 
