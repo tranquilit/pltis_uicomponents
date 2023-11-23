@@ -155,25 +155,28 @@ end;"/>
       <OutDir Value="..\languages"/>
       <EnableI18NForLFM Value="True"/>
     </i18n>
-    <RequiredPkgs Count="6">
+    <RequiredPkgs Count="7">
       <Item1>
-        <PackageName Value="DateTimeCtrls"/>
+        <PackageName Value="TAChartLazarusPkg"/>
       </Item1>
       <Item2>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="DateTimeCtrls"/>
       </Item2>
       <Item3>
-        <PackageName Value="pltis_utils"/>
+        <PackageName Value="SynEdit"/>
       </Item3>
       <Item4>
-        <PackageName Value="mormot2"/>
+        <PackageName Value="pltis_utils"/>
       </Item4>
       <Item5>
-        <PackageName Value="virtualtreeview_package"/>
+        <PackageName Value="mormot2"/>
       </Item5>
       <Item6>
-        <PackageName Value="IDEIntf"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item6>
+      <Item7>
+        <PackageName Value="IDEIntf"/>
+      </Item7>
     </RequiredPkgs>
     <UsageOptions>
       <IncludePath Value="$(PkgIncPath)"/>
