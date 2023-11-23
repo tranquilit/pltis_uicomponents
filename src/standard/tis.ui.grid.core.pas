@@ -47,6 +47,7 @@ uses
   tis.ui.resourcestrings,
   tis.ui.searchedit,
   tis.ui.grid.controls,
+  tis.ui.grid.chart,
   tis.frameviewer;
 
 type
@@ -266,6 +267,7 @@ type
   /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
+    fAllowChart: Boolean;
     fAllowFilter: Boolean;
     fDataType: TTisColumnDataType;
     fDataTypeOptions: TTisGridColumnDataTypeOptions;
@@ -276,6 +278,7 @@ type
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
   protected const
+    DefaultAllowChart = True;
     DefaultAllowFilter = True;
     DefaultDataType = cdtString;
     DefaultRequired = False;
@@ -285,6 +288,8 @@ type
     destructor Destroy; override;
     procedure Assign(aSource: TPersistent); override;
   published
+    /// allow to show a chart for this column
+    property AllowChart: Boolean read fAllowChart write fAllowChart default DefaultAllowChart;
     /// allow use filter for this column, if Grid.FilterOptions.Enable is TRUE
     property AllowFilter: Boolean read fAllowFilter write fAllowFilter default DefaultAllowFilter;
     property DataType: TTisColumnDataType read fDataType write fDataType default DefaultDataType;
@@ -394,6 +399,7 @@ type
     procedure OnMenuShowAllClick(aSender: TObject);
     procedure OnMenuHideAllClick(aSender: TObject);
     procedure OnMenuRestoreClick(aSender: TObject);
+    procedure OnMenuShowChart(aSender: TObject);
     procedure OnMenuFilterEnableClick(aSender: TObject);
     procedure OnMenuFilterClick(aSender: TObject);
     procedure OnMenuFilterClearClick(aSender: TObject);
@@ -1005,8 +1011,6 @@ type
     // - you can use it to get more information about a node, especially when
     // it is working in a tree mode with children nodes
     property NodeAdapter: TTisNodeAdapter read fNodeAdapter;
-    /// returns a copy of the object from the main selected row
-    // - do not use this to edit Data values, instead use SelectedObjects
   public
     /// returns a copy of objects from selected rows
     // - do not use this to edit Data values, instead use SelectedObjects
@@ -1930,6 +1934,7 @@ constructor TTisGridColumn.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
   Options := Options + [coWrapCaption];
+  fAllowChart := DefaultAllowChart;
   fAllowFilter := DefaultAllowFilter;
   fDataType := DefaultDataType;
   fDataTypeOptions := TTisGridColumnDataTypeOptions.Create;
@@ -2220,6 +2225,47 @@ begin
    TTisGrid(PopupComponent).RestoreSettings;
 end;
 
+procedure TTisGridHeaderPopupMenu.OnMenuShowChart(aSender: TObject);
+var
+  vGrid: TTisGrid;
+  vColumn: TTisGridColumn;
+  vItem: TMenuItem;
+  vObj: PDocVariantData;
+  vLabels: TDocVariantData;
+  vIndex: Integer;
+  vValue: RawUtf8;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      vItem := aSender as TMenuItem;
+      vGrid := PopupComponent as TTisGrid;
+      vLabels.InitFast;
+      with TGridChartForm.Create(Owner) do
+      try
+        ListChartSource.Clear;
+        vColumn := vGrid.FindColumnByIndex(vItem.Tag);
+        for vObj in vGrid.SelectedObjects do
+        begin
+          vValue := vObj^.U[vColumn.PropertyName];
+          vIndex := vLabels.SearchItemByProp('field', vValue, not vGrid.FilterOptions.CaseInsensitive);
+          if vIndex >= 0 then
+            with _Safe(vLabels.Value[vIndex])^ do
+              I['count'] := I['count'] + 1
+          else
+            vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
+        end;
+        for vObj in vLabels.Objects do
+          ListChartSource.Add(0, (vObj^.D['count'] / Length(vGrid.SelectedObjects)), vObj^.S['field']);
+        ShowModal;
+      finally
+        Free;
+      end;
+    end;
+  end;
+end;
+
 procedure TTisGridHeaderPopupMenu.OnMenuFilterEnableClick(aSender: TObject);
 var
   vGrid: TTisGrid;
@@ -2422,7 +2468,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     for vObj in vFilters.Objects do
     begin
       vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
-      vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+      vNewMenuItem.Tag := aColIdx; // it will be use to locate the column by its index
       vNewMenuItem.Caption := vObj^.S[vColumn.PropertyName];
       vNewMenuItem.OnClick := @OnMenuFilterClick;
       vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.S[vColumn.PropertyName]);
@@ -2437,7 +2483,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
       if vObj^.U['field'] <> vColumn.PropertyName then
         Continue;
       vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
-      vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+      vNewMenuItem.Tag := aColIdx; // it will be use to locate the column by its index
       vNewMenuItem.Caption := vObj^.U['value'];
       vNewMenuItem.OnClick := @OnMenuFilterClick;
       vNewMenuItem.Checked := aGrid.FilterOptions.FilterExists(vColumn.PropertyName, vObj^.U['value']);
@@ -2467,7 +2513,7 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
           Items.Add(vParentMenuItem);
         end;
         vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
-        vNewMenuItem.Tag := aColIdx; // it will be use on OnMenuFilterClick
+        vNewMenuItem.Tag := aColIdx; // it will be use to locate the column by its index
         vNewMenuItem.Caption := vObj^.U['value'];
         vNewMenuItem.OnClick := @OnMenuFilterRemoveCustomClick;
         vParentMenuItem.Add(vNewMenuItem);
@@ -2484,6 +2530,7 @@ var
   vVisibleItem: TMenuItem;
   vMousePos: TPoint;
   vGrid: TTisGrid;
+  vColumn: TTisGridColumn;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
@@ -2511,18 +2558,19 @@ begin
         RecordZero(@vMousePos, TypeInfo(TPoint));
         GetCursorPos(vMousePos);
         vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
+        vColumn := vGrid.FindColumnByIndex(vColIdx);
         if (vColIdx > NoColumn)
           and not vGrid.Data.IsVoid
           and vGrid.FilterOptions.Enabled
           and vGrid.FilterOptions.ShowAutoFilters
-          and vGrid.FindColumnByIndex(vColIdx).AllowFilter
+          and vColumn.AllowFilter
           and not vGrid.NodeOptions.ShowChildren then
         begin
           // add a item for delete filters for the column, if it has some filter(s) already
           if Pos(vGrid.FilterOptions.MARK_ARROW, vGrid.FindColumnByIndex(vColIdx).Text) > 0 then
           begin
             vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-            vNewMenuItem.Tag := vColIdx;
+            vNewMenuItem.Tag := vColIdx; // it will be use to locate the column by its index
             vNewMenuItem.Caption := rsGridFilterClear;
             vNewMenuItem.OnClick := @OnMenuFilterClearClick;
             Items.Add(vNewMenuItem);
@@ -2537,7 +2585,7 @@ begin
           Items.Add(vNewMenuItem);
           // add the custom expression menu item
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Tag := vColIdx;
+          vNewMenuItem.Tag := vColIdx; // it will be use to locate the column by its index
           vNewMenuItem.Caption := rsGridFilterCustomExpression + '...';
           vNewMenuItem.OnClick := @OnMenuFilterCustomClick;
           Items.Add(vNewMenuItem);
@@ -2554,71 +2602,84 @@ begin
           vNewMenuItem.Caption := '-';
           Items.Add(vNewMenuItem);
         end;
-      end;
-      // add subitem "show/hide columns"
-      vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vParentMenuItem.Caption := rsGridShowHideColumns;
-      Items.Add(vParentMenuItem);
-      if hoShowImages in Options then
-        self.Images := Images
-      else
-        // remove a possible reference to image list of another tree previously assigned
-        self.Images := nil;
-      vVisibleItem := nil;
-      vVisibleCounter := 0;
-      // add column menu items
-      for vColPos := 0 to Columns.Count - 1 do
-      begin
-        if poOriginalOrder in fOptions then
-          vColIdx := vColPos
+        // add subitem "show/hide columns"
+        vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
+        vParentMenuItem.Caption := rsGridShowHideColumns;
+        Items.Add(vParentMenuItem);
+        if hoShowImages in Options then
+          self.Images := Images
         else
-          vColIdx := Columns.ColumnFromPosition(vColPos);
-        if vColIdx = NoColumn then
-          break;
-        with Columns[vColIdx] as TTisGridColumn do
+          // remove a possible reference to image list of another tree previously assigned
+          self.Images := nil;
+        vVisibleItem := nil;
+        vVisibleCounter := 0;
+        // add column menu items
+        for vColPos := 0 to Columns.Count - 1 do
         begin
-          if coVisible in Options then
-            Inc(vVisibleCounter);
-          DoAddHeaderPopupItem(vColIdx, vHpi);
-          if vHpi <> apHidden then
+          if poOriginalOrder in fOptions then
+            vColIdx := vColPos
+          else
+            vColIdx := Columns.ColumnFromPosition(vColPos);
+          if vColIdx = NoColumn then
+            break;
+          with Columns[vColIdx] as TTisGridColumn do
           begin
-            vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-            vNewMenuItem.Tag := vColIdx;
-            vNewMenuItem.Caption := Text + ' (' + Utf8ToString(PropertyName) + ')';
-            vNewMenuItem.Hint := Hint;
-            vNewMenuItem.ImageIndex := ImageIndex;
-            vNewMenuItem.Checked := coVisible in Options;
-            vNewMenuItem.OnClick := @OnMenuItemClick;
-            if vHpi = apDisabled then
-              vNewMenuItem.Enabled := False
-            else
-              if coVisible in Options then
-                vVisibleItem := vNewMenuItem;
-            vParentMenuItem.Add(vNewMenuItem);
+            if coVisible in Options then
+              Inc(vVisibleCounter);
+            DoAddHeaderPopupItem(vColIdx, vHpi);
+            if vHpi <> apHidden then
+            begin
+              vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+              vNewMenuItem.Tag := vColIdx; // it will be use to locate the column by its index
+              vNewMenuItem.Caption := Text + ' (' + Utf8ToString(PropertyName) + ')';
+              vNewMenuItem.Hint := Hint;
+              vNewMenuItem.ImageIndex := ImageIndex;
+              vNewMenuItem.Checked := coVisible in Options;
+              vNewMenuItem.OnClick := @OnMenuItemClick;
+              if vHpi = apDisabled then
+                vNewMenuItem.Enabled := False
+              else
+                if coVisible in Options then
+                  vVisibleItem := vNewMenuItem;
+              vParentMenuItem.Add(vNewMenuItem);
+            end;
           end;
         end;
+        // show all columns
+        vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+        vNewMenuItem.Tag := -1;
+        vNewMenuItem.Caption := rsGridShowAllColumns;
+        vNewMenuItem.OnClick := @OnMenuShowAllClick;
+        Items.Add(vNewMenuItem);
+        // hide all columns
+        vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+        vNewMenuItem.Tag := -2;
+        vNewMenuItem.Caption := rsGridHideAllColumns;
+        vNewMenuItem.OnClick := @OnMenuHideAllClick;
+        Items.Add(vNewMenuItem);
+        // restore default columns
+        vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+        vNewMenuItem.Tag := -3;
+        vNewMenuItem.Caption := rsGridRestoreDefaultColumns;
+        vNewMenuItem.OnClick := @OnMenuRestoreClick;
+        Items.Add(vNewMenuItem);
+        // conditionally disable menu item of last enabled column
+        if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
+          vVisibleItem.Enabled := False;
+        // chart
+        if Assigned(vColumn) and vColumn.AllowChart then
+        begin
+          // add a divisor
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Caption := '-';
+          Items.Add(vNewMenuItem);
+          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vNewMenuItem.Tag := vColumn.Index;
+          vNewMenuItem.Caption := 'Chart';
+          vNewMenuItem.OnClick := @OnMenuShowChart;
+          Items.Add(vNewMenuItem);
+        end;
       end;
-      // show all columns
-      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vNewMenuItem.Tag := -1;
-      vNewMenuItem.Caption := rsGridShowAllColumns;
-      vNewMenuItem.OnClick := @OnMenuShowAllClick;
-      Items.Add(vNewMenuItem);
-      // hide all columns
-      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vNewMenuItem.Tag := -2;
-      vNewMenuItem.Caption := rsGridHideAllColumns;
-      vNewMenuItem.OnClick := @OnMenuHideAllClick;
-      Items.Add(vNewMenuItem);
-      // restore default columns
-      vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-      vNewMenuItem.Tag := -3;
-      vNewMenuItem.Caption := rsGridRestoreDefaultColumns;
-      vNewMenuItem.OnClick := @OnMenuRestoreClick;
-      Items.Add(vNewMenuItem);
-      // conditionally disable menu item of last enabled column
-      if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
-        vVisibleItem.Enabled := False;
     end;
   end;
 end;

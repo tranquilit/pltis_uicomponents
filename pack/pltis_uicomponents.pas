@@ -13,7 +13,7 @@ uses
   tis.ui.registry, tis.ui.searchedit, tis.ui.syncontroledit, 
   tis.ui.tageditor.core, tis.ui.togglebutton, tis.ui.toolbar.core, 
   tis.ui.toolbar.editor, tis.ui.grid.copyspecial, tis.ui.resourcestrings, 
-  tis.ui.formtimeout, tis.frameviewer, LazarusPackageIntf;
+  tis.ui.formtimeout, tis.frameviewer, tis.ui.grid.chart, LazarusPackageIntf;
 
 implementation
 

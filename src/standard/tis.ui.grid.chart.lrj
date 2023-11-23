@@ -1,0 +1,20 @@
+{"version":1,"strings":[
+{"hash":4843668,"name":"tgridchartform.caption","sourcebytes":[67,104,97,114,116],"value":"Chart"},
+{"hash":22261,"name":"tgridchartform.tspie.caption","sourcebytes":[80,105,101],"value":"Pie"},
+{"hash":238030851,"name":"tgridchartform.lblwords.caption","sourcebytes":[76,97,98,101,108,32,119,111,114,100,115],"value":"Label words"},
+{"hash":238433941,"name":"tgridchartform.lbllabelangle.caption","sourcebytes":[76,97,98,101,108,32,97,110,103,108,101],"value":"Label angle"},
+{"hash":5046787,"name":"tgridchartform.cbrotate.caption","sourcebytes":[82,111,116,97,116,101,32,108,97,98,101,108,115],"value":"Rotate labels"},
+{"hash":76115012,"name":"tgridchartform.cbmarkpositions.text","sourcebytes":[65,114,111,117,110,100],"value":"Around"},
+{"hash":884,"name":"tgridchartform.cb3d.caption","sourcebytes":[51,68],"value":"3D"},
+{"hash":50104229,"name":"tgridchartform.lblinnerradius.caption","sourcebytes":[73,110,110,101,114,32,114,97,100,105,117,115,32,37],"value":"Inner radius %"},
+{"hash":4900776,"name":"tgridchartform.lbldepth.caption","sourcebytes":[68,101,112,116,104],"value":"Depth"},
+{"hash":144013297,"name":"tgridchartform.lbldepthbrightnessdelta.caption","sourcebytes":[66,114,105,103,104,116,110,101,115,115,32,100,101,108,116,97],"value":"Brightness delta"},
+{"hash":125730467,"name":"tgridchartform.cbshowlabels.caption","sourcebytes":[83,104,111,119,32,108,97,98,101,108,115],"value":"Show labels"},
+{"hash":11173925,"name":"tgridchartform.lbldistance.caption","sourcebytes":[68,105,115,116,97,110,99,101],"value":"Distance"},
+{"hash":180128884,"name":"tgridchartform.cbmarkattachment.text","sourcebytes":[68,101,102,97,117,108,116],"value":"Default"},
+{"hash":58373716,"name":"tgridchartform.cbmarkpositionscentered.caption","sourcebytes":[77,97,114,107,32,112,111,115,105,116,105,111,110,115,32,99,101,110,116,101,114,101,100],"value":"Mark positions centered"},
+{"hash":104785589,"name":"tgridchartform.lblstartangle.caption","sourcebytes":[83,116,97,114,116,32,97,110,103,108,101],"value":"Start angle"},
+{"hash":157516773,"name":"tgridchartform.lblviewangle.caption","sourcebytes":[86,105,101,119,32,97,110,103,108,101],"value":"View angle"},
+{"hash":123114364,"name":"tgridchartform.cmborientation.text","sourcebytes":[110,111,114,109,97,108],"value":"normal"},
+{"hash":120605429,"name":"tgridchartform.lblanglerange.caption","sourcebytes":[65,110,103,108,101,32,114,97,110,103,101],"value":"Angle range"}
+]}

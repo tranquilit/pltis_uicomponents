@@ -46,7 +46,7 @@ end;"/>
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="25">
+    <Files Count="28">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -148,6 +148,18 @@ end;"/>
         <Filename Value="..\src\3rd\tis.frameviewer.pas"/>
         <UnitName Value="tis.frameviewer"/>
       </Item25>
+      <Item26>
+        <Filename Value="..\src\standard\tis.ui.grid.chart.lfm"/>
+        <Type Value="LFM"/>
+      </Item26>
+      <Item27>
+        <Filename Value="..\src\standard\tis.ui.grid.chart.lrj"/>
+        <Type Value="Text"/>
+      </Item27>
+      <Item28>
+        <Filename Value="..\src\standard\tis.ui.grid.chart.pas"/>
+        <UnitName Value="tis.ui.grid.chart"/>
+      </Item28>
     </Files>
     <CompatibilityMode Value="True"/>
     <i18n>
