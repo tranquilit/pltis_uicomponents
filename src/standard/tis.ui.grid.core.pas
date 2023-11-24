@@ -2667,7 +2667,7 @@ begin
         if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
           vVisibleItem.Enabled := False;
         // chart
-        if Assigned(vColumn) and vColumn.AllowChart then
+        if Assigned(vColumn) and vColumn.AllowChart and not vGrid.Data.IsVoid then
         begin
           // add a divisor
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
