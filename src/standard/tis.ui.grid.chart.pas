@@ -25,6 +25,8 @@ uses
   TASeries,
   TASources,
   TACustomSource,
+  TAChartUtils,
+  TATextElements,
   TATools;
 
 type
@@ -79,19 +81,19 @@ type
     procedure seViewAngleChange(Sender: TObject);
     procedure seWordsChange(Sender: TObject);
     procedure seLabelAngleChange(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
     fSavedDataPoints: TStrings;
+    fSaveMarks: record
+      Style: TSeriesMarksStyle;
+      Format: string;
+    end;
   end;
 
 implementation
 
 {$R *.lfm}
-
-uses
-  TAChartUtils, TATextElements;
 
 { TGridChartForm }
 
@@ -120,7 +122,13 @@ end;
 procedure TGridChartForm.cbShowLabelsChange(Sender: TObject);
 begin
   if cbShowLabels.Checked then
-    ChartPiePieSeries1.Marks.Style := smsLabelPercent
+  begin
+    with ChartPiePieSeries1.Marks do
+    begin
+      Style := fSaveMarks.Style;
+      Format := fSaveMarks.Format;
+    end;
+  end
   else
     ChartPiePieSeries1.Marks.Style := smsNone;
   seWords.Enabled := cbShowLabels.Checked;
@@ -204,14 +212,14 @@ begin
   ChartPiePieSeries1.Marks.LabelFont.Orientation := seLabelAngle.Value * 10;
 end;
 
-procedure TGridChartForm.FormShow(Sender: TObject);
-begin
-  fSavedDataPoints.Assign(ListChartSource.DataPoints);
-end;
-
 procedure TGridChartForm.FormCreate(Sender: TObject);
 begin
   fSavedDataPoints := TStringList.Create;
+  with fSaveMarks do
+  begin
+    Style := smsCustom;
+    Format := ChartPiePieSeries1.Marks.Format;
+  end;
 end;
 
 procedure TGridChartForm.FormDestroy(Sender: TObject);
@@ -246,12 +254,8 @@ procedure TGridChartForm.seWordsChange(Sender: TObject);
 var
   v1: Integer;
 begin
-  if seWords.Value = 0 then
-  begin
-    ChartPiePieSeries1.Marks.Style := smsValue;
-    exit;
-  end;
-  ChartPiePieSeries1.Marks.Style := smsLabelPercent;
+  if fSavedDataPoints.Count = 0 then
+    fSavedDataPoints.Assign(ListChartSource.DataPoints);
   ListChartSource.DataPoints.Assign(fSavedDataPoints);
   for v1 := 0 to ListChartSource.Count - 1 do
   begin

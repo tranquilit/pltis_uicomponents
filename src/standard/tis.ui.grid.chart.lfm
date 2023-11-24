@@ -9,7 +9,6 @@ object GridChartForm: TGridChartForm
   ClientWidth = 659
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  OnShow = FormShow
   Position = poOwnerFormCenter
   LCLVersion = '2.3.0.0'
   object PageControl1: TPageControl
@@ -62,10 +61,10 @@ object GridChartForm: TGridChartForm
           DepthBrightnessDelta = -32
           Exploded = True
           Marks.Distance = 40
-          Marks.Format = '%2:s %1:.2f%%'
+          Marks.Format = '%2:s %0:.9g (%1:.2f%%)'
           Marks.Frame.Color = clSilver
           Marks.LinkPen.Color = clSilver
-          Marks.Style = smsLabelPercent
+          Marks.Style = smsCustom
           Source = ListChartSource
         end
       end
@@ -96,6 +95,7 @@ object GridChartForm: TGridChartForm
           BorderSpacing.Top = 6
           BorderSpacing.Right = 24
           MaxValue = 10
+          MinValue = 1
           OnChange = seWordsChange
           TabOrder = 0
           Value = 5
