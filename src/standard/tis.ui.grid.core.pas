@@ -2257,7 +2257,7 @@ begin
             vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
         end;
         for vObj in vLabels.Objects do
-          ListChartSource.Add(0, (vObj^.D['count'] / Length(vGrid.SelectedObjects)), vObj^.S['field']);
+          ListChartSource.Add(0, vObj^.D['count'], vObj^.S['field']);
         ShowModal;
       finally
         Free;
