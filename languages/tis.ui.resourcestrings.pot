@@ -23,6 +23,10 @@ msgstr ""
 msgid "Advanced customize of table..."
 msgstr ""
 
+#: tis.ui.resourcestrings.rsgridchartshow
+msgid "Show chart"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridclearcell
 msgid "Clear cell"
 msgstr ""

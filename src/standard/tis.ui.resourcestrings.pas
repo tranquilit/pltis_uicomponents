@@ -51,6 +51,7 @@ resourcestring
   rsGridFilterCustomExpressionRemove = 'Remove custom expression';
   rsGridFilterClearAll = 'Clear all filters';
   rsGridFilterEnabled = 'Enable AutoFilter';
+  rsGridChartShow = 'Show chart';
 
   /// searchedit
   rsSearchEditClearAll = 'Clear all';

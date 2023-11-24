@@ -2675,7 +2675,7 @@ begin
           Items.Add(vNewMenuItem);
           vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
           vNewMenuItem.Tag := vColumn.Index;
-          vNewMenuItem.Caption := 'Chart';
+          vNewMenuItem.Caption := rsGridChartShow;
           vNewMenuItem.OnClick := @OnMenuShowChart;
           Items.Add(vNewMenuItem);
         end;
