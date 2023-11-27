@@ -632,7 +632,7 @@ type
   /// event for comparing rows of objects
   // - as used by TTisGrid.OnCompareByRow
   TOnGridCompareByRow = function(aSender: TTisGrid; const aPropertyName: RawUtf8;
-    const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt of object;
+    const aRow1, aRow2: PDocVariantData; var aHandled: Boolean): PtrInt of object;
 
   /// event to manipulate aData before use it
   // - use it for check/change/assign default values on aData argument or abort the process
@@ -4249,7 +4249,7 @@ begin
   if not Assigned(aRow1) or not Assigned(aRow2) then
     exit(0);
   if Assigned(OnCompareByRow) then
-    result := OnCompareByRow(self, aPropertyName, aRow1^, aRow2^, vHandled)
+    result := OnCompareByRow(self, aPropertyName, aRow1, aRow2, vHandled)
   else
     result := 0;
   if not vHandled then // use default comparison
@@ -4832,6 +4832,7 @@ begin
   fPopupMenuOptions := DefaultPopupMenuOptions;
   fExportFormatOptions := DefaultExportFormatOptions;
   fFilterOptions := TTisGridFilterOptions.Create(self);
+  fData.InitArray([]);
   WantTabs := DefaultWantTabs;
   TabStop := True;
   with TreeOptions do
