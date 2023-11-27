@@ -4002,7 +4002,7 @@ end;
 
 procedure TTisGrid.FillPopupMenu;
 const
-  cDivider = '-';
+  cDIVIDER = '-';
 
   procedure _AddItem(const aCaption: string; aShortcut: TShortCut; aEvent: TNotifyEvent;
     aEnabled: Boolean = True );
@@ -4010,7 +4010,7 @@ const
     vMenuItem: TMenuItem;
   begin
     vMenuItem := PopupMenu.Items.Find(aCaption);
-    if (vMenuItem = nil) or (aCaption = cDivider) then
+    if (vMenuItem = nil) or (aCaption = cDIVIDER) then
     begin
       vMenuItem := TMenuItem.Create(PopupMenu);
       with vMenuItem do
@@ -4027,7 +4027,7 @@ const
 
   procedure _AddDivider;
   begin
-    _AddItem(cDivider, 0, nil, True);
+    _AddItem(cDIVIDER, 0, nil, True);
   end;
 
 begin
@@ -4639,7 +4639,7 @@ begin
     with TGridChartForm.Create(Owner) do
     try
       ListChartSource.Clear;
-      // if one or none rows selected, assume that all (visible) rows have to be shown in the chart
+      // if one or none rows selected, assume that all (visible) rows have to be shown in the char
       if SelectedCount <= 1 then
         SelectAll(True);
       for vObj in SelectedObjects do
