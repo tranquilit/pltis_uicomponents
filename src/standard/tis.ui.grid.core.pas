@@ -399,7 +399,6 @@ type
     procedure OnMenuShowAllClick(aSender: TObject);
     procedure OnMenuHideAllClick(aSender: TObject);
     procedure OnMenuRestoreClick(aSender: TObject);
-    procedure OnMenuShowChart(aSender: TObject);
     procedure OnMenuFilterEnableClick(aSender: TObject);
     procedure OnMenuFilterClick(aSender: TObject);
     procedure OnMenuFilterClearClick(aSender: TObject);
@@ -473,6 +472,7 @@ type
     pmoShowDelete,
     pmoShowSelectAll,
     pmoShowCustomizeColumns,
+    pmoShowChart,
     pmoShowExport,
     pmoShowCustomizeGrid
   );
@@ -754,7 +754,7 @@ type
     // ------------------------------- new constants -------------------------------
     DefaultPopupMenuOptions = [
       pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell,
-      pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns];
+      pmoShowPaste, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowChart];
     DefaultExportFormatOptions = [efoCsv, efoJson];
     DefaultWantTabs = True;
     DefaultZebraLightness = 250;
@@ -843,6 +843,7 @@ type
     procedure DoAdvancedCustomizeColumns(aSender: TObject); virtual;
     procedure DoExpandAll(aSender: TObject); virtual;
     procedure DoCollapseAll(aSender: TObject); virtual;
+    procedure DoShowChart(aSender: TObject); virtual;
     /// performs OnCustonEditor event, if it was assigned
     procedure DoCustomEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn;
       out aControl: TTisGridControl); virtual;
@@ -2231,49 +2232,6 @@ begin
    TTisGrid(PopupComponent).RestoreSettings;
 end;
 
-procedure TTisGridHeaderPopupMenu.OnMenuShowChart(aSender: TObject);
-var
-  vGrid: TTisGrid;
-  vColumn: TTisGridColumn;
-  vItem: TMenuItem;
-  vObj: PDocVariantData;
-  vLabels: TDocVariantData;
-  vIndex: Integer;
-  vValue: RawUtf8;
-begin
-  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
-  begin
-    if PopupComponent is TTisGrid then
-    begin
-      vItem := aSender as TMenuItem;
-      vGrid := PopupComponent as TTisGrid;
-      vLabels.InitFast;
-      with TGridChartForm.Create(Owner) do
-      try
-        ListChartSource.Clear;
-        vColumn := vGrid.FindColumnByIndex(vItem.Tag);
-        if vGrid.SelectedCount = 1 then
-          vGrid.SelectAll(True);
-        for vObj in vGrid.SelectedObjects do
-        begin
-          vValue := vObj^.U[vColumn.PropertyName];
-          vIndex := vLabels.SearchItemByProp('field', vValue, not vGrid.FilterOptions.CaseInsensitive);
-          if vIndex >= 0 then
-            with _Safe(vLabels.Value[vIndex])^ do
-              I['count'] := I['count'] + 1
-          else
-            vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
-        end;
-        for vObj in vLabels.Objects do
-          ListChartSource.Add(0, vObj^.D['count'], vObj^.S['field']);
-        ShowModal;
-      finally
-        Free;
-      end;
-    end;
-  end;
-end;
-
 procedure TTisGridHeaderPopupMenu.OnMenuFilterEnableClick(aSender: TObject);
 var
   vGrid: TTisGrid;
@@ -2674,19 +2632,6 @@ begin
         // conditionally disable menu item of last enabled column
         if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
           vVisibleItem.Enabled := False;
-        // chart
-        if Assigned(vColumn) and vColumn.AllowChart and (vGrid.SelectedCount > 0) then
-        begin
-          // add a divisor
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Caption := '-';
-          Items.Add(vNewMenuItem);
-          vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
-          vNewMenuItem.Tag := vColumn.Index;
-          vNewMenuItem.Caption := rsGridChartShow;
-          vNewMenuItem.OnClick := @OnMenuShowChart;
-          Items.Add(vNewMenuItem);
-        end;
       end;
     end;
   end;
@@ -4121,6 +4066,11 @@ begin
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) and
     (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
+  if (pmoShowChart in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
+  begin
+    _AddDivider;
+    _AddItem(rsGridChartShow, 0, @DoShowChart, not fData.IsVoid);
+  end;
   if (pmoShowExport in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
   begin
     _AddDivider;
@@ -4672,6 +4622,43 @@ end;
 procedure TTisGrid.DoCollapseAll(aSender: TObject);
 begin
   FullCollapse;
+end;
+
+procedure TTisGrid.DoShowChart(aSender: TObject);
+var
+  vColumn: TTisGridColumn;
+  vObj: PDocVariantData;
+  vLabels: TDocVariantData;
+  vIndex: Integer;
+  vValue: RawUtf8;
+begin
+  vColumn := FocusedColumnObject;
+  if Assigned(vColumn) and vColumn.AllowChart then
+  begin
+    vLabels.InitFast;
+    with TGridChartForm.Create(Owner) do
+    try
+      ListChartSource.Clear;
+      // if one or none rows selected, assume that all (visible) rows have to be shown in the chart
+      if SelectedCount <= 1 then
+        SelectAll(True);
+      for vObj in SelectedObjects do
+      begin
+        vValue := vObj^.U[vColumn.PropertyName];
+        vIndex := vLabels.SearchItemByProp('field', vValue, not FilterOptions.CaseInsensitive);
+        if vIndex >= 0 then
+          with _Safe(vLabels.Value[vIndex])^ do
+            I['count'] := I['count'] + 1
+        else
+          vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
+      end;
+      for vObj in vLabels.Objects do
+        ListChartSource.Add(0, vObj^.D['count'], vObj^.S['field']);
+      ShowModal;
+    finally
+      Free;
+    end;
+  end;
 end;
 
 procedure TTisGrid.DoCustomEditor(aNode: PVirtualNode; const aColumn: TTisGridColumn;

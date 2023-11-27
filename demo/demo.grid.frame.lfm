@@ -956,7 +956,7 @@ object GridFrame: TGridFrame
       ZebraColor = 15593713
       ZebraPaint = True
       NodeOptions.MultiEdit = True
-      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowClearCell, pmoShowCopySpecial, pmoShowPaste, pmoShowInsert, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowExport]
+      PopupMenuOptions = [pmoShowFind, pmoShowFindNext, pmoShowCut, pmoShowCopy, pmoShowCopyCell, pmoShowClearCell, pmoShowCopySpecial, pmoShowPaste, pmoShowInsert, pmoShowDelete, pmoShowSelectAll, pmoShowCustomizeColumns, pmoShowChart, pmoShowExport]
       ExportFormatOptions = [efoRtf, efoHtml, efoCsv, efoJson]
       FilterOptions.Enabled = True
       OnInitNode = GridInitNode
