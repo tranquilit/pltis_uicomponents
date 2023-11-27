@@ -111,7 +111,7 @@ type
     FunctionRefreshLabel: TLabel;
     FromGridDataAsObjectLabel: TLabel;
     function GridCompareByRow(aSender: TTisGrid; const aPropertyName: RawUtf8;
-      const aRow1, aRow2: TDocVariantData; var aHandled: Boolean): PtrInt;
+      const aRow1, aRow2: PDocVariantData; var aHandled: Boolean): PtrInt;
     procedure GridInitNode(Sender: TBaseVirtualTree; ParentNode,
       Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
     procedure ClipboardLabel1Click(Sender: TObject);
@@ -155,14 +155,14 @@ implementation
 { TGridFrame }
 
 function TGridFrame.GridCompareByRow(aSender: TTisGrid;
-  const aPropertyName: RawUtf8; const aRow1, aRow2: TDocVariantData;
+  const aPropertyName: RawUtf8; const aRow1, aRow2: PDocVariantData;
   var aHandled: Boolean): PtrInt;
 begin
   // if you do not want to compare manually, just assign False or
   // do not implement this event at all
   aHandled := True;
   // return a customized comparison here
-  result := aRow1.CompareObject([aPropertyName], aRow2);
+  result := aRow1^.CompareObject([aPropertyName], aRow2^);
 end;
 
 procedure TGridFrame.GridInitNode(Sender: TBaseVirtualTree; ParentNode,
