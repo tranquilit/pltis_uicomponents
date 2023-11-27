@@ -4,7 +4,7 @@
 {"hash":104448241,"name":"tgridframe.clipboardgriddatalabel.caption","sourcebytes":[102,114,111,109,32,103,114,105,100,32,100,97,116,97],"value":"from grid data"},
 {"hash":6957954,"name":"tgridframe.clipboardlabel1.caption","sourcebytes":[99,108,101,97,114],"value":"clear"},
 {"hash":81151187,"name":"tgridframe.gridtotallabel.caption","sourcebytes":[84,111,116,97,108,32,58,32,48,32,101,108,101,109,101,110,116,115],"value":"Total : 0 elements"},
-{"hash":222414647,"name":"tgridframe.clipboardselectedrowlabel.caption","sourcebytes":[102,114,111,109,32,115,101,108,101,99,116,101,100,32,114,111,119],"value":"from selected row"},
+{"hash":68973363,"name":"tgridframe.clipboardselectedrowlabel.caption","sourcebytes":[102,114,111,109,32,115,101,108,101,99,116,101,100,32,114,111,119,115],"value":"from selected rows"},
 {"hash":121797526,"name":"tgridframe.clipboardselectedrowlabel1.caption","sourcebytes":[102,114,111,109,32,115,101,108,101,99,116,101,100,32,114,111,119,115,32,97,115,32,67,83,86],"value":"from selected rows as CSV"},
 {"hash":203470404,"name":"tgridframe.fromgriddataasobjectlabel.caption","sourcebytes":[102,114,111,109,32,103,114,105,100,32,97,115,32,106,115,111,110,32,111,98,106,101,99,116],"value":"from grid as json object"},
 {"hash":95376064,"name":"tgridframe.tabsheet2.caption","sourcebytes":[79,110,69,100,105,116,111,114,76,111,111,107,117,112],"value":"OnEditorLookup"},

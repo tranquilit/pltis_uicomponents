@@ -22,7 +22,7 @@ msgid "clear"
 msgstr ""
 
 #: tgridframe.clipboardselectedrowlabel.caption
-msgid "from selected row"
+msgid "from selected rows"
 msgstr ""
 
 #: tgridframe.clipboardselectedrowlabel1.caption
