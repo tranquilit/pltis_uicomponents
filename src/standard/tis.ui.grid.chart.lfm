@@ -9,6 +9,7 @@ object GridChartForm: TGridChartForm
   ClientWidth = 659
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   Position = poOwnerFormCenter
   LCLVersion = '2.3.0.0'
   object PageControl1: TPageControl
