@@ -2246,6 +2246,8 @@ begin
       try
         ListChartSource.Clear;
         vColumn := vGrid.FindColumnByIndex(vItem.Tag);
+        if vGrid.SelectedCount = 1 then
+          vGrid.SelectAll(True);
         for vObj in vGrid.SelectedObjects do
         begin
           vValue := vObj^.U[vColumn.PropertyName];
@@ -4638,7 +4640,7 @@ end;
 
 procedure TTisGrid.DoSelectAllRows(aSender: TObject);
 begin
-  SelectAll(False);
+  SelectAll(True);
 end;
 
 procedure TTisGrid.DoPrint(aSender: TObject);
