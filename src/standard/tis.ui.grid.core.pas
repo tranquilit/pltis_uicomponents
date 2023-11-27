@@ -2205,17 +2205,23 @@ end;
 procedure TTisGridHeaderPopupMenu.OnMenuHideAllClick(aSender: TObject);
 var
   v1: Integer;
+  vGrid: TTisGrid;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
-    with TVirtualTreeCast(PopupComponent).Header.Columns do
+    if PopupComponent is TTisGrid then
     begin
-      for v1 := 0 to Count-1 do
-      if coVisible in Items[v1].Options then
+      vGrid := PopupComponent as TTisGrid;
+      with vGrid.Header.Columns do
       begin
-        Items[v1].Options := Items[v1].Options - [coVisible];
-        DoColumnChange(v1, False);
+        for v1 := 0 to Count-1 do
+        if coVisible in Items[v1].Options then
+        begin
+          Items[v1].Options := Items[v1].Options - [coVisible];
+          DoColumnChange(v1, False);
+        end;
       end;
+      vGrid.Invalidate; // needed it, at least for MacOS
     end;
   end;
 end;
