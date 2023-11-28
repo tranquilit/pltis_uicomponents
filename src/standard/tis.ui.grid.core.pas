@@ -683,7 +683,8 @@ type
     out aValue: Variant; var aHandled: Boolean) of object;
 
   /// event that allows changing the chart's source values before sending to it
-  TOnGridBeforeAddingChartSource = procedure(aSender: TTisGrid; var aX, aY: Double; var aLabel: string; var aColor: TColor) of object;
+  TOnGridBeforeAddingChartSource = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
+    var aX, aY: Double; var aLabel: string; var aColor: TColor) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -866,8 +867,8 @@ type
     function DoBeforeHtmlRendering(aNode: PVirtualNode; aColumn: TTisGridColumn): string; virtual;
     function DoCalcAttributes(aNode: PVirtualNode; aColumn: TTisGridColumn;
       out aValue: Variant): Boolean; virtual;
-    procedure DoBeforeAddingChartSource(var aX, aY: Double; var aLabel: string;
-      var aColor: TColor); virtual;
+    procedure DoBeforeAddingChartSource(aColumn: TTisGridColumn; var aX,
+      aY: Double; var aLabel: string; var aColor: TColor); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -4686,7 +4687,7 @@ begin
         vDefY := vObj^.D['count'];
         vDefLabel := vObj^.S['field'];
         vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
-        DoBeforeAddingChartSource(vDefX, vDefY, vDefLabel, vDefColor);
+        DoBeforeAddingChartSource(vColumn, vDefX, vDefY, vDefLabel, vDefColor);
         ListChartSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
       end;
       ShowModal;
@@ -4792,11 +4793,11 @@ begin
     fOnCalcAttributes(self, aNode, aColumn, aValue, result);
 end;
 
-procedure TTisGrid.DoBeforeAddingChartSource(var aX, aY: Double;
-  var aLabel: string; var aColor: TColor);
+procedure TTisGrid.DoBeforeAddingChartSource(aColumn: TTisGridColumn;
+  var aX, aY: Double; var aLabel: string; var aColor: TColor);
 begin
   if Assigned(fOnBeforeAddingChartSource) then
-    fOnBeforeAddingChartSource(self, aX, aY, aLabel, aColor);
+    fOnBeforeAddingChartSource(self, aColumn, aX, aY, aLabel, aColor);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
