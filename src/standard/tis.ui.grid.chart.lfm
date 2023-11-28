@@ -64,6 +64,8 @@ object GridChartForm: TGridChartForm
           Marks.Distance = 40
           Marks.Format = '%2:s %0:.9g (%1:.2f%%)'
           Marks.Frame.Color = clSilver
+          Marks.Frame.Style = psClear
+          Marks.LabelBrush.Color = clInfoBk
           Marks.LinkPen.Color = clSilver
           Marks.Style = smsCustom
           Source = ListChartSource
