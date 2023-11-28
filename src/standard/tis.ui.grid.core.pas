@@ -4634,6 +4634,21 @@ begin
 end;
 
 procedure TTisGrid.DoShowChart(aSender: TObject);
+
+  function Darkened(aValue: TColor): TColor;
+  var
+    r, g, b: Byte;
+  begin
+    r := GetRValue(aValue);
+    g := GetGValue(aValue);
+    b := GetBValue(aValue);
+    result := RGB(
+      r - MulDiv(r, 15, 100),
+      g - MulDiv(g, 15, 100),
+      b - MulDiv(b, 15, 100)
+    );
+  end;
+
 var
   vColumn: TTisGridColumn;
   vObj: PDocVariantData;
@@ -4664,12 +4679,13 @@ begin
         else
           vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
       end;
+      Randomize;
       for vObj in vLabels.Objects do
       begin
         vDefX := 0;
         vDefY := vObj^.D['count'];
         vDefLabel := vObj^.S['field'];
-        vDefColor := clTAColor;
+        vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
         DoBeforeAddingChartSource(vDefX, vDefY, vDefLabel, vDefColor);
         ListChartSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
       end;
