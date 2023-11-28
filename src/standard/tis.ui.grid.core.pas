@@ -29,6 +29,7 @@ uses
   Dialogs,
   Buttons,
   TextStrings,
+  TAChartUtils,
   VirtualTrees,
   mormot.core.base,
   mormot.core.data,
@@ -681,6 +682,9 @@ type
   TOnGridCalcAttributes = procedure(aSender: TTisGrid; aNode: PVirtualNode; aColumn: TTisGridColumn;
     out aValue: Variant; var aHandled: Boolean) of object;
 
+  /// event that allows changing the chart's source values before sending to it
+  TOnGridBeforeAddingChartSource = procedure(aSender: TTisGrid; var aX, aY: Double; var aLabel: string; var aColor: TColor) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -723,6 +727,7 @@ type
     fOnNodeFiltering: TOnGridNodeFiltering;
     fOnBeforeHtmlRendering: TOnGridBeforeHtmlRendering;
     fOnCalcAttributes: TOnGridCalcAttributes;
+    fOnBeforeAddingChartSource: TOnGridBeforeAddingChartSource;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -861,6 +866,8 @@ type
     function DoBeforeHtmlRendering(aNode: PVirtualNode; aColumn: TTisGridColumn): string; virtual;
     function DoCalcAttributes(aNode: PVirtualNode; aColumn: TTisGridColumn;
       out aValue: Variant): Boolean; virtual;
+    procedure DoBeforeAddingChartSource(var aX, aY: Double; var aLabel: string;
+      var aColor: TColor); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1264,6 +1271,8 @@ type
     // - set aHandled=TRUE, if you filled aValue
     // - when editing it, you can use this new value in OnEditValidated event
     property OnCalcAttributes: TOnGridCalcAttributes read fOnCalcAttributes write fOnCalcAttributes;
+    /// event that allows changing the chart's source values before sending to it
+    property OnBeforeAddingChartSource: TOnGridBeforeAddingChartSource read fOnBeforeAddingChartSource write fOnBeforeAddingChartSource;
   end;
 
 implementation
@@ -4630,6 +4639,9 @@ var
   vObj: PDocVariantData;
   vLabels: TDocVariantData;
   vIndex: Integer;
+  vDefX, vDefY: Double;
+  vDefLabel: string;
+  vDefColor: TColor;
   vValue: RawUtf8;
 begin
   vColumn := FocusedColumnObject;
@@ -4653,7 +4665,14 @@ begin
           vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
       end;
       for vObj in vLabels.Objects do
-        ListChartSource.Add(0, vObj^.D['count'], vObj^.S['field']);
+      begin
+        vDefX := 0;
+        vDefY := vObj^.D['count'];
+        vDefLabel := vObj^.S['field'];
+        vDefColor := clTAColor;
+        DoBeforeAddingChartSource(vDefX, vDefY, vDefLabel, vDefColor);
+        ListChartSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
+      end;
       ShowModal;
     finally
       Free;
@@ -4755,6 +4774,13 @@ begin
   result := False;
   if Assigned(fOnCalcAttributes) then
     fOnCalcAttributes(self, aNode, aColumn, aValue, result);
+end;
+
+procedure TTisGrid.DoBeforeAddingChartSource(var aX, aY: Double;
+  var aLabel: string; var aColor: TColor);
+begin
+  if Assigned(fOnBeforeAddingChartSource) then
+    fOnBeforeAddingChartSource(self, aX, aY, aLabel, aColor);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
