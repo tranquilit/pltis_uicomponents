@@ -48,11 +48,9 @@ object GridChartForm: TGridChartForm
         Foot.Brush.Color = clBtnFace
         Foot.Font.Color = clBlue
         Frame.Visible = False
-        Title.Alignment = taLeftJustify
-        Title.Brush.Color = clNone
-        Title.Font.Color = clBlue
+        Legend.Visible = False
         Title.Text.Strings = (
-          '  Click on a slice to explode/unexplode it'
+          ''
         )
         Title.Visible = True
         Toolset = ChartToolset1
@@ -60,17 +58,21 @@ object GridChartForm: TGridChartForm
         Color = clDefault
         OnMouseDown = ChartPieMouseDown
         object ChartPiePieSeries1: TPieSeries
+          Legend.Format = '%2:s %0:0.2f (%1:.2f%%)'
+          Legend.Multiplicity = lmPoint
+          Legend.Visible = False
           EdgePen.Color = clWhite
           EdgePen.Width = 3
           DepthBrightnessDelta = -32
           Exploded = True
           Marks.Distance = 40
-          Marks.Format = '%2:s %0:.9g (%1:.2f%%)'
+          Marks.Format = '<B>%2:s</B> %0:.9g (%1:.2f%%)'
           Marks.Frame.Color = clSilver
           Marks.Frame.Style = psClear
           Marks.LabelBrush.Color = clInfoBk
           Marks.LinkPen.Color = clSilver
           Marks.Style = smsCustom
+          Marks.TextFormat = tfHTML
           Source = ListChartSource
         end
       end
