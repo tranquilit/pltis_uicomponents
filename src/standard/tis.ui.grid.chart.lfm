@@ -47,6 +47,7 @@ object GridChartForm: TGridChartForm
           end>
         Foot.Brush.Color = clBtnFace
         Foot.Font.Color = clBlue
+        Frame.Visible = False
         Title.Alignment = taLeftJustify
         Title.Brush.Color = clNone
         Title.Font.Color = clBlue
@@ -59,6 +60,8 @@ object GridChartForm: TGridChartForm
         Color = clDefault
         OnMouseDown = ChartPieMouseDown
         object ChartPiePieSeries1: TPieSeries
+          EdgePen.Color = clWhite
+          EdgePen.Width = 3
           DepthBrightnessDelta = -32
           Exploded = True
           Marks.Distance = 40
