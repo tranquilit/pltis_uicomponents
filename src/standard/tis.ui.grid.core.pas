@@ -753,7 +753,6 @@ type
     function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
-    function GetSelectedObjects: PDocVariantDataDynArray;
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure SetZebraLightness(aValue: Byte);
   protected const
@@ -1025,7 +1024,7 @@ type
     // - do not use this to edit Data values, instead use SelectedObjects
     property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
     /// returns objects from selected rows
-    property SelectedObjects: PDocVariantDataDynArray read GetSelectedObjects;
+    function SelectedObjects: PDocVariantDataDynArray;
     /// returns the focused row
     // - be careful using it in tree mode - see NodeOptions.ShowChildren
     property FocusedRow: PDocVariantData read GetFocusedRow write SetFocusedRow;
@@ -3333,7 +3332,7 @@ begin
   end;
 end;
 
-function TTisGrid.GetSelectedObjects: PDocVariantDataDynArray;
+function TTisGrid.SelectedObjects: PDocVariantDataDynArray;
 var
   vCount: integer;
   vNode: PVirtualNode;
