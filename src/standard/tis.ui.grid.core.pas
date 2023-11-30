@@ -2534,7 +2534,7 @@ begin
         GetCursorPos(vMousePos);
         vColIdx := Columns.ColumnFromPosition(vGrid.ScreenToClient(vMousePos));
         vColumn := vGrid.FindColumnByIndex(vColIdx);
-        if (vColIdx > NoColumn)
+        if Assigned(vColumn)
           and not vGrid.Data.IsVoid
           and vGrid.FilterOptions.Enabled
           and vGrid.FilterOptions.ShowAutoFilters
@@ -2542,7 +2542,7 @@ begin
           and not vGrid.NodeOptions.ShowChildren then
         begin
           // add a item for delete filters for the column, if it has some filter(s) already
-          if Pos(vGrid.FilterOptions.MARK_ARROW, vGrid.FindColumnByIndex(vColIdx).Text) > 0 then
+          if Pos(vGrid.FilterOptions.MARK_ARROW, vColumn.Text) > 0 then
           begin
             vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
             vNewMenuItem.Tag := vColIdx; // it will be use to locate the column by its index
