@@ -1020,11 +1020,11 @@ type
     // it is working in a tree mode with children nodes
     property NodeAdapter: TTisNodeAdapter read fNodeAdapter;
   public
-    /// returns a copy of objects from selected rows
-    // - do not use this to edit Data values, instead use SelectedObjects
-    property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
-    /// returns objects from selected rows
+    /// return selected objects by reference
     function SelectedObjects: PDocVariantDataDynArray;
+    /// return selected rows by copy
+    // - do not use this to edit Data by code, instead use SelectedObjects
+    property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
     /// returns the focused row
     // - be careful using it in tree mode - see NodeOptions.ShowChildren
     property FocusedRow: PDocVariantData read GetFocusedRow write SetFocusedRow;
