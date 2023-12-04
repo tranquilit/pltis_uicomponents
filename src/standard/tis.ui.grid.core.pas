@@ -2600,6 +2600,8 @@ begin
             break;
           with Columns[vColIdx] as TTisGridColumn do
           begin
+            if coVisible in Options then
+              Inc(vVisibleCounter);
             DoAddHeaderPopupItem(vColIdx, vHpi);
             if vHpi <> apHidden then
             begin
