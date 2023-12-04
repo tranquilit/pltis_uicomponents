@@ -144,6 +144,7 @@ type
       var aNewValue: Variant; var aAbort: Boolean);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
+    procedure DefaultChartNamingCallback(aSender: TTisGrid; aColumn: TTisGridColumn; var aChartName: string);
   public
     constructor Create(aOwner: TComponent); override;
   end;
@@ -367,11 +368,18 @@ begin
   end;
 end;
 
+procedure TGridFrame.DefaultChartNamingCallback(aSender: TTisGrid;
+  aColumn: TTisGridColumn; var aChartName: string);
+begin
+  aChartName := 'My Chart';
+end;
+
 constructor TGridFrame.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   BgColorBox.Selected := Grid.Color;
   ZebraLightnessEdit.Value := Grid.ZebraLightness;
+  Grid.OnDefaultChartNaming := @DefaultChartNamingCallback;
 end;
 
 end.

@@ -892,6 +892,9 @@ type
     TREEMODE_OPTIONS = [toShowRoot, toShowButtons, toShowTreeLines];
     POPUP_ITEM_TAG = 250;
   public
+    /// default callback for naming all charts
+    // - use this callback to set a global algorithm for all grids and its charts
+    class var OnDefaultChartNaming: TOnGridChartNaming;
     /// primary construtor
     constructor Create(aOwner: TComponent); override;
     /// destructor
@@ -4816,6 +4819,8 @@ end;
 function TTisGrid.DoChartNaming(aColumn: TTisGridColumn): string;
 begin
   result := '';
+  if Assigned(OnDefaultChartNaming) then
+    OnDefaultChartNaming(self, aColumn, result);
   if Assigned(fOnChartNaming) then
     fOnChartNaming(self, aColumn, result);
 end;
