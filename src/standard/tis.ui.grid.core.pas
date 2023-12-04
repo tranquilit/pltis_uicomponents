@@ -868,6 +868,7 @@ type
       out aValue: Variant): Boolean; virtual;
     procedure DoBeforeAddingChartSource(aColumn: TTisGridColumn; var aX,
       aY: Double; var aLabel: string; var aColor: TColor); virtual;
+    procedure DoFillChartSource(aSender: TGridChartForm); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -2599,8 +2600,6 @@ begin
             break;
           with Columns[vColIdx] as TTisGridColumn do
           begin
-            if coVisible in Options then
-              Inc(vVisibleCounter);
             DoAddHeaderPopupItem(vColIdx, vHpi);
             if vHpi <> apHidden then
             begin
@@ -4634,60 +4633,24 @@ begin
 end;
 
 procedure TTisGrid.DoShowChart(aSender: TObject);
-
-  function Darkened(aValue: TColor): TColor;
-  var
-    r, g, b: Byte;
-  begin
-    r := GetRValue(aValue);
-    g := GetGValue(aValue);
-    b := GetBValue(aValue);
-    result := RGB(
-      r - MulDiv(r, 15, 100),
-      g - MulDiv(g, 15, 100),
-      b - MulDiv(b, 15, 100)
-    );
-  end;
-
 var
   vColumn: TTisGridColumn;
-  vObj: PDocVariantData;
-  vLabels: TDocVariantData;
   vIndex: Integer;
-  vDefX, vDefY: Double;
-  vDefLabel: string;
-  vDefColor: TColor;
-  vValue: RawUtf8;
 begin
   vColumn := FocusedColumnObject;
   if Assigned(vColumn) and vColumn.AllowChart then
   begin
-    vLabels.InitFast;
     with TGridChartForm.Create(Owner) do
     try
-      ListChartSource.Clear;
       // if one or none rows selected, assume that all (visible) rows have to be shown in the char
       if SelectedCount <= 1 then
         SelectAll(True);
-      for vObj in SelectedObjects do
+      OnFillSource := @DoFillChartSource;
+      // add columns
+      for vIndex := 0 to Header.Columns.Count - 1 do
       begin
-        vValue := vObj^.U[vColumn.PropertyName];
-        vIndex := vLabels.SearchItemByProp('field', vValue, not FilterOptions.CaseInsensitive);
-        if vIndex >= 0 then
-          with _Safe(vLabels.Value[vIndex])^ do
-            I['count'] := I['count'] + 1
-        else
-          vLabels.AddItem(_ObjFast(['field', vValue, 'count', 1]));
-      end;
-      Randomize;
-      for vObj in vLabels.Objects do
-      begin
-        vDefX := 0;
-        vDefY := vObj^.D['count'];
-        vDefLabel := vObj^.S['field'];
-        vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
-        DoBeforeAddingChartSource(vColumn, vDefX, vDefY, vDefLabel, vDefColor);
-        ListChartSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
+        with Header.Columns[vIndex] as TTisGridColumn do
+          PieValuesCombo.Items.Add(Text + ' (' + Utf8ToString(PropertyName) + ')');
       end;
       ShowModal;
     finally
@@ -4797,6 +4760,73 @@ procedure TTisGrid.DoBeforeAddingChartSource(aColumn: TTisGridColumn;
 begin
   if Assigned(fOnBeforeAddingChartSource) then
     fOnBeforeAddingChartSource(self, aColumn, aX, aY, aLabel, aColor);
+end;
+
+procedure TTisGrid.DoFillChartSource(aSender: TGridChartForm);
+
+  function Darkened(aValue: TColor): TColor;
+  var
+    r, g, b: Byte;
+  begin
+    r := GetRValue(aValue);
+    g := GetGValue(aValue);
+    b := GetBValue(aValue);
+    result := RGB(
+      r - MulDiv(r, 15, 100),
+      g - MulDiv(g, 15, 100),
+      b - MulDiv(b, 15, 100)
+    );
+  end;
+
+  function Compute(aObj: PDocVariantData): Double;
+  var
+    vIndex: Integer;
+    vValue: Double;
+  begin
+    result := 1;
+    if aSender.PieValuesCombo.ItemIndex > 0 then // -1 or 0 is the same as empty
+    begin
+      vIndex := aSender.PieValuesCombo.ItemIndex - 1;
+      if Header.Columns.IsValidColumn(vIndex) and
+        aObj^.GetAsDouble(FindColumnByIndex(vIndex).PropertyName, vValue) then
+        result := vValue;
+    end;
+  end;
+
+var
+  vColumn: TTisGridColumn;
+  vObj: PDocVariantData;
+  vLabels: TDocVariantData;
+  vIndex: Integer;
+  vDefX, vDefY: Double;
+  vDefLabel: string;
+  vDefColor: TColor;
+  vValue: RawUtf8;
+begin
+  vLabels.InitFast;
+  vColumn := FocusedColumnObject;
+  for vObj in SelectedObjects do
+  begin
+    vValue := vObj^.U[vColumn.PropertyName];
+    vIndex := vLabels.SearchItemByProp('field', vValue, not FilterOptions.CaseInsensitive);
+    if vIndex >= 0 then
+    begin
+      with _Safe(vLabels.Value[vIndex])^ do
+        D['count'] := D['count'] + Compute(vObj);
+    end
+    else
+      vLabels.AddItem(_ObjFast(['field', vValue, 'count', Compute(vObj)]));
+  end;
+  Randomize;
+  for vObj in vLabels.Objects do
+  begin
+    vDefX := 0;
+    vDefY := vObj^.D['count'];
+    vDefLabel := vObj^.S['field'];
+    vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
+    DoBeforeAddingChartSource(vColumn, vDefX, vDefY, vDefLabel, vDefColor);
+    aSender.ListChartSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
+  end;
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
