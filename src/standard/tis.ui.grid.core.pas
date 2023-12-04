@@ -686,6 +686,9 @@ type
   TOnGridBeforeAddingChartSource = procedure(aSender: TTisGrid; aColumn: TTisGridColumn;
     var aX, aY: Double; var aLabel: string; var aColor: TColor) of object;
 
+  /// event that allows naming the chart's name
+  TOnGridChartNaming = procedure(aSender: TTisGrid; aColumn: TTisGridColumn; var aChartName: string) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -729,6 +732,7 @@ type
     fOnBeforeHtmlRendering: TOnGridBeforeHtmlRendering;
     fOnCalcAttributes: TOnGridCalcAttributes;
     fOnBeforeAddingChartSource: TOnGridBeforeAddingChartSource;
+    fOnChartNaming: TOnGridChartNaming;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -868,6 +872,7 @@ type
       out aValue: Variant): Boolean; virtual;
     procedure DoBeforeAddingChartSource(aColumn: TTisGridColumn; var aX,
       aY: Double; var aLabel: string; var aColor: TColor); virtual;
+    function DoChartNaming(aColumn: TTisGridColumn): string; virtual;
     procedure DoFillChartSource(aSender: TGridChartForm); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
@@ -1274,6 +1279,8 @@ type
     property OnCalcAttributes: TOnGridCalcAttributes read fOnCalcAttributes write fOnCalcAttributes;
     /// event that allows changing the chart's source values before sending to it
     property OnBeforeAddingChartSource: TOnGridBeforeAddingChartSource read fOnBeforeAddingChartSource write fOnBeforeAddingChartSource;
+    /// event that allows naming the chart's name
+    property OnChartNaming: TOnGridChartNaming read fOnChartNaming write fOnChartNaming;
   end;
 
 implementation
@@ -4647,6 +4654,7 @@ begin
       // if one or none rows selected, assume that all (visible) rows have to be shown in the char
       if SelectedCount <= 1 then
         SelectAll(True);
+      PieTitleEdit.Text := DoChartNaming(vColumn);
       OnFillSource := @DoFillChartSource;
       // add columns
       for vIndex := 0 to Header.Columns.Count - 1 do
@@ -4765,6 +4773,13 @@ procedure TTisGrid.DoBeforeAddingChartSource(aColumn: TTisGridColumn;
 begin
   if Assigned(fOnBeforeAddingChartSource) then
     fOnBeforeAddingChartSource(self, aColumn, aX, aY, aLabel, aColor);
+end;
+
+function TTisGrid.DoChartNaming(aColumn: TTisGridColumn): string;
+begin
+  result := '';
+  if Assigned(fOnChartNaming) then
+    fOnChartNaming(self, aColumn, result);
 end;
 
 procedure TTisGrid.DoFillChartSource(aSender: TGridChartForm);
