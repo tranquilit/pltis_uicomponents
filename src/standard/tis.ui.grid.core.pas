@@ -1985,10 +1985,27 @@ end;
 
 { TTisGridColumns }
 
+function GetShiftState: TShiftState;
+
+begin
+  Result := [];
+  if GetKeyState(VK_SHIFT) < 0 then
+    Include(Result, ssShift);
+  if GetKeyState(VK_LWIN) < 0 then      // Mac OS X substitute of ssCtrl
+    Include(Result, ssMeta);
+  if GetKeyState(VK_CONTROL) < 0 then
+    Include(Result, ssCtrl);
+  if GetKeyState(VK_MENU) < 0 then
+    Include(Result, ssAlt);
+end;
+
+
 procedure TTisGridColumns.HandleClick(P: TPoint; aButton: TMouseButton; aForce,
   aDblClick: Boolean);
 var
   vColumnIndex: Integer;
+  HitInfo: TVTHeaderHitInfo;
+  NewClickIndex: Integer;
 begin
   if (csDesigning in Header.Treeview.ComponentState) then
     exit;
@@ -1996,7 +2013,28 @@ begin
   if (hoHeaderClickAutoSort in Header.Options) and (aButton = mbLeft) and (vColumnIndex >= 0) then
   begin
     if (vColumnIndex = Header.SortColumn) and (Header.SortDirection = sdDescending) then
-      Header.SortColumn := -1
+    begin
+      Header.SortColumn := -1;
+      if (csDesigning in Header.Treeview.ComponentState) then
+        exit;
+      if Assigned(TTisGrid(Header.Treeview).OnHeaderClick) then
+      begin
+        NewClickIndex := ColumnFromPosition(P);
+        with HitInfo do
+        begin
+          X := P.X;
+          Y := P.Y;
+          Shift := GetShiftState;
+          if aDblClick then
+            Shift := Shift + [ssDouble];
+        end;
+        HitInfo.Button := aButton;
+        if aDblClick then
+          TTisGrid(Header.Treeview).DoHeaderDblClick(HitInfo)
+        else
+          TTisGrid(Header.Treeview).DoHeaderClick(HitInfo);
+      end;
+    end
     else
       inherited HandleClick(P, aButton, aForce, aDblClick);
   end;
