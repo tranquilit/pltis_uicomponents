@@ -762,9 +762,7 @@ type
     procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure SetZebraLightness(aValue: Byte);
-    function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
-    procedure SetSelectedRows(const aValue: TDocVariantData);
   protected const
     // ------------------------------- new constants -------------------------------
     DefaultPopupMenuOptions = [
@@ -888,6 +886,8 @@ type
     procedure RestoreSettings;
     procedure InitData;
     procedure FillDataFromJsonObject(const aObject: TDocVariantData);
+    function GetSelectedRows: TDocVariantData;
+    procedure SetSelectedRows(const aValue: TDocVariantData);
     // ------------------------------- inherited properties ------------------------
     property RootNodeCount stored False;
     // ------------------------------- new properties ------------------------------
