@@ -49,6 +49,9 @@ object GridChartForm: TGridChartForm
         Foot.Font.Color = clBlue
         Frame.Visible = False
         Title.Brush.Style = bsClear
+        Title.Text.Strings = (
+          'TAChart'
+        )
         Title.Visible = True
         Toolset = ChartToolset1
         Align = alClient
@@ -70,7 +73,7 @@ object GridChartForm: TGridChartForm
           Marks.LinkPen.Color = clSilver
           Marks.Style = smsCustom
           Marks.TextFormat = tfHTML
-          Source = ListChartSource
+          Source = PieSource
         end
       end
       object PiePanel: TPanel
@@ -574,7 +577,7 @@ object GridChartForm: TGridChartForm
       end
     end
   end
-  object ListChartSource: TListChartSource
+  object PieSource: TListChartSource
     DataPoints.Strings = (
       '0|7|?|'
       '0|3|?|'

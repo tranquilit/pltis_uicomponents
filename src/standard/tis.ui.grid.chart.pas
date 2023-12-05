@@ -32,7 +32,8 @@ uses
 type
   TGridChartForm = class;
 
-  TGridFillSourceEvent = procedure(aSender: TGridChartForm) of object;
+  TChartFillSourceEvent = procedure(aChart: TChart; aSource: TListChartSource; aValueColumnIndex: Integer) of object;
+  TChartChange = procedure(aChart: TChart) of object;
 
   TGridChartForm = class(TForm)
     cbMarkAttachment: TComboBox;
@@ -57,7 +58,7 @@ type
     lblDepthBrightnessDelta: TLabel;
     lblWords: TLabel;
     lblLabelAngle: TLabel;
-    ListChartSource: TListChartSource;
+    PieSource: TListChartSource;
     PageControl: TPageControl;
     PiePanel: TPanel;
     seStartAngle: TSpinEdit;
@@ -112,11 +113,14 @@ type
       Style: TSeriesMarksStyle;
       Format: string;
     end;
-    fOnFillSource: TGridFillSourceEvent;
+    fOnChartFillSource: TChartFillSourceEvent;
+    fOnChartChange: TChartChange;
   protected
-    procedure DoFillSource;
+    procedure DoChartFillSource(aChart: TChart);
+    procedure DoChartChange(aChart: TChart);
   public
-    property OnFillSource: TGridFillSourceEvent read fOnFillSource write fOnFillSource;
+    property OnChartFillSource: TChartFillSourceEvent read fOnChartFillSource write fOnChartFillSource;
+    property OnChartChange: TChartChange read fOnChartChange write fOnChartChange;
   end;
 
 implementation
@@ -221,7 +225,7 @@ var
 begin
   i := PieChartPieSeries1.FindContainingSlice(Point(X, Y));
   if i < 0 then exit;
-  ListChartSource.SetXValue(i, 0.2 - ListChartSource[i]^.X);
+  PieSource.SetXValue(i, 0.2 - PieSource[i]^.X);
   PieChart.Invalidate;
 end;
 
@@ -260,8 +264,9 @@ end;
 
 procedure TGridChartForm.FormShow(Sender: TObject);
 begin
-  DoFillSource;
+  DoChartFillSource(PieChart);
   seWordsChange(seWords);
+  PieTitleEdit.Text := PieChart.Title.Text.Text;
 end;
 
 procedure TGridChartForm.PieClipboardActionExecute(Sender: TObject);
@@ -287,7 +292,9 @@ end;
 
 procedure TGridChartForm.PieValuesComboChange(Sender: TObject);
 begin
-  DoFillSource;
+  DoChartFillSource(PieChart);
+  DoChartChange(PieChart);
+  PieTitleEdit.Text := PieChart.Title.Text.Text;
 end;
 
 procedure TGridChartForm.seWordsChange(Sender: TObject);
@@ -318,21 +325,36 @@ var
   v1: Integer;
 begin
   if fSavedDataPoints.Count = 0 then
-    fSavedDataPoints.Assign(ListChartSource.DataPoints);
-  ListChartSource.DataPoints.Assign(fSavedDataPoints);
-  for v1 := 0 to ListChartSource.Count - 1 do
+    fSavedDataPoints.Assign(PieSource.DataPoints);
+  PieSource.DataPoints.Assign(fSavedDataPoints);
+  for v1 := 0 to PieSource.Count - 1 do
   begin
-    with ListChartSource[v1]^ do
+    with PieSource[v1]^ do
       Text := ExtractWords(Text, seWords.Value);
   end;
   PieChart.Invalidate;
 end;
 
-procedure TGridChartForm.DoFillSource;
+procedure TGridChartForm.DoChartFillSource(aChart: TChart);
+var
+  vIndex: Integer;
 begin
-  ListChartSource.Clear;
-  if Assigned(fOnFillSource) then
-    fOnFillSource(Self);
+  PieSource.Clear;
+  if Assigned(fOnChartFillSource) then
+  begin
+    vIndex := PieValuesCombo.ItemIndex;
+    if PieValuesCombo.ItemIndex > 0 then // -1 or 0 is the same as empty
+      Dec(vIndex)
+    else
+      vIndex := -1;
+    fOnChartFillSource(aChart, PieSource, vIndex);
+  end;
+end;
+
+procedure TGridChartForm.DoChartChange(aChart: TChart);
+begin
+  if Assigned(fOnChartChange) then
+    fOnChartChange(aChart);
 end;
 
 end.

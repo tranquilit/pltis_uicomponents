@@ -29,6 +29,8 @@ uses
   Dialogs,
   Buttons,
   TextStrings,
+  TAGraph,
+  TASources,
   TAChartUtils,
   VirtualTrees,
   mormot.core.base,
@@ -689,6 +691,9 @@ type
   /// event that allows naming the chart's name
   TOnGridChartNaming = procedure(aSender: TTisGrid; aColumn: TTisGridColumn; var aChartName: string) of object;
 
+  /// event that will fired if user changes something on the chart
+  TOnGridChartChange = procedure(aSender: TTisGrid; aChart: TChart; aColumn: TTisGridColumn) of object;
+
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
   TTisGrid = class(TCustomVirtualStringTree)
@@ -733,6 +738,7 @@ type
     fOnCalcAttributes: TOnGridCalcAttributes;
     fOnBeforeAddingChartSource: TOnGridBeforeAddingChartSource;
     fOnChartNaming: TOnGridChartNaming;
+    fOnChartChange: TOnGridChartChange;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -767,7 +773,6 @@ type
     DefaultExportFormatOptions = [efoCsv, efoJson];
     DefaultWantTabs = True;
     DefaultZebraLightness = 250;
-    // ------------------------------- new fields ----------------------------------
   protected
     DefaultCsvSeparator: string;
     // ------------------------------- inherited methods ---------------------------
@@ -873,7 +878,8 @@ type
     procedure DoBeforeAddingChartSource(aColumn: TTisGridColumn; var aX,
       aY: Double; var aLabel: string; var aColor: TColor); virtual;
     function DoChartNaming(aColumn: TTisGridColumn): string; virtual;
-    procedure DoFillChartSource(aSender: TGridChartForm); virtual;
+    procedure DoChartFillSource(aChart: TChart; aSource: TListChartSource; aValueColumnIndex: Integer); virtual;
+    procedure DoChartChange(aChart: TChart); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -1012,6 +1018,8 @@ type
     /// it will search aText in all columns
     // - if found, focus will go to the grid
     function Search(const aText: string): Boolean;
+    /// return selected objects by reference
+    function SelectedObjects: PDocVariantDataDynArray;
     // ------------------------------- inherited events ----------------------------
     property OnCompareNodes; // hiding from Object Inspector, use OnCompareByRow event instead
     // ------------------------------- new properties ------------------------------
@@ -1028,9 +1036,6 @@ type
     // - you can use it to get more information about a node, especially when
     // it is working in a tree mode with children nodes
     property NodeAdapter: TTisNodeAdapter read fNodeAdapter;
-  public
-    /// return selected objects by reference
-    function SelectedObjects: PDocVariantDataDynArray;
     /// return selected rows by copy
     // - do not use this to edit Data by code, instead use SelectedObjects
     property SelectedRows: TDocVariantData read GetSelectedRows write SetSelectedRows;
@@ -1118,7 +1123,7 @@ type
     property GridSettings: string read GetGridSettings write SetGridSettings stored False;
     property ZebraColor: TColor read fZebraColor write fZebraColor;
     property ZebraPaint: Boolean read fZebraPaint write fZebraPaint stored True default False;
-    property ZebraLightness: Byte read fZebraLightness write SetZebraLightness stored True default DefaultZebraLightness;
+    property ZebraLightness: Byte read fZebraLightness write SetZebraLightness default DefaultZebraLightness;
     property NodeOptions: TTisNodeOptions read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
     property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
@@ -1284,6 +1289,8 @@ type
     property OnBeforeAddingChartSource: TOnGridBeforeAddingChartSource read fOnBeforeAddingChartSource write fOnBeforeAddingChartSource;
     /// event that allows naming the chart's name
     property OnChartNaming: TOnGridChartNaming read fOnChartNaming write fOnChartNaming;
+    /// event that will fired if user changes something on the chart
+    property OnChartChange: TOnGridChartChange read fOnChartChange write fOnChartChange;
   end;
 
 implementation
@@ -4686,29 +4693,34 @@ procedure TTisGrid.DoShowChart(aSender: TObject);
 var
   vColumn: TTisGridColumn;
   vIndex: Integer;
+  vChartForm: TGridChartForm;
 begin
   vColumn := FocusedColumnObject;
   if Assigned(vColumn) and vColumn.AllowChart then
   begin
-    with TGridChartForm.Create(Owner) do
+    vChartForm := TGridChartForm.Create(Owner);
     try
       // if one or none rows selected, assume that all (visible) rows have to be shown in the char
       if SelectedCount <= 1 then
         SelectAll(True);
-      PieTitleEdit.Text := DoChartNaming(vColumn);
-      OnFillSource := @DoFillChartSource;
+      for vIndex := 0 to vChartForm.ComponentCount-1 do
+        if vChartForm.Components[vIndex] is TChart then
+          with vChartForm.Components[vIndex] as TChart do
+            Title.Text.Text := DoChartNaming(vColumn);
+      vChartForm.OnChartChange := @DoChartChange;
+      vChartForm.OnChartFillSource := @DoChartFillSource;
       // add columns
       for vIndex := 0 to Header.Columns.Count - 1 do
       begin
         with Header.Columns[vIndex] as TTisGridColumn do
         begin
           if coVisible in Options then
-            PieValuesCombo.Items.Add(Text + ' (' + Utf8ToString(PropertyName) + ')');
+            vChartForm.PieValuesCombo.Items.Add(Text + ' (' + Utf8ToString(PropertyName) + ')');
         end;
       end;
-      ShowModal;
+      vChartForm.ShowModal;
     finally
-      Free;
+      vChartForm.Free;
     end;
   end;
 end;
@@ -4818,14 +4830,15 @@ end;
 
 function TTisGrid.DoChartNaming(aColumn: TTisGridColumn): string;
 begin
-  result := '';
+  result := 'Chart per ' + aColumn.Text;
   if Assigned(OnDefaultChartNaming) then
     OnDefaultChartNaming(self, aColumn, result);
   if Assigned(fOnChartNaming) then
     fOnChartNaming(self, aColumn, result);
 end;
 
-procedure TTisGrid.DoFillChartSource(aSender: TGridChartForm);
+procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
+  aValueColumnIndex: Integer);
 
   function Darkened(aValue: TColor): TColor;
   var
@@ -4843,17 +4856,12 @@ procedure TTisGrid.DoFillChartSource(aSender: TGridChartForm);
 
   function Compute(aObj: PDocVariantData): Double;
   var
-    vIndex: Integer;
     vValue: Double;
   begin
     result := 1;
-    if aSender.PieValuesCombo.ItemIndex > 0 then // -1 or 0 is the same as empty
-    begin
-      vIndex := aSender.PieValuesCombo.ItemIndex - 1;
-      if Header.Columns.IsValidColumn(vIndex) and
-        aObj^.GetAsDouble(FindColumnByIndex(vIndex).PropertyName, vValue) then
-        result := vValue;
-    end;
+    if Header.Columns.IsValidColumn(aValueColumnIndex) and
+      aObj^.GetAsDouble(FindColumnByIndex(aValueColumnIndex).PropertyName, vValue) then
+      result := vValue;
   end;
 
 var
@@ -4868,6 +4876,8 @@ var
 begin
   vLabels.InitFast;
   vColumn := FocusedColumnObject;
+  if Header.Columns.IsValidColumn(aValueColumnIndex) then
+    aChart.Title.Text.Text := DoChartNaming(FindColumnByIndex(aValueColumnIndex));
   for vObj in SelectedObjects do
   begin
     vValue := vObj^.U[vColumn.PropertyName];
@@ -4888,8 +4898,14 @@ begin
     vDefLabel := vObj^.S['field'];
     vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
     DoBeforeAddingChartSource(vColumn, vDefX, vDefY, vDefLabel, vDefColor);
-    aSender.ListChartSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
+    aSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
   end;
+end;
+
+procedure TTisGrid.DoChartChange(aChart: TChart);
+begin
+  if Assigned(fOnChartChange) then
+    fOnChartChange(self, aChart, FocusedColumnObject);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;
