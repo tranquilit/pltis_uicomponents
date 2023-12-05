@@ -760,11 +760,11 @@ type
     procedure SetOnCutToClipboard(aValue: TNotifyEvent);
     function GetTreeOptions: TTisStringTreeOptions;
     procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
+    procedure SetSelectedAndTotalLabel(aValue: TLabel);
+    procedure SetZebraLightness(aValue: Byte);
     function GetSelectedRows: TDocVariantData;
     /// select all the nodes matching the aValue array list of TDocVariantData
     procedure SetSelectedRows(const aValue: TDocVariantData);
-    procedure SetSelectedAndTotalLabel(aValue: TLabel);
-    procedure SetZebraLightness(aValue: Byte);
   protected const
     // ------------------------------- new constants -------------------------------
     DefaultPopupMenuOptions = [
