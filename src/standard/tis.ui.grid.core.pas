@@ -4701,9 +4701,6 @@ begin
   begin
     vChartForm := TGridChartForm.Create(Owner);
     try
-      // if one or none rows selected, assume that all (visible) rows have to be shown in the char
-      if SelectedCount <= 1 then
-        SelectAll(True);
       for vIndex := 0 to vChartForm.ComponentCount-1 do
         if vChartForm.Components[vIndex] is TChart then
           with vChartForm.Components[vIndex] as TChart do
@@ -4868,18 +4865,31 @@ procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
 var
   vColumn: TTisGridColumn;
   vObj: PDocVariantData;
-  vLabels: TDocVariantData;
+  vLabels, vRows: TDocVariantData;
   vIndex: Integer;
   vDefX, vDefY: Double;
   vDefLabel: string;
   vDefColor: TColor;
   vValue: RawUtf8;
+  vNode: PVirtualNode;
 begin
   vLabels.InitFast;
+  vRows.InitFast;
   vColumn := FocusedColumnObject;
   if Header.Columns.IsValidColumn(aValueColumnIndex) then
     aChart.Title.Text.Text := DoChartNaming(FindColumnByIndex(aValueColumnIndex));
-  for vObj in SelectedObjects do
+  // if one or none rows selected, assume that all (visible) rows have to be shown in the chart
+  if SelectedCount <= 1 then
+  begin
+    for vNode in VisibleNodes do
+      vRows.AddItem(GetNodeAsPDocVariantData(vNode)^);
+  end
+  else
+  begin
+    for vObj in SelectedObjects do
+      vRows.AddItem(vObj^);
+  end;
+  for vObj in vRows.Objects do
   begin
     vValue := vObj^.U[vColumn.PropertyName];
     vIndex := vLabels.SearchItemByProp('field', vValue, not FilterOptions.CaseInsensitive);
