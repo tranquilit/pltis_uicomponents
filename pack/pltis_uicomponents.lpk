@@ -38,7 +38,6 @@ end;"/>
         </Debugging>
       </Linking>
       <Other>
-        <CustomOptions Value="-dFRAMEVIEWER_ENABLED"/>
         <OtherDefines Count="1">
           <Define0 Value="FRAMEVIEWER_ENABLED"/>
         </OtherDefines>

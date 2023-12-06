@@ -280,6 +280,11 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <OtherDefines Count="1">
+        <Define0 Value="FRAMEVIEWER_ENABLED"/>
+      </OtherDefines>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

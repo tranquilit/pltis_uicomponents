@@ -13,6 +13,7 @@ interface
 
 uses
   Classes,
+  Variants,
   SysUtils,
   Controls,
   StdCtrls,
