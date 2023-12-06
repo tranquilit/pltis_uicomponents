@@ -4865,7 +4865,7 @@ procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
 var
   vColumn: TTisGridColumn;
   vObj: PDocVariantData;
-  vLabels, vRows: TDocVariantData;
+  vLabels: TDocVariantData;
   vIndex: Integer;
   vDefX, vDefY: Double;
   vDefLabel: string;
@@ -4874,23 +4874,15 @@ var
   vNode: PVirtualNode;
 begin
   vLabels.InitFast;
-  vRows.InitFast;
   vColumn := FocusedColumnObject;
   if Header.Columns.IsValidColumn(aValueColumnIndex) then
     aChart.Title.Text.Text := DoChartTitle(FindColumnByIndex(aValueColumnIndex));
-  // if one or none rows selected, assume that all (visible) rows have to be shown in the chart
-  if SelectedCount <= 1 then
+  for vNode in VisibleNodes do
   begin
-    for vNode in VisibleNodes do
-      vRows.AddItem(GetNodeAsPDocVariantData(vNode)^);
-  end
-  else
-  begin
-    for vObj in SelectedObjects do
-      vRows.AddItem(vObj^);
-  end;
-  for vObj in vRows.Objects do
-  begin
+    vObj := GetNodeAsPDocVariantData(vNode);
+    // if selected rows is more than one, it will get only selected ones
+    if (SelectedCount > 1) and not (vsSelected in vNode^.States) then
+      Continue;
     vValue := vObj^.U[vColumn.PropertyName];
     vIndex := vLabels.SearchItemByProp('field', vValue, not FilterOptions.CaseInsensitive);
     if vIndex >= 0 then
