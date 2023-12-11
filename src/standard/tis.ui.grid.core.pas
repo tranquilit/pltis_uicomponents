@@ -4456,7 +4456,7 @@ begin
     vAdapter.Clear;
     vStr := ContentToUTF8(tstSelected, ';');
     vAdapter.Add(cbkText, vStr[1], Length(vStr)+1);
-    vStr := ContentToJson(tstSelected);
+    vStr := ContentToJson(tstSelected,False);
     vAdapter.Add(cbkJson, vStr[1], Length(vStr));
   finally
     vAdapter.Close;
