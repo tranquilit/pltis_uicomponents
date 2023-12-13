@@ -689,10 +689,12 @@ type
     var aX, aY: Double; var aLabel: string; var aColor: TColor) of object;
 
   /// event that allows naming the chart's title
-  TOnGridChartTitle = procedure(aSender: TTisGrid; aColumn: TTisGridColumn; var aChartTitle: string) of object;
+  TOnGridChartTitle = procedure(aSender: TTisGrid; aChart: TChart;
+    aColumn: TTisGridColumn; aFlags: TTisChartChangeFlags; var aChartTitle: string) of object;
 
   /// event that will fired if user changes something on the chart
-  TOnGridChartChange = procedure(aSender: TTisGrid; aChart: TChart; aColumn: TTisGridColumn) of object;
+  TOnGridChartChange = procedure(aSender: TTisGrid; aChart: TChart;
+    aColumn: TTisGridColumn; var aFlags: TTisChartChangeFlags) of object;
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
@@ -874,9 +876,9 @@ type
       out aValue: Variant): Boolean; virtual;
     procedure DoBeforeAddingChartSource(aColumn: TTisGridColumn; var aX,
       aY: Double; var aLabel: string; var aColor: TColor); virtual;
-    function DoChartTitle(aColumn: TTisGridColumn): string; virtual;
-    procedure DoChartFillSource(aChart: TChart; aSource: TListChartSource; aValueColumnIndex: Integer); virtual;
-    procedure DoChartChange(aChart: TChart); virtual;
+    procedure DoChartTitle(aChart: TChart; aColumn: TTisGridColumn; var aFlags: TTisChartChangeFlags); virtual;
+    procedure DoChartFillSource(aChart: TChart; aSource: TListChartSource; var aFlags: TTisChartFillSourceFlags); virtual;
+    procedure DoChartChange(aChart: TChart; var aFlags: TTisChartChangeFlags); virtual;
     /// it returns the filter for the Save Dialog, when user wants to export data
     // - it will add file filters based on ExportFormatOptions property values
     // - you can override this method to customize default filters
@@ -4696,17 +4698,18 @@ procedure TTisGrid.DoShowChart(aSender: TObject);
 var
   vColumn: TTisGridColumn;
   vIndex: Integer;
-  vChartForm: TGridChartForm;
+  vChartForm: TTisChartForm;
+  vFlags: TTisChartChangeFlags;
 begin
   vColumn := FocusedColumnObject;
   if Assigned(vColumn) and vColumn.AllowChart then
   begin
-    vChartForm := TGridChartForm.Create(Owner);
+    vChartForm := TTisChartForm.Create(Owner);
     try
+      vFlags.Init;
       for vIndex := 0 to vChartForm.ComponentCount-1 do
         if vChartForm.Components[vIndex] is TChart then
-          with vChartForm.Components[vIndex] as TChart do
-            Title.Text.Text := DoChartTitle(vColumn);
+          DoChartTitle(vChartForm.Components[vIndex] as TChart, vColumn, vFlags);
       vChartForm.OnChartChange := @DoChartChange;
       vChartForm.OnChartFillSource := @DoChartFillSource;
       // add columns
@@ -4828,17 +4831,25 @@ begin
     fOnBeforeAddingChartSource(self, aColumn, aX, aY, aLabel, aColor);
 end;
 
-function TTisGrid.DoChartTitle(aColumn: TTisGridColumn): string;
+procedure TTisGrid.DoChartTitle(aChart: TChart; aColumn: TTisGridColumn;
+  var aFlags: TTisChartChangeFlags);
+var
+  vTitle: string;
 begin
-  result := 'Chart per ' + aColumn.Text;
   if Assigned(OnDefaultChartTitle) then
-    OnDefaultChartTitle(self, aColumn, result);
+  begin
+    vTitle := '';
+    OnDefaultChartTitle(self, aChart, aColumn, aFlags, vTitle);
+  end
+  else
+    vTitle := 'Chart per ' + aColumn.Text;
   if Assigned(fOnChartTitle) then
-    fOnChartTitle(self, aColumn, result);
+    fOnChartTitle(self, aChart, aColumn, aFlags, vTitle);
+  aChart.Title.Text.Text := vTitle;
 end;
 
 procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
-  aValueColumnIndex: Integer);
+  var aFlags: TTisChartFillSourceFlags);
 
   function Darkened(aValue: TColor): TColor;
   var
@@ -4859,8 +4870,8 @@ procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
     vValue: Double;
   begin
     result := 1;
-    if Header.Columns.IsValidColumn(aValueColumnIndex) and
-      aObj^.GetAsDouble(FindColumnByIndex(aValueColumnIndex).PropertyName, vValue) then
+    if Header.Columns.IsValidColumn(aFlags.ValueColumnIndex) and
+      aObj^.GetAsDouble(FindColumnByIndex(aFlags.ValueColumnIndex).PropertyName, vValue) then
       result := vValue;
   end;
 
@@ -4877,8 +4888,6 @@ var
 begin
   vLabels.InitFast;
   vColumn := FocusedColumnObject;
-  if Header.Columns.IsValidColumn(aValueColumnIndex) then
-    aChart.Title.Text.Text := DoChartTitle(FindColumnByIndex(aValueColumnIndex));
   for vNode in VisibleNodes do
   begin
     vObj := GetNodeAsPDocVariantData(vNode);
@@ -4907,10 +4916,15 @@ begin
   end;
 end;
 
-procedure TTisGrid.DoChartChange(aChart: TChart);
+procedure TTisGrid.DoChartChange(aChart: TChart; var aFlags: TTisChartChangeFlags);
+var
+  vColumn: TTisGridColumn;
 begin
+  vColumn := FocusedColumnObject;
+  if not aFlags.Title.Customized then
+    DoChartTitle(aChart, vColumn, aFlags);
   if Assigned(fOnChartChange) then
-    fOnChartChange(self, aChart, FocusedColumnObject);
+    fOnChartChange(self, aChart, vColumn, aFlags);
 end;
 
 function TTisGrid.GetExportDialogFilter: string;

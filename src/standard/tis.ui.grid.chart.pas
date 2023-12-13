@@ -19,7 +19,9 @@ uses
   Forms,
   Controls,
   Graphics,
-  Dialogs, ActnList,
+  Dialogs,
+  ActnList,
+  mormot.core.rtti,
   TAGraph,
   TARadialSeries,
   TASeries,
@@ -30,17 +32,36 @@ uses
   TATools;
 
 type
-  TGridChartForm = class;
+  TTisChartForm = class;
 
-  TChartFillSourceEvent = procedure(aChart: TChart; aSource: TListChartSource; aValueColumnIndex: Integer) of object;
-  TChartChange = procedure(aChart: TChart) of object;
+  TTisChartFillSourceFlags = object
+  public
+    ValueColumnIndex: Integer;
+    procedure Init;
+  end;
 
-  TGridChartForm = class(TForm)
+  TTisChartFillSourceEvent = procedure(aChart: TChart; aSource: TListChartSource; var aFlags: TTisChartFillSourceFlags) of object;
+
+  TTisChartChangeFlags = object
+  public
+    Title: record
+      Customized: Boolean;
+      Text: string;
+    end;
+    Values: record
+      ColumnIndex: Integer
+    end;
+    procedure Init;
+  end;
+
+  TTisChartChangeEvent = procedure(aChart: TChart; var aFlags: TTisChartChangeFlags) of object;
+
+  TTisChartForm = class(TForm)
     cbMarkAttachment: TComboBox;
     cmbOrientation: TComboBox;
     PieChart: TChart;
     PieChartPieSeries1: TPieSeries;
-    ChartToolset1: TChartToolset;
+    ChartToolset: TChartToolset;
     cbRotate: TCheckBox;
     cbMarkPositions: TComboBox;
     Cb3D: TCheckBox;
@@ -113,45 +134,61 @@ type
       Style: TSeriesMarksStyle;
       Format: string;
     end;
-    fOnChartFillSource: TChartFillSourceEvent;
-    fOnChartChange: TChartChange;
+    fOnChartFillSource: TTisChartFillSourceEvent;
+    fOnChartChange: TTisChartChangeEvent;
   protected
+    function PieValuesIndexAsColumnIndex: Integer;
     procedure DoChartFillSource(aChart: TChart);
     procedure DoChartChange(aChart: TChart);
   public
-    property OnChartFillSource: TChartFillSourceEvent read fOnChartFillSource write fOnChartFillSource;
-    property OnChartChange: TChartChange read fOnChartChange write fOnChartChange;
+    property OnChartFillSource: TTisChartFillSourceEvent read fOnChartFillSource write fOnChartFillSource;
+    property OnChartChange: TTisChartChangeEvent read fOnChartChange write fOnChartChange;
   end;
 
 implementation
 
 {$R *.lfm}
 
-{ TGridChartForm }
+{ TTisChartChangeFlags }
 
-procedure TGridChartForm.cbMarkAttachmentChange(Sender: TObject);
+procedure TTisChartChangeFlags.Init;
+begin
+  RecordZero(@self, TypeInfo(TTisChartChangeFlags));
+  Values.ColumnIndex := -1;
+end;
+
+{ TTisChartFillSourceFlags }
+
+procedure TTisChartFillSourceFlags.Init;
+begin
+  RecordZero(@self, TypeInfo(TTisChartFillSourceFlags));
+end;
+
+{ TTisChartForm }
+
+procedure TTisChartForm.cbMarkAttachmentChange(Sender: TObject);
 begin
   PieChartPieSeries1.Marks.Attachment :=
     TChartMarkAttachment(cbMarkAttachment.ItemIndex);
 end;
 
-procedure TGridChartForm.cbMarkPositionsCenteredChange(Sender: TObject);
+procedure TTisChartForm.cbMarkPositionsCenteredChange(Sender: TObject);
 begin
   PieChartPieSeries1.MarkPositionCentered := cbMarkPositionsCentered.Checked;
 end;
 
-procedure TGridChartForm.cbMarkPositionsChange(Sender: TObject);
+procedure TTisChartForm.cbMarkPositionsChange(Sender: TObject);
 begin
   PieChartPieSeries1.MarkPositions :=
     TPieMarkPositions(cbMarkPositions.ItemIndex);
 end;
 
-procedure TGridChartForm.cbRotateChange(Sender: TObject);
+procedure TTisChartForm.cbRotateChange(Sender: TObject);
 begin
   PieChartPieSeries1.RotateLabels := cbRotate.Checked;
 end;
 
-procedure TGridChartForm.cbShowLabelsChange(Sender: TObject);
+procedure TTisChartForm.cbShowLabelsChange(Sender: TObject);
 begin
   if cbShowLabels.Checked then
   begin
@@ -173,7 +210,7 @@ begin
   cbRotate.Enabled := cbShowLabels.Checked;
 end;
 
-procedure TGridChartForm.Cb3DChange(Sender: TObject);
+procedure TTisChartForm.Cb3DChange(Sender: TObject);
 begin
   if cb3D.Checked then
     PieChartPieSeries1.Depth := seDepth.Value
@@ -188,37 +225,37 @@ begin
   cmbOrientation.Enabled := cb3D.Checked;
 end;
 
-procedure TGridChartForm.cmbOrientationChange(Sender: TObject);
+procedure TTisChartForm.cmbOrientationChange(Sender: TObject);
 begin
   PieChartPieSeries1.Orientation := TPieOrientation(cmbOrientation.ItemIndex);
 end;
 
-procedure TGridChartForm.seDepthBrightnessDeltaChange(Sender: TObject);
+procedure TTisChartForm.seDepthBrightnessDeltaChange(Sender: TObject);
 begin
   PieChartPieSeries1.DepthBrightnessDelta := seDepthBrightnessDelta.Value;
 end;
 
-procedure TGridChartForm.seDepthChange(Sender: TObject);
+procedure TTisChartForm.seDepthChange(Sender: TObject);
 begin
   PieChartPieSeries1.Depth := seDepth.Value;
 end;
 
-procedure TGridChartForm.seDistanceChange(Sender: TObject);
+procedure TTisChartForm.seDistanceChange(Sender: TObject);
 begin
   PieChartPieSeries1.Marks.Distance := seDistance.Value;
 end;
 
-procedure TGridChartForm.seAngleRangeChange(Sender: TObject);
+procedure TTisChartForm.seAngleRangeChange(Sender: TObject);
 begin
   PieChartPieSeries1.AngleRange := seAngleRange.Value;
 end;
 
-procedure TGridChartForm.seInnerRadiusChange(Sender: TObject);
+procedure TTisChartForm.seInnerRadiusChange(Sender: TObject);
 begin
   PieChartPieSeries1.InnerRadiusPercent := seInnerRadius.Value;
 end;
 
-procedure TGridChartForm.PieChartMouseDown(
+procedure TTisChartForm.PieChartMouseDown(
   Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   i: Integer;
@@ -229,22 +266,22 @@ begin
   PieChart.Invalidate;
 end;
 
-procedure TGridChartForm.seStartAngleChange(Sender: TObject);
+procedure TTisChartForm.seStartAngleChange(Sender: TObject);
 begin
   PieChartPieSeries1.StartAngle := seStartAngle.Value;
 end;
 
-procedure TGridChartForm.seViewAngleChange(Sender: TObject);
+procedure TTisChartForm.seViewAngleChange(Sender: TObject);
 begin
   PieChartPieSeries1.ViewAngle := seViewAngle.Value;
 end;
 
-procedure TGridChartForm.seLabelAngleChange(Sender: TObject);
+procedure TTisChartForm.seLabelAngleChange(Sender: TObject);
 begin
   PieChartPieSeries1.Marks.LabelFont.Orientation := seLabelAngle.Value * 10;
 end;
 
-procedure TGridChartForm.FormCreate(Sender: TObject);
+procedure TTisChartForm.FormCreate(Sender: TObject);
 begin
   PieChart.Title.Text.Text := PieTitleEdit.Text;
   PieValuesCombo.Items.Clear;
@@ -257,47 +294,55 @@ begin
   end;
 end;
 
-procedure TGridChartForm.FormDestroy(Sender: TObject);
+procedure TTisChartForm.FormDestroy(Sender: TObject);
 begin
   fSavedDataPoints.Free;
 end;
 
-procedure TGridChartForm.FormShow(Sender: TObject);
+procedure TTisChartForm.FormShow(Sender: TObject);
 begin
   DoChartFillSource(PieChart);
   seWordsChange(seWords);
-  PieTitleEdit.Text := PieChart.Title.Text.Text;
 end;
 
-procedure TGridChartForm.PieClipboardActionExecute(Sender: TObject);
+procedure TTisChartForm.PieClipboardActionExecute(Sender: TObject);
 begin
   PieChart.CopyToClipboardBitmap;
 end;
 
-procedure TGridChartForm.PieCustomizeActionExecute(Sender: TObject);
+procedure TTisChartForm.PieCustomizeActionExecute(Sender: TObject);
 begin
   PieCustomizeAction.Checked := not PieCustomizeAction.Checked;
   PiePanel.Visible := PieCustomizeAction.Checked;
 end;
 
-procedure TGridChartForm.PieCloseActionExecute(Sender: TObject);
+procedure TTisChartForm.PieCloseActionExecute(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TGridChartForm.PieTitleEditChange(Sender: TObject);
+procedure TTisChartForm.PieTitleEditChange(Sender: TObject);
 begin
   PieChart.Title.Text.Text := PieTitleEdit.Text;
+  DoChartChange(PieChart);
 end;
 
-procedure TGridChartForm.PieValuesComboChange(Sender: TObject);
+procedure TTisChartForm.PieValuesComboChange(Sender: TObject);
 begin
   DoChartFillSource(PieChart);
   DoChartChange(PieChart);
-  PieTitleEdit.Text := PieChart.Title.Text.Text;
 end;
 
-procedure TGridChartForm.seWordsChange(Sender: TObject);
+function TTisChartForm.PieValuesIndexAsColumnIndex: Integer;
+begin
+  result := PieValuesCombo.ItemIndex;
+  if PieValuesCombo.ItemIndex > 0 then // -1 or 0 is the same as empty
+    Dec(result)
+  else
+    result := -1;
+end;
+
+procedure TTisChartForm.seWordsChange(Sender: TObject);
 
   function ExtractWords(aText: string; aWordCount: Integer): string;
   var
@@ -335,26 +380,34 @@ begin
   PieChart.Invalidate;
 end;
 
-procedure TGridChartForm.DoChartFillSource(aChart: TChart);
+procedure TTisChartForm.DoChartFillSource(aChart: TChart);
 var
-  vIndex: Integer;
+  vFlags: TTisChartFillSourceFlags;
 begin
-  PieSource.Clear;
   if Assigned(fOnChartFillSource) then
   begin
-    vIndex := PieValuesCombo.ItemIndex;
-    if PieValuesCombo.ItemIndex > 0 then // -1 or 0 is the same as empty
-      Dec(vIndex)
-    else
-      vIndex := -1;
-    fOnChartFillSource(aChart, PieSource, vIndex);
+    PieSource.Clear;
+    vFlags.Init;
+    vFlags.ValueColumnIndex := PieValuesIndexAsColumnIndex;
+    fOnChartFillSource(aChart, PieSource, vFlags);
   end;
 end;
 
-procedure TGridChartForm.DoChartChange(aChart: TChart);
+procedure TTisChartForm.DoChartChange(aChart: TChart);
+var
+  vFlags: TTisChartChangeFlags;
 begin
   if Assigned(fOnChartChange) then
-    fOnChartChange(aChart);
+  begin
+    vFlags.Init;
+    with vFlags.Title do
+    begin
+      Customized := PieTitleEdit.Text <> '';
+      Text := PieTitleEdit.Text;
+    end;
+    vFlags.Values.ColumnIndex := PieValuesIndexAsColumnIndex;
+    fOnChartChange(aChart, vFlags);
+  end;
 end;
 
 end.

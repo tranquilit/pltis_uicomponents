@@ -20,9 +20,11 @@ uses
   Dialogs,
   Menus,
   ColorBox,
-  ComCtrls, Spin,
+  ComCtrls,
+  Spin,
   SynEdit,
   Variants,
+  TAGraph,
   VirtualTrees,
   mormot.core.base,
   mormot.core.text,
@@ -30,6 +32,7 @@ uses
   mormot.core.variants,
   tis.core.os,
   tis.ui.searchedit,
+  tis.ui.grid.chart,
   tis.ui.grid.core,
   tis.ui.grid.controls;
 
@@ -144,6 +147,8 @@ type
       var aNewValue: Variant; var aAbort: Boolean);
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
+    procedure DoDefaultChartTitle(aSender: TTisGrid; aChart: TChart;
+      aColumn: TTisGridColumn; aFlags: TTisChartChangeFlags; var aChartTitle: string);
   public
     constructor Create(aOwner: TComponent); override;
   end;
@@ -367,11 +372,30 @@ begin
   end;
 end;
 
+procedure TGridFrame.DoDefaultChartTitle(aSender: TTisGrid; aChart: TChart;
+  aColumn: TTisGridColumn; aFlags: TTisChartChangeFlags; var aChartTitle: string);
+var
+  vColumn: TTisGridColumn;
+begin
+  with aFlags.Values do
+  begin
+    if Grid.Header.Columns.IsValidColumn(ColumnIndex) then
+      vColumn := Grid.FindColumnByIndex(ColumnIndex)
+    else
+      vColumn := Grid.FocusedColumnObject;
+  end;
+  if vColumn.Index = aColumn.Index then
+    aChartTitle := 'My chart per ' + aColumn.Text
+  else
+    aChartTitle := 'My chart using ' + vColumn.CaptionText + ' per ' + aColumn.Text;
+end;
+
 constructor TGridFrame.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   BgColorBox.Selected := Grid.Color;
   ZebraLightnessEdit.Value := Grid.ZebraLightness;
+  Grid.OnDefaultChartTitle := @DoDefaultChartTitle;
 end;
 
 end.

@@ -1,4 +1,4 @@
-object GridChartForm: TGridChartForm
+object TisChartForm: TTisChartForm
   Left = 186
   Height = 559
   Top = 142
@@ -7,11 +7,11 @@ object GridChartForm: TGridChartForm
   Caption = 'Chart'
   ClientHeight = 559
   ClientWidth = 659
-  Position = poOwnerFormCenter
-  LCLVersion = '3.99.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  Position = poOwnerFormCenter
+  LCLVersion = '2.3.0.0'
   object PageControl: TPageControl
     Left = 0
     Height = 559
@@ -23,12 +23,12 @@ object GridChartForm: TGridChartForm
     TabOrder = 0
     object tsPie: TTabSheet
       Caption = 'Pie'
-      ClientHeight = 533
+      ClientHeight = 531
       ClientWidth = 651
       object PieChart: TChart
         Left = 0
-        Height = 366
-        Top = 167
+        Height = 354
+        Top = 177
         Width = 651
         AxisList = <        
           item
@@ -53,7 +53,7 @@ object GridChartForm: TGridChartForm
           'TAChart'
         )
         Title.Visible = True
-        Toolset = ChartToolset1
+        Toolset = ChartToolset
         Align = alClient
         Color = clDefault
         OnMouseDown = PieChartMouseDown
@@ -80,7 +80,7 @@ object GridChartForm: TGridChartForm
       object PiePanel: TPanel
         AnchorSideTop.Side = asrCenter
         Left = 0
-        Height = 143
+        Height = 153
         Top = 24
         Width = 651
         Align = alTop
@@ -88,7 +88,7 @@ object GridChartForm: TGridChartForm
         Anchors = [akTop, akRight]
         AutoSize = True
         BevelOuter = bvNone
-        ClientHeight = 143
+        ClientHeight = 153
         ClientWidth = 651
         TabOrder = 1
         Visible = False
@@ -98,17 +98,17 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = cbShowLabels
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = lblInnerRadius
-          Left = 216
-          Height = 21
-          Top = 33
+          Left = 222
+          Height = 23
+          Top = 35
           Width = 72
           BorderSpacing.Top = 6
           BorderSpacing.Right = 24
           MaxValue = 10
           MinValue = 1
+          OnChange = seWordsChange
           TabOrder = 3
           Value = 5
-          OnChange = seWordsChange
         end
         object lblWords: TLabel
           AnchorSideLeft.Control = cbMarkPositions
@@ -117,9 +117,9 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seWords
           Left = 151
-          Height = 13
-          Top = 37
-          Width = 57
+          Height = 15
+          Top = 39
+          Width = 63
           BorderSpacing.Left = 16
           BorderSpacing.Right = 8
           Caption = 'Label words'
@@ -130,26 +130,26 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = seWords
           AnchorSideRight.Side = asrBottom
-          Left = 216
-          Height = 21
-          Top = 60
+          Left = 222
+          Height = 23
+          Top = 64
           Width = 72
           Anchors = [akTop, akLeft, akRight]
           BorderSpacing.Top = 6
           Increment = 5
           MaxValue = 360
           MinValue = -360
-          TabOrder = 6
           OnChange = seLabelAngleChange
+          TabOrder = 6
         end
         object lblLabelAngle: TLabel
           AnchorSideTop.Control = seLabelAngle
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seLabelAngle
           Left = 154
-          Height = 13
-          Top = 64
-          Width = 54
+          Height = 15
+          Top = 68
+          Width = 60
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
           Caption = 'Label angle'
@@ -160,14 +160,14 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Side = asrBottom
           Left = 8
-          Height = 17
-          Top = 62
-          Width = 83
+          Height = 19
+          Top = 66
+          Width = 85
           BorderSpacing.Top = 6
           BorderSpacing.Bottom = 6
           Caption = 'Rotate labels'
-          TabOrder = 5
           OnChange = cbRotateChange
+          TabOrder = 5
         end
         object cbMarkPositions: TComboBox
           AnchorSideLeft.Control = cbShowLabels
@@ -176,55 +176,55 @@ object GridChartForm: TGridChartForm
           AnchorSideRight.Control = seDepthBrightnessDelta
           AnchorSideRight.Side = asrBottom
           Left = 8
-          Height = 21
-          Top = 114
+          Height = 23
+          Top = 122
           Width = 127
           AutoSize = False
           BorderSpacing.Bottom = 8
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'Around'
             'Inside'
             'Left / right'
           )
+          OnChange = cbMarkPositionsChange
           Style = csDropDownList
           TabOrder = 14
           Text = 'Around'
-          OnChange = cbMarkPositionsChange
         end
         object Cb3D: TCheckBox
           AnchorSideLeft.Control = lblInnerRadius
           AnchorSideTop.Control = seDepth
           AnchorSideTop.Side = asrCenter
-          Left = 317
-          Height = 17
-          Top = 89
-          Width = 33
+          Left = 327
+          Height = 19
+          Top = 95
+          Width = 32
           Caption = '3D'
-          TabOrder = 11
           OnChange = Cb3DChange
+          TabOrder = 11
         end
         object seInnerRadius: TSpinEdit
           AnchorSideLeft.Control = seDepthBrightnessDelta
           AnchorSideTop.Control = seWords
           AnchorSideRight.Side = asrBottom
-          Left = 397
-          Height = 21
-          Top = 33
+          Left = 410
+          Height = 23
+          Top = 35
           Width = 62
           BorderSpacing.Right = 8
-          TabOrder = 4
           OnChange = seInnerRadiusChange
+          TabOrder = 4
         end
         object lblInnerRadius: TLabel
           AnchorSideLeft.Side = asrBottom
           AnchorSideTop.Control = lblWords
           AnchorSideRight.Control = seInnerRadius
-          Left = 317
-          Height = 13
-          Top = 37
-          Width = 72
+          Left = 327
+          Height = 15
+          Top = 39
+          Width = 75
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
           Caption = 'Inner radius %'
@@ -235,10 +235,10 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = seDepth
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seDepth
-          Left = 360
-          Height = 13
-          Top = 91
-          Width = 29
+          Left = 370
+          Height = 15
+          Top = 97
+          Width = 32
           Anchors = [akTop, akRight]
           BorderSpacing.Left = 12
           BorderSpacing.Right = 8
@@ -250,16 +250,16 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = seDistance
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Side = asrBottom
-          Left = 397
-          Height = 21
-          Top = 87
+          Left = 410
+          Height = 23
+          Top = 93
           Width = 62
           BorderSpacing.Right = 6
           Enabled = False
           MaxValue = 1000
+          OnChange = seDepthChange
           TabOrder = 12
           Value = 20
-          OnChange = seDepthChange
         end
         object seDepthBrightnessDelta: TSpinEdit
           AnchorSideLeft.Control = lblDepthBrightnessDelta
@@ -268,18 +268,18 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = PiePanel
           AnchorSideRight.Side = asrBottom
-          Left = 397
-          Height = 21
-          Top = 114
+          Left = 410
+          Height = 23
+          Top = 122
           Width = 62
           BorderSpacing.Top = 6
           BorderSpacing.Right = 6
           Enabled = False
           MaxValue = 255
           MinValue = -255
+          OnChange = seDepthBrightnessDeltaChange
           TabOrder = 16
           Value = -32
-          OnChange = seDepthBrightnessDeltaChange
         end
         object lblDepthBrightnessDelta: TLabel
           AnchorSideLeft.Control = seDistance
@@ -287,10 +287,10 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = seDepthBrightnessDelta
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seDepthBrightnessDelta
-          Left = 312
-          Height = 13
-          Top = 118
-          Width = 77
+          Left = 318
+          Height = 15
+          Top = 126
+          Width = 84
           Alignment = taRightJustify
           BorderSpacing.Left = 24
           BorderSpacing.Right = 8
@@ -304,25 +304,25 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = lblWords
           Left = 8
-          Height = 17
-          Top = 35
-          Width = 76
+          Height = 19
+          Top = 37
+          Width = 80
           BorderSpacing.Top = 6
           BorderSpacing.Right = 16
           Caption = 'Show labels'
           Checked = True
+          OnChange = cbShowLabelsChange
           State = cbChecked
           TabOrder = 2
-          OnChange = cbShowLabelsChange
         end
         object lblDistance: TLabel
           AnchorSideTop.Control = seDistance
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seDistance
-          Left = 167
-          Height = 13
-          Top = 91
-          Width = 41
+          Left = 169
+          Height = 15
+          Top = 97
+          Width = 45
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
           Caption = 'Distance'
@@ -332,16 +332,16 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = seLabelAngle
           AnchorSideRight.Side = asrBottom
-          Left = 216
-          Height = 21
-          Top = 87
+          Left = 222
+          Height = 23
+          Top = 93
           Width = 72
           Anchors = [akTop, akRight]
           BorderSpacing.Top = 6
           MaxValue = 1000
+          OnChange = seDistanceChange
           TabOrder = 10
           Value = 40
-          OnChange = seDistanceChange
         end
         object cbMarkAttachment: TComboBox
           AnchorSideLeft.Control = cbShowLabels
@@ -350,22 +350,22 @@ object GridChartForm: TGridChartForm
           AnchorSideRight.Control = seDistance
           AnchorSideRight.Side = asrBottom
           Left = 8
-          Height = 21
-          Top = 87
+          Height = 23
+          Top = 93
           Width = 125
           BorderSpacing.Top = 6
           BorderSpacing.Bottom = 6
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'Default'
             'Edge'
             'Center'
           )
+          OnChange = cbMarkAttachmentChange
           Style = csDropDownList
           TabOrder = 9
           Text = 'Default'
-          OnChange = cbMarkAttachmentChange
         end
         object cbMarkPositionsCentered: TCheckBox
           AnchorSideLeft.Control = lblWords
@@ -374,22 +374,22 @@ object GridChartForm: TGridChartForm
           AnchorSideRight.Control = cbMarkPositions
           AnchorSideRight.Side = asrBottom
           Left = 151
-          Height = 17
-          Top = 116
-          Width = 134
+          Height = 19
+          Top = 124
+          Width = 145
           Caption = 'Mark positions centered'
-          TabOrder = 15
           OnChange = cbMarkPositionsCenteredChange
+          TabOrder = 15
         end
         object lblStartAngle: TLabel
           AnchorSideLeft.Side = asrBottom
           AnchorSideTop.Control = seStartAngle
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seStartAngle
-          Left = 336
-          Height = 13
-          Top = 64
-          Width = 53
+          Left = 346
+          Height = 15
+          Top = 68
+          Width = 56
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
           Caption = 'Start angle'
@@ -398,15 +398,15 @@ object GridChartForm: TGridChartForm
           AnchorSideLeft.Control = seDepthBrightnessDelta
           AnchorSideTop.Control = seLabelAngle
           AnchorSideRight.Side = asrBottom
-          Left = 397
-          Height = 21
-          Top = 60
+          Left = 410
+          Height = 23
+          Top = 64
           Width = 62
           BorderSpacing.Right = 6
           MaxValue = 180
           MinValue = -180
-          TabOrder = 7
           OnChange = seStartAngleChange
+          TabOrder = 7
         end
         object seViewAngle: TSpinEdit
           AnchorSideLeft.Control = seAngleRange
@@ -414,26 +414,26 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = cmbOrientation
           AnchorSideRight.Side = asrBottom
-          Left = 549
-          Height = 21
-          Top = 87
+          Left = 562
+          Height = 23
+          Top = 93
           Width = 62
           Anchors = [akTop, akRight]
           Enabled = False
           MaxValue = 89
+          OnChange = seViewAngleChange
           TabOrder = 13
           Value = 60
-          OnChange = seViewAngleChange
         end
         object lblViewAngle: TLabel
           AnchorSideLeft.Side = asrBottom
           AnchorSideTop.Control = seViewAngle
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seViewAngle
-          Left = 490
-          Height = 13
-          Top = 91
-          Width = 51
+          Left = 497
+          Height = 15
+          Top = 97
+          Width = 57
           Anchors = [akTop, akRight]
           BorderSpacing.Left = 12
           BorderSpacing.Right = 8
@@ -446,35 +446,35 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = cbMarkAttachment
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Side = asrBottom
-          Left = 483
-          Height = 21
-          Top = 114
+          Left = 496
+          Height = 23
+          Top = 122
           Width = 128
           AutoSize = False
           BorderSpacing.Left = 24
           BorderSpacing.Bottom = 8
           Enabled = False
-          ItemHeight = 13
+          ItemHeight = 15
           ItemIndex = 0
           Items.Strings = (
             'normal'
             'horizontal'
             'vertical'
           )
+          OnChange = cmbOrientationChange
           Style = csDropDownList
           TabOrder = 17
           Text = 'normal'
-          OnChange = cmbOrientationChange
         end
         object lblAngleRange: TLabel
           AnchorSideLeft.Side = asrBottom
           AnchorSideTop.Control = seAngleRange
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = seAngleRange
-          Left = 486
-          Height = 13
-          Top = 64
-          Width = 58
+          Left = 493
+          Height = 15
+          Top = 68
+          Width = 64
           Anchors = [akTop, akRight]
           BorderSpacing.Left = 12
           BorderSpacing.Right = 8
@@ -484,29 +484,29 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = seStartAngle
           AnchorSideRight.Control = cmbOrientation
           AnchorSideRight.Side = asrBottom
-          Left = 552
-          Height = 21
-          Top = 60
+          Left = 565
+          Height = 23
+          Top = 64
           Width = 59
           Anchors = [akTop, akRight]
           MaxValue = 360
           MinValue = 1
+          OnChange = seAngleRangeChange
           TabOrder = 8
           Value = 360
-          OnChange = seAngleRangeChange
         end
         object PieTitleEdit: TEdit
           AnchorSideLeft.Control = PiePanel
           AnchorSideTop.Control = PiePanel
           Left = 8
-          Height = 21
+          Height = 23
           Top = 8
           Width = 286
           BorderSpacing.Left = 8
           BorderSpacing.Top = 8
+          OnChange = PieTitleEditChange
           TabOrder = 0
           TextHint = 'Title'
-          OnChange = PieTitleEditChange
         end
         object Label1: TLabel
           AnchorSideLeft.Control = PieTitleEdit
@@ -514,10 +514,10 @@ object GridChartForm: TGridChartForm
           AnchorSideTop.Control = PieTitleEdit
           AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = PieValuesCombo
-          Left = 358
-          Height = 13
+          Left = 369
+          Height = 15
           Top = 12
-          Width = 31
+          Width = 33
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
           Caption = 'Values'
@@ -525,15 +525,15 @@ object GridChartForm: TGridChartForm
         object PieValuesCombo: TComboBox
           AnchorSideLeft.Control = seDepthBrightnessDelta
           AnchorSideTop.Control = PieTitleEdit
-          Left = 397
-          Height = 21
+          Left = 410
+          Height = 23
           Top = 8
           Width = 214
           BorderSpacing.Right = 8
-          ItemHeight = 13
+          ItemHeight = 15
+          OnChange = PieValuesComboChange
           Style = csDropDownList
           TabOrder = 1
-          OnChange = PieValuesComboChange
         end
       end
       object ToolBar1: TToolBar
@@ -552,24 +552,24 @@ object GridChartForm: TGridChartForm
           Action = PieClipboardAction
         end
         object PieCustomizeButton: TToolButton
-          Left = 98
+          Left = 109
           Top = 2
           Action = PieCustomizeAction
         end
         object ToolButton3: TToolButton
-          Left = 93
+          Left = 104
           Height = 22
           Top = 2
           Caption = 'ToolButton3'
           Style = tbsDivider
         end
         object PieCloseButton: TToolButton
-          Left = 160
+          Left = 178
           Top = 2
           Action = PieCloseAction
         end
         object ToolButton1: TToolButton
-          Left = 155
+          Left = 173
           Height = 22
           Top = 2
           Caption = 'ToolButton1'
@@ -587,15 +587,15 @@ object GridChartForm: TGridChartForm
       '0|1|?|Text5'
     )
     Left = 64
-    Top = 256
+    Top = 368
   end
-  object ChartToolset1: TChartToolset
+  object ChartToolset: TChartToolset
     Left = 64
-    Top = 200
+    Top = 304
   end
   object ActionList: TActionList
-    Left = 160
-    Top = 200
+    Left = 64
+    Top = 240
     object PieClipboardAction: TAction
       Caption = 'Copy to clipboard'
       OnExecute = PieClipboardActionExecute
