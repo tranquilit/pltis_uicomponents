@@ -690,7 +690,7 @@ type
 
   /// event that allows naming the chart's title
   TOnGridChartTitle = procedure(aSender: TTisGrid; aChart: TChart;
-    aColumn: TTisGridColumn; aFlags: TTisChartChangeFlags; var aChartTitle: string) of object;
+    aColumn: TTisGridColumn; var aFlags: TTisChartChangeFlags; var aChartTitle: string) of object;
 
   /// event that will fired if user changes something on the chart
   TOnGridChartChange = procedure(aSender: TTisGrid; aChart: TChart;
