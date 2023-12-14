@@ -148,8 +148,7 @@ type
   private
     procedure DoAsyncSearch(aSender: TObject; const aText: string);
     procedure DoDefaultChartTitle(aSender: TTisGrid; aChart: TChart;
-      aColumn: TTisGridColumn; var aFlags: TTisChartChangeFlags;
-  var aChartTitle: string);
+      aColumn: TTisGridColumn; var aFlags: TTisChartChangeFlags; var aChartTitle: string);
   public
     constructor Create(aOwner: TComponent); override;
   end;

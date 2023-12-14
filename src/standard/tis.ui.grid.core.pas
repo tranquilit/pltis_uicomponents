@@ -379,6 +379,7 @@ type
     property StringOptions;
   end;
 
+  /// types of sorting a filter
   TTisGridFilterSort = (
     gfsMostUsedValues,
     gfsFirstValues
@@ -403,12 +404,12 @@ type
     DefaultClearAfterLoadingData = False;
     DefaultMaxCaptionLength = 45;
     DefaultSort = gfsMostUsedValues;
-  protected const
-    MARK_ARROW = ' ↓';
+    protected const
+    DownArrow = ' ↓';
   protected
     class var fMruFilters: TDocVariantData;
     class procedure InitClass;
-    /// clear MARK_ARROW mark of all header columns
+    /// clear DownArrow mark of all header columns
     procedure ClearHeaderArrows;
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
@@ -442,7 +443,7 @@ type
     property ClearAfterLoadingData: Boolean read fClearAfterLoadingData write fClearAfterLoadingData default DefaultClearAfterLoadingData;
     /// how many menu items will be used to show filters
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
-    /// enable the use of filters
+    /// enable/disable the use of it
     property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
     /// it determines the max length a menu item caption can be
     property MaxCaptionLength: Integer read fMaxCaptionLength write fMaxCaptionLength default DefaultMaxCaptionLength;
@@ -760,10 +761,10 @@ type
     procedure SetFocusedColumnObject(aValue: TTisGridColumn);
     procedure SetFocusedRow(aValue: PDocVariantData);
     procedure SetOnCutToClipboard(aValue: TNotifyEvent);
-    function GetTreeOptions: TTisStringTreeOptions;
     procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure SetZebraLightness(aValue: Byte);
+    function GetTreeOptions: TTisStringTreeOptions;
   protected const
     // ------------------------------- new constants -------------------------------
     DefaultPopupMenuOptions = [
@@ -1124,9 +1125,9 @@ type
     property KeyFieldsNames: string read GetKeyFieldsNames write SetKeyFieldsNames;
     property ParentKeyFieldsNames: string read GetParentKeyFieldsNames write SetParentKeyFieldsNames;
     property GridSettings: string read GetGridSettings write SetGridSettings stored False;
+    property ZebraLightness: Byte read fZebraLightness write SetZebraLightness default DefaultZebraLightness;
     property ZebraColor: TColor read fZebraColor write fZebraColor;
     property ZebraPaint: Boolean read fZebraPaint write fZebraPaint stored True default False;
-    property ZebraLightness: Byte read fZebraLightness write SetZebraLightness default DefaultZebraLightness;
     property NodeOptions: TTisNodeOptions read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
     property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
@@ -2376,7 +2377,7 @@ begin
           and not vGrid.NodeOptions.ShowChildren then
         begin
           // add a item for delete filters for the column, if it has some filter(s) already
-          if Pos(vGrid.FilterOptions.MARK_ARROW, vColumn.Text) > 0 then
+          if Pos(vGrid.FilterOptions.DownArrow, vColumn.Text) > 0 then
           begin
             vNewMenuItem := TTisGridHeaderMenuItem.Create(Self);
             vNewMenuItem.Tag := vColIdx; // it will be use to locate the column by its index
@@ -2537,7 +2538,7 @@ begin
   for v1 := 0 to fGrid.Header.Columns.Count-1 do
   begin
     vColumn := fGrid.Header.Columns[v1];
-    vColumn.Text := StringReplace(vColumn.Text, MARK_ARROW, '', [rfReplaceAll]);
+    vColumn.Text := StringReplace(vColumn.Text, DownArrow, '', [rfReplaceAll]);
   end;
 end;
 
@@ -2672,10 +2673,10 @@ begin
                 SetNodeVisible(vNode, False);
             end;
           end;
-          // add an MARK_ARROW in header column text, if there are filters for this column
-          if Pos(MARK_ARROW, vColumn.Text) = 0 then
+          // add an DownArrow in header column text, if there are filters for this column
+          if Pos(DownArrow, vColumn.Text) = 0 then
           begin
-            vColumn.Text := vColumn.Text + MARK_ARROW;
+            vColumn.Text := vColumn.Text + DownArrow;
             fShowAutoFilters := True;
           end;
         end;
