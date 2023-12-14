@@ -379,12 +379,12 @@ type
     property StringOptions;
   end;
 
-  TisGridFilterSort = (
+  TTisGridFilterSort = (
     gfsMostUsedValues,
     gfsFirstValues
   );
 
-  /// filter options for header popup menu
+  /// filter options for grid header popup menu
   TTisGridFilterOptions = class(TPersistent)
   private
     fGrid: TTisGrid;
@@ -394,7 +394,7 @@ type
     fDisplayedCount: Integer;
     fEnabled: Boolean;
     fMaxCaptionLength: Integer;
-    fSort: TisGridFilterSort;
+    fSort: TTisGridFilterSort;
     fShowAutoFilters: Boolean;
   protected const
     DefaultDisplayedCount = 10;
@@ -447,7 +447,7 @@ type
     /// it determines the max length a menu item caption can be
     property MaxCaptionLength: Integer read fMaxCaptionLength write fMaxCaptionLength default DefaultMaxCaptionLength;
     /// which order it will show the menu items
-    property Sort: TisGridFilterSort read fSort write fSort default DefaultSort;
+    property Sort: TTisGridFilterSort read fSort write fSort default DefaultSort;
   end;
 
   /// node options
