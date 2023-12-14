@@ -52,6 +52,7 @@ resourcestring
   rsGridFilterClearAll = 'Clear all filters';
   rsGridFilterEnabled = 'Enable AutoFilter';
   rsGridChartShow = 'Show chart';
+  rsGridChartOthersLabel = 'Others';
 
   /// searchedit
   rsSearchEditClearAll = 'Clear all';

@@ -24,6 +24,10 @@ msgctxt "tis.ui.resourcestrings.rsgridadvancedcustomizecolumns"
 msgid "Advanced customize of table..."
 msgstr "Erweitertes Anpassen der Tabelle ..."
 
+#: tis.ui.resourcestrings.rsgridchartotherslabel
+msgid "Others"
+msgstr "Andere"
+
 #: tis.ui.resourcestrings.rsgridchartshow
 msgid "Show chart"
 msgstr "Diagramm anzeigen"

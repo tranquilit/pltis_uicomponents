@@ -379,6 +379,36 @@ type
     property StringOptions;
   end;
 
+  /// most used values on a chart
+  TTisGridChartMostUsedValues = class(TPersistent)
+  private
+    fCount: Integer;
+    fEnabled: Boolean;
+  protected const
+    DefaultCount = 10;
+    DefaultEnabled = False;
+  public
+    constructor Create; reintroduce;
+  published
+    /// how many values will be used as the most used ones
+    property Count: Integer read fCount write fCount default DefaultCount;
+    /// enable/disable the use of it
+    property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
+  end;
+
+  /// grid chart options for column chart
+  TTisGridChartOptions = class(TPersistent)
+  private
+    fGrid: TTisGrid;
+    fMostUsedValues: TTisGridChartMostUsedValues;
+  public
+    constructor Create(aGrid: TTisGrid); reintroduce;
+    destructor Destroy; override;
+  published
+    /// most used values on a chart source
+    property MostUsedValues: TTisGridChartMostUsedValues read fMostUsedValues write fMostUsedValues;
+  end;
+
   /// types of sorting a filter
   TTisGridFilterSort = (
     gfsMostUsedValues,
@@ -718,6 +748,7 @@ type
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
     fExportFormatOptions: TTisGridExportFormatOptions;
+    fChartOptions: TTisGridChartOptions;
     fFilterOptions: TTisGridFilterOptions;
     fDefaultSettings: Variant; // all default settings after load component
     // ------------------------------- new events ----------------------------------
@@ -761,10 +792,10 @@ type
     procedure SetFocusedColumnObject(aValue: TTisGridColumn);
     procedure SetFocusedRow(aValue: PDocVariantData);
     procedure SetOnCutToClipboard(aValue: TNotifyEvent);
-    procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure SetZebraLightness(aValue: Byte);
     function GetTreeOptions: TTisStringTreeOptions;
+    procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
   protected const
     // ------------------------------- new constants -------------------------------
     DefaultPopupMenuOptions = [
@@ -1131,6 +1162,7 @@ type
     property NodeOptions: TTisNodeOptions read fNodeOptions write fNodeOptions;
     property PopupMenuOptions: TTisPopupMenuOptions read fPopupMenuOptions write fPopupMenuOptions default DefaultPopupMenuOptions;
     property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
+    property ChartOptions: TTisGridChartOptions read fChartOptions write fChartOptions;
     property FilterOptions: TTisGridFilterOptions read fFilterOptions write fFilterOptions;
     // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
@@ -2521,6 +2553,30 @@ begin
   MiscOptions := DefaultMiscOptions;
   PaintOptions := DefaultPaintOptions;
   SelectionOptions := DefaultSelectionOptions;
+end;
+
+{ TTisGridChartMostUsedValues }
+
+constructor TTisGridChartMostUsedValues.Create;
+begin
+  inherited Create;
+  fCount := DefaultCount;
+  fEnabled := DefaultEnabled;
+end;
+
+{ TTisGridChartOptions }
+
+constructor TTisGridChartOptions.Create(aGrid: TTisGrid);
+begin
+  inherited Create;
+  fGrid := aGrid;
+  fMostUsedValues := TTisGridChartMostUsedValues.Create;
+end;
+
+destructor TTisGridChartOptions.Destroy;
+begin
+  fMostUsedValues.Free;
+  inherited Destroy;
 end;
 
 { TTisGridFilterOptions }
@@ -4876,14 +4932,25 @@ procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
       result := vValue;
   end;
 
+  procedure AddSource(aColumn: TTisGridColumn; aDefX, aDefY: Double; const aDefLabel: string);
+  var
+    vDefX, vDefY: Double;
+    vDefLabel: string;
+    vDefColor: TColor;
+  begin
+    vDefX := aDefX;
+    vDefY := aDefY;
+    vDefLabel := aDefLabel;
+    vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
+    DoBeforeAddingChartSource(aColumn, vDefX, vDefY, vDefLabel, vDefColor);
+    aSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
+  end;
+
 var
   vColumn: TTisGridColumn;
   vObj: PDocVariantData;
   vLabels: TDocVariantData;
-  vIndex: Integer;
-  vDefX, vDefY: Double;
-  vDefLabel: string;
-  vDefColor: TColor;
+  vIndex, vMostUsedCount, vOthersCount: Integer;
   vValue: RawUtf8;
   vNode: PVirtualNode;
 begin
@@ -4905,16 +4972,26 @@ begin
     else
       vLabels.AddItem(_ObjFast(['field', vValue, 'count', Compute(vObj)]));
   end;
+  vMostUsedCount := 0;
+  vOthersCount := 0;
+  if ChartOptions.MostUsedValues.Enabled then
+    vLabels.SortArrayByFields(['count', vColumn.PropertyName], nil, nil, True);
   Randomize;
   for vObj in vLabels.Objects do
   begin
-    vDefX := 0;
-    vDefY := vObj^.D['count'];
-    vDefLabel := vObj^.S['field'];
-    vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
-    DoBeforeAddingChartSource(vColumn, vDefX, vDefY, vDefLabel, vDefColor);
-    aSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
+    if ChartOptions.MostUsedValues.Enabled then
+    begin
+      Inc(vMostUsedCount);
+      if vMostUsedCount <= ChartOptions.MostUsedValues.Count then
+        AddSource(vColumn, 0, vObj^.D['count'], vObj^.S['field'])
+      else
+        Inc(vOthersCount);
+    end
+    else
+      AddSource(vColumn, 0, vObj^.D['count'], vObj^.S['field']);
   end;
+  if vOthersCount > 0 then
+    AddSource(vColumn, 0, vOthersCount, rsGridChartOthersLabel);
 end;
 
 procedure TTisGrid.DoChartChange(aChart: TChart; var aFlags: TTisChartChangeFlags);
@@ -4995,6 +5072,7 @@ begin
   fNodeOptions := TTisNodeOptions.Create(self);
   fPopupMenuOptions := DefaultPopupMenuOptions;
   fExportFormatOptions := DefaultExportFormatOptions;
+  fChartOptions := TTisGridChartOptions.Create(self);
   fFilterOptions := TTisGridFilterOptions.Create(self);
   fData.InitArray([]);
   WantTabs := DefaultWantTabs;
@@ -5029,6 +5107,7 @@ begin
   if Assigned(fFindDlg) then
     FreeAndNil(fFindDlg);
   fNodeOptions.Free;
+  fChartOptions.Free;
   fFilterOptions.Free;
   inherited Destroy;
 end;
