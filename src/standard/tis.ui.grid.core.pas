@@ -196,77 +196,6 @@ type
     property HtmlOptions: TTisGridColumnHtmlOptions read fHtmlOptions write fHtmlOptions;
   end;
 
-  TisGridFilterSort = (
-    gfsMostUsedValues,
-    gfsFirstValues
-  );
-
-  /// filter options for header popup menu
-  TTisGridFilterOptions = class(TPersistent)
-  private
-    fGrid: TTisGrid;
-    fFilters: TDocVariantData;
-    fCaseInsensitive: Boolean;
-    fClearAfterLoadingData: Boolean;
-    fDisplayedCount: Integer;
-    fEnabled: Boolean;
-    fMaxCaptionLength: Integer;
-    fSort: TisGridFilterSort;
-    fShowAutoFilters: Boolean;
-  protected const
-    DefaultDisplayedCount = 10;
-    DefaultEnabled = False;
-    DefaultCaseInsensitive = False;
-    DefaultClearAfterLoadingData = False;
-    DefaultMaxCaptionLength = 45;
-    DefaultSort = gfsMostUsedValues;
-  protected const
-    MARK_ARROW = ' ↓';
-  protected
-    class var fMruFilters: TDocVariantData;
-    class procedure InitClass;
-    /// clear MARK_ARROW mark of all header columns
-    procedure ClearHeaderArrows;
-  public
-    constructor Create(aGrid: TTisGrid); reintroduce;
-    procedure AssignTo(aDest: TPersistent); override;
-    /// it will add a new filter to the list of filters values and trigger it,
-    // filtering the grid nodes by calling ApplyFilters
-    // - use aCustom to add to the MRU list filters as well
-    // - it returns the new item added
-    function AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean = False): Variant;
-    /// check if a filter exists
-    function FilterExists(const aFieldName: RawUtf8; const aValue: string): Boolean;
-    /// apply all filters
-    // - it is allowed more than one filter for the first column that user started filtering;
-    // the filter system will use an "OR" clause for all values chosen by the user
-    // - for the second column filtered onwards, it will use an "AND" clause, combining to values from the first column
-    procedure ApplyFilters;
-    /// clear all filters
-    procedure ClearFilters;
-    procedure AddMruFilter(const aFieldName, aValue: RawUtf8);
-    procedure RemoveMruFilter(const aFieldName, aValue: RawUtf8);
-    function GetMruFilters: PDocVariantData;
-    function GetMruFiltersAsArrayOfString(const aFieldName: RawUtf8): TStringArray;
-    /// filter table
-    property Filters: TDocVariantData read fFilters;
-    /// enable and show auto filters for user
-    property ShowAutoFilters: Boolean read fShowAutoFilters write fShowAutoFilters;
-  published
-    property CaseInsensitive: Boolean read fCaseInsensitive write fCaseInsensitive default DefaultCaseInsensitive;
-    /// used after call Grid.LoadData
-    // - if it is TRUE, it will call ClearFilters, otherwise it will call ApplyFilters
-    property ClearAfterLoadingData: Boolean read fClearAfterLoadingData write fClearAfterLoadingData default DefaultClearAfterLoadingData;
-    /// how many menu items will be used to show filters
-    property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
-    /// enable the use of filters
-    property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
-    /// it determines the max length a menu item caption can be
-    property MaxCaptionLength: Integer read fMaxCaptionLength write fMaxCaptionLength default DefaultMaxCaptionLength;
-    /// which order it will show the menu items
-    property Sort: TisGridFilterSort read fSort write fSort default DefaultSort;
-  end;
-
   /// a custom implementation for Grid Column
   TTisGridColumn = class(TVirtualTreeColumn)
   private
@@ -450,37 +379,76 @@ type
     property StringOptions;
   end;
 
-  TTisDataEvent = (
-    deDataSetChange,
-    deAddrecord,
-    deDeleteRecord,
-    deUpdateRecord,
-    deUpdateState,
-    deFieldListChange
+  TisGridFilterSort = (
+    gfsMostUsedValues,
+    gfsFirstValues
   );
 
-  /// popup menu options that will be added when it shows up
-  // - some items depends of others grid properties combined to appear
-  // - see DefaultPopupMenuOptions constant to know what is enabled/disabled by default in Grid
-  TTisPopupMenuOption = (
-    pmoShowFind,
-    pmoShowFindNext,
-    pmoShowCut,
-    pmoShowCopy,
-    pmoShowCopyCell,
-    pmoShowClearCell,
-    pmoShowCopySpecial,
-    pmoShowPaste,
-    pmoShowInsert,
-    pmoShowDelete,
-    pmoShowSelectAll,
-    pmoShowCustomizeColumns,
-    pmoShowChart,
-    pmoShowExport,
-    pmoShowCustomizeGrid
-  );
-
-  TTisPopupMenuOptions = set of TTisPopupMenuOption;
+  /// filter options for header popup menu
+  TTisGridFilterOptions = class(TPersistent)
+  private
+    fGrid: TTisGrid;
+    fFilters: TDocVariantData;
+    fCaseInsensitive: Boolean;
+    fClearAfterLoadingData: Boolean;
+    fDisplayedCount: Integer;
+    fEnabled: Boolean;
+    fMaxCaptionLength: Integer;
+    fSort: TisGridFilterSort;
+    fShowAutoFilters: Boolean;
+  protected const
+    DefaultDisplayedCount = 10;
+    DefaultEnabled = False;
+    DefaultCaseInsensitive = False;
+    DefaultClearAfterLoadingData = False;
+    DefaultMaxCaptionLength = 45;
+    DefaultSort = gfsMostUsedValues;
+  protected const
+    MARK_ARROW = ' ↓';
+  protected
+    class var fMruFilters: TDocVariantData;
+    class procedure InitClass;
+    /// clear MARK_ARROW mark of all header columns
+    procedure ClearHeaderArrows;
+  public
+    constructor Create(aGrid: TTisGrid); reintroduce;
+    procedure AssignTo(aDest: TPersistent); override;
+    /// it will add a new filter to the list of filters values and trigger it,
+    // filtering the grid nodes by calling ApplyFilters
+    // - use aCustom to add to the MRU list filters as well
+    // - it returns the new item added
+    function AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean = False): Variant;
+    /// check if a filter exists
+    function FilterExists(const aFieldName: RawUtf8; const aValue: string): Boolean;
+    /// apply all filters
+    // - it is allowed more than one filter for the first column that user started filtering;
+    // the filter system will use an "OR" clause for all values chosen by the user
+    // - for the second column filtered onwards, it will use an "AND" clause, combining to values from the first column
+    procedure ApplyFilters;
+    /// clear all filters
+    procedure ClearFilters;
+    procedure AddMruFilter(const aFieldName, aValue: RawUtf8);
+    procedure RemoveMruFilter(const aFieldName, aValue: RawUtf8);
+    function GetMruFilters: PDocVariantData;
+    function GetMruFiltersAsArrayOfString(const aFieldName: RawUtf8): TStringArray;
+    /// filter table
+    property Filters: TDocVariantData read fFilters;
+    /// enable and show auto filters for user
+    property ShowAutoFilters: Boolean read fShowAutoFilters write fShowAutoFilters;
+  published
+    property CaseInsensitive: Boolean read fCaseInsensitive write fCaseInsensitive default DefaultCaseInsensitive;
+    /// used after call Grid.LoadData
+    // - if it is TRUE, it will call ClearFilters, otherwise it will call ApplyFilters
+    property ClearAfterLoadingData: Boolean read fClearAfterLoadingData write fClearAfterLoadingData default DefaultClearAfterLoadingData;
+    /// how many menu items will be used to show filters
+    property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
+    /// enable the use of filters
+    property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
+    /// it determines the max length a menu item caption can be
+    property MaxCaptionLength: Integer read fMaxCaptionLength write fMaxCaptionLength default DefaultMaxCaptionLength;
+    /// which order it will show the menu items
+    property Sort: TisGridFilterSort read fSort write fSort default DefaultSort;
+  end;
 
   /// node options
   TTisNodeOptions = class(TPersistent)
@@ -609,6 +577,38 @@ type
     /// returns the node cache
     function GetCache(aNode: PVirtualNode): PTisNodeCache;
   end;
+
+  TTisDataEvent = (
+    deDataSetChange,
+    deAddrecord,
+    deDeleteRecord,
+    deUpdateRecord,
+    deUpdateState,
+    deFieldListChange
+  );
+
+  /// popup menu options that will be added when it shows up
+  // - some items depends of others grid properties combined to appear
+  // - see DefaultPopupMenuOptions constant to know what is enabled/disabled by default in Grid
+  TTisPopupMenuOption = (
+    pmoShowFind,
+    pmoShowFindNext,
+    pmoShowCut,
+    pmoShowCopy,
+    pmoShowCopyCell,
+    pmoShowClearCell,
+    pmoShowCopySpecial,
+    pmoShowPaste,
+    pmoShowInsert,
+    pmoShowDelete,
+    pmoShowSelectAll,
+    pmoShowCustomizeColumns,
+    pmoShowChart,
+    pmoShowExport,
+    pmoShowCustomizeGrid
+  );
+
+  TTisPopupMenuOptions = set of TTisPopupMenuOption;
 
   TOnGridGetText = procedure(aSender: TBaseVirtualTree; aNode: PVirtualNode;
     const aCell: TDocVariantData; aColumn: TColumnIndex; aTextType: TVSTTextType;
@@ -1715,231 +1715,6 @@ begin
     inherited AssignTo(aDest);
 end;
 
-{ TTisGridFilterOptions }
-
-class procedure TTisGridFilterOptions.InitClass;
-begin
-  fMruFilters.InitArray([], JSON_FAST_FLOAT);
-end;
-
-procedure TTisGridFilterOptions.ClearHeaderArrows;
-var
-  v1: Integer;
-  vColumn: TVirtualTreeColumn;
-begin
-  for v1 := 0 to fGrid.Header.Columns.Count-1 do
-  begin
-    vColumn := fGrid.Header.Columns[v1];
-    vColumn.Text := StringReplace(vColumn.Text, MARK_ARROW, '', [rfReplaceAll]);
-  end;
-end;
-
-constructor TTisGridFilterOptions.Create(aGrid: TTisGrid);
-begin
-  inherited Create;
-  fGrid := aGrid;
-  fFilters.InitArray([], JSON_FAST_FLOAT);
-  fCaseInsensitive := DefaultCaseInsensitive;
-  fDisplayedCount := DefaultDisplayedCount;
-  fEnabled := DefaultEnabled;
-  fMaxCaptionLength := DefaultMaxCaptionLength;
-  fSort := DefaultSort;
-end;
-
-procedure TTisGridFilterOptions.AssignTo(aDest: TPersistent);
-begin
-  if aDest is TTisGridFilterOptions then
-  begin
-    with TTisGridFilterOptions(aDest) do
-    begin
-      fFilters.Reset;
-      if not self.fFilters.IsVoid then
-        fFilters.InitCopy(Variant(self.fFilters), JSON_[mDefault]);
-      CaseInsensitive := self.CaseInsensitive;
-      DisplayedCount := self.DisplayedCount;
-      Enabled := self.Enabled;
-      Sort := self.Sort;
-    end;
-  end
-  else
-    inherited AssignTo(aDest);
-end;
-
-function TTisGridFilterOptions.AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean): Variant;
-begin
-  result := _ObjFast(['field', aFieldName, 'value', aValue]);
-  fFilters.AddItem(result);
-  if aCustom then
-    fGrid.FilterOptions.AddMruFilter(aFieldName, aValue);
-  fGrid.FilterOptions.ApplyFilters;
-end;
-
-function TTisGridFilterOptions.FilterExists(const aFieldName: RawUtf8;
-  const aValue: string): Boolean;
-var
-  vObj: PDocVariantData;
-  vTest: TDocVariantData;
-begin
-  result := False;
-  vTest.InitFast(dvObject);
-  vTest.U['field'] := aFieldName;
-  vTest.S['value'] := aValue;
-  for vObj in fFilters.Objects do
-  begin
-    if vObj^.Equals(vTest) then
-    begin
-      result := True;
-      break;
-    end;
-  end;
-end;
-
-procedure TTisGridFilterOptions.ApplyFilters;
-
-  procedure SetNodeVisible(aNode: PVirtualNode; aInclude: Boolean);
-  begin
-    if not fGrid.DoNodeFiltering(aNode) then
-    begin
-      if aInclude then
-        Include(aNode^.States, vsVisible)
-      else
-        Exclude(aNode^.States, vsVisible);
-    end;
-  end;
-
-  function IsMatching(const aPattern, aText: RawUtf8): Boolean;
-  var
-    vJson: TDocVariantData;
-    vItem: PVariant;
-  begin
-    result := False;
-    if vJson.InitJson(aText, JSON_FAST_FLOAT) and (vJson.Kind = dvArray) then
-    begin
-      for vItem in vJson.Items do
-      begin
-        if IsMatch(aPattern, VariantToUtf8(vItem^), fGrid.FilterOptions.CaseInsensitive) then
-        begin
-          result := True;
-          Break;
-        end;
-      end;
-    end
-    else if IsMatch(aPattern, aText, fGrid.FilterOptions.CaseInsensitive) then
-      result := True;
-  end;
-
-var
-  vData, vObj: PDocVariantData;
-  vNode: PVirtualNode;
-  vColumn: TTisGridColumn;
-  vPropertyName: RawUtf8;
-begin
-  ClearHeaderArrows;
-  vNode := fGrid.GetFirst;
-  while vNode <> nil do
-  begin
-    vData := fGrid.GetNodeAsPDocVariantData(vNode, False);
-    if Assigned(vData) then
-    begin
-      if fFilters.Count > 0 then
-      begin
-        SetNodeVisible(vNode, False);
-        vPropertyName := '';
-        for vObj in fFilters.Objects do
-        begin
-          vColumn := fGrid.FindColumnByPropertyName(vObj^.U['field']);
-          if vPropertyName = '' then
-            vPropertyName := vColumn.PropertyName;
-          if vPropertyName = vColumn.PropertyName then
-          begin
-            if IsMatching(vObj^.U['value'], vData^.U[vObj^.U['field']]) then
-              SetNodeVisible(vNode, True)
-          end
-          else
-          begin
-            if vsVisible in vNode^.States then
-            begin
-              if IsMatching(vObj^.U['value'], vData^.U[vObj^.U['field']]) then
-                SetNodeVisible(vNode, True)
-              else
-                SetNodeVisible(vNode, False);
-            end;
-          end;
-          // add an MARK_ARROW in header column text, if there are filters for this column
-          if Pos(MARK_ARROW, vColumn.Text) = 0 then
-          begin
-            vColumn.Text := vColumn.Text + MARK_ARROW;
-            fShowAutoFilters := True;
-          end;
-        end;
-      end
-      else
-        SetNodeVisible(vNode, True);
-    end;
-    vNode := fGrid.GetNext(vNode);
-  end;
-  fGrid.Invalidate;
-  if (fGrid.FocusedNode = nil) or not (vsVisible in fGrid.FocusedNode^.States) then
-  begin
-    fGrid.ClearSelection;
-    fGrid.FocusedNode := fGrid.GetFirstVisible;
-    fGrid.Selected[fGrid.FocusedNode] := True;
-  end;
-  //fGrid.ScrollIntoView(fGrid.FocusedNode, False);
-end;
-
-procedure TTisGridFilterOptions.ClearFilters;
-begin
-  fFilters.Clear;
-  ApplyFilters;
-end;
-
-procedure TTisGridFilterOptions.AddMruFilter(const aFieldName, aValue: RawUtf8);
-var
-  vObj: PDocVariantData;
-  vNewObj: Variant;
-  vStr: string;
-begin
-  vStr := Utf8ToString(aValue);
-  for vObj in fMruFilters.Objects do
-  begin
-    if vObj^.U['field'] = aFieldName then
-    begin
-      if (fCaseInsensitive and SameStr(vObj^.S['value'], vStr))
-        or (not fCaseInsensitive and SameText(vObj^.S['value'], vStr)) then
-        Exit;
-    end;
-  end;
-  vNewObj := _ObjFast(['field', aFieldName, 'value', aValue]);
-  fMruFilters.AddItem(vNewObj);
-end;
-
-procedure TTisGridFilterOptions.RemoveMruFilter(const aFieldName, aValue: RawUtf8);
-begin
-  fMruFilters.DeleteByValue(_ObjFast(['field', aFieldName, 'value', aValue]), fCaseInsensitive);
-end;
-
-function TTisGridFilterOptions.GetMruFilters: PDocVariantData;
-begin
-  result := @fMruFilters;
-end;
-
-function TTisGridFilterOptions.GetMruFiltersAsArrayOfString(
-  const aFieldName: RawUtf8): TStringArray;
-var
-  vObj: PDocVariantData;
-begin
-  SetLength(result, 0);
-  for vObj in fMruFilters.Objects do
-  begin
-    if vObj^.U['field'] = aFieldName then
-    begin
-      SetLength(result, Length(result) + 1);
-      result[Length(result)-1] := vObj^.S['value'];
-    end;
-  end;
-end;
-
 { TTisGridColumn }
 
 function TTisGridColumn.GetTitle: TCaption;
@@ -2745,6 +2520,231 @@ begin
   MiscOptions := DefaultMiscOptions;
   PaintOptions := DefaultPaintOptions;
   SelectionOptions := DefaultSelectionOptions;
+end;
+
+{ TTisGridFilterOptions }
+
+class procedure TTisGridFilterOptions.InitClass;
+begin
+  fMruFilters.InitArray([], JSON_FAST_FLOAT);
+end;
+
+procedure TTisGridFilterOptions.ClearHeaderArrows;
+var
+  v1: Integer;
+  vColumn: TVirtualTreeColumn;
+begin
+  for v1 := 0 to fGrid.Header.Columns.Count-1 do
+  begin
+    vColumn := fGrid.Header.Columns[v1];
+    vColumn.Text := StringReplace(vColumn.Text, MARK_ARROW, '', [rfReplaceAll]);
+  end;
+end;
+
+constructor TTisGridFilterOptions.Create(aGrid: TTisGrid);
+begin
+  inherited Create;
+  fGrid := aGrid;
+  fFilters.InitArray([], JSON_FAST_FLOAT);
+  fCaseInsensitive := DefaultCaseInsensitive;
+  fDisplayedCount := DefaultDisplayedCount;
+  fEnabled := DefaultEnabled;
+  fMaxCaptionLength := DefaultMaxCaptionLength;
+  fSort := DefaultSort;
+end;
+
+procedure TTisGridFilterOptions.AssignTo(aDest: TPersistent);
+begin
+  if aDest is TTisGridFilterOptions then
+  begin
+    with TTisGridFilterOptions(aDest) do
+    begin
+      fFilters.Reset;
+      if not self.fFilters.IsVoid then
+        fFilters.InitCopy(Variant(self.fFilters), JSON_[mDefault]);
+      CaseInsensitive := self.CaseInsensitive;
+      DisplayedCount := self.DisplayedCount;
+      Enabled := self.Enabled;
+      Sort := self.Sort;
+    end;
+  end
+  else
+    inherited AssignTo(aDest);
+end;
+
+function TTisGridFilterOptions.AddFilter(const aFieldName, aValue: RawUtf8; aCustom: Boolean): Variant;
+begin
+  result := _ObjFast(['field', aFieldName, 'value', aValue]);
+  fFilters.AddItem(result);
+  if aCustom then
+    fGrid.FilterOptions.AddMruFilter(aFieldName, aValue);
+  fGrid.FilterOptions.ApplyFilters;
+end;
+
+function TTisGridFilterOptions.FilterExists(const aFieldName: RawUtf8;
+  const aValue: string): Boolean;
+var
+  vObj: PDocVariantData;
+  vTest: TDocVariantData;
+begin
+  result := False;
+  vTest.InitFast(dvObject);
+  vTest.U['field'] := aFieldName;
+  vTest.S['value'] := aValue;
+  for vObj in fFilters.Objects do
+  begin
+    if vObj^.Equals(vTest) then
+    begin
+      result := True;
+      break;
+    end;
+  end;
+end;
+
+procedure TTisGridFilterOptions.ApplyFilters;
+
+  procedure SetNodeVisible(aNode: PVirtualNode; aInclude: Boolean);
+  begin
+    if not fGrid.DoNodeFiltering(aNode) then
+    begin
+      if aInclude then
+        Include(aNode^.States, vsVisible)
+      else
+        Exclude(aNode^.States, vsVisible);
+    end;
+  end;
+
+  function IsMatching(const aPattern, aText: RawUtf8): Boolean;
+  var
+    vJson: TDocVariantData;
+    vItem: PVariant;
+  begin
+    result := False;
+    if vJson.InitJson(aText, JSON_FAST_FLOAT) and (vJson.Kind = dvArray) then
+    begin
+      for vItem in vJson.Items do
+      begin
+        if IsMatch(aPattern, VariantToUtf8(vItem^), fGrid.FilterOptions.CaseInsensitive) then
+        begin
+          result := True;
+          Break;
+        end;
+      end;
+    end
+    else if IsMatch(aPattern, aText, fGrid.FilterOptions.CaseInsensitive) then
+      result := True;
+  end;
+
+var
+  vData, vObj: PDocVariantData;
+  vNode: PVirtualNode;
+  vColumn: TTisGridColumn;
+  vPropertyName: RawUtf8;
+begin
+  ClearHeaderArrows;
+  vNode := fGrid.GetFirst;
+  while vNode <> nil do
+  begin
+    vData := fGrid.GetNodeAsPDocVariantData(vNode, False);
+    if Assigned(vData) then
+    begin
+      if fFilters.Count > 0 then
+      begin
+        SetNodeVisible(vNode, False);
+        vPropertyName := '';
+        for vObj in fFilters.Objects do
+        begin
+          vColumn := fGrid.FindColumnByPropertyName(vObj^.U['field']);
+          if vPropertyName = '' then
+            vPropertyName := vColumn.PropertyName;
+          if vPropertyName = vColumn.PropertyName then
+          begin
+            if IsMatching(vObj^.U['value'], vData^.U[vObj^.U['field']]) then
+              SetNodeVisible(vNode, True)
+          end
+          else
+          begin
+            if vsVisible in vNode^.States then
+            begin
+              if IsMatching(vObj^.U['value'], vData^.U[vObj^.U['field']]) then
+                SetNodeVisible(vNode, True)
+              else
+                SetNodeVisible(vNode, False);
+            end;
+          end;
+          // add an MARK_ARROW in header column text, if there are filters for this column
+          if Pos(MARK_ARROW, vColumn.Text) = 0 then
+          begin
+            vColumn.Text := vColumn.Text + MARK_ARROW;
+            fShowAutoFilters := True;
+          end;
+        end;
+      end
+      else
+        SetNodeVisible(vNode, True);
+    end;
+    vNode := fGrid.GetNext(vNode);
+  end;
+  fGrid.Invalidate;
+  if (fGrid.FocusedNode = nil) or not (vsVisible in fGrid.FocusedNode^.States) then
+  begin
+    fGrid.ClearSelection;
+    fGrid.FocusedNode := fGrid.GetFirstVisible;
+    fGrid.Selected[fGrid.FocusedNode] := True;
+  end;
+  //fGrid.ScrollIntoView(fGrid.FocusedNode, False);
+end;
+
+procedure TTisGridFilterOptions.ClearFilters;
+begin
+  fFilters.Clear;
+  ApplyFilters;
+end;
+
+procedure TTisGridFilterOptions.AddMruFilter(const aFieldName, aValue: RawUtf8);
+var
+  vObj: PDocVariantData;
+  vNewObj: Variant;
+  vStr: string;
+begin
+  vStr := Utf8ToString(aValue);
+  for vObj in fMruFilters.Objects do
+  begin
+    if vObj^.U['field'] = aFieldName then
+    begin
+      if (fCaseInsensitive and SameStr(vObj^.S['value'], vStr))
+        or (not fCaseInsensitive and SameText(vObj^.S['value'], vStr)) then
+        Exit;
+    end;
+  end;
+  vNewObj := _ObjFast(['field', aFieldName, 'value', aValue]);
+  fMruFilters.AddItem(vNewObj);
+end;
+
+procedure TTisGridFilterOptions.RemoveMruFilter(const aFieldName, aValue: RawUtf8);
+begin
+  fMruFilters.DeleteByValue(_ObjFast(['field', aFieldName, 'value', aValue]), fCaseInsensitive);
+end;
+
+function TTisGridFilterOptions.GetMruFilters: PDocVariantData;
+begin
+  result := @fMruFilters;
+end;
+
+function TTisGridFilterOptions.GetMruFiltersAsArrayOfString(
+  const aFieldName: RawUtf8): TStringArray;
+var
+  vObj: PDocVariantData;
+begin
+  SetLength(result, 0);
+  for vObj in fMruFilters.Objects do
+  begin
+    if vObj^.U['field'] = aFieldName then
+    begin
+      SetLength(result, Length(result) + 1);
+      result[Length(result)-1] := vObj^.S['value'];
+    end;
+  end;
 end;
 
 { TTisNodeOptions }
