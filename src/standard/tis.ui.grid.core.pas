@@ -400,11 +400,16 @@ type
   TTisGridChartOptions = class(TPersistent)
   private
     fGrid: TTisGrid;
+    fMaxLabelLength: Integer;
     fMostUsedValues: TTisGridChartMostUsedValues;
+  protected const
+    DefaultMaxLabelLength = 30;
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
     destructor Destroy; override;
   published
+    /// it determines the max length that a label can have
+    property MaxLabelLength: Integer read fMaxLabelLength write fMaxLabelLength default DefaultMaxLabelLength;
     /// most used values on a chart source
     property MostUsedValues: TTisGridChartMostUsedValues read fMostUsedValues write fMostUsedValues;
   end;
@@ -475,7 +480,7 @@ type
     property DisplayedCount: Integer read fDisplayedCount write fDisplayedCount default DefaultDisplayedCount;
     /// enable/disable the use of it
     property Enabled: Boolean read fEnabled write fEnabled default DefaultEnabled;
-    /// it determines the max length a menu item caption can be
+    /// it determines the max length a menu item caption can have
     property MaxCaptionLength: Integer read fMaxCaptionLength write fMaxCaptionLength default DefaultMaxCaptionLength;
     /// which order it will show the menu items
     property Sort: TTisGridFilterSort read fSort write fSort default DefaultSort;
@@ -2570,6 +2575,7 @@ constructor TTisGridChartOptions.Create(aGrid: TTisGrid);
 begin
   inherited Create;
   fGrid := aGrid;
+  fMaxLabelLength := DefaultMaxLabelLength;
   fMostUsedValues := TTisGridChartMostUsedValues.Create;
 end;
 
@@ -4943,6 +4949,8 @@ procedure TTisGrid.DoChartFillSource(aChart: TChart; aSource: TListChartSource;
     vDefLabel := aDefLabel;
     vDefColor := Darkened(RGBToColor(Random(256), Random(256), Random(256)));
     DoBeforeAddingChartSource(aColumn, vDefX, vDefY, vDefLabel, vDefColor);
+    if Length(vDefLabel) > ChartOptions.MaxLabelLength then
+      vDefLabel := Copy(vDefLabel, 1, ChartOptions.MaxLabelLength) + '...';
     aSource.Add(vDefX, vDefY, vDefLabel, vDefColor);
   end;
 
