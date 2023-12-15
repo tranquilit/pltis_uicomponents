@@ -386,7 +386,7 @@ type
     fEnabled: Boolean;
   protected const
     DefaultCount = 10;
-    DefaultEnabled = False;
+    DefaultEnabled = True;
   public
     constructor Create; reintroduce;
   published
