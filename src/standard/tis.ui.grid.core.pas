@@ -4789,6 +4789,8 @@ begin
             vChartForm.PieValuesCombo.Items.Add(Text + ' (' + Utf8ToString(PropertyName) + ')');
         end;
       end;
+      vChartForm.MostUsedCheckbox.Checked := ChartOptions.MostUsedValues.Enabled;
+      vChartForm.TopMostUsedEdit.Value := ChartOptions.MostUsedValues.Count;
       vChartForm.Settings := vColumn.ChartSettings;
       vChartForm.ShowModal;
       vColumn.ChartSettings := vChartForm.Settings;
@@ -4989,15 +4991,15 @@ begin
   end;
   vMostUsedCount := 0;
   vOthersCount := 0;
-  if ChartOptions.MostUsedValues.Enabled then
+  if aFlags.MostUsedValues.Enabled then
     vLabels.SortArrayByFields(['count', vColumn.PropertyName], nil, nil, True);
   Randomize;
   for vObj in vLabels.Objects do
   begin
-    if ChartOptions.MostUsedValues.Enabled then
+    if aFlags.MostUsedValues.Enabled then
     begin
       Inc(vMostUsedCount);
-      if vMostUsedCount <= ChartOptions.MostUsedValues.Count then
+      if vMostUsedCount <= aFlags.MostUsedValues.Count then
         AddSource(vColumn, 0, vObj^.D['count'], vObj^.S['field'])
       else
         Inc(vOthersCount);

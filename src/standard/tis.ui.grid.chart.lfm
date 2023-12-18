@@ -1,7 +1,7 @@
 object TisChartForm: TTisChartForm
-  Left = 417
+  Left = 185
   Height = 559
-  Top = 140
+  Top = 160
   Width = 659
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Chart'
@@ -28,8 +28,8 @@ object TisChartForm: TTisChartForm
       ClientWidth = 651
       object PieChart: TChart
         Left = 0
-        Height = 354
-        Top = 177
+        Height = 325
+        Top = 206
         Width = 651
         AxisList = <        
           item
@@ -81,7 +81,7 @@ object TisChartForm: TTisChartForm
       object PiePanel: TPanel
         AnchorSideTop.Side = asrCenter
         Left = 0
-        Height = 153
+        Height = 182
         Top = 24
         Width = 651
         Align = alTop
@@ -89,7 +89,7 @@ object TisChartForm: TTisChartForm
         Anchors = [akTop, akRight]
         AutoSize = True
         BevelOuter = bvNone
-        ClientHeight = 153
+        ClientHeight = 182
         ClientWidth = 651
         TabOrder = 1
         Visible = False
@@ -101,14 +101,14 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = lblInnerRadius
           Left = 222
           Height = 23
-          Top = 35
+          Top = 64
           Width = 72
           BorderSpacing.Top = 6
           BorderSpacing.Right = 24
           MaxValue = 10
           MinValue = 1
           OnChange = seWordsChange
-          TabOrder = 3
+          TabOrder = 5
           Value = 5
         end
         object lblWords: TLabel
@@ -119,7 +119,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seWords
           Left = 151
           Height = 15
-          Top = 39
+          Top = 68
           Width = 63
           BorderSpacing.Left = 16
           BorderSpacing.Right = 8
@@ -133,7 +133,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 222
           Height = 23
-          Top = 64
+          Top = 93
           Width = 72
           Anchors = [akTop, akLeft, akRight]
           BorderSpacing.Top = 6
@@ -141,7 +141,7 @@ object TisChartForm: TTisChartForm
           MaxValue = 360
           MinValue = -360
           OnChange = seLabelAngleChange
-          TabOrder = 6
+          TabOrder = 8
         end
         object lblLabelAngle: TLabel
           AnchorSideTop.Control = seLabelAngle
@@ -149,7 +149,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seLabelAngle
           Left = 154
           Height = 15
-          Top = 68
+          Top = 97
           Width = 60
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
@@ -162,13 +162,13 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 8
           Height = 19
-          Top = 66
+          Top = 95
           Width = 85
           BorderSpacing.Top = 6
           BorderSpacing.Bottom = 6
           Caption = 'Rotate labels'
           OnChange = cbRotateChange
-          TabOrder = 5
+          TabOrder = 7
         end
         object cbMarkPositions: TComboBox
           AnchorSideLeft.Control = cbShowLabels
@@ -178,7 +178,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 8
           Height = 23
-          Top = 122
+          Top = 151
           Width = 127
           AutoSize = False
           BorderSpacing.Bottom = 8
@@ -191,7 +191,7 @@ object TisChartForm: TTisChartForm
           )
           OnChange = cbMarkPositionsChange
           Style = csDropDownList
-          TabOrder = 14
+          TabOrder = 16
           Text = 'Around'
         end
         object Cb3D: TCheckBox
@@ -200,11 +200,11 @@ object TisChartForm: TTisChartForm
           AnchorSideTop.Side = asrCenter
           Left = 327
           Height = 19
-          Top = 95
+          Top = 124
           Width = 32
           Caption = '3D'
           OnChange = Cb3DChange
-          TabOrder = 11
+          TabOrder = 13
         end
         object seInnerRadius: TSpinEdit
           AnchorSideLeft.Control = seDepthBrightnessDelta
@@ -212,11 +212,11 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 410
           Height = 23
-          Top = 35
+          Top = 64
           Width = 62
           BorderSpacing.Right = 8
           OnChange = seInnerRadiusChange
-          TabOrder = 4
+          TabOrder = 6
         end
         object lblInnerRadius: TLabel
           AnchorSideLeft.Side = asrBottom
@@ -224,7 +224,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seInnerRadius
           Left = 327
           Height = 15
-          Top = 39
+          Top = 68
           Width = 75
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
@@ -238,7 +238,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seDepth
           Left = 370
           Height = 15
-          Top = 97
+          Top = 126
           Width = 32
           Anchors = [akTop, akRight]
           BorderSpacing.Left = 12
@@ -253,13 +253,13 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 410
           Height = 23
-          Top = 93
+          Top = 122
           Width = 62
           BorderSpacing.Right = 6
           Enabled = False
           MaxValue = 1000
           OnChange = seDepthChange
-          TabOrder = 12
+          TabOrder = 14
           Value = 20
         end
         object seDepthBrightnessDelta: TSpinEdit
@@ -271,7 +271,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 410
           Height = 23
-          Top = 122
+          Top = 151
           Width = 62
           BorderSpacing.Top = 6
           BorderSpacing.Right = 6
@@ -279,7 +279,7 @@ object TisChartForm: TTisChartForm
           MaxValue = 255
           MinValue = -255
           OnChange = seDepthBrightnessDeltaChange
-          TabOrder = 16
+          TabOrder = 18
           Value = -32
         end
         object lblDepthBrightnessDelta: TLabel
@@ -290,7 +290,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seDepthBrightnessDelta
           Left = 318
           Height = 15
-          Top = 126
+          Top = 155
           Width = 84
           Alignment = taRightJustify
           BorderSpacing.Left = 24
@@ -300,21 +300,22 @@ object TisChartForm: TTisChartForm
           WordWrap = True
         end
         object cbShowLabels: TCheckBox
-          AnchorSideLeft.Control = PieTitleEdit
-          AnchorSideTop.Control = PieTitleEdit
+          AnchorSideLeft.Control = MostUsedCheckbox
+          AnchorSideTop.Control = MostUsedCheckbox
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = lblWords
           Left = 8
           Height = 19
-          Top = 37
+          Top = 66
           Width = 80
-          BorderSpacing.Top = 6
+          BorderSpacing.Top = 10
           BorderSpacing.Right = 16
+          BorderSpacing.Bottom = 6
           Caption = 'Show labels'
           Checked = True
           OnChange = cbShowLabelsChange
           State = cbChecked
-          TabOrder = 2
+          TabOrder = 4
         end
         object lblDistance: TLabel
           AnchorSideTop.Control = seDistance
@@ -322,7 +323,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seDistance
           Left = 169
           Height = 15
-          Top = 97
+          Top = 126
           Width = 45
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
@@ -335,13 +336,13 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 222
           Height = 23
-          Top = 93
+          Top = 122
           Width = 72
           Anchors = [akTop, akRight]
           BorderSpacing.Top = 6
           MaxValue = 1000
           OnChange = seDistanceChange
-          TabOrder = 10
+          TabOrder = 12
           Value = 40
         end
         object cbMarkAttachment: TComboBox
@@ -352,7 +353,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 8
           Height = 23
-          Top = 93
+          Top = 122
           Width = 125
           BorderSpacing.Top = 6
           BorderSpacing.Bottom = 6
@@ -365,7 +366,7 @@ object TisChartForm: TTisChartForm
           )
           OnChange = cbMarkAttachmentChange
           Style = csDropDownList
-          TabOrder = 9
+          TabOrder = 11
           Text = 'Default'
         end
         object cbMarkPositionsCentered: TCheckBox
@@ -376,11 +377,11 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 151
           Height = 19
-          Top = 124
+          Top = 153
           Width = 145
           Caption = 'Mark positions centered'
           OnChange = cbMarkPositionsCenteredChange
-          TabOrder = 15
+          TabOrder = 17
         end
         object lblStartAngle: TLabel
           AnchorSideLeft.Side = asrBottom
@@ -389,7 +390,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seStartAngle
           Left = 346
           Height = 15
-          Top = 68
+          Top = 97
           Width = 56
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 8
@@ -401,13 +402,13 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 410
           Height = 23
-          Top = 64
+          Top = 93
           Width = 62
           BorderSpacing.Right = 6
           MaxValue = 180
           MinValue = -180
           OnChange = seStartAngleChange
-          TabOrder = 7
+          TabOrder = 9
         end
         object seViewAngle: TSpinEdit
           AnchorSideLeft.Control = seAngleRange
@@ -417,13 +418,13 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 562
           Height = 23
-          Top = 93
+          Top = 122
           Width = 62
           Anchors = [akTop, akRight]
           Enabled = False
           MaxValue = 89
           OnChange = seViewAngleChange
-          TabOrder = 13
+          TabOrder = 15
           Value = 60
         end
         object lblViewAngle: TLabel
@@ -433,7 +434,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seViewAngle
           Left = 497
           Height = 15
-          Top = 97
+          Top = 126
           Width = 57
           Anchors = [akTop, akRight]
           BorderSpacing.Left = 12
@@ -449,7 +450,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 496
           Height = 23
-          Top = 122
+          Top = 151
           Width = 128
           AutoSize = False
           BorderSpacing.Left = 24
@@ -464,7 +465,7 @@ object TisChartForm: TTisChartForm
           )
           OnChange = cmbOrientationChange
           Style = csDropDownList
-          TabOrder = 17
+          TabOrder = 19
           Text = 'normal'
         end
         object lblAngleRange: TLabel
@@ -474,7 +475,7 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Control = seAngleRange
           Left = 493
           Height = 15
-          Top = 68
+          Top = 97
           Width = 64
           Anchors = [akTop, akRight]
           BorderSpacing.Left = 12
@@ -487,13 +488,13 @@ object TisChartForm: TTisChartForm
           AnchorSideRight.Side = asrBottom
           Left = 565
           Height = 23
-          Top = 64
+          Top = 93
           Width = 59
           Anchors = [akTop, akRight]
           MaxValue = 360
           MinValue = 1
           OnChange = seAngleRangeChange
-          TabOrder = 8
+          TabOrder = 10
           Value = 360
         end
         object PieTitleEdit: TEdit
@@ -535,6 +536,55 @@ object TisChartForm: TTisChartForm
           OnChange = PieValuesComboChange
           Style = csDropDownList
           TabOrder = 1
+        end
+        object MostUsedCheckbox: TCheckBox
+          AnchorSideLeft.Control = PieTitleEdit
+          AnchorSideTop.Control = PieTitleEdit
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = lblWords
+          Left = 8
+          Height = 19
+          Top = 37
+          Width = 109
+          BorderSpacing.Top = 6
+          BorderSpacing.Right = 16
+          Caption = 'Most used values'
+          Checked = True
+          OnChange = MostUsedCheckboxChange
+          State = cbChecked
+          TabOrder = 2
+        end
+        object TopMostUsedEdit: TSpinEdit
+          AnchorSideLeft.Control = lblWords
+          AnchorSideLeft.Side = asrBottom
+          AnchorSideTop.Control = MostUsedCheckbox
+          AnchorSideTop.Side = asrCenter
+          AnchorSideRight.Control = lblInnerRadius
+          Left = 222
+          Height = 23
+          Top = 35
+          Width = 72
+          BorderSpacing.Top = 6
+          BorderSpacing.Right = 24
+          MaxValue = 10
+          MinValue = 1
+          OnChange = TopMostUsedEditChange
+          TabOrder = 3
+          Value = 10
+        end
+        object TopMostUsedLabel: TLabel
+          AnchorSideLeft.Control = cbMarkPositions
+          AnchorSideLeft.Side = asrBottom
+          AnchorSideTop.Control = TopMostUsedEdit
+          AnchorSideTop.Side = asrCenter
+          AnchorSideRight.Control = seWords
+          Left = 151
+          Height = 15
+          Top = 39
+          Width = 47
+          BorderSpacing.Left = 16
+          BorderSpacing.Right = 8
+          Caption = 'Top used'
         end
       end
       object ToolBar1: TToolBar
