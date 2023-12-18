@@ -566,7 +566,7 @@ object TisChartForm: TTisChartForm
           Width = 72
           BorderSpacing.Top = 6
           BorderSpacing.Right = 24
-          MaxValue = 10
+          MaxValue = 20
           MinValue = 1
           OnChange = TopMostUsedEditChange
           TabOrder = 3
