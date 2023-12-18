@@ -344,8 +344,17 @@ var
   vObj: TDocVariantData;
 begin
   vObj.InitFast(dvObject);
+  // form
+  with vObj.O_['form']^ do
+  begin
+    I['top'] := Self.Top;
+    I['left'] := Self.Left;
+    I['height'] := Self.Height;
+    I['width'] := Self.Width;
+  end;
+  // customization
   vObj.S['title'] := PieTitleEdit.Text;
-  vObj.I['values_itemindex'] := PieValuesCombo.ItemIndex;
+  vObj.O_['valuescombo']^.I['itemindex'] := PieValuesCombo.ItemIndex;
   result := BinToBase64(vObj.ToJson);
 end;
 
@@ -356,8 +365,17 @@ begin
   if aValue <> '' then
   begin
     vObj.InitJson(Base64ToBin(aValue), JSON_FAST_FLOAT);
+    // form
+    with vObj.O_['form']^ do
+    begin
+      Self.Top := I['top'];
+      Self.Left := I['left'];
+      Self.Height := I['height'];
+      Self.Width := I['width'];
+    end;
+    // customization
     PieTitleEdit.Text := vObj.S['title'];
-    PieValuesCombo.ItemIndex := vObj.GetValueOrDefault('values_itemindex', -1);
+    PieValuesCombo.ItemIndex := vObj.O_['valuescombo']^.GetValueOrDefault('itemindex', -1);
   end;
 end;
 
