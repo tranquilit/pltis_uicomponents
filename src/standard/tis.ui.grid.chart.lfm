@@ -1,7 +1,7 @@
 object TisChartForm: TTisChartForm
-  Left = 185
+  Left = 355
   Height = 559
-  Top = 160
+  Top = 169
   Width = 659
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Chart'
@@ -615,15 +615,27 @@ object TisChartForm: TTisChartForm
           Style = tbsDivider
         end
         object PieCloseButton: TToolButton
-          Left = 178
+          Left = 230
           Top = 2
           Action = PieCloseAction
         end
         object ToolButton1: TToolButton
-          Left = 173
+          Left = 225
           Height = 22
           Top = 2
           Caption = 'ToolButton1'
+          Style = tbsDivider
+        end
+        object PieRestoreButton: TToolButton
+          Left = 178
+          Top = 2
+          Action = PieRestoreAction
+        end
+        object ToolButton4: TToolButton
+          Left = 173
+          Height = 22
+          Top = 2
+          Caption = 'ToolButton4'
           Style = tbsDivider
         end
       end
@@ -658,6 +670,10 @@ object TisChartForm: TTisChartForm
     object PieCloseAction: TAction
       Caption = 'Close'
       OnExecute = PieCloseActionExecute
+    end
+    object PieRestoreAction: TAction
+      Caption = 'Restore'
+      OnExecute = PieRestoreActionExecute
     end
   end
 end

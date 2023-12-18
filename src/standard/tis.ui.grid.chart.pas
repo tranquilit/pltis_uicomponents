@@ -112,6 +112,9 @@ type
     MostUsedCheckbox: TCheckBox;
     TopMostUsedEdit: TSpinEdit;
     TopMostUsedLabel: TLabel;
+    PieRestoreButton: TToolButton;
+    ToolButton4: TToolButton;
+    PieRestoreAction: TAction;
     procedure cbMarkAttachmentChange(Sender: TObject);
     procedure cbMarkPositionsCenteredChange(Sender: TObject);
     procedure cbMarkPositionsChange(Sender: TObject);
@@ -140,6 +143,7 @@ type
     procedure PieValuesComboChange(Sender: TObject);
     procedure MostUsedCheckboxChange(Sender: TObject);
     procedure TopMostUsedEditChange(Sender: TObject);
+    procedure PieRestoreActionExecute(Sender: TObject);
   private
     fSavedDataPoints: TStrings;
     fSaveMarks: record
@@ -148,6 +152,7 @@ type
     end;
     fOnChartFillSource: TTisChartFillSourceEvent;
     fOnChartChange: TTisChartChangeEvent;
+    fDefaultSettings: RawUtf8;
     function GetSettings: RawUtf8;
     procedure SetSettings(const aValue: RawUtf8);
   protected
@@ -307,6 +312,7 @@ begin
     Style := smsCustom;
     Format := PieChartPieSeries1.Marks.Format;
   end;
+  fDefaultSettings := Settings;
 end;
 
 procedure TTisChartForm.FormDestroy(Sender: TObject);
@@ -361,6 +367,11 @@ begin
   DoChartChange(PieChart);
 end;
 
+procedure TTisChartForm.PieRestoreActionExecute(Sender: TObject);
+begin
+  Settings := fDefaultSettings;
+end;
+
 function TTisChartForm.GetSettings: RawUtf8;
 var
   vObj: TDocVariantData;
@@ -405,8 +416,8 @@ begin
     PieValuesCombo.ItemIndex := vObj.O_['valuescombo']^.GetValueOrDefault('itemindex', -1);
     with vObj.O_['mostusedvalues']^ do
     begin
-      MostUsedCheckbox.Checked := GetValueOrDefault('enabled', True);
-      TopMostUsedEdit.Value := GetValueOrDefault('count', 10);
+      MostUsedCheckbox.Checked := GetValueOrDefault('enabled', MostUsedCheckbox.Checked);
+      TopMostUsedEdit.Value := GetValueOrDefault('count', TopMostUsedEdit.Increment);
     end;
   end;
 end;

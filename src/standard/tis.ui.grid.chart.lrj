@@ -24,7 +24,9 @@
 {"hash":106991073,"name":"ttischartform.toolbar1.caption","sourcebytes":[84,111,111,108,66,97,114,49],"value":"ToolBar1"},
 {"hash":160486419,"name":"ttischartform.toolbutton3.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,51],"value":"ToolButton3"},
 {"hash":160486417,"name":"ttischartform.toolbutton1.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,49],"value":"ToolButton1"},
+{"hash":160486420,"name":"ttischartform.toolbutton4.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,52],"value":"ToolButton4"},
 {"hash":127162148,"name":"ttischartform.pieclipboardaction.caption","sourcebytes":[67,111,112,121,32,116,111,32,99,108,105,112,98,111,97,114,100],"value":"Copy to clipboard"},
 {"hash":179735493,"name":"ttischartform.piecustomizeaction.caption","sourcebytes":[67,117,115,116,111,109,105,122,101],"value":"Customize"},
-{"hash":4863637,"name":"ttischartform.piecloseaction.caption","sourcebytes":[67,108,111,115,101],"value":"Close"}
+{"hash":4863637,"name":"ttischartform.piecloseaction.caption","sourcebytes":[67,108,111,115,101],"value":"Close"},
+{"hash":147502805,"name":"ttischartform.pierestoreaction.caption","sourcebytes":[82,101,115,116,111,114,101],"value":"Restore"}
 ]}
