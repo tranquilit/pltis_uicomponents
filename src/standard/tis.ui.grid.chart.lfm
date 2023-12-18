@@ -1,7 +1,7 @@
 object TisChartForm: TTisChartForm
-  Left = 186
+  Left = 417
   Height = 559
-  Top = 142
+  Top = 140
   Width = 659
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Chart'
@@ -11,6 +11,7 @@ object TisChartForm: TTisChartForm
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poOwnerFormCenter
+  SessionProperties = 'Cb3D.Checked;cbMarkAttachment.ItemIndex;cbMarkAttachment.Items;cbMarkPositions.ItemIndex;cbMarkPositions.Items;cbMarkPositionsCentered.Checked;cbRotate.Checked;cbShowLabels.Checked;cmbOrientation.ItemIndex;cmbOrientation.Items;PieTitleEdit.Text;PieValuesCombo.ItemIndex;seAngleRange.Value;seDepth.Value;seDepthBrightnessDelta.Value;seDistance.Value;seInnerRadius.Value;seLabelAngle.Value;seStartAngle.Value;seViewAngle.Value;seWords.Value;PieChart.Title'
   LCLVersion = '2.3.0.0'
   object PageControl: TPageControl
     Left = 0

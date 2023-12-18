@@ -206,6 +206,7 @@ type
     fPropertyName: RawUtf8;
     fRequired: Boolean;
     fReadOnly: Boolean;
+    fChartSettings: RawUtf8;
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
@@ -215,6 +216,8 @@ type
     DefaultDataType = cdtString;
     DefaultRequired = False;
     DefaultReadOnly = False;
+  protected
+    property ChartSettings: RawUtf8 read fChartSettings write fChartSettings;
   public
     constructor Create(aCollection: TCollection); override;
     destructor Destroy; override;
@@ -3216,7 +3219,8 @@ begin
         'text', StringToUtf8(vCol.Text),
         'position', vCol.Position,
         'width', vCol.Width,
-        'visible', (coVisible in vCol.Options)
+        'visible', (coVisible in vCol.Options),
+        'chartsettings', vCol.ChartSettings
       ])
     );
   end;
@@ -3256,6 +3260,7 @@ begin
           vCol.Options := vCol.Options + [coVisible]
         else
           vCol.Options := vCol.Options - [coVisible];
+        vCol.ChartSettings := vObj^.U['chartsettings'];
       end;
     end;
     if not vSettings^.A_['filters']^.IsVoid then
@@ -4784,7 +4789,9 @@ begin
             vChartForm.PieValuesCombo.Items.Add(Text + ' (' + Utf8ToString(PropertyName) + ')');
         end;
       end;
+      vChartForm.Settings := vColumn.ChartSettings;
       vChartForm.ShowModal;
+      vColumn.ChartSettings := vChartForm.Settings;
     finally
       vChartForm.Free;
     end;

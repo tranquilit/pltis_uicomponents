@@ -21,7 +21,10 @@ uses
   Graphics,
   Dialogs,
   ActnList,
+  mormot.core.base,
   mormot.core.rtti,
+  mormot.core.buffers,
+  mormot.core.variants,
   TAGraph,
   TARadialSeries,
   TASeries,
@@ -136,11 +139,14 @@ type
     end;
     fOnChartFillSource: TTisChartFillSourceEvent;
     fOnChartChange: TTisChartChangeEvent;
+    function GetSettings: RawUtf8;
+    procedure SetSettings(const aValue: RawUtf8);
   protected
     function PieValuesIndexAsColumnIndex: Integer;
     procedure DoChartFillSource(aChart: TChart);
     procedure DoChartChange(aChart: TChart);
   public
+    property Settings: RawUtf8 read GetSettings write SetSettings;
     property OnChartFillSource: TTisChartFillSourceEvent read fOnChartFillSource write fOnChartFillSource;
     property OnChartChange: TTisChartChangeEvent read fOnChartChange write fOnChartChange;
   end;
@@ -331,6 +337,28 @@ procedure TTisChartForm.PieValuesComboChange(Sender: TObject);
 begin
   DoChartFillSource(PieChart);
   DoChartChange(PieChart);
+end;
+
+function TTisChartForm.GetSettings: RawUtf8;
+var
+  vObj: TDocVariantData;
+begin
+  vObj.InitFast(dvObject);
+  vObj.S['title'] := PieTitleEdit.Text;
+  vObj.I['values_itemindex'] := PieValuesCombo.ItemIndex;
+  result := BinToBase64(vObj.ToJson);
+end;
+
+procedure TTisChartForm.SetSettings(const aValue: RawUtf8);
+var
+  vObj: TDocVariantData;
+begin
+  if aValue <> '' then
+  begin
+    vObj.InitJson(Base64ToBin(aValue), JSON_FAST_FLOAT);
+    PieTitleEdit.Text := vObj.S['title'];
+    PieValuesCombo.ItemIndex := vObj.GetValueOrDefault('values_itemindex', -1);
+  end;
 end;
 
 function TTisChartForm.PieValuesIndexAsColumnIndex: Integer;
