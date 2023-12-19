@@ -805,8 +805,6 @@ type
     procedure SetOnCutToClipboard(aValue: TNotifyEvent);
     procedure SetSelectedAndTotalLabel(aValue: TLabel);
     procedure SetZebraLightness(aValue: Byte);
-    function GetTreeOptions: TTisStringTreeOptions;
-    procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
   protected const
     // ------------------------------- new constants -------------------------------
     DefaultPopupMenuOptions = [
@@ -859,6 +857,10 @@ type
     procedure DoEnter; override;
     procedure DoExit; override;
     function GetHeaderClass: TVTHeaderClass; override;
+
+    function GetTreeOptions: TTisStringTreeOptions;
+    procedure SetTreeOptions(const aValue: TTisStringTreeOptions);
+
     // ----------------------------------- new methods -----------------------------
     /// fill the popup menu with items in runtime when grid gets focus, for deal with the data and grid itself
     // - each item will use the POPUP_ITEM_TAG public constant as its Tag value
