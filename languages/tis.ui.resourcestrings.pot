@@ -162,6 +162,10 @@ msgstr ""
 msgid "Printed on"
 msgstr ""
 
+#: tis.ui.resourcestrings.rsgridremovecustomcolumn
+msgid "Remove custom column"
+msgstr ""
+
 #: tis.ui.resourcestrings.rsgridrestoredefaultcolumns
 msgid "Restore default columns"
 msgstr ""

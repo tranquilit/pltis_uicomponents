@@ -187,6 +187,10 @@ msgctxt "tis.ui.resourcestrings.rsgridprinton"
 msgid "Printed on"
 msgstr "Gedruckt auf"
 
+#: tis.ui.resourcestrings.rsgridremovecustomcolumn
+msgid "Remove custom column"
+msgstr "Benutzerdefinierte Spalte entfernen"
+
 #: tis.ui.resourcestrings.rsgridrestoredefaultcolumns
 msgctxt "tis.ui.resourcestrings.rsgridrestoredefaultcolumns"
 msgid "Restore default columns"

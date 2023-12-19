@@ -170,6 +170,7 @@ type
     property CustomFormat: string read fCustomFormat write fCustomFormat;
   end;
 
+  /// html options for a column
   TTisGridColumnHtmlOptions = class(TPersistent)
   private
     fMustacheTemplate: TStrings;
@@ -196,7 +197,7 @@ type
     property HtmlOptions: TTisGridColumnHtmlOptions read fHtmlOptions write fHtmlOptions;
   end;
 
-  /// a custom implementation for Grid Column
+  /// custom Grid Column implementation
   TTisGridColumn = class(TVirtualTreeColumn)
   private
     fAllowChart: Boolean;
@@ -217,6 +218,7 @@ type
     DefaultRequired = False;
     DefaultReadOnly = False;
   protected
+    fOriginal: Boolean; // from designtime
     property ChartSettings: RawUtf8 read fChartSettings write fChartSettings;
   public
     constructor Create(aCollection: TCollection); override;
@@ -334,6 +336,7 @@ type
     procedure OnMenuShowAllClick(aSender: TObject);
     procedure OnMenuHideAllClick(aSender: TObject);
     procedure OnMenuRestoreClick(aSender: TObject);
+    procedure OnMenuRemoveCustomColumnClick(aSender: TObject);
     procedure OnMenuFilterEnableClick(aSender: TObject);
     procedure OnMenuFilterClick(aSender: TObject);
     procedure OnMenuFilterClearClick(aSender: TObject);
@@ -2113,7 +2116,27 @@ end;
 
 procedure TTisGridHeaderPopupMenu.OnMenuRestoreClick(aSender: TObject);
 begin
-   TTisGrid(PopupComponent).RestoreSettings;
+  TTisGrid(PopupComponent).RestoreSettings;
+end;
+
+procedure TTisGridHeaderPopupMenu.OnMenuRemoveCustomColumnClick(aSender: TObject);
+var
+  vGrid: TTisGrid;
+  vItem: TMenuItem;
+begin
+  if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
+  begin
+    if PopupComponent is TTisGrid then
+    begin
+      vGrid := PopupComponent as TTisGrid;
+      vItem := aSender as TMenuItem;
+      vGrid.Header.Columns.Delete(vItem.Tag);
+      if vGrid.Header.Columns.IsValidColumn(vItem.Tag) then
+        vGrid.FocusedColumn := vItem.Tag
+      else if vGrid.Header.Columns.GetLastVisibleColumn >= 0 then
+        vGrid.FocusedColumn := vGrid.Header.Columns.GetLastVisibleColumn;
+    end;
+  end;
 end;
 
 procedure TTisGridHeaderPopupMenu.OnMenuFilterEnableClick(aSender: TObject);
@@ -2371,6 +2394,34 @@ procedure TTisGridHeaderPopupMenu.FillPopupMenu;
     end;
   end;
 
+  procedure AddCustomColumns(aGrid: TTisGrid);
+  var
+    vColumn: TTisGridColumn;
+    vParentMenuItem, vNewMenuItem: TTisGridHeaderMenuItem;
+    v1: Integer;
+  begin
+    vParentMenuItem := nil;
+    for v1 := 0 to aGrid.Header.Columns.Count-1 do
+    begin
+      vColumn := aGrid.Header.Columns[v1] as TTisGridColumn;
+      if not vColumn.fOriginal then
+      begin
+        if not Assigned(vParentMenuItem) then
+        begin
+          vParentMenuItem := TTisGridHeaderMenuItem.Create(Self);
+          vParentMenuItem.Tag := NoColumn;
+          vParentMenuItem.Caption := rsGridRemoveCustomColumn;
+          Items.Add(vParentMenuItem);
+        end;
+        vNewMenuItem := TTisGridHeaderMenuItem.Create(self);
+        vNewMenuItem.Tag := vColumn.Index; // it will be use to locate the column by its index
+        vNewMenuItem.Caption := vColumn.Text + ' (' + Utf8ToString(vColumn.PropertyName) + ')';
+        vNewMenuItem.OnClick := @OnMenuRemoveCustomColumnClick;
+        vParentMenuItem.Add(vNewMenuItem);
+      end;
+    end;
+  end;
+
 var
   vColPos: TColumnPosition;
   vColIdx: TColumnIndex;
@@ -2513,6 +2564,8 @@ begin
         vNewMenuItem.Caption := rsGridRestoreDefaultColumns;
         vNewMenuItem.OnClick := @OnMenuRestoreClick;
         Items.Add(vNewMenuItem);
+        // custom columns
+        AddCustomColumns(vGrid);
         // conditionally disable menu item of last enabled column
         if (vVisibleCounter = 1) and (vVisibleItem <> nil) and not (poAllowHideAll in fOptions) then
           vVisibleItem.Enabled := False;
@@ -3570,9 +3623,17 @@ begin
 end;
 
 procedure TTisGrid.Loaded;
+var
+  v1: Integer;
+  vCol: TTisGridColumn;
 begin
   inherited Loaded;
   fDefaultSettings := GetSettings;
+  for v1 := 0 to Header.Columns.Count-1 do
+  begin
+    vCol := Header.Columns[v1] as TTisGridColumn;
+    vCol.fOriginal := True; // set all original columns
+  end;
 end;
 
 // hack to allow right click menu on header popup menu  and different popup menu on rows

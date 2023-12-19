@@ -44,6 +44,7 @@ resourcestring
   rsGridShowAllColumns = 'Show all columns';
   rsGridHideAllColumns = 'Hide all columns';
   rsGridRestoreDefaultColumns = 'Restore default columns';
+  rsGridRemoveCustomColumn = 'Remove custom column';
   rsGridFilter = 'Filter';
   rsGridFilterClear = 'Clear filter';
   rsGridFilterCustomExpression = 'Custom expression';
