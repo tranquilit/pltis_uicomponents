@@ -2077,10 +2077,12 @@ end;
 procedure TTisGridHeaderPopupMenu.OnMenuShowAllClick(aSender: TObject);
 var
   v1: Integer;
+  vGrid: TTisGrid;
 begin
   if Assigned(PopupComponent) and (PopupComponent is TBaseVirtualTree) then
   begin
-    with TVirtualTreeCast(PopupComponent).Header.Columns do
+    vGrid := PopupComponent as TTisGrid;
+    with vGrid.Header.Columns do
     begin
       for v1 := 0 to Count-1 do
       if not (coVisible in Items[v1].Options) then
@@ -2089,6 +2091,7 @@ begin
         DoColumnChange(v1, True);
       end;
     end;
+    vGrid.Invalidate; // needed it, at least for MacOS
   end;
 end;
 
