@@ -977,6 +977,8 @@ type
     // - use aSelection as tstAll to export all nodes - default
     // - use aSelection as tstSelected to export only selected nodes
     procedure ExportData(const aFileName: TFileName; const aSelection: TVSTTextSourceType = tstAll);
+    // Creates a temporary CSV file and open it in the default app
+    procedure ExportExcel(Prefix:String='';Selection: TVSTTextSourceType=tstAll; Separator:Char=',');
     /// get all checked rows
     function CheckedRows: TDocVariantData;
     /// it will focus in a row it which is matching exactly to aValue,
@@ -5452,6 +5454,44 @@ begin
     DoExportCustomContent(aSelection, vBuf);
   end;
   _SaveToFile(vBuf);
+end;
+
+procedure TTisGrid.ExportExcel(Prefix: String; Selection: TVSTTextSourceType;
+  Separator: Char);
+  function GetTempFileName(Const Prefix,ext : String) : String;
+  var
+    I: Integer;
+    Start: String;
+    Disc: String;
+  begin
+    Start := GetTempDir;
+    I := 0;
+    Disc := '';
+    repeat
+      Result := Format('%s%s%s%s', [Start, Prefix, Disc, ext]);
+      Disc := Format('%.5d', [i]);
+      Inc(I);
+    until not FileExists(Result);
+  end;
+var
+  tempfn:Utf8String;
+  txt:Utf8String;
+  txtbuf:PChar;
+  l:LongInt;
+  st:File;
+begin
+  tempfn:=GetTempFileName(Prefix,'.csv');
+  AssignFile(st,tempfn);
+  Rewrite(st,1);
+  try
+    txt := ContentToCsv(Selection,Separator)+#0;
+    txtbuf := pchar(txt);
+    l := strlen(txtbuf);
+    BlockWrite(st,txtbuf^,l);
+  finally
+    CloseFile(st);
+    OpenDocument(tempfn);
+  end;
 end;
 
 function TTisGrid.CheckedRows: TDocVariantData;
