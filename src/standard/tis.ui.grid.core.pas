@@ -4077,6 +4077,11 @@ begin
       aCanvas.FillRect(aCellRect);
     end;
   end;
+  {$ifdef LINUX}
+  aCanvas.Pen.Color := $00F0F0F0;
+  aCanvas.MoveTo(aCellRect.Right, aCellRect.Top);
+  aCanvas.LineTo(aCellRect.Right, aCellRect.Bottom);
+  {$endif LINUX}
   if (aCellPaintMode = cpmPaint) and Header.Columns.IsValidColumn(aColumn) then
     CacheNode;
   inherited DoBeforeCellPaint(aCanvas, aNode, aColumn, aCellPaintMode, aCellRect, aContentRect);
