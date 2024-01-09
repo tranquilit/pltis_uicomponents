@@ -196,7 +196,7 @@ procedure TTisGridEditor.ActPasteCSVExecute(Sender: TObject);
 var
   vClip: TClipboardAdapter;
 begin
-  Grid.Data.InitCsv(vClip.AsUtf8, JSON_FAST_FLOAT);
+  Grid.Data.InitArrayFromCsv(vClip.AsUtf8, JSON_FAST_FLOAT);
 end;
 
 procedure TTisGridEditor.ActAddColumnExecute(Sender: TObject);
