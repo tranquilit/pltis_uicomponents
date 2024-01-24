@@ -370,7 +370,7 @@ type
     DefaultSelectionOptions = VirtualTrees.DefaultSelectionOptions +
       [toExtendedFocus, toSimpleDrawSelection, toRightClickSelect, toDisableDrawSelection];
     DefaultMiscOptions = VirtualTrees.DefaultMiscOptions +
-      [toGridExtensions, toFullRowDrag] - [toWheelPanning, toEditOnClick, toEditOnDblClick, toToggleOnDblClick];
+      [toGridExtensions, toFullRowDrag] - [toWheelPanning, toEditOnClick, toEditOnDblClick, toToggleOnDblClick, toAcceptOLEDrop];
     DefaultAutoOptions = VirtualTrees.DefaultAutoOptions +
       [toAutoSort, toAutoChangeScale];
   public
@@ -1130,7 +1130,7 @@ type
     property DragImageKind;
     property DragMode;
     property DragOperations;
-    property DragType;
+    property DragType default dtVCL;
     property DragWidth;
     property DrawSelectionMode;
     property EditDelay;
@@ -5160,6 +5160,8 @@ begin
   fChartOptions := TTisGridChartOptions.Create(self);
   fFilterOptions := TTisGridFilterOptions.Create(self);
   fData.InitArray([]);
+  DragType := dtVCL;
+
   WantTabs := DefaultWantTabs;
   TabStop := True;
   with TreeOptions do
