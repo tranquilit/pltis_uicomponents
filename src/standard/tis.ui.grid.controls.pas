@@ -188,6 +188,9 @@ end;
 
 destructor TTisGridControl.Destroy;
 begin
+  // finternal.destroy is asynchronous. So be sure we don't refer anymore to this TTisGridControl in events.
+  fInternal.OnExit := Nil;
+  fInternal.OnKeyDown := Nil;
   Application.ReleaseComponent(fInternal);
   inherited Destroy;
 end;
