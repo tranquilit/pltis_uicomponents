@@ -5150,7 +5150,7 @@ begin
   fNodeAdapter.Init(self);
   Clear;
   DefaultText := '';
-  DefaultCsvSeparator := ',';
+  DefaultCsvSeparator := ';';
   fZebraColor := $00EDF0F1;
   fZebraLightness := DefaultZebraLightness;
   SetLength(fKeyFieldsList, 0);
