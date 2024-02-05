@@ -978,7 +978,7 @@ type
     // - use aSelection as tstSelected to export only selected nodes
     procedure ExportData(const aFileName: TFileName; const aSelection: TVSTTextSourceType = tstAll);
     // Creates a temporary CSV file and open it in the default app
-    procedure ExportExcel(Prefix:String='';Selection: TVSTTextSourceType=tstAll; Separator:Char=',');
+    procedure ExportExcel(Prefix:String='';Selection: TVSTTextSourceType=tstAll; Separator:Char=';');
     /// get all checked rows
     function CheckedRows: TDocVariantData;
     /// it will focus in a row it which is matching exactly to aValue,
@@ -1050,7 +1050,7 @@ type
     /// add columns based on Data content
     procedure CreateColumnsFromData(aAutoFitColumns, aAppendMissingAsHidden: Boolean);
     /// export Data to CSV format
-    function ContentToCsv(aSource: TVSTTextSourceType; const aSeparator: string = ',';
+    function ContentToCsv(aSource: TVSTTextSourceType; const aSeparator: string = ';';
       aColumnsVisibleOnly: Boolean = True; aColumnsTranslated: Boolean = True): RawUtf8;
     /// export Data to JSON format
     function ContentToJson(aSource: TVSTTextSourceType; aColumnsVisibleOnly: Boolean = True): RawUtf8;
