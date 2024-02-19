@@ -296,6 +296,7 @@ begin
   fTimer.Enabled := False;
   if DoBeforeSearch and Assigned(fOnSearch) then
     fOnSearch(self, Text);
+  fTimer.Enabled := False;
 end;
 
 procedure TTisSearchEdit.DoButtonClick(Sender: TObject);
@@ -393,6 +394,7 @@ begin
   fTimer.Enabled := False;
   if aKey = #13 then
   begin
+    SelectAll;
     RefreshSearch;
     AddHistory(Text);
   end
