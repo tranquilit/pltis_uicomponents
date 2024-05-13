@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------
 //    This file is part of Tranquil IT Software
-//    Copyright (C) 2012 - 2023  Tranquil IT https://www.tranquil.it
+//    Copyright (C) 2012 - 2024  Tranquil IT https://www.tranquil.it
 //    All Rights Reserved.
 // ------------------------------------------------------------------
 unit demo.tageditor.frame;
