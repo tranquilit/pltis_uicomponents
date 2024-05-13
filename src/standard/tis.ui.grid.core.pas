@@ -740,6 +740,9 @@ type
 
   /// this component is based on TVirtualStringTree, using mORMot TDocVariantData type
   // as the protocol for receiving and sending data
+
+  { TTisGrid }
+
   TTisGrid = class(TCustomVirtualStringTree)
   private
     // ------------------------------- new fields ----------------------------------
@@ -964,7 +967,7 @@ type
     // ----------------------------------- new methods -----------------------------
     /// refresh the grid using Data content
     // - call LoadData, if you change Data content directly
-    procedure LoadData;
+    procedure LoadData(const NewGridData: PDocVariantdata=Nil);
     /// it will try load aJson into Data and create Columns from it
     // - it will not clean previous columns or data, if they exists
     // - return TRUE if success, otherwise FALSE with a Dialog error if aShowError is TRUE
@@ -994,7 +997,7 @@ type
     // - it will return the supplied default, if aPropertyName is not found
     // - you should better not use it when NodeOptions.ShowChildren is TRUE
     function GetCellData(aNode: PVirtualNode; const aPropertyName: RawUtf8;
-      aDefault: PDocVariantData = nil): PDocVariantData;
+      aDefault: PVariant = nil): PVariant;
     /// returns the cell value as string
     // - it will return the supplied default, if aPropertyName is not found
     // - you should better not use it when NodeOptions.ShowChildren is TRUE
@@ -1029,7 +1032,7 @@ type
     /// append a list of rows to the Grid
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
-    procedure AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean = True; aCreateColumns: Boolean = True);
+    function AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean = True; aCreateColumns: Boolean = True): TIntegerDynArray;
     /// delete a list of rows that match aRows
     // - it will not call OnBeforeDeleteRows event by design - use DeleteSelectedRows instead
     procedure DeleteRows(aRows: PDocVariantData);
@@ -3375,8 +3378,7 @@ begin
   DoBeforeDataChange(@aValue, vAborted);
   if not vAborted then
   begin
-    fData := aValue;
-    LoadData;
+    LoadData(@aValue);
     UpdateSelectedAndTotalLabel;
     DoAfterDataChange;
   end;
@@ -3466,7 +3468,7 @@ var
   vDoc: PDocVariantData;
 begin
   vNode := GetFirstSelected;
-  result.InitArray([], JSON_FAST);
+  result.InitArray([], []);
   while vNode <> nil do
   begin
     vDoc := GetNodeAsPDocVariantData(vNode);
@@ -5251,7 +5253,7 @@ begin
     result := vCache^.Height;
 end;
 
-procedure TTisGrid.LoadData;
+procedure TTisGrid.LoadData(const NewGridData: PDocVariantdata);
 
   procedure _ViewInTreeMode;
   var
@@ -5292,14 +5294,18 @@ procedure TTisGrid.LoadData;
   end;
 
 var
-  vFocusedRow, vTopRow: PDocVariantData;
-  vSelectedRows: TDocVariantData;
+  vFocusedRow, vTopRow, vSelectedRows: TDocVariantData;
   vNodeArray: TNodeArray;
   vNode: PVirtualNode;
   vIsReadOnly: Boolean;
 begin
-  if fData.IsVoid then
+  if (csLoading in ComponentState) then
+    Exit;
+
+  if (Assigned(NewGridData) and NewGridData^.IsVoid) then
   begin
+    if not fData.IsVoid then
+      InitData;
     vIsReadOnly := toReadOnly in TreeOptions.MiscOptions;
     TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
     inherited Clear;
@@ -5311,10 +5317,20 @@ begin
     // stores previous focused and selected rows
     BeginUpdate;
     try
-      vSelectedRows := SelectedRows;
-      vFocusedRow := FocusedRow;
-      vTopRow := GetNodeAsPDocVariantData(TopNode);
-      SetLength(vNodeArray, 0);
+      if Assigned(KeyFieldsList) then
+      begin
+        SelectedRows.Reduce(TRawUtf8DynArray(fKeyFieldsList), {aCaseSensitive=}True, vSelectedRows, True);
+        if Assigned(FocusedRow) then
+          FocusedRow^.Reduce(TRawUtf8DynArray(fKeyFieldsList), {aCaseSensitive=}True, vFocusedRow, True)
+        else
+          vFocusedRow.InitObject([]);
+        if Assigned(TopNode) then
+          GetNodeAsPDocVariantData(TopNode)^.Reduce(TRawUtf8DynArray(fKeyFieldsList), {aCaseSensitive=}True, vTopRow)
+        else
+          vTopRow.InitObject([]);
+      end;
+      if Assigned(NewGridData) then
+        fData := NewGridData^;
       vIsReadOnly := toReadOnly in TreeOptions.MiscOptions;
       TreeOptions.MiscOptions := TreeOptions.MiscOptions - [toReadOnly];
       try
@@ -5333,14 +5349,19 @@ begin
       end;
     finally
       try
-        // restore selected nodes
-        SelectedRows := vSelectedRows;
-        // restore focused node
-        if vFocusedRow <> nil then
-          SetFocusedRowNoClearSelection(vFocusedRow);
-        // restore top visible node
-        if (vTopRow <> nil) and not (tsScrolling in TreeStates) then
-          vNodeArray := GetNodesBy(vTopRow, KeyFieldsNames <> '');
+        if Assigned(KeyFieldsList) then
+        begin
+          // restore selected nodes
+          SelectedRows := vSelectedRows;
+          // restore focused node
+          if not vFocusedRow.IsVoid then
+            SetFocusedRowNoClearSelection(@vFocusedRow);
+          // restore top visible node
+          if not vTopRow.IsVoid and not (tsScrolling in TreeStates) then
+            vNodeArray := GetNodesBy(@vTopRow, KeyFieldsNames <> '');
+        end
+        else
+          SetLength(vNodeArray,0);
       finally
         EndUpdate;
         for vNode in vNodeArray do
@@ -5541,33 +5562,31 @@ begin
   end;
 end;
 
-function TTisGrid.GetCellData(aNode: PVirtualNode;
-  const aPropertyName: RawUtf8; aDefault: PDocVariantData): PDocVariantData;
+function TTisGrid.GetCellData(aNode: PVirtualNode; const aPropertyName: RawUtf8; aDefault: PVariant): PVariant;
+var
+  NodeData: PDocVariantData;
 begin
   result := aDefault;
   if aNode <> nil then
   begin
-    result := GetNodeAsPDocVariantData(aNode);
-    if result <> nil then
-    begin
-      if result^.GetValueIndex(aPropertyName) = -1 then
-        result := aDefault;
-    end;
+    NodeData := GetNodeAsPDocVariantData(aNode);
+    if NodeData <> nil then
+      NodeData^.GetAsPVariant(aPropertyName, result);
   end;
 end;
 
 function TTisGrid.GetCellDataAsString(aNode: PVirtualNode;
   const aPropertyName: RawUtf8; const aDefault: string): string;
 var
-  vData: PDocVariantData;
+  vData: PVariant;
 begin
   vData := GetCellData(aNode, aPropertyName);
   if vData = nil then
     result := aDefault
-  else if vData^.Kind = dvArray then
-    result := Utf8ToString(vData^.ToCsv(','))
+  {else if VarIs(vData,DocVariantVType) ; DocVariantType vData ^.Kind = dvArray then
+    result := Utf8ToString(vData^.ToCsv(','))}
   else
-    result := vData^.S[aPropertyName];
+    result := VariantToString(vData^);
 end;
 
 function TTisGrid.GetNodeAsPDocVariantData(aNode: PVirtualNode;
@@ -5677,15 +5696,42 @@ begin
   end;
 end;
 
-procedure TTisGrid.AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean;
-  aCreateColumns: Boolean);
+function TTisGrid.AddRows(aData: PDocVariantData; aAllowDuplicates: Boolean; aCreateColumns: Boolean): TIntegerDynArray;
+var
+  newRowId, i: Integer;
+  vObj: PDocVariantData;
 begin
   // don't add if already in grid...
   if aAllowDuplicates or
     ((Length(KeyFieldsList) = 0) and (Length(GetNodesBy(aData)) = 0)) or
     (Length(GetNodesBy(aData, True)) = 0) then
   begin
-    if (Add(aData) <> -1) and aCreateColumns and (Header.Columns.Count = 0) then
+    if aData^.IsArray then
+    begin
+      SetLength(Result,aData^.Count);
+      i := 0;
+      for vObj in aData^.Objects do
+      begin
+        newRowId := Add(vObj);
+        if newRowId >=0 then
+        begin
+          result[i] := newRowId;
+          inc(i);
+        end;
+      end;
+      SetLength(Result,i);
+    end
+    else
+    begin
+      newRowId := Add(aData);
+      if newRowId>=0 then
+      begin
+        SetLength(Result,aData^.Count);
+        Result := [newRowId];
+      end;
+    end;
+
+    if (newRowId >= 0) and aCreateColumns and (Header.Columns.Count = 0) then
       CreateColumnsFromData(True, False);
   end;
 end;
