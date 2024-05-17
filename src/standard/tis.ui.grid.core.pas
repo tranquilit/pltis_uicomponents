@@ -3444,7 +3444,7 @@ end;
 procedure TTisGrid.SetFocusedRow(aValue: PDocVariantData);
 begin
   ClearSelection;
-  SetFocusedRowNoClearSelection(aValue);
+  SetFocusedRowNoClearSelection(aValue,{EnsureScrollIntoView=}True);
 end;
 
 procedure TTisGrid.SetOnCutToClipboard(aValue: TNotifyEvent);

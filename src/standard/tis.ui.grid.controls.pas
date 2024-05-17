@@ -212,7 +212,7 @@ end;
 
 function TTisGridControl.GetValue: Variant;
 begin
-  result := IfThen<Variant>(fInternal.Caption = '', NULL, fInternal.Caption);
+  result := IfThen<Variant>(Trim(fInternal.Caption) = '', NULL, Trim(fInternal.Caption));
 end;
 
 procedure TTisGridControl.SetValue(const aValue: Variant);
@@ -240,7 +240,7 @@ begin
   if Edit.Text = '' then
     result := NULL
   else
-    result := Edit.Text;
+    result := Trim(Edit.Text);
 end;
 
 procedure TTisGridEditControl.SetValue(const aValue: Variant);
