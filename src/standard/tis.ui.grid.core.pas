@@ -5963,7 +5963,7 @@ begin
             vTmp.AddItemText(QuotedStr(vPropName, '"'));
         end
         else
-          vCols.AddItemText('""');
+          vTmp.AddItemText('""');
       end;
     end;
     result := result + vTmp.ToCsv(aSeparator) + LineEnding;
