@@ -1570,7 +1570,7 @@ end;
 
 destructor TTisGridEditLink.Destroy;
 begin
-  fControl.Free;
+  FreeAndNil(fControl);
   inherited Destroy;
 end;
 
@@ -1844,7 +1844,6 @@ procedure TTisGridColumns.HandleClick(P: TPoint; aButton: TMouseButton; aForce,
 var
   vColumnIndex: Integer;
   HitInfo: TVTHeaderHitInfo;
-  NewClickIndex: Integer;
 begin
   if (csDesigning in Header.Treeview.ComponentState) then
     exit;
@@ -1858,7 +1857,6 @@ begin
         exit;
       if Assigned(TTisGrid(Header.Treeview).OnHeaderClick) then
       begin
-        NewClickIndex := ColumnFromPosition(P);
         with HitInfo do
         begin
           X := P.X;
@@ -3887,8 +3885,6 @@ begin
 end;
 
 procedure TTisGrid.DoFreeNode(aNode: PVirtualNode);
-var
-  v1: Integer;
 begin
   with fNodeAdapter.GetData(aNode)^ do
   begin
@@ -4537,7 +4533,7 @@ begin
     fReplaceDialog.Options := [frDown, frDisableUpDown, frReplace, frReplaceAll,frEntireScope];
     //fReplaceDialog.OnReplace := ReplaceDialog1Replace;
     if EditLink <> nil  then
-      fReplaceDialog.FindText := TStringEditLink(EditLink).Edit.Text
+      fReplaceDialog.FindText := (EditLink as TStringEditLink).Edit.Text
     else
       fReplaceDialog.FindText := GetCellDataAsString(FocusedNode, FocusedPropertyName);
     fReplaceDialog.Execute;
