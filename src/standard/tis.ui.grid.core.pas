@@ -5953,7 +5953,7 @@ begin
         vPropName := vObj^.U[vCol.PropertyName];
         if vPropName <> '' then
         begin
-          if VarType(vObj^.Value[vPropName]) in [varDouble, varCurrency, varInteger] then
+          if VarType(vObj^.Value[vCol.PropertyName]) in [varDouble, varCurrency, varInteger] then
             vTmp.AddItemText(vPropName)
           else
             vTmp.AddItemText(QuotedStr(vPropName, '"'));
