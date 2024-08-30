@@ -126,7 +126,8 @@ begin
   DefBackground := clWindow;
   DefFontColor := clWindowText;
   DefFontName := Screen.SystemFont.Name;
-  DefFontSize := Screen.SystemFont.Size;
+  if Screen.SystemFont.Size>0 then
+    DefFontSize := Screen.SystemFont.Size;
   FillPopupMenu;
 end;
 
