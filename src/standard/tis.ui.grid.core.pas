@@ -2782,6 +2782,8 @@ begin
         for vObj in fFilters.Objects do
         begin
           vColumn := fGrid.FindColumnByPropertyName(vObj^.U['field']);
+          if vColumn = nil then
+            Continue;
           if vPropertyName = '' then
             vPropertyName := vColumn.PropertyName;
           if vPropertyName = vColumn.PropertyName then
