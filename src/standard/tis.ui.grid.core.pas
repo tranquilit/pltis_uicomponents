@@ -1029,6 +1029,9 @@ type
     /// find a column by its index
     // - if not found, it will return NIL
     function FindColumnByIndex(const aIndex: TColumnIndex): TTisGridColumn;
+    /// retuns TRUE if the column spicified by property name is visible
+    // - if not found or not visible, it will return FALSE
+    function IsVisibleColumnByPropertyName(const aPropertyName: RawUtf8): Boolean;
     /// append a list of rows to the Grid
     // - use aAllowDuplicates=TRUE for allow duplicate rows
     // - use aCreateColumns=TRUE for create columns if they not exists yet
@@ -4350,6 +4353,16 @@ begin
     result := TTisGridColumn(Header.Columns[aIndex])
   else
     result := nil;
+end;
+
+function TTisGrid.IsVisibleColumnByPropertyName(const aPropertyName: RawUtf8): Boolean;
+var
+  Col: TVirtualTreeColumn;
+begin
+  Result := False;
+  for Col in Header.Columns.GetVisibleColumns do
+    if TTisGridColumn(Col).PropertyName = aPropertyName then
+      Exit(True);
 end;
 
 procedure TTisGrid.FindDlgFind(aSender: TObject);
