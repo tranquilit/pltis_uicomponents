@@ -4118,9 +4118,9 @@ begin
   begin
     ColorToHLS(aColor, vHue, vLightness, vSaturation);
     if vLightness < fZebraLightness then
-      aColor := HLStoColor(vHue, vLightness - fZebraLightness, vSaturation)
+      aColor := HLStoColor(vHue, Byte((UInt16(vLightness) - UInt16(fZebraLightness)) and High(UInt8)), vSaturation)
     else
-      aColor := HLStoColor(vHue, vLightness + fZebraLightness, vSaturation);
+      aColor := HLStoColor(vHue, Byte((UInt16(vLightness) + UInt16(fZebraLightness)) and High(UInt8)), vSaturation);
     aEraseAction := eaColor;
   end;
   inherited DoBeforeItemErase(aCanvas, aNode, aItemRect, aColor, aEraseAction);
