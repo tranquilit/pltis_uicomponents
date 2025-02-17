@@ -584,6 +584,16 @@ var
   vSessionDoc: TDocVariantData;
 
   procedure _SetupButtons;
+    function GetButtonByAction(pAction: TAction): TToolButton;
+    var
+      vI: Integer;
+    begin
+      Result := nil;
+      for vI := 0 to ButtonCount - 1 do
+        if (Buttons[vI].Name = '') and (Buttons[vI].Action = pAction) then
+          Exit(Buttons[vI]);
+    end;
+
   var
     vSessionButton: PDocVariantData;
     vSessionAction, vSessionPopup: PVariant;
@@ -594,6 +604,7 @@ var
     vLeft: Integer;
     vName: string;
     vComponent: TComponent;
+    vBtnAction: TToolButton;
   begin
     // create buttons on the toolbar
     for vSessionButton in vSessionDoc.A_['buttons']^.Objects do
@@ -633,9 +644,26 @@ var
       else
       begin
         if Assigned(vAction) then
-          AddButton(vAction, vPopup, vName, vLeft)
+        begin
+          vBtnAction := GetButtonByAction(vAction);
+          if Assigned(vBtnAction) then
+          begin
+            vBtnAction.Parent := nil;
+            vBtnAction.DropdownMenu := vPopup;
+            vBtnAction.Style := vStyle;
+            vBtnAction.Left := vLeft;
+            vBtnAction.Visible := True;
+            vBtnAction.Parent := self;
+          end
+          else
+          begin
+            AddButton(vAction, vPopup, vName, vLeft);
+          end;
+        end
         else
+        begin
           AddButton(vStyle, vCaption, vSessionButton^.I['imageindex'], vName, vLeft);
+        end;
       end;
     end;
   end;
@@ -760,7 +788,7 @@ end;
 function TTisToolBar.AddButton(aAction: TAction; aPopupMenu: TPopupMenu;
   const aName: TComponentName; aLeft: Integer): TToolButton;
 begin
-  result := AddButton(tbsButton, '', -1, aName, aLeft);
+  result := AddButton(tbsButton, aAction.Caption, aAction.ImageIndex, aName, aLeft);
   with result do
   begin
     Action := aAction;
@@ -786,9 +814,11 @@ begin
   end
   else
   begin
-    ButtonList.Remove(aButton);
+    aButton.Visible := False;
+    aButton.Parent := nil;
+  {  ButtonList.Remove(aButton);
     RemoveControl(aButton);
-    FreeAndNil(aButton);
+    FreeAndNil(aButton);    }
   end;
 end;
 
