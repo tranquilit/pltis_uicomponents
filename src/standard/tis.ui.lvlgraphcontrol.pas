@@ -2829,7 +2829,7 @@ constructor TCustomLvlGraphControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle:=ControlStyle+[csAcceptsControls];
-  Color := clWhite;
+  Color := clDefault;
   FOptions:=DefaultLvlGraphCtrlOptions;
   FGraph:=TTisLvlGraph.Create;
   FGraph.OnInvalidate:=@GraphInvalidate;
