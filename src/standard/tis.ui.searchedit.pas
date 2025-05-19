@@ -21,6 +21,7 @@ uses
   Buttons,
   Variants,
   Menus,
+  ImgList,
   mormot.core.variants,
   mormot.core.unicode,
   tis.ui.resourcestrings,
@@ -38,11 +39,15 @@ type
 
   /// component that allow user searching a typed text in asynchronous mode
   // - it will use an internal TTimer instance
+
+  { TTisSearchEdit }
+
   TTisSearchEdit = class(TComboBox, IButtonProperties)
   private
     fTimer: TTimer;
     fAutoSearch: Boolean;
     fButtons: TButtonCollection;
+    fImageList: TCustomImageList;
     fData: TDocVariantData;
     fLookupKeyField: string;
     fLookupDisplayField: string;
@@ -50,6 +55,7 @@ type
     fOnButtonClick: TOnButtonClick;
     fOnBeforeSearch: TOnBeforeSearch;
     fOnSearch: TOnSearch;
+    procedure SetImageList(const aValue: TCustomImageList);
     procedure SetDefault;
     procedure SetUpEdit;
     procedure SetData(aValue: TDocVariantData);
@@ -126,6 +132,7 @@ type
     property AutoSearch: Boolean read fAutoSearch write fAutoSearch default True;
     /// a collection of buttons
     property Buttons: TButtonCollection read fButtons write fButtons;
+    property Images: TCustomImageList read fImageList write SetImageList;
     property LookupKeyField: string read fLookupKeyField write fLookupKeyField;
     property LookupDisplayField: string read fLookupDisplayField write fLookupDisplayField;
     /// the max history items that it will keep
@@ -149,6 +156,16 @@ type
 implementation
 
 { TTisSearchEdit }
+
+procedure TTisSearchEdit.SetImageList(const aValue: TCustomImageList);
+begin
+  if fImageList = aValue then
+    Exit;
+
+  fImageList := aValue;
+  fButtons.Images := fImageList;
+  Self.Invalidate;
+end;
 
 procedure TTisSearchEdit.SetDefault;
 begin
@@ -372,6 +389,7 @@ begin
   SetDefault;
   SetUpEdit;
   Clear;
+  fImageList := nil;
 end;
 
 destructor TTisSearchEdit.Destroy;

@@ -20,6 +20,7 @@ uses
   StdCtrls,
   ExtCtrls,
   Buttons,
+  ImgList,
   mormot.core.unicode,
   mormot.core.rtti;
 
@@ -47,6 +48,10 @@ type
     function GetVisible: Boolean;
     procedure SetVisible(aValue: Boolean);
     procedure SetKind(aValue: TButtonKind);
+    function GetImages: TCustomImageList;
+    procedure SetImages(const aValue: TCustomImageList);
+    function GetImageIndex: TImageIndex;
+    procedure SetImageIndex(const aValue: TImageIndex);
   protected
     const DefaultFlat = True;
   protected
@@ -61,6 +66,9 @@ type
     property Flat: Boolean read GetFlat write SetFlat default DefaultFlat;
     /// button icon
     property Glyph: TBitmap read GetGlyph write SetGlyph;
+    /// imagelist
+    property Images: TCustomImageList read GetImages write SetImages default nil;
+    property ImageIndex: TImageIndex read GetImageIndex write SetImageIndex default -1;
     /// kind that could define some behavior for the button
     property Kind: TButtonKind read fKind write SetKind default bkCustom;
     /// the item name
@@ -82,8 +90,11 @@ type
   TButtonCollection = class(TCollection)
   private
     fControl: TWinControl;
+    fImageList: TCustomImageList;
     function GetButtonItem(aIndex: Integer): TButtonItem;
     procedure SetButtonItem(aIndex: Integer; aValue: TButtonItem);
+    function GetImages: TCustomImageList;
+    procedure SetImages(const aValue: TCustomImageList);
   protected
     // ------------------------------- inherited methods ----------------------------------
     function GetOwner: TPersistent; override;
@@ -100,6 +111,8 @@ type
     // ------------------------------- new properties ----------------------------------
     /// point to the control that created the collection
     property Control: TWinControl read fControl;
+    /// imagelist
+    property Images: TCustomImageList read GetImages write SetImages;
     /// items of the collection
     property Items[aIndex: Integer]: TButtonItem read GetButtonItem write SetButtonItem; default;
   end;
@@ -140,22 +153,58 @@ begin
   if fKind = aValue then
     exit;
   fKind := aValue;
-  vImage := TImage.Create(nil);
-  try
-    vNewName := Utf8ToString(LowerCase(GetEnumNameTrimed(TypeInfo(TButtonKind), ord(aValue))));
-    vResName := 'searchedit_' + vNewName;
-    Name := vNewName + Index.ToString;
-    if Assigned(LazarusResources.Find(vResName)) then
-    begin
-      vImage.Picture.LoadFromLazarusResource(vResName);
-      Button.Glyph.Assign(vImage.Picture.Bitmap);
-    end
-    else
-      Button.Glyph.Clear;
-    Buttons.Invalidate;
-  finally
-    vImage.Free;
+  if Buttons.Images = nil then
+  begin
+    vImage := TImage.Create(nil);
+    try
+      vNewName := Utf8ToString(LowerCase(GetEnumNameTrimed(TypeInfo(TButtonKind), ord(aValue))));
+      vResName := 'searchedit_' + vNewName;
+      Name := vNewName + Index.ToString;
+      if Assigned(LazarusResources.Find(vResName)) then
+      begin
+        vImage.Picture.LoadFromLazarusResource(vResName);
+        Button.Glyph.Assign(vImage.Picture.Bitmap);
+      end
+      else
+        Button.Glyph.Clear;
+      Buttons.Invalidate;
+    finally
+      vImage.Free;
+    end;
+  end
+  else
+  begin
+    Buttons.Images.GetBitmap(Self.ImageIndex, Self.Glyph);
   end;
+end;
+
+function TButtonItem.GetImages: TCustomImageList;
+begin
+  Result := Button.Images;
+end;
+
+procedure TButtonItem.SetImages(const aValue: TCustomImageList);
+begin
+  if Button.Images = aValue then
+    Exit;
+
+  Button.Images := aValue;
+end;
+
+function TButtonItem.GetImageIndex: TImageIndex;
+begin
+  Result := Button.ImageIndex;
+end;
+
+procedure TButtonItem.SetImageIndex(const aValue: TImageIndex);
+begin
+  if Button.ImageIndex = aValue then
+    Exit;
+
+  Button.ImageIndex := aValue;
+  if (Buttons.Images <> nil) and (aValue > -1) then
+    Buttons.Images.GetBitmap(Self.ImageIndex, Self.Glyph);
+  Button.Invalidate;
 end;
 
 function TButtonItem.Buttons: TButtonCollection;
@@ -187,6 +236,7 @@ begin
     fButton := TSpeedButton.Create(nil);
     fButton.Flat := DefaultFlat;
     fButton.ControlStyle := fButton.ControlStyle + [csNoDesignSelectable];
+    fButton.Images := Buttons.Images;
   end;
   result := fButton;
 end;
@@ -203,6 +253,20 @@ begin
   Items[aIndex].Assign(aValue);
 end;
 
+function TButtonCollection.GetImages: TCustomImageList;
+begin
+  Result := fImageList;
+end;
+
+procedure TButtonCollection.SetImages(const aValue: TCustomImageList);
+begin
+  if fImageList = aValue then
+    Exit;
+
+  fImageList := aValue;
+  Self.Invalidate;
+end;
+
 function TButtonCollection.GetOwner: TPersistent;
 begin
   Result:= fControl;
@@ -212,6 +276,7 @@ constructor TButtonCollection.Create(aControl: TWinControl);
 begin
   inherited Create(TButtonItem);
   fControl := aControl;
+  fImageList := nil;
 end;
 
 function TButtonCollection.Add: TCollectionItem;
@@ -242,11 +307,23 @@ begin
     vButton := TButtonItem(Items[v1]);
     Setup(vButton);
     vSpeedButton := vButton.Button;
-    vSpeedButton.SetBounds(fControl.Left, fControl.Top, vSpeedButton.Width, vSpeedButton.Height);
+    vSpeedButton.Images := Self.Images;
     if vSpeedButton.Visible then
     begin
-      vSpeedButton.Left := vLeftCount;
       inc(vLeftCount, vSpeedButton.Width + cSpace);
+
+      vSpeedButton.AnchorSideTop.Control := fControl;
+      vSpeedButton.AnchorSideTop.Side := asrCenter;
+
+      if v1 = 0 then
+        vSpeedButton.AnchorSideLeft.Control := fControl
+      else
+        vSpeedButton.AnchorSideLeft.Control := TButtonItem(Items[v1 - 1]).Button;
+      vSpeedButton.AnchorSideLeft.Side := asrBottom;
+      vSpeedButton.Anchors := [akLeft, akTop];
+      vSpeedButton.BorderSpacing.Left := cSpace;
+      vSpeedButton.AnchorSideTop.Side := asrCenter;
+      vSpeedButton.AutoSize := True;
     end;
     vSpeedButton.Parent := fControl.Parent;
     vSpeedButton.Tag := v1; // it could be used to locate the corresponding item instance
