@@ -2728,7 +2728,7 @@ begin
     end;
 
     // Focus the graph
-    if MouseInClient and not Focused then;
+    if MouseInClient and not Focused then
       SetFocus;
   finally
     EndUpdate;
