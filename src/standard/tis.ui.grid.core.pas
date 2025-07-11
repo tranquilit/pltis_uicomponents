@@ -3986,10 +3986,10 @@ procedure TTisGrid.DoBeforeCellPaint(aCanvas: TCanvas; aNode: PVirtualNode;
     begin
       vHtml := TTisHtmlViewer.Create(self);
       try
-        vHtml.LoadFromString(aHtml);
         vHtml.Width := aBitmap.Width;
         vHtml.Height := aBitmap.Height;
         {$ifdef FRAMEVIEWER_ENABLED}
+        vHtml.LoadFromString(aHtml);
         aBitmap.Canvas.Brush.Color := vHtml.DefBackground;
         vHtml.PaintHtml(aBitmap.Canvas, Rect(
           0, 0, aBitmap.Width, aBitmap.Height));
