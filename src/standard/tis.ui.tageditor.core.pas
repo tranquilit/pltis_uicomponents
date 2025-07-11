@@ -206,6 +206,9 @@ type
   // - custom events, such Before/After add/delete, for handling user actions
   // - input properties to define forbidden chars, max tags, allow duplicates, etc
   // - autocomplete with properties do define items, sorted, style, etc
+
+  { TTisTagEditor }
+
   TTisTagEditor = class(TCustomControl)
   private
     fActualTagHeight: Integer;
@@ -217,6 +220,8 @@ type
     fBorderColorDisabled: TColor;
     fCaretVisible: Boolean;
     fLefts, fRights, fWidths, fTops, fBottoms: array of Integer;
+    FOnCloseUp: TNotifyEvent;
+    FOnDropDown: TNotifyEvent;
     fCloseBtnLefts, fCloseBtnTops: array of Integer;
     fCloseBtnWidth: Integer;
     fDesiredHeight: Integer;
@@ -306,6 +311,8 @@ type
     procedure ComboBoxExit(Sender: TObject); virtual;
     procedure ComboBoxKeyPress(Sender: TObject; var Key: Char); virtual;
     procedure ComboBoxEditingDone(Sender: TObject); virtual;
+    procedure ComboBoxEditingDropDown(Sender: TObject); virtual;
+    procedure ComboBoxEditingCloseUp(Sender: TObject); virtual;
     function NewTags(aTagEditor: TTisTagEditor): TTags; virtual;
     function NewComboBox: TComboBox; virtual;
     function NewPopupMenu: TPopupMenu; virtual;
@@ -388,6 +395,23 @@ type
     property OnTagAfterDrag: TOnTagAfterDrag read fOnTagAfterDrag write fOnTagAfterDrag;
     /// event that occurs after changing something
     property OnChange: TNotifyEvent read fOnChange write fOnChange;
+
+    property OnDropDown: TNotifyEvent read FOnDropDown write FOnDropDown;
+    property OnCloseUp: TNotifyEvent read FOnCloseUp write FOnCloseUp;
+
+    property OnEnter;
+    property OnExit;
+    property OnKeyDown;
+    property OnKeyPress;
+    property OnKeyUp;
+    property OnMouseDown;
+    property OnMouseEnter;
+    property OnMouseLeave;
+    property OnMouseMove;
+    property OnMouseUp;
+    property OnMouseWheel;
+    property OnMouseWheelDown;
+    property OnMouseWheelUp;
   end;
 
 implementation
@@ -912,6 +936,18 @@ begin
   end;
 end;
 
+procedure TTisTagEditor.ComboBoxEditingDropDown(Sender: TObject);
+begin
+  If Assigned(fComboBox) and Assigned(fOnDropDown) then
+    fOnDropDown(fComboBox);
+end;
+
+procedure TTisTagEditor.ComboBoxEditingCloseUp(Sender: TObject);
+begin
+  If Assigned(fComboBox) and Assigned(fOnDropDown) then
+    FOnCloseUp(fComboBox);
+end;
+
 function TTisTagEditor.NewTags(aTagEditor: TTisTagEditor): TTags;
 begin
   result := TTags.Create(aTagEditor, TTagItem);
@@ -931,6 +967,9 @@ begin
   result.OnEnter := @ComboBoxEnter;
   result.OnExit := @ComboBoxExit;
   result.OnEditingDone := @ComboBoxEditingDone;
+  result.OnDropDown := @ComboBoxEditingDropDown;
+  result.OnCloseUp := @ComboBoxEditingCloseUp;
+
 end;
 
 function TTisTagEditor.NewPopupMenu: TPopupMenu;
