@@ -6,6 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, SynEdit,
+  LazEditTextAttributes,
   SynEditMarkupSelection, SynEditPointClasses, SynEditTypes, mormot.core.base,
   SynEditMiscClasses, mormot.core.data, mormot.core.variants, SynCompletion ;
 
