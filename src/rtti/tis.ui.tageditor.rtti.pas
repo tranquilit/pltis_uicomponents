@@ -196,7 +196,7 @@ end;
 
 destructor TTisTagEditorRtti.Destroy;
 begin
-  FreeThenNil(fLink);
+  FreeAndNil(fLink);
   inherited Destroy;
 end;
 

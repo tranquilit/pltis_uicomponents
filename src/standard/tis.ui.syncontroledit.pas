@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, Dialogs, SynEdit,
   SynEditMarkupSelection, SynEditPointClasses, SynEditTypes, mormot.core.base,
-  SynEditMiscClasses, mormot.core.data, mormot.core.variants, SynCompletion ;
+  SynEditMiscClasses, mormot.core.data, mormot.core.variants, SynCompletion,
+  LazVersion;
 
 type
   TMarkupRecord = record
@@ -61,6 +62,11 @@ type
   end;
 
 implementation
+
+{$if laz_fullversion >= 4990000}
+uses
+  LazEditTextAttributes;
+{$endif}
 
 constructor TTisControlSynEditor.Create(AOwner: TComponent);
 begin
