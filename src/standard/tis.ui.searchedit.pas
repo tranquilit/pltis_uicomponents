@@ -37,6 +37,13 @@ type
   /// event triggered when user is searching a text
   TOnSearch = procedure(Sender: TObject; const aText: string) of object;
 
+  /// event triggered when the combobox items are created from internal data
+  TOnGetItemText = procedure(Sender: TObject; const aItem: TDocVariantData; var aText: string) of object;
+
+  /// callback called when sorting the search edit data array
+  TItemComparer = function(Sender: TObject; const V1, V2: TDocVariantData): PtrInt of object;
+
+
   /// component that allow user searching a typed text in asynchronous mode
   // - it will use an internal TTimer instance
 
@@ -55,6 +62,8 @@ type
     fOnButtonClick: TOnButtonClick;
     fOnBeforeSearch: TOnBeforeSearch;
     fOnSearch: TOnSearch;
+    fOnGetItemText: TOnGetItemText;
+    fItemComparer: TItemComparer;
     procedure SetImageList(const aValue: TCustomImageList);
     procedure SetDefault;
     procedure SetUpEdit;
@@ -99,6 +108,8 @@ type
     procedure SetupClearPopupMenu; virtual;
     /// callback to Popup menu to clear all
     procedure DoClearCallback(aSender: TObject);
+    /// wrapper to call user's comparison function with TDocVariantData instances
+    function RowComparer(const V1, V2: Variant): PtrInt;
   public
     // ------------------------------- inherited methods ----------------------------
     constructor Create(aOwner: TComponent); override;
@@ -117,7 +128,9 @@ type
     /// it will refresh the search
     // - if AutoSearch or aForceDelayed is TRUE, it will enable the timer, otherwise it will call Search directly
     procedure RefreshSearch(aForceDelayed: Boolean = False); virtual;
-    /// it will sort Items and Data by LookupDisplayField
+    /// it will sort Items and Data
+    // - will call ItemComparer if assigned
+    // - otherwise sort by LookupDisplayField
     procedure Sort; virtual;
     // ------------------------------- new properties -------------------------------
     /// direct access to the low-level internal data
@@ -126,6 +139,8 @@ type
     /// it will return the key field value from Data
     // - the ItemIndex will be use as index for Data array
     property KeyValue: Variant read GetKeyValue write SetKeyValue;
+    /// it will return the object value from Data
+    function KeyObject: PDocVariantData;
   published
     // ------------------------------- new properties -------------------------------
     /// if TRUE, it will start the Timer when user start typing
@@ -133,7 +148,9 @@ type
     /// a collection of buttons
     property Buttons: TButtonCollection read fButtons write fButtons;
     property Images: TCustomImageList read fImageList write SetImageList;
+    /// doc variant field used for KeyValue property
     property LookupKeyField: string read fLookupKeyField write fLookupKeyField;
+    /// doc variant field used to populate Completion texts instead of OnGetItemText
     property LookupDisplayField: string read fLookupDisplayField write fLookupDisplayField;
     /// the max history items that it will keep
     property SearchMaxHistory: Integer read fSearchMaxHistory write fSearchMaxHistory default DefaultSearchMaxHistory;
@@ -151,6 +168,10 @@ type
     property OnSearch: TOnSearch read fOnSearch write fOnSearch;
     /// an event that will be trigger when the Timer stops
     property OnStopSearch: TNotifyEvent read GetOnStopSearch write SetOnStopSearch;
+    /// an event that will call the user's custom text association method
+    property OnGetItemText: TOnGetItemText read fOnGetItemText write fOnGetItemText;
+    /// a callback used when sorting the items
+    property ItemComparer: TItemComparer read fItemComparer write fItemComparer;
   end;
 
 implementation
@@ -209,13 +230,24 @@ begin
   fTimer.OnStopTimer := aValue;
 end;
 
-function TTisSearchEdit.GetKeyValue: Variant;
+function TTisSearchEdit.KeyObject: PDocVariantData;
 begin
-  result := NULL;
+  result := nil;
   if fData.IsVoid then
     exit;
   if ItemIndex in [0..fData.Count-1] then
-    result := _Safe(fData.Values[ItemIndex])^.Value[fLookupKeyField];
+    result := _Safe(fData.Values[ItemIndex]);
+end;
+
+function TTisSearchEdit.GetKeyValue: Variant;
+var
+  aObject: PDocVariantData;
+begin
+  aObject := KeyObject;
+  result := NULL;
+  if not Assigned(aObject) then
+    exit;
+  result := aObject^.Value[fLookupKeyField];
 end;
 
 procedure TTisSearchEdit.SetKeyValue(aValue: Variant);
@@ -428,13 +460,22 @@ end;
 procedure TTisSearchEdit.LoadData;
 var
   vObj: PDocVariantData;
+  aItemText: string;
 begin
   if not fData.IsVoid then
     inherited Clear; // clear Items
   if Sorted then
     Sort;
   for vObj in fData.Objects do
-    Items.Add(vObj^.S[StringToUtf8(fLookupDisplayField)]);
+  begin
+    if fLookupDisplayField <> '' then
+      aItemText := vObj^.S[StringToUtf8(fLookupDisplayField)]
+    else
+      aItemText := '';
+    if Assigned(fOnGetItemText) then
+      fOnGetItemText(Self, vObj^, aItemText);
+    Items.Add(aItemText);
+  end;
 end;
 
 procedure TTisSearchEdit.RefreshSearch(aForceDelayed: Boolean);
@@ -446,9 +487,17 @@ begin
     Search;
 end;
 
+function TTisSearchEdit.RowComparer(const V1, V2: Variant): PtrInt;
+begin
+  Result := ItemComparer(_Safe(V1)^, _Safe(V2)^);
+end;
+
 procedure TTisSearchEdit.Sort;
 begin
-  fData.SortArrayByField(StringToUtf8(fLookupDisplayField));
+  if Assigned(ItemComparer) then
+    fData.SortByRow(@RowComparer)
+  else
+    fData.SortArrayByField(StringToUtf8(fLookupDisplayField));
 end;
 
 end.
