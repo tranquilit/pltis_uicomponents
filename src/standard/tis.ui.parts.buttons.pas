@@ -119,8 +119,6 @@ type
 
 implementation
 
-{$R icons.rc}
-
 { TButtonItem }
 
 function TButtonItem.GetFlat: Boolean;
