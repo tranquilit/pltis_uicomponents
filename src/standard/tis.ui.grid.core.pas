@@ -4247,6 +4247,11 @@ begin
     PopupMenu.OnPopup(PopupMenu);
   if PopupMenu.Items.Count > 0 then
     _AddDivider;
+  if (pmoShowChart in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
+  begin
+    _AddItem(rsGridChartShow, 0, @DoShowChart, not fData.IsVoid);
+    _AddDivider;
+  end;
   if pmoShowFind in fPopupMenuOptions then
     _AddItem(rsGridFind, ShortCut(Ord('F'), [ssCtrl]), @DoFindText, not fData.IsVoid);
   if pmoShowFindNext in fPopupMenuOptions then
@@ -4275,11 +4280,6 @@ begin
   if (pmoShowSelectAll in fPopupMenuOptions) and (toMultiSelect in TreeOptions.SelectionOptions) and
     (not fNodeOptions.ShowChildren) then
     _AddItem(rsGridSelectAll, ShortCut(Ord('A'), [ssCtrl]), @DoSelectAllRows, not fData.IsVoid);
-  if (pmoShowChart in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
-  begin
-    _AddDivider;
-    _AddItem(rsGridChartShow, 0, @DoShowChart, not fData.IsVoid);
-  end;
   if (pmoShowExport in fPopupMenuOptions) and (not fNodeOptions.ShowChildren) then
   begin
     _AddDivider;
