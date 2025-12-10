@@ -137,6 +137,8 @@ end;
 function TButtonItem.GetGlyph: TBitmap;
 begin
   result := Button.Glyph;
+  if not ((Buttons.Images <> nil) or (Button.Images <> nil)) then
+    result := Button.Glyph;
 end;
 
 procedure TButtonItem.SetGlyph(aValue: TBitmap);
@@ -174,7 +176,10 @@ begin
   end
   else
   begin
-    Buttons.Images.GetBitmap(Self.ImageIndex, Self.Glyph);
+    if Self.ImageIndex > -1 then
+      Button.Glyph.Clear;
+    //Buttons.Images.GetBitmap(Self.ImageIndex, Self.Glyph);
+    Buttons.Invalidate;
   end;
 end;
 
@@ -189,6 +194,8 @@ begin
     Exit;
 
   Button.Images := aValue;
+  if ImageIndex > -1 then
+    SetImageIndex(ImageIndex);
 end;
 
 function TButtonItem.GetImageIndex: TImageIndex;
@@ -201,9 +208,18 @@ begin
   if Button.ImageIndex = aValue then
     Exit;
 
+  //if (Buttons.Images <> nil)then
+  //  Button.Images := Buttons.Images;
+
   Button.ImageIndex := aValue;
-  if (Buttons.Images <> nil) and (aValue > -1) then
-    Buttons.Images.GetBitmap(Self.ImageIndex, Self.Glyph);
+  Button.DisabledImageIndex := aValue;
+  Button.HotImageIndex := aValue;
+  Button.PressedImageIndex := aValue;
+  Button.SelectedImageIndex := aValue;
+  if Self.ImageIndex > -1 then
+    Button.Glyph.Clear;
+  //if (Buttons.Images <> nil) and (aValue > -1) then
+  //  Buttons.Images.GetBitmap(Self.ImageIndex, Self.Glyph);
   Button.Invalidate;
 end;
 
@@ -305,9 +321,9 @@ begin
   for v1 := 0 to Count -1 do
   begin
     vButton := TButtonItem(Items[v1]);
-    Setup(vButton);
     vSpeedButton := vButton.Button;
     vSpeedButton.Images := Self.Images;
+    Setup(vButton);
     if vSpeedButton.Visible then
     begin
       inc(vLeftCount, vSpeedButton.Width + cSpace);
