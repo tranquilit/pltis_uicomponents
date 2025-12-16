@@ -198,6 +198,9 @@ type
   end;
 
   /// custom Grid Column implementation
+
+  { TTisGridColumn }
+
   TTisGridColumn = class(TVirtualTreeColumn)
   private
     fAllowChart: Boolean;
@@ -211,6 +214,8 @@ type
     function GetTitle: TCaption;
     procedure SetTitle(const aValue: TCaption);
     procedure SetPropertyName(const aValue: RawUtf8);
+    function GetVisible: Boolean;
+    procedure SetVisible(AValue: Boolean);
   protected const
     DefaultAllowChart = True;
     DefaultAllowFilter = True;
@@ -237,6 +242,7 @@ type
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
     property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
     property Text: TCaption read GetTitle write SetTitle;
+    property Visible: Boolean read GetVisible write SetVisible;
   end;
 
   /// a custom implementation for Grid Columns
@@ -1788,6 +1794,22 @@ begin
   if (Text = '') or (Text = fPropertyName) then
     Text := aValue;
   fPropertyName := aValue;
+end;
+
+function TTisGridColumn.GetVisible: Boolean;
+begin
+  Result := coVisible in Self.Options;
+end;
+
+procedure TTisGridColumn.SetVisible(AValue: Boolean);
+begin
+  if  AValue = (coVisible in Self.Options) then
+    Exit;
+
+  if AValue then
+    Self.Options := Self.Options + [coVisible]
+  else
+    Self.Options := Self.Options - [coVisible];
 end;
 
 constructor TTisGridColumn.Create(aCollection: TCollection);
