@@ -830,6 +830,7 @@ type
     fData: TDocVariantData;
     fNodeOptions: TTisNodeOptions;
     fPopupMenuOptions: TTisPopupMenuOptions;
+    FPopupMenuImageOptions: TTisGridPopupMenuOptions;
     fExportFormatOptions: TTisGridExportFormatOptions;
     fChartOptions: TTisGridChartOptions;
     fFilterOptions: TTisGridFilterOptions;
@@ -856,7 +857,6 @@ type
     fOnBeforeAddingChartSource: TOnGridBeforeAddingChartSource;
     fOnChartTitle: TOnGridChartTitle;
     fOnChartChange: TOnGridChartChange;
-    FPopupMenuImageOptions: TTisGridPopupMenuOptions;
     // ------------------------------- new methods ---------------------------------
     function FocusedPropertyName: string;
     function GetFocusedColumnObject: TTisGridColumn;
@@ -1173,6 +1173,7 @@ type
     /// saving and restoring user customizations
     property Settings: Variant read GetSettings write SetSettings;
   published
+    property PopupMenuImageOptions: TTisGridPopupMenuOptions read FPopupMenuImageOptions write FPopupMenuImageOptions;
     // ------------------------------- inherited properties ------------------------
     property Action;
     property Align;
@@ -1255,7 +1256,6 @@ type
     property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
     property ChartOptions: TTisGridChartOptions read fChartOptions write fChartOptions;
     property FilterOptions: TTisGridFilterOptions read fFilterOptions write fFilterOptions;
-    property PopupMenuImageOptions: TTisGridPopupMenuOptions read FPopupMenuImageOptions write FPopupMenuImageOptions;
     // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumns;
