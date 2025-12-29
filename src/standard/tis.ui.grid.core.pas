@@ -1255,6 +1255,7 @@ type
     property ExportFormatOptions: TTisGridExportFormatOptions read fExportFormatOptions write fExportFormatOptions default DefaultExportFormatOptions;
     property ChartOptions: TTisGridChartOptions read fChartOptions write fChartOptions;
     property FilterOptions: TTisGridFilterOptions read fFilterOptions write fFilterOptions;
+    property PopupMenuImageOptions: TTisGridPopupMenuOptions read FPopupMenuImageOptions write FPopupMenuImageOptions;
     // ------------------------------- inherited events ----------------------------
     property OnAdvancedHeaderDraw;
     property OnAfterAutoFitColumns;
@@ -1418,8 +1419,6 @@ type
     property OnChartTitle: TOnGridChartTitle read fOnChartTitle write fOnChartTitle;
     /// event that will fired if user changes something on the chart
     property OnChartChange: TOnGridChartChange read fOnChartChange write fOnChartChange;
-
-    property PopupMenuImageOptions: TTisGridPopupMenuOptions read FPopupMenuImageOptions write FPopupMenuImageOptions;
   end;
 
 implementation
@@ -3410,10 +3409,7 @@ begin
       begin
         vCol.Position := vObj^.I['position'];
         vCol.Width := vObj^.I['width'];
-        if vObj^.B['visible'] then
-          vCol.Options := vCol.Options + [coVisible]
-        else
-          vCol.Options := vCol.Options - [coVisible];
+        vCol.Visible := vObj^.B['visible'];
         vCol.ChartSettings := vObj^.U['chartsettings'];
       end;
     end;
