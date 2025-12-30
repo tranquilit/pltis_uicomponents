@@ -868,7 +868,6 @@ type
     function GetSettings: Variant;
     procedure SetSettings(const aValue: Variant);
     function GetGridSettings: string;
-    procedure SetGridSettings(const aValue: string);
     procedure SetColumnToFind(aValue: integer);
     procedure SetData(const aValue: TDocVariantData);
     function GetMetaData: RawUtf8;
@@ -1009,6 +1008,8 @@ type
     function GetSelectedRows: TDocVariantData;
     /// select all rows which are matching aValue in Data
     procedure SetSelectedRows(const aValue: TDocVariantData);
+
+    procedure SetGridSettings(const aValue: string);
     // ------------------------------- inherited properties ------------------------
     property RootNodeCount stored False;
     // ------------------------------- new properties ------------------------------
