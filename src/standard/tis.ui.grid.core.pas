@@ -64,6 +64,7 @@ type
   TTisGridPopupMenuOptions = class(TPersistent)
   private
     FGrid: TTisGrid;
+    FImages: TCustomImageList;
     FShowChartImageIndex: TImageIndex;
     FFindTextImageIndex: TImageIndex;
     FFindNextImageIndex: TImageIndex;
@@ -82,6 +83,7 @@ type
     FCustomizeColumnsImageIndex: TImageIndex;
     FAdvancedCustomizeColumnsImageIndex: TImageIndex;
   protected const
+    DefaultImages = nil;
     DefaultShowChartImageIndex = -1;
     DefaultFindTextImageIndex = -1;
     DefaultFindNextImageIndex = -1;
@@ -102,6 +104,7 @@ type
   public
     constructor Create(aGrid: TTisGrid); reintroduce;
   published
+    property Images: TCustomImageList read FImages write FImages default DefaultImages;
     property ShowChartImageIndex: TImageIndex read FShowChartImageIndex write FShowChartImageIndex default DefaultShowChartImageIndex;
     property FindTextImageIndex: TImageIndex read FFindTextImageIndex write FFindTextImageIndex default DefaultFindTextImageIndex;
     property FindNextImageIndex: TImageIndex read FFindNextImageIndex write FFindNextImageIndex default DefaultFindNextImageIndex;
@@ -4328,6 +4331,8 @@ const
 begin
   if not Assigned(PopupMenu) then
     PopupMenu := TPopupMenu.Create(self);
+  if (PopupMenu.Images = nil) and (FPopupMenuImageOptions.Images <> nil) then
+    PopupMenu.Images := FPopupMenuImageOptions.Images;
   // fire the original user event, if it exists, for customize its items
   if Assigned(PopupMenu.OnPopup) then
     PopupMenu.OnPopup(PopupMenu);
@@ -6172,6 +6177,7 @@ constructor TTisGridPopupMenuOptions.Create(aGrid: TTisGrid);
 begin
   FGrid := aGrid;
 
+  FImages := DefaultImages;
   FShowChartImageIndex := DefaultShowChartImageIndex;
   FFindTextImageIndex := DefaultFindTextImageIndex;
   FFindNextImageIndex := DefaultFindNextImageIndex;
