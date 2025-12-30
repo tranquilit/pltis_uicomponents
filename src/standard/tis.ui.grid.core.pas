@@ -305,7 +305,7 @@ type
     property Required: Boolean read fRequired write fRequired default DefaultRequired;
     property ReadOnly: Boolean read fReadOnly write fReadOnly default DefaultReadOnly;
     property Text: TCaption read GetTitle write SetTitle;
-    property Visible: Boolean read GetVisible write SetVisible;
+    property Visible: Boolean read GetVisible write SetVisible stored False;
   end;
 
   /// a custom implementation for Grid Columns
