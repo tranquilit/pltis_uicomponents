@@ -4710,22 +4710,26 @@ var
   vAdapter: TClipboardAdapter;
   vRow: TDocVariantData;
   vStr: RawByteString;
+  S: RawUtf8;
+  vPRow: PDocVariantData;
 begin
   if FocusedColumnObject <> nil then
   begin
     vAdapter.Open;
     try
       vAdapter.Clear;
-      vStr := Text[FocusedNode, FocusedColumnObject.Index];
-      if vStr <> '' then
+      S := '';
+      for vPRow in SelectedRows.Objects do
+        AddToCsv(VariantToUtf8(vPRow^[FocusedColumnObject.PropertyName]), S, CRLF);
+      if not vAdapter.Add(cbkText, S[1], Length(S)+1) then
+        ShowMessage('Unable to set text on Clipboard');
+
+      if not fNodeAdapter.IsChild(FocusedNode) then
       begin
-        vAdapter.Add(cbkText, vStr[1], Length(vStr)+1);
-        if not fNodeAdapter.IsChild(FocusedNode) then
-        begin
-          SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, vRow);
-          vStr := vRow.ToJson;
-          vAdapter.Add(cbkJson, vStr[1], Length(vStr));
-        end;
+        SelectedRows.Reduce(FocusedColumnObject.PropertyName, False, vRow);
+        vStr := vRow.ToJson;
+        if not vAdapter.Add(cbkJson, vStr[1], Length(vStr)) then
+          ShowMessage('Unable to set JSon data on Clipboard');
       end;
     finally
       vAdapter.Close;

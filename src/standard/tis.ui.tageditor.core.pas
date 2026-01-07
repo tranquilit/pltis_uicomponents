@@ -77,13 +77,17 @@ type
 
   TTagItemClass = class of TTagItem;
 
+  { TTags }
+
   TTags = class(TCollection)
   private
     fTagEditor: TTisTagEditor;
     function GetDelimitedText: string;
+    function GetValues: TStringArray;
     procedure SetDelimitedText(const aValue: string);
     function GetTagItem(Index: Integer): TTagItem;
     procedure SetTagItem(Index: Integer; const Value: TTagItem);
+    procedure SetValues(AValue: TStringArray);
   protected
     function GetOwner: TPersistent; override;
   public
@@ -93,6 +97,7 @@ type
     function Add(aContext: TTagContext; const aText: string = ''): TTagItem; overload;
     function Add(const aText: string = ''): TTagItem; overload;
     procedure DeleteAll;
+    property Values: TStringArray read GetValues write SetValues;
     property DelimitedText: string read GetDelimitedText write SetDelimitedText;
     property Items[Index: Integer]: TTagItem read GetTagItem write SetTagItem; default;
     property TagEditor: TTisTagEditor read fTagEditor;
@@ -178,7 +183,7 @@ type
     procedure SetDelimiterChars(const aValue: string);
   protected const
     DefaultForbiddenChars = '= !@|():&%$/\[]<>*+?`¨''';
-    DefaultDelimiterChars = ',;';
+    DefaultDelimiterChars = ',;'+#13+#10+#9;
     DefaultOptions = [ioAllowDragging, ioShowDeleteButton, ioTrimText];
     DefaultMaxTags = 0;
   public
@@ -612,15 +617,26 @@ begin
     result := result + IfThen(result <> '', TagEditor.TagInput.DefaultDelimiter) + Items[i].Text;
 end;
 
+function TTags.GetValues: TStringArray;
+var
+  i: Integer;
+begin
+  SetLength(Result, Count);
+  For i := 0 to Count-1 do
+    Result[i] := Items[i].Text;
+end;
+
 procedure TTags.SetDelimitedText(const aValue: string);
 var
   i: Integer;
   a: TStringArray;
+  o: TStringSplitOptions;
 begin
   Clear;
-  a := aValue.Split(fTagEditor.TagInput.DefaultDelimiterChars.ToCharArray);
+
+  a := aValue.Split(fTagEditor.TagInput.DefaultDelimiterChars.ToCharArray, TStringSplitOptions.ExcludeEmpty);
   for i := low(a) to high(a) do
-    Add(a[i]);
+    Add(Trim(a[i]));
 end;
 
 function TTags.GetTagItem(Index: Integer): TTagItem;
@@ -631,6 +647,20 @@ end;
 procedure TTags.SetTagItem(Index: Integer; const Value: TTagItem);
 begin
   Items[Index].Assign(Value);
+end;
+
+procedure TTags.SetValues(AValue: TStringArray);
+var
+  i: Integer;
+begin
+  BeginUpdate;
+  try
+    Clear;
+    for i := 0 to Length(AValue)-1 do
+      Add(AValue[i]);
+  finally
+    EndUpdate;
+  end;
 end;
 
 function TTags.GetOwner: TPersistent;
