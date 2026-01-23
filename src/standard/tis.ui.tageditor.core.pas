@@ -370,6 +370,7 @@ type
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly default False;
     property Spacing: Integer read fSpacing write SetSpacing default DefaultSpacing;
     property TagComboBox: TTagComboBoxOptions read fTagComboBox write fTagComboBox;
+    property TagComboBoxInstance: TComboBox read fComboBox;
     property TagInput: TTagInput read fTagInput write fTagInput;
     property TagBgColor: TColor read fTagBgColor write SetTagBgColor default clSkyBlue;
     /// use this property to change the default behavior when Enabled is FALSE
