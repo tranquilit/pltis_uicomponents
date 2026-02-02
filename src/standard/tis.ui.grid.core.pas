@@ -899,6 +899,10 @@ type
       const aText: string); override;
     procedure DoGetText(aNode: PVirtualNode; aColumn: TColumnIndex;
       aTextType: TVSTTextType; var aText: string); override;
+    {$ifdef WINDOWS}
+    function DoShortenString(aCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const S: String; aWidth: Integer;
+      aEllipsisWidth: Integer = 0): String; override;
+    {$endif}
     procedure DoInitNode(aParentNode, aNode: PVirtualNode;
       var aInitStates: TVirtualNodeInitStates); override;
     procedure DoFreeNode(aNode: PVirtualNode); override;
@@ -3721,6 +3725,56 @@ begin
   fZebraLightness := aValue;
   Invalidate;
 end;
+
+{$ifdef WINDOWS}
+function ShortenStringFast(DC: HDC; const S: string; Width: Integer; EllipsisWidth: Integer = 0): string;
+var
+  Size: TSize;
+  Fit, Len: Integer;
+  WideStr: UnicodeString;
+  MaxTextWidth: Integer;
+begin
+  WideStr := UTF8Decode(S);
+  Len := Length(WideStr);
+
+  if (Len = 0) or (Width <= 0) then
+    Exit('');
+
+  if EllipsisWidth = 0 then
+  begin
+    GetTextExtentPoint32(DC, '...', 3, Size);
+    EllipsisWidth := Size.cx;
+  end;
+
+  MaxTextWidth := Width - EllipsisWidth;
+  if MaxTextWidth <= 0 then
+    Exit('');
+
+  // Ask GDI how many UTF-16 code units fit in MaxTextWidth
+  Fit := 0;
+  if not GetTextExtentExPointW(DC, PWideChar(WideStr), Len, MaxTextWidth, @Fit, nil, Size) then
+    Fit := 0;
+
+  if Fit <= 0 then
+    Exit('');
+
+  Result := UTF8Encode(Copy(WideStr, 1, Fit) + '...');
+end;
+
+function TTisGrid.DoShortenString(aCanvas: TCanvas; Node: PVirtualNode;
+  Column: TColumnIndex; const S: String; aWidth: Integer;
+  aEllipsisWidth: Integer): String;
+var
+  Done: Boolean;
+begin
+  Result := '';
+  Done := False;
+  if Assigned(OnShortenString) then
+    OnShortenString(Self, aCanvas, Node, Column, S, aWidth, Result, Done);
+  if not Done then
+    Result := ShortenStringFast(aCanvas.Handle, S, aWidth, aEllipsisWidth);
+end;
+{$endif}
 
 procedure TTisGrid.Loaded;
 var
