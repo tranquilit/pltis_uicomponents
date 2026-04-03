@@ -118,7 +118,10 @@ var
 begin
   Canvas.Brush.Style := bsSolid;
   if Parent <> nil then
+  begin
     Canvas.Brush.Color := Parent.Color;
+    Color := Parent.Color;
+  end;
   Canvas.Pen.Style := psClear;
   Canvas.Rectangle(ClientRect);
 
