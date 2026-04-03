@@ -45,7 +45,7 @@ end;"/>
     </CompilerOptions>
     <Description Value="Tranquil IT Components"/>
     <Version Major="1"/>
-    <Files Count="19">
+    <Files Count="20">
       <Item1>
         <Filename Value="..\src\core\tis.core.os.pas"/>
         <UnitName Value="tis.core.os"/>
@@ -123,6 +123,10 @@ end;"/>
         <Filename Value="..\src\standard\tis.ui.grid.chart.pas"/>
         <UnitName Value="tis.ui.grid.chart"/>
       </Item19>
+      <Item20>
+        <Filename Value="..\src\standard\tis.ui.modernpanel.pas"/>
+        <UnitName Value="tis.ui.modernpanel"/>
+      </Item20>
     </Files>
     <CompatibilityMode Value="True"/>
     <i18n>
