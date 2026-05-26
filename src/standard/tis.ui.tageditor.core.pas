@@ -975,7 +975,7 @@ end;
 
 procedure TTisTagEditor.ComboBoxEditingCloseUp(Sender: TObject);
 begin
-  If Assigned(fComboBox) and Assigned(fOnDropDown) then
+  If Assigned(fComboBox) and Assigned(FOnCloseUp) then
     FOnCloseUp(fComboBox);
 end;
 
@@ -1189,8 +1189,11 @@ begin
         exit;
       end;
   end;
-  ShowComboBox;
-  fComboBox.Perform(WM_CHAR, ord(Key), 0);
+  if (key <> #27) and (key <> #9) then
+  begin
+    ShowComboBox;
+    fComboBox.Perform(WM_CHAR, ord(Key), 0);
+  end;
 end;
 
 function TTisTagEditor.GetClickInfoAt(X, Y: Integer): TClickInfo;
